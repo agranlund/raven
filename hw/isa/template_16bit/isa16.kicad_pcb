@@ -192,15 +192,15 @@
     (path "/d5870761-caa8-4f3f-a0c0-a24e5a83168c")
     (fp_text reference "J1" (at 5.845093 -0.6096) (layer "F.SilkS") hide
         (effects (font (size 1.63576 1.63576) (thickness 0.14224)) (justify left bottom))
-      (tstamp 54184c9f-95b2-4edd-a218-19508f64fe1b)
+      (tstamp 2da8fe61-d7ab-4b01-91d6-229b33daf4b7)
     )
     (fp_text value "KEYSTONE_9202" (at 30.5816 -98.9584) (layer "F.Fab")
         (effects (font (size 1.63576 1.63576) (thickness 0.14224)) (justify left bottom))
-      (tstamp bda7b7a2-7ed9-4788-8206-b2b5aa98b701)
+      (tstamp a9a2305e-8311-4dfb-a742-024528c8f0ef)
     )
     (fp_text user "${REFERENCE}" (at 7.115093 -2.3622) (layer "F.Fab")
         (effects (font (size 1 1) (thickness 0.15)))
-      (tstamp fffe0853-ec78-420a-8bff-3f9b0b273d51)
+      (tstamp 0798c089-4c43-4ec6-bbec-8503dab5e0f2)
     )
     (fp_poly
       (pts
@@ -210,7 +210,7 @@
         (xy -73.764107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 09ac5c0f-74e1-4309-830a-fd213568f98c))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 66e1f303-07d7-4483-bcb1-b17456c48aa5))
     (fp_poly
       (pts
         (xy -71.224107 3.048)
@@ -219,7 +219,7 @@
         (xy -71.224107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp e7706098-c37d-41ba-861f-ee505a67ed71))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp a456c95a-0c93-4125-8052-6e39466da09f))
     (fp_poly
       (pts
         (xy -68.684107 3.048)
@@ -228,7 +228,7 @@
         (xy -68.684107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 54f6ef66-49f1-4bd5-bf95-e3d2e27c8d64))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 9950e4fd-3eae-4bc6-9782-37321529ffab))
     (fp_poly
       (pts
         (xy -66.144107 3.048)
@@ -237,7 +237,7 @@
         (xy -66.144107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp c4d935b0-a200-4dfb-8f0f-632dac22df89))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 49ae68a7-53f5-4b30-a5e3-d73850f414b8))
     (fp_poly
       (pts
         (xy -63.604107 3.048)
@@ -246,7 +246,7 @@
         (xy -63.604107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 1d488637-7de0-4c80-bc5a-26616ba210ec))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 9cfb85b7-7601-4123-986b-752dc5a823a3))
     (fp_poly
       (pts
         (xy -61.064107 3.048)
@@ -255,7 +255,7 @@
         (xy -61.064107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp fa309464-a4db-46f2-ad97-bb8b60adc480))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 04aba396-7edc-4e3d-9d8d-64eea41833e1))
     (fp_poly
       (pts
         (xy -58.524107 3.048)
@@ -264,7 +264,7 @@
         (xy -58.524107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp a594f644-ad89-45b2-89b6-fbd57be00f1b))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 54f0058c-d9e1-4dc4-b21d-505a2963de1f))
     (fp_poly
       (pts
         (xy -55.984107 3.048)
@@ -273,7 +273,7 @@
         (xy -55.984107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp ebb9ccdc-345f-478b-87a4-c6b57f2d521b))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 8edbdc1c-3b67-4e65-9651-e91c17dc45ab))
     (fp_poly
       (pts
         (xy -53.444107 3.048)
@@ -282,7 +282,7 @@
         (xy -53.444107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 928663bb-6d21-4f81-bec3-cfed89e9a558))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 12b635df-7ee0-420e-b421-8cde2843aaaa))
     (fp_poly
       (pts
         (xy -50.904107 3.048)
@@ -291,7 +291,7 @@
         (xy -50.904107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 35238f18-2f0a-4c58-bdac-a8295568ade9))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp fe48f1dd-31e1-45c4-bb9d-f458ab334eb8))
     (fp_poly
       (pts
         (xy -48.364107 3.048)
@@ -300,7 +300,7 @@
         (xy -48.364107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp c2e29ef2-0bf1-40cd-bec6-6474d6ac84c5))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp fd1b0ab9-574c-498f-945e-9dc263a5d596))
     (fp_poly
       (pts
         (xy -45.824107 3.048)
@@ -309,7 +309,7 @@
         (xy -45.824107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 5248e73b-05c5-46cf-852d-712800f8c1cc))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp e32356d8-ba04-4c9d-93f8-7bb113f8d991))
     (fp_poly
       (pts
         (xy -43.284107 3.048)
@@ -318,7 +318,7 @@
         (xy -43.284107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 11d9607f-6efd-4916-a579-448112d155d0))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp c4334560-733a-4c76-a9ec-e867eff99ec0))
     (fp_poly
       (pts
         (xy -40.744107 3.048)
@@ -327,7 +327,7 @@
         (xy -40.744107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 0d777a97-81b3-4a84-a132-7f0e39c36c26))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp be04f996-8996-4c20-bda4-ed4173f72d2c))
     (fp_poly
       (pts
         (xy -38.204107 3.048)
@@ -336,7 +336,7 @@
         (xy -38.204107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp f5412c24-186f-46f6-9946-b6f65bd33f92))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp ea4e2aeb-5874-4696-8dd5-764ff40af0fd))
     (fp_poly
       (pts
         (xy -35.664107 3.048)
@@ -345,7 +345,7 @@
         (xy -35.664107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 342d7f5a-28e8-47bf-993e-30ba40d67244))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp a25fd713-51cd-4e6b-a728-6a3a4b08c819))
     (fp_poly
       (pts
         (xy -33.124107 3.048)
@@ -354,7 +354,7 @@
         (xy -33.124107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 89239b8f-b3b0-47d9-92c0-364552db54a5))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp c2b1a896-b614-4f8a-ba03-3cc15303d695))
     (fp_poly
       (pts
         (xy -30.584107 3.048)
@@ -363,7 +363,7 @@
         (xy -30.584107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 3ca8adaa-cb34-40f6-a73a-209871fb47a3))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp d44b20f6-4800-4f5b-a142-12cda6919c14))
     (fp_poly
       (pts
         (xy -28.044107 3.048)
@@ -372,7 +372,7 @@
         (xy -28.044107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 613078f8-1400-440a-872c-c31e87803a7f))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 61816ee0-924d-4cf1-952b-51c9757eadc7))
     (fp_poly
       (pts
         (xy -25.504107 3.048)
@@ -381,7 +381,7 @@
         (xy -25.504107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp edc1f4dd-f9f5-40ce-8b09-4829a54162e9))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 839b0a23-6b66-42b3-b282-f2755a1ec8c1))
     (fp_poly
       (pts
         (xy -22.964107 3.048)
@@ -390,7 +390,7 @@
         (xy -22.964107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 3b2f7a8b-6332-4e97-b077-f2c7559dd286))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 0426c0e0-5362-433e-ad97-3ffd492b0414))
     (fp_poly
       (pts
         (xy -20.424107 3.048)
@@ -399,7 +399,7 @@
         (xy -20.424107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp ca29a59a-008a-423b-9464-b3a882155de1))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp cf840698-0468-42ef-8132-9e8c6ead9fe8))
     (fp_poly
       (pts
         (xy -17.884107 3.048)
@@ -408,7 +408,7 @@
         (xy -17.884107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 4710cfcc-dd63-42aa-ac13-ad8ef2c07988))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 3b328dbc-6f2e-47e0-8ea7-656f8e51012d))
     (fp_poly
       (pts
         (xy -15.344107 3.048)
@@ -417,7 +417,7 @@
         (xy -15.344107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 7fca60e0-0467-4f90-8325-a9f09fff1829))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 35119a3f-bc91-4f41-a924-68f99376bc95))
     (fp_poly
       (pts
         (xy -12.804107 3.048)
@@ -426,7 +426,7 @@
         (xy -12.804107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 0e491183-b1e4-4e7b-9767-3d7b3038a9bf))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp a6faef6c-442d-4c06-be49-cd9b67788e2f))
     (fp_poly
       (pts
         (xy -10.264107 3.048)
@@ -435,7 +435,7 @@
         (xy -10.264107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp e01cb779-0eb0-4ced-b1ae-a7bf6b6b53a5))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 08f6d9cd-1b8f-4ca9-a121-fb35c5e65a39))
     (fp_poly
       (pts
         (xy -7.724107 3.048)
@@ -444,7 +444,7 @@
         (xy -7.724107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 3663ccbc-24b7-4032-8584-5b910c4ce5d1))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 3f423c87-861c-43b5-9b4d-88974cf3b358))
     (fp_poly
       (pts
         (xy -5.184107 3.048)
@@ -453,7 +453,7 @@
         (xy -5.184107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp cdea90f6-e110-4dfb-a716-e65c604e5f9b))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp e7e61453-b3fd-45be-a762-044dbbda825c))
     (fp_poly
       (pts
         (xy -2.644107 3.048)
@@ -462,7 +462,7 @@
         (xy -2.644107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 2390fed8-8861-407f-91f2-4d08480e8fb1))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 4b63dae1-9470-45cb-b183-cc2623217907))
     (fp_poly
       (pts
         (xy -0.104107 3.048)
@@ -471,7 +471,7 @@
         (xy -0.104107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp b1ed5412-afef-490d-a68f-9a5a4969170a))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp c4ce5414-954c-4de1-b20e-f4f3a3ad113f))
     (fp_poly
       (pts
         (xy 2.435893 3.048)
@@ -480,7 +480,7 @@
         (xy 2.435893 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp fdc00a11-4f08-42a8-b6d2-2c86711dbce4))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp f2fef8fb-97c8-4a16-97fe-ba148353e8be))
     (fp_poly
       (pts
         (xy -128.9558 3.81)
@@ -491,7 +491,7 @@
         (xy -128.9558 -3.6322)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp d72a4674-4a30-4f64-bbfe-fb987b652d11))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp f65a6bd4-7d20-4eb0-a76b-d0a161375933))
     (fp_poly
       (pts
         (xy 5.650293 3.689126)
@@ -502,7 +502,7 @@
         (xy 5.650293 -3.6264)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp b1eb3547-e20e-46a2-bda1-bb5d50d12602))
+      (stroke (width 0) (type default)) (fill solid) (layer "B.Mask") (tstamp 54b4f1ee-3df5-4415-8feb-654747435d54))
     (fp_poly
       (pts
         (xy -73.764107 3.048)
@@ -511,7 +511,7 @@
         (xy -73.764107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp b2104624-04d1-47fd-9163-bb73222dae12))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 395a0331-ae7e-42b9-870a-5cf703dc6b40))
     (fp_poly
       (pts
         (xy -71.224107 3.048)
@@ -520,7 +520,7 @@
         (xy -71.224107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 97c97584-dd64-4c25-a39d-cd241a5fcd4e))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp c0af3c30-87eb-413e-b9b8-04acff8d93cc))
     (fp_poly
       (pts
         (xy -68.684107 3.048)
@@ -529,7 +529,7 @@
         (xy -68.684107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 9b0dafb5-a173-42f2-b70c-799263a9d6e1))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 8c4324ee-f339-44cf-8d89-cac646cf5121))
     (fp_poly
       (pts
         (xy -66.144107 3.048)
@@ -538,7 +538,7 @@
         (xy -66.144107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 42b63ec7-2752-4baf-a6fc-778273afd41e))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp d94c7e78-6b3e-481f-87cc-6954fe0d6d71))
     (fp_poly
       (pts
         (xy -63.604107 3.048)
@@ -547,7 +547,7 @@
         (xy -63.604107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp aecf74bf-2818-4e22-825a-50769318d022))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp aaca2f73-12c5-4278-bd53-e28fb980d3df))
     (fp_poly
       (pts
         (xy -61.064107 3.048)
@@ -556,7 +556,7 @@
         (xy -61.064107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 310199b6-a607-4af7-84b0-79f34806c5cf))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 6a73655c-2900-44d7-9ea5-d45ca4155efc))
     (fp_poly
       (pts
         (xy -58.524107 3.048)
@@ -565,7 +565,7 @@
         (xy -58.524107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp d5380032-b4af-4430-96b8-e24c7a3593e1))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 9a8c84f0-0fcd-4b77-8136-438b4ae79c1c))
     (fp_poly
       (pts
         (xy -55.984107 3.048)
@@ -574,7 +574,7 @@
         (xy -55.984107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp efebe4c8-e77a-4ef2-9831-249bab712a34))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 90f298c6-6743-4338-9a26-7e55afdecbcb))
     (fp_poly
       (pts
         (xy -53.444107 3.048)
@@ -583,7 +583,7 @@
         (xy -53.444107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 9f617073-b9e4-4bd7-a47c-6bf9c12508b4))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 3dfef585-aa7a-4117-9b7a-61ce174e7bf1))
     (fp_poly
       (pts
         (xy -50.904107 3.048)
@@ -592,7 +592,7 @@
         (xy -50.904107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp fdc54a3f-ce5b-498f-b886-f6c54ce12172))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 388300ec-65eb-4744-b887-feb504fcec84))
     (fp_poly
       (pts
         (xy -48.364107 3.048)
@@ -601,7 +601,7 @@
         (xy -48.364107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 54528c57-fee8-4b19-beaf-b78b781657b1))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 7bc72f0c-f39a-428c-98b3-4d0724d55ee0))
     (fp_poly
       (pts
         (xy -45.824107 3.048)
@@ -610,7 +610,7 @@
         (xy -45.824107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 62a25971-423e-4950-8bb7-21fb19e22dee))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 3d302d0a-5d46-40e2-8e2f-4b7fba98c5b4))
     (fp_poly
       (pts
         (xy -43.284107 3.048)
@@ -619,7 +619,7 @@
         (xy -43.284107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 75af8da7-c57b-4c4a-9d0e-2d626da3e5d7))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 28ea3989-082b-45eb-84dd-98a642c72acd))
     (fp_poly
       (pts
         (xy -40.744107 3.048)
@@ -628,7 +628,7 @@
         (xy -40.744107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 9583ce6e-d7f2-49cf-8467-91f77817c5c2))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 1fb2bdeb-3cab-45aa-910c-bca5dfec30f4))
     (fp_poly
       (pts
         (xy -38.204107 3.048)
@@ -637,7 +637,7 @@
         (xy -38.204107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp a7dc929b-5d32-474c-a9e6-419fdbeb221c))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 9948e34f-3db6-493e-8eb1-ad3cbfc55beb))
     (fp_poly
       (pts
         (xy -35.664107 3.048)
@@ -646,7 +646,7 @@
         (xy -35.664107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp da2080b3-5bbc-43b9-98af-e4b9b4743fc2))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 170ea690-bba0-4d48-bff5-7c64464bdaa8))
     (fp_poly
       (pts
         (xy -33.124107 3.048)
@@ -655,7 +655,7 @@
         (xy -33.124107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp c6709082-37d5-41ea-ac6c-c1ded3494277))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 9440f555-719b-4450-9dc6-6139dd9b34e6))
     (fp_poly
       (pts
         (xy -30.584107 3.048)
@@ -664,7 +664,7 @@
         (xy -30.584107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp b3e9afa6-238e-4725-a315-581ce11f86c2))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 4a7fe8f9-1472-4eed-8e4b-e51179f5a9d4))
     (fp_poly
       (pts
         (xy -28.044107 3.048)
@@ -673,7 +673,7 @@
         (xy -28.044107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 2edbd173-51af-473c-852b-6c01e9ab6309))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp a18b2435-3ea9-4c36-90ef-1c8155631e54))
     (fp_poly
       (pts
         (xy -25.504107 3.048)
@@ -682,7 +682,7 @@
         (xy -25.504107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 29ccf8a9-719a-495e-b508-0fc93cf45822))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 3e4d3162-9d59-413f-9733-91dc7ddc671f))
     (fp_poly
       (pts
         (xy -22.964107 3.048)
@@ -691,7 +691,7 @@
         (xy -22.964107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp fc90949c-9252-41a6-a1eb-d570974352a0))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp dedb2022-b1d4-4bc4-baa0-f98c4ca1eff8))
     (fp_poly
       (pts
         (xy -20.424107 3.048)
@@ -700,7 +700,7 @@
         (xy -20.424107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 3ca28878-59b0-45d9-8b25-f312682e475f))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp c4f56e6a-2358-4670-b308-5100f7cb8898))
     (fp_poly
       (pts
         (xy -17.884107 3.048)
@@ -709,7 +709,7 @@
         (xy -17.884107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 6e798a9b-bfb8-4367-a782-ca094ec89c4b))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 1025102e-d746-4fcc-b100-a42dc5ac0962))
     (fp_poly
       (pts
         (xy -15.344107 3.048)
@@ -718,7 +718,7 @@
         (xy -15.344107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 0e595f85-a743-42ad-89a2-e58f2738c0c7))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp ff13c8c1-9c3b-455a-ac51-9c66a3bdb57a))
     (fp_poly
       (pts
         (xy -12.804107 3.048)
@@ -727,7 +727,7 @@
         (xy -12.804107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 95436e0e-097b-4dd8-9cc2-b834c8b12fd9))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp e1d39a44-1cd3-4542-b5d1-4689fb75acfb))
     (fp_poly
       (pts
         (xy -10.264107 3.048)
@@ -736,7 +736,7 @@
         (xy -10.264107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp a97d7ddc-6449-42e9-a50d-537425a4dc10))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 4068bf49-696d-40e1-b771-44436cda1467))
     (fp_poly
       (pts
         (xy -7.724107 3.048)
@@ -745,7 +745,7 @@
         (xy -7.724107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 8e0172d4-2a6d-47fa-8602-815b12ab315d))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 7ab772cd-1c73-4345-b2c7-744479c6f6ed))
     (fp_poly
       (pts
         (xy -5.184107 3.048)
@@ -754,7 +754,7 @@
         (xy -5.184107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp cf00cf5d-d9f3-47d4-b5e4-db5a5377f35e))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 8ed33d70-716f-49e4-a2a9-fd46282a9c35))
     (fp_poly
       (pts
         (xy -2.644107 3.048)
@@ -763,7 +763,7 @@
         (xy -2.644107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 2505614c-1f46-49b6-b293-477ad7ee4081))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp edee30db-265a-4b0b-bd8d-648a85340ebe))
     (fp_poly
       (pts
         (xy -0.104107 3.048)
@@ -772,7 +772,7 @@
         (xy -0.104107 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 1cbfe5a8-7dd1-439a-904c-37e2b656544d))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 84bb401e-1d4a-4792-8dcb-5343bf27e687))
     (fp_poly
       (pts
         (xy 2.435893 3.048)
@@ -781,7 +781,7 @@
         (xy 2.435893 -3.556)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp db4df176-9bca-45d5-a94c-c5388188cbf0))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 765d8f9d-a705-4b59-af06-3b8dfbca4252))
     (fp_poly
       (pts
         (xy -128.9558 3.81)
@@ -792,7 +792,7 @@
         (xy -128.9558 -3.6322)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 019392ef-07d3-4e06-945b-ab8408c5b78d))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp a15b2680-7ba9-4073-8a28-e5dde969afc8))
     (fp_poly
       (pts
         (xy 5.650293 3.689126)
@@ -803,271 +803,271 @@
         (xy 5.650293 -3.6264)
       )
 
-      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp fa42643b-ed6c-4591-a920-b2cef277cfcd))
+      (stroke (width 0) (type default)) (fill solid) (layer "F.Mask") (tstamp 47e27b94-734c-4f93-9d51-912179ef4a87))
     (fp_line (start -128.866107 -2.556) (end -128.866107 3.556)
-      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp 4a15a3f3-0efe-4871-8af2-e4b174328890))
+      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp 3a858054-b0dd-4157-8033-669056c21638))
     (fp_line (start -128.104107 4.318) (end -81.787998 4.318)
-      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp 8fbf870e-4176-462f-970d-26bace34c96f))
+      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp 88ceef50-0747-479e-ae57-5ccad690c4fd))
     (fp_line (start -80.772 -2.556) (end -80.772 3.302)
-      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp 6a4d14a2-9274-4a46-b4b6-e13e114ed768))
+      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp ffee9130-ba4f-47e4-bc20-61f19a4bcc11))
     (fp_line (start -76.415107 -3.556) (end -79.755999 -3.556128)
-      (stroke (width 0.2032) (type default)) (layer "Cmts.User") (tstamp 3752463d-b0c0-452e-8719-fcf22fc969ae))
+      (stroke (width 0.2032) (type default)) (layer "Cmts.User") (tstamp 73162b34-6154-4ade-805f-f1cf9a3bea58))
     (fp_line (start -75.4126 -2.556) (end -75.4126 3.302)
-      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp 73ce9273-b075-4323-8e37-75169fcbb590))
+      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp 161db502-f245-42e4-b0c2-c4b02d1bf2f8))
     (fp_line (start 4.5974 4.318) (end -74.3966 4.318)
-      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp dac9c326-d53a-4b32-82e0-950cfd7ba411))
+      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp 1ddd3f1f-3fb0-4e9b-b05b-74f8e0664531))
     (fp_line (start 5.610893 -2.556) (end 5.6134 3.302)
-      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp 66878c18-e15a-4a26-9a39-885fbb3e83e3))
+      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp d2dfb8bb-33ba-4d8e-959f-29f7c8488bbe))
     (fp_line (start 19.697893 -61.974) (end 19.697893 -66.074)
-      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp 5effda6e-2afa-4b2e-955e-2d46c9d7c2b6))
+      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp 25a95575-4d93-4027-94c4-dbdcfd5946a5))
     (fp_line (start 19.697893 -5.474) (end 19.697893 -9.574)
-      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp 8bb3b3ae-d7b3-41c5-af68-c56329b2e6bc))
+      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp 41a51c2a-4748-49d0-9f3e-8870080fd287))
     (fp_line (start 20.697893 -67.074) (end 30.097893 -67.074)
-      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp b9b80b47-d97a-48c9-a3bd-a10f8f85416c))
+      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp 2a3b2387-8ddd-42e1-957b-671e3b28918b))
     (fp_line (start 20.697893 -10.574) (end 30.097893 -10.574)
-      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp 050a0c76-12e8-4b05-b3aa-03f5c8b1fc21))
+      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp 5c4ca480-4533-416a-bc29-918bfa3cd4c2))
     (fp_line (start 28.443893 -3.556) (end 6.610893 -3.556)
-      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp f9241d17-7101-4384-9960-18f38a075047))
+      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp 2ec1999a-981b-4d2d-84da-b91b4e565f15))
     (fp_line (start 28.470893 -5.174) (end 28.470893 -3.587)
-      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp caacdb2c-15b4-4bc0-bab8-065d4fdea70b))
+      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp cdf109cc-013d-40ae-bbda-98cee16528d4))
     (fp_line (start 29.997893 -60.974) (end 20.697893 -60.974)
-      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp 10749c9c-239b-4686-b695-193eb98e2ee0))
+      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp a1e62706-d671-406d-b903-d454e674eb8a))
     (fp_line (start 30.097893 -97.0788) (end 42.097893 -97.0788)
-      (stroke (width 1) (type solid)) (layer "Cmts.User") (tstamp 3ef38d98-34e4-4a36-b5d2-dee4b2382fba))
+      (stroke (width 1) (type solid)) (layer "Cmts.User") (tstamp 19969b95-c6be-4afb-b74e-a822f84323c0))
     (fp_line (start 30.097893 -67.074) (end 30.097893 -97.0788)
-      (stroke (width 1) (type solid)) (layer "Cmts.User") (tstamp 0eb01afd-251b-4c1b-ab39-b112b493f6f3))
+      (stroke (width 1) (type solid)) (layer "Cmts.User") (tstamp f99cebf7-1291-4e9a-9dc7-0fcf90bc37ec))
     (fp_line (start 30.097893 -10.574) (end 30.097893 -67.074)
-      (stroke (width 1) (type solid)) (layer "Cmts.User") (tstamp 05defe8b-0ead-47a8-8d65-475903014ed1))
+      (stroke (width 1) (type solid)) (layer "Cmts.User") (tstamp c64f7e85-183f-4c56-8155-a895998b487f))
     (fp_line (start 30.097893 -4.474) (end 20.697893 -4.474)
-      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp 7bee9452-4102-4c47-b2aa-dd6bbd0ec844))
+      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp 20ba8c5e-f6ed-4fbe-985c-79a79e386acb))
     (fp_line (start 30.097893 -4.474) (end 30.097893 -10.574)
-      (stroke (width 1) (type solid)) (layer "Cmts.User") (tstamp 423076ee-6c0a-450e-bd2a-bb7691dfbef5))
+      (stroke (width 1) (type solid)) (layer "Cmts.User") (tstamp 67ca6c36-bebb-43f8-99fe-76111c5ef2eb))
     (fp_line (start 30.097893 23.7744) (end 30.097893 -4.474)
-      (stroke (width 1) (type solid)) (layer "Cmts.User") (tstamp 123abb28-cc40-40bb-ae18-d21171804f30))
+      (stroke (width 1) (type solid)) (layer "Cmts.User") (tstamp d3f10b02-517b-4e9f-a0ae-8f71e2a4f3be))
     (fp_arc (start -129.866107 -3.556) (mid -129.159 -3.263107) (end -128.866107 -2.556)
-      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp 45443d78-aa91-4686-ad88-a50872d1c703))
+      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp 704e306d-70d5-49b1-ad33-ca8029a7271a))
     (fp_arc (start -128.104107 4.318) (mid -128.642922 4.094815) (end -128.866107 3.556)
-      (stroke (width 0.2032) (type default)) (layer "Cmts.User") (tstamp 6ecd3480-2438-4371-aa1b-9b623e406b16))
+      (stroke (width 0.2032) (type default)) (layer "Cmts.User") (tstamp 16d8a22d-2ca1-42a5-8581-86c77c9565ea))
     (fp_arc (start -80.771998 3.302) (mid -81.069578 4.02042) (end -81.787998 4.318)
-      (stroke (width 0.2032) (type default)) (layer "Cmts.User") (tstamp 9a1759e6-87d3-49ae-ba81-4a5a4e7d147c))
+      (stroke (width 0.2032) (type default)) (layer "Cmts.User") (tstamp fe819947-d065-4c3e-8456-14471c63c62d))
     (fp_arc (start -80.755999 -2.54) (mid -80.468831 -3.257518) (end -79.755999 -3.556128)
-      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp 583f1db2-654f-4294-88e4-57e54604796a))
+      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp 6dc74d8e-0b1a-4443-a823-0ed989206a8e))
     (fp_arc (start -76.415107 -3.556) (mid -75.708 -3.263107) (end -75.415107 -2.556)
-      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp a39d968b-fdb5-4d7c-94d7-47fc0d65c677))
+      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp 233c50a5-df1f-41d5-b386-a65a1125d858))
     (fp_arc (start -74.3966 4.318) (mid -75.11502 4.02042) (end -75.4126 3.302)
-      (stroke (width 0.2032) (type default)) (layer "Cmts.User") (tstamp 27a327be-e42e-4750-b495-232cb8ef3c00))
+      (stroke (width 0.2032) (type default)) (layer "Cmts.User") (tstamp b1b3f93e-7373-479e-9a60-a6390b054112))
     (fp_arc (start 5.610893 -2.556) (mid 5.903786 -3.263107) (end 6.610893 -3.556)
-      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp 8decfeb3-355d-454d-a887-cf9d15bbb177))
+      (stroke (width 0.2032) (type solid)) (layer "Cmts.User") (tstamp c3c4211d-3b04-43d9-921b-d124b01c0630))
     (fp_arc (start 5.6134 3.302) (mid 5.31582 4.02042) (end 4.5974 4.318)
-      (stroke (width 0.2032) (type default)) (layer "Cmts.User") (tstamp b9d0a750-319e-4779-bcf1-1061e483e7ea))
+      (stroke (width 0.2032) (type default)) (layer "Cmts.User") (tstamp 3efda0b5-8aba-49f4-98fe-d483d1cf6b56))
     (fp_arc (start 19.697893 -66.074) (mid 19.990786 -66.781107) (end 20.697893 -67.074)
-      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp d5b29552-7519-4b20-98f7-6f15a0cdd6e4))
+      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp 7ff56c87-61ce-4b6b-893b-3528d6c6c1f0))
     (fp_arc (start 19.697893 -9.574) (mid 19.990786 -10.281107) (end 20.697893 -10.574)
-      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp 98800761-4d6a-4c94-a2ed-328ffe301eef))
+      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp c6e0fcd1-484d-40e7-b2cf-34fba654d185))
     (fp_arc (start 20.697893 -60.974) (mid 19.990786 -61.266893) (end 19.697893 -61.974)
-      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp 1ecc5951-a1b9-4f77-ae85-3ac84784e190))
+      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp 7bca0822-6a7a-4a2d-8d98-6f246cd7877b))
     (fp_arc (start 20.697893 -4.474) (mid 19.990786 -4.766893) (end 19.697893 -5.474)
-      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp df749f69-ec81-4dcb-9947-77dacfa0c1ca))
+      (stroke (width 0.127) (type solid)) (layer "Cmts.User") (tstamp f9c949b0-512c-4b3e-8933-40c104a44ea7))
     (pad "1" connect rect (at 3.197893 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 1 "unconnected-(J1-GND-Pad1)") (pinfunction "GND") (pintype "power_out") (tstamp f40274d0-6980-410b-9d05-6f5ba8a85202))
+      (net 1 "unconnected-(J1-GND-Pad1)") (pinfunction "GND") (pintype "power_out") (tstamp fb4f1c99-40e1-441a-99f6-bac66d016565))
     (pad "2" connect rect (at 0.657893 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 2 "unconnected-(J1-RESET-Pad2)") (pinfunction "RESET") (pintype "output") (tstamp d18baf65-18ca-4153-9d84-623b23c566cd))
+      (net 2 "unconnected-(J1-RESET-Pad2)") (pinfunction "RESET") (pintype "output") (tstamp 5418d6d2-32f4-4e10-91d5-941965119266))
     (pad "3" connect rect (at -1.882107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 3 "unconnected-(J1-+5V-Pad3)") (pinfunction "+5V") (pintype "power_out") (tstamp f3f281dd-4a4e-4929-960a-aa3da0444bd1))
+      (net 3 "unconnected-(J1-+5V-Pad3)") (pinfunction "+5V") (pintype "power_out") (tstamp 8b3a8cbe-caac-4fd3-a806-0c276c5d7b4b))
     (pad "4" connect rect (at -4.422107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 4 "unconnected-(J1-IRQ2-Pad4)") (pinfunction "IRQ2") (pintype "open_collector") (tstamp 18ff8397-4b26-4fdd-ab51-e4a35c34bb43))
+      (net 4 "unconnected-(J1-IRQ2-Pad4)") (pinfunction "IRQ2") (pintype "open_collector") (tstamp 116d3f6a-4e5d-4834-bf67-4532f938a499))
     (pad "5" connect rect (at -6.962107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 5 "unconnected-(J1--5V-Pad5)") (pinfunction "-5V") (pintype "power_out") (tstamp 85f6fe41-59a5-441a-b114-25a63590ea41))
+      (net 5 "unconnected-(J1--5V-Pad5)") (pinfunction "-5V") (pintype "power_out") (tstamp 7aceeef3-b4cc-4bc9-b16b-180d816b648c))
     (pad "6" connect rect (at -9.502107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 6 "unconnected-(J1-DRQ2-Pad6)") (pinfunction "DRQ2") (pintype "open_collector") (tstamp 77ff2d73-f61a-44e2-a0ba-905d17b1d2b8))
+      (net 6 "unconnected-(J1-DRQ2-Pad6)") (pinfunction "DRQ2") (pintype "open_collector") (tstamp 32a43986-a3a8-4856-aed6-684180d209f6))
     (pad "7" connect rect (at -12.042107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 7 "unconnected-(J1--12V-Pad7)") (pinfunction "-12V") (pintype "power_out") (tstamp 30f45cb6-3c3f-46ee-9a82-6e44f4b7b659))
+      (net 7 "unconnected-(J1--12V-Pad7)") (pinfunction "-12V") (pintype "power_out") (tstamp e5d50114-3bf9-4a49-8347-60fd0ab96639))
     (pad "8" connect rect (at -14.582107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 8 "unconnected-(J1-UNUSED-Pad8)") (pinfunction "UNUSED") (pintype "no_connect") (tstamp 7bcc66e5-29d5-4684-9a5e-156a85ed3cd2))
+      (net 8 "unconnected-(J1-UNUSED-Pad8)") (pinfunction "UNUSED") (pintype "no_connect") (tstamp aae3b607-e60d-4f06-87a1-5be6eb612198))
     (pad "9" connect rect (at -17.122107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 9 "unconnected-(J1-+12V-Pad9)") (pinfunction "+12V") (pintype "power_out") (tstamp d46f8b50-ba5f-48d7-b5d7-d3912d3bb14d))
+      (net 9 "unconnected-(J1-+12V-Pad9)") (pinfunction "+12V") (pintype "power_out") (tstamp c841f66f-b201-479f-b7fc-4f538100b369))
     (pad "10" connect rect (at -19.662107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 10 "unconnected-(J1-GND-Pad10)") (pinfunction "GND") (pintype "power_out") (tstamp c0d417a0-bf95-4ffe-9443-e299b2f36204))
+      (net 10 "unconnected-(J1-GND-Pad10)") (pinfunction "GND") (pintype "power_out") (tstamp bac37e52-9db0-4f02-a470-6d342d605681))
     (pad "11" connect rect (at -22.202107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 11 "unconnected-(J1-SMEMW-Pad11)") (pinfunction "SMEMW") (pintype "output") (tstamp d21c32ae-dc25-4e99-b4ba-1221bd6adb4d))
+      (net 11 "unconnected-(J1-SMEMW-Pad11)") (pinfunction "SMEMW") (pintype "output") (tstamp 4533f97b-5845-489c-b5ed-0c2cc1c0d86c))
     (pad "12" connect rect (at -24.742107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 12 "unconnected-(J1-SMEMR-Pad12)") (pinfunction "SMEMR") (pintype "output") (tstamp 5dbb8523-6898-4f88-b9b7-11b94c755b97))
+      (net 12 "unconnected-(J1-SMEMR-Pad12)") (pinfunction "SMEMR") (pintype "output") (tstamp 65fadbc6-38ca-4fac-9061-b471594a2776))
     (pad "13" connect rect (at -27.282107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 13 "unconnected-(J1-IOW-Pad13)") (pinfunction "IOW") (pintype "output") (tstamp 3363188d-e138-4a57-97da-635683b40a0b))
+      (net 13 "unconnected-(J1-IOW-Pad13)") (pinfunction "IOW") (pintype "output") (tstamp e64cb2d2-f540-4783-bd0a-1796a1a4f913))
     (pad "14" connect rect (at -29.822107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 14 "unconnected-(J1-IOR-Pad14)") (pinfunction "IOR") (pintype "output") (tstamp 45e2ae89-96e4-4c2b-b3fa-cd554ce29b74))
+      (net 14 "unconnected-(J1-IOR-Pad14)") (pinfunction "IOR") (pintype "output") (tstamp e8c9623f-888f-45dd-a644-a0a6fafae1e9))
     (pad "15" connect rect (at -32.362107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 15 "unconnected-(J1-DACK3-Pad15)") (pinfunction "DACK3") (pintype "output") (tstamp cc231430-3cf7-451b-a6a7-b8261d588d8f))
+      (net 15 "unconnected-(J1-DACK3-Pad15)") (pinfunction "DACK3") (pintype "output") (tstamp 4dab9de2-7a55-4616-ace4-9a0913c7ebf3))
     (pad "16" connect rect (at -34.902107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 16 "unconnected-(J1-DRQ3-Pad16)") (pinfunction "DRQ3") (pintype "open_collector") (tstamp 5d1a4562-58f0-4bee-8c7e-6998284f64b7))
+      (net 16 "unconnected-(J1-DRQ3-Pad16)") (pinfunction "DRQ3") (pintype "open_collector") (tstamp 22c6c571-74e7-448c-9cfa-b3484b35a92a))
     (pad "17" connect rect (at -37.442107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 17 "unconnected-(J1-DACK1-Pad17)") (pinfunction "DACK1") (pintype "output") (tstamp 0a3e4be2-3073-4997-933a-bb40c7c8824e))
+      (net 17 "unconnected-(J1-DACK1-Pad17)") (pinfunction "DACK1") (pintype "output") (tstamp 146f977d-2fa8-4177-a296-6c3a283688dd))
     (pad "18" connect rect (at -39.982107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 18 "unconnected-(J1-DRQ1-Pad18)") (pinfunction "DRQ1") (pintype "open_collector") (tstamp b1063cd7-db14-4e86-9e70-21d987ff72b9))
+      (net 18 "unconnected-(J1-DRQ1-Pad18)") (pinfunction "DRQ1") (pintype "open_collector") (tstamp 58ae56bc-63b7-414d-9178-cb5b8a965239))
     (pad "19" connect rect (at -42.522107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 19 "unconnected-(J1-REFRESH-Pad19)") (pinfunction "REFRESH") (pintype "output") (tstamp 742a745a-fb97-43eb-a5e4-a3b2cf35bcd1))
+      (net 19 "unconnected-(J1-REFRESH-Pad19)") (pinfunction "REFRESH") (pintype "output") (tstamp 33bf92e0-12ea-453d-a4f0-f5af7188a807))
     (pad "20" connect rect (at -45.062107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 20 "unconnected-(J1-CLK-Pad20)") (pinfunction "CLK") (pintype "output") (tstamp 4e4807c2-6b23-408b-b025-67a562cf7bc8))
+      (net 20 "unconnected-(J1-CLK-Pad20)") (pinfunction "CLK") (pintype "output") (tstamp fdac3fca-78ac-4b9e-9907-c2b7682141d6))
     (pad "21" connect rect (at -47.602107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 21 "unconnected-(J1-IRQ7-Pad21)") (pinfunction "IRQ7") (pintype "open_collector") (tstamp 4cbb0456-d781-4d51-8d55-3d6644cb042b))
+      (net 21 "unconnected-(J1-IRQ7-Pad21)") (pinfunction "IRQ7") (pintype "open_collector") (tstamp 2ce8c89a-f63f-4b25-bb6a-2fae8ccfa6e8))
     (pad "22" connect rect (at -50.142107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 22 "unconnected-(J1-IRQ6-Pad22)") (pinfunction "IRQ6") (pintype "open_collector") (tstamp 6b51d429-26a2-4c47-a1c2-c054b6d5a91e))
+      (net 22 "unconnected-(J1-IRQ6-Pad22)") (pinfunction "IRQ6") (pintype "open_collector") (tstamp 628079a5-218d-462a-aa1e-1aacba5e211f))
     (pad "23" connect rect (at -52.682107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 23 "unconnected-(J1-IRQ5-Pad23)") (pinfunction "IRQ5") (pintype "open_collector") (tstamp af2a2b42-3ad1-4c5b-859c-d10cfd184c00))
+      (net 23 "unconnected-(J1-IRQ5-Pad23)") (pinfunction "IRQ5") (pintype "open_collector") (tstamp 25ba011b-9fde-4724-81ce-49dface5ee01))
     (pad "24" connect rect (at -55.222107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 24 "unconnected-(J1-IRQ4-Pad24)") (pinfunction "IRQ4") (pintype "open_collector") (tstamp e6917668-f42c-4984-8c0b-e43e5d534e7a))
+      (net 24 "unconnected-(J1-IRQ4-Pad24)") (pinfunction "IRQ4") (pintype "open_collector") (tstamp 3f9841a0-99f5-421f-9ebe-8d03630a2a9d))
     (pad "25" connect rect (at -57.762107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 25 "unconnected-(J1-IRQ3-Pad25)") (pinfunction "IRQ3") (pintype "open_collector") (tstamp f37010f9-e70a-455f-8432-5015172dbc12))
+      (net 25 "unconnected-(J1-IRQ3-Pad25)") (pinfunction "IRQ3") (pintype "open_collector") (tstamp bab53bfb-5087-435e-af62-5870fbacfcdb))
     (pad "26" connect rect (at -60.302107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 26 "unconnected-(J1-DACK2-Pad26)") (pinfunction "DACK2") (pintype "output") (tstamp a8f90884-8d65-4803-834c-b57c37040688))
+      (net 26 "unconnected-(J1-DACK2-Pad26)") (pinfunction "DACK2") (pintype "output") (tstamp 80a37ce4-c4fa-445d-906b-b0bafd8ffc12))
     (pad "27" connect rect (at -62.842107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 27 "unconnected-(J1-TC-Pad27)") (pinfunction "TC") (pintype "output") (tstamp bff72d63-36c4-4eb2-a83b-148399a28cbc))
+      (net 27 "unconnected-(J1-TC-Pad27)") (pinfunction "TC") (pintype "output") (tstamp a58db28d-2bcb-4b81-9eff-1b9fd9b6fe03))
     (pad "28" connect rect (at -65.382107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 28 "unconnected-(J1-ALE-Pad28)") (pinfunction "ALE") (pintype "output") (tstamp dfe61079-4590-45fe-b606-ed8e8bc37d87))
+      (net 28 "unconnected-(J1-ALE-Pad28)") (pinfunction "ALE") (pintype "output") (tstamp 6fbce9e6-25a8-4276-a14e-46681e5bb94f))
     (pad "29" connect rect (at -67.922107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 29 "unconnected-(J1-+5V-Pad29)") (pinfunction "+5V") (pintype "power_out") (tstamp e943430d-c7a8-414d-a142-8f93c72ed6b2))
+      (net 29 "unconnected-(J1-+5V-Pad29)") (pinfunction "+5V") (pintype "power_out") (tstamp 36c7034d-9189-402c-a9c0-4898ed3b87e6))
     (pad "30" connect rect (at -70.462107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 30 "unconnected-(J1-OSC-Pad30)") (pinfunction "OSC") (pintype "output") (tstamp 3051f38b-9663-490a-a120-582bbe8edc41))
+      (net 30 "unconnected-(J1-OSC-Pad30)") (pinfunction "OSC") (pintype "output") (tstamp 01f97823-97ba-43c0-92e4-e0dd10e7f5c6))
     (pad "31" connect rect (at -73.002107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 31 "unconnected-(J1-GND-Pad31)") (pinfunction "GND") (pintype "power_out") (tstamp 1a063139-66fe-4ea9-9399-76b70a13e9f3))
+      (net 31 "unconnected-(J1-GND-Pad31)") (pinfunction "GND") (pintype "power_out") (tstamp 810ce8aa-3a1e-460c-baa5-06687bd254ba))
     (pad "32" connect rect (at 3.197893 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 32 "unconnected-(J1-IO-Pad32)") (pinfunction "IO") (pintype "open_collector") (tstamp 36f0a76e-ba53-4357-a3d5-7673f9a0ee25))
+      (net 32 "unconnected-(J1-IO-Pad32)") (pinfunction "IO") (pintype "open_collector") (tstamp efbec0d1-6adf-4354-a036-0bc557039b64))
     (pad "33" connect rect (at 0.657893 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 33 "unconnected-(J1-DB7-Pad33)") (pinfunction "DB7") (pintype "tri_state") (tstamp d83e82b2-ebf3-425b-adf9-b0f33bc7786a))
+      (net 33 "unconnected-(J1-DB7-Pad33)") (pinfunction "DB7") (pintype "tri_state") (tstamp d32165a4-67f7-4623-9823-0c319595f2d8))
     (pad "34" connect rect (at -1.882107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 34 "unconnected-(J1-DB6-Pad34)") (pinfunction "DB6") (pintype "tri_state") (tstamp de906858-bdac-4360-8feb-7325482de761))
+      (net 34 "unconnected-(J1-DB6-Pad34)") (pinfunction "DB6") (pintype "tri_state") (tstamp 9d647638-075f-4955-8c6c-df37479cac5a))
     (pad "35" connect rect (at -4.422107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 35 "unconnected-(J1-DB5-Pad35)") (pinfunction "DB5") (pintype "tri_state") (tstamp f4ea262a-3eff-4ef3-b232-3944f0bbe689))
+      (net 35 "unconnected-(J1-DB5-Pad35)") (pinfunction "DB5") (pintype "tri_state") (tstamp 79c6cb23-3198-44cc-9707-bf7a46998f1a))
     (pad "36" connect rect (at -6.962107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 36 "unconnected-(J1-DB4-Pad36)") (pinfunction "DB4") (pintype "tri_state") (tstamp f1a853f8-d74f-4b17-a85b-a9c190fc6854))
+      (net 36 "unconnected-(J1-DB4-Pad36)") (pinfunction "DB4") (pintype "tri_state") (tstamp dcb26f44-bcb6-4c11-939c-3037ebdafb0f))
     (pad "37" connect rect (at -9.502107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 37 "unconnected-(J1-DB3-Pad37)") (pinfunction "DB3") (pintype "tri_state") (tstamp 0e2ec27d-13b6-409d-a735-11e64389ea7b))
+      (net 37 "unconnected-(J1-DB3-Pad37)") (pinfunction "DB3") (pintype "tri_state") (tstamp 30c08525-d3fe-47b5-b915-7a0db2d4c0fd))
     (pad "38" connect rect (at -12.042107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 38 "unconnected-(J1-DB2-Pad38)") (pinfunction "DB2") (pintype "tri_state") (tstamp e37cb187-abd5-43c3-bf69-10f0fc129ee3))
+      (net 38 "unconnected-(J1-DB2-Pad38)") (pinfunction "DB2") (pintype "tri_state") (tstamp 3b025320-bcd0-4025-baeb-8f59a9de0511))
     (pad "39" connect rect (at -14.582107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 39 "unconnected-(J1-DB1-Pad39)") (pinfunction "DB1") (pintype "tri_state") (tstamp f3296e6c-bac1-4a26-b708-6d23c815d6b0))
+      (net 39 "unconnected-(J1-DB1-Pad39)") (pinfunction "DB1") (pintype "tri_state") (tstamp b74162db-d39c-43f2-ab6a-249d30a7cc4a))
     (pad "40" connect rect (at -17.122107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 40 "unconnected-(J1-DB0-Pad40)") (pinfunction "DB0") (pintype "tri_state") (tstamp 829d7817-c618-4158-a0ea-c5156064e888))
+      (net 40 "unconnected-(J1-DB0-Pad40)") (pinfunction "DB0") (pintype "tri_state") (tstamp 0a433549-9882-469d-b678-8969c7e55581))
     (pad "41" connect rect (at -19.662107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 41 "unconnected-(J1-IO_READY-Pad41)") (pinfunction "IO_READY") (pintype "open_collector") (tstamp 22b59d1e-3f1f-4ca2-9445-37a87c394d71))
+      (net 41 "unconnected-(J1-IO_READY-Pad41)") (pinfunction "IO_READY") (pintype "open_collector") (tstamp 63556a69-700a-4dc4-a650-48303e6b9952))
     (pad "42" connect rect (at -22.202107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 42 "unconnected-(J1-AEN-Pad42)") (pinfunction "AEN") (pintype "output") (tstamp f35de3a0-86e1-4d51-943a-995cb3353ded))
+      (net 42 "unconnected-(J1-AEN-Pad42)") (pinfunction "AEN") (pintype "output") (tstamp 0a426387-1349-41b9-8209-2da4a453482b))
     (pad "43" connect rect (at -24.742107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 43 "unconnected-(J1-BA19-Pad43)") (pinfunction "BA19") (pintype "output") (tstamp 91b14123-81ec-49d9-a020-b52aae6cd9d5))
+      (net 43 "unconnected-(J1-BA19-Pad43)") (pinfunction "BA19") (pintype "output") (tstamp 75514772-9c9f-4e57-8291-988a10f86398))
     (pad "44" connect rect (at -27.282107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 44 "unconnected-(J1-BA18-Pad44)") (pinfunction "BA18") (pintype "output") (tstamp c492bc5e-8123-4759-9a8e-c46d5c110360))
+      (net 44 "unconnected-(J1-BA18-Pad44)") (pinfunction "BA18") (pintype "output") (tstamp 4781a4dd-5e9f-4b45-972a-8b54d849e375))
     (pad "45" connect rect (at -29.822107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 45 "unconnected-(J1-BA17-Pad45)") (pinfunction "BA17") (pintype "output") (tstamp 20ea3008-fafd-494f-b78c-239620c89ab7))
+      (net 45 "unconnected-(J1-BA17-Pad45)") (pinfunction "BA17") (pintype "output") (tstamp 793119fe-eb62-46d5-817d-dd3651b585c1))
     (pad "46" connect rect (at -32.362107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 46 "unconnected-(J1-BA16-Pad46)") (pinfunction "BA16") (pintype "output") (tstamp 17a99411-9ad4-42be-929a-0aad076fa5f1))
+      (net 46 "unconnected-(J1-BA16-Pad46)") (pinfunction "BA16") (pintype "output") (tstamp fac9ca1a-c77d-4a47-b14c-a817bb295444))
     (pad "47" connect rect (at -34.902107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 47 "unconnected-(J1-BA15-Pad47)") (pinfunction "BA15") (pintype "output") (tstamp 5a19e624-8cef-469b-a6e0-e793493551fb))
+      (net 47 "unconnected-(J1-BA15-Pad47)") (pinfunction "BA15") (pintype "output") (tstamp 8a62fe3f-93dc-4864-bf4d-780762fe20f4))
     (pad "48" connect rect (at -37.442107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 48 "unconnected-(J1-BA14-Pad48)") (pinfunction "BA14") (pintype "output") (tstamp d254223c-1835-49ca-8105-552edc92f6da))
+      (net 48 "unconnected-(J1-BA14-Pad48)") (pinfunction "BA14") (pintype "output") (tstamp f6448242-b7fa-46bd-9ba3-640202a0abf8))
     (pad "49" connect rect (at -39.982107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 49 "unconnected-(J1-BA13-Pad49)") (pinfunction "BA13") (pintype "output") (tstamp d2d978d9-0d46-421d-ac6f-7b6da51af58e))
+      (net 49 "unconnected-(J1-BA13-Pad49)") (pinfunction "BA13") (pintype "output") (tstamp 7c512855-15d9-47a4-aceb-0f799a285255))
     (pad "50" connect rect (at -42.522107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 50 "unconnected-(J1-BA12-Pad50)") (pinfunction "BA12") (pintype "output") (tstamp c3753ab0-df0f-493f-a054-7b20762ea1da))
+      (net 50 "unconnected-(J1-BA12-Pad50)") (pinfunction "BA12") (pintype "output") (tstamp 5094e243-e48d-4103-b4b1-61ca076a86f4))
     (pad "51" connect rect (at -45.062107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 51 "unconnected-(J1-BA11-Pad51)") (pinfunction "BA11") (pintype "output") (tstamp 2679991c-7a3b-4c3d-86a9-adc4e4f7f9d1))
+      (net 51 "unconnected-(J1-BA11-Pad51)") (pinfunction "BA11") (pintype "output") (tstamp 30577dfd-09cf-4274-aca9-21154c35e956))
     (pad "52" connect rect (at -47.602107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 52 "unconnected-(J1-BA10-Pad52)") (pinfunction "BA10") (pintype "output") (tstamp c12af7a3-5281-4f0a-b46a-250d5452d7d1))
+      (net 52 "unconnected-(J1-BA10-Pad52)") (pinfunction "BA10") (pintype "output") (tstamp 2740ec72-07eb-4bc0-9f41-4d06db210ac6))
     (pad "53" connect rect (at -50.142107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 53 "unconnected-(J1-BA09-Pad53)") (pinfunction "BA09") (pintype "output") (tstamp 5a9d615c-51c6-44b4-a944-e8d2ef24e237))
+      (net 53 "unconnected-(J1-BA09-Pad53)") (pinfunction "BA09") (pintype "output") (tstamp 5fa9f2ad-eb93-4f03-a411-6b561c9f3986))
     (pad "54" connect rect (at -52.682107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 54 "unconnected-(J1-BA08-Pad54)") (pinfunction "BA08") (pintype "output") (tstamp 270d2139-d3b8-4658-930d-e27dfa167a2f))
+      (net 54 "unconnected-(J1-BA08-Pad54)") (pinfunction "BA08") (pintype "output") (tstamp 93c65be6-8bca-4db7-bc3f-1e83bbc18385))
     (pad "55" connect rect (at -55.222107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 55 "unconnected-(J1-BA07-Pad55)") (pinfunction "BA07") (pintype "output") (tstamp 66b571d3-9485-4b4c-8ce0-d735101b22e2))
+      (net 55 "unconnected-(J1-BA07-Pad55)") (pinfunction "BA07") (pintype "output") (tstamp 3cc4fb3d-dca1-464d-8f2d-9b16799593ce))
     (pad "56" connect rect (at -57.762107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 56 "unconnected-(J1-BA06-Pad56)") (pinfunction "BA06") (pintype "output") (tstamp 67fda4bc-44eb-48a5-9605-adf931f0e780))
+      (net 56 "unconnected-(J1-BA06-Pad56)") (pinfunction "BA06") (pintype "output") (tstamp 89c0110b-7aa0-46fd-8646-7142e32b2975))
     (pad "57" connect rect (at -60.302107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 57 "unconnected-(J1-BA05-Pad57)") (pinfunction "BA05") (pintype "output") (tstamp 62459ef0-a5e0-40ff-b406-ab516459bd46))
+      (net 57 "unconnected-(J1-BA05-Pad57)") (pinfunction "BA05") (pintype "output") (tstamp 50c85999-5bb4-4023-820d-02dc6e96ed27))
     (pad "58" connect rect (at -62.842107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 58 "unconnected-(J1-BA04-Pad58)") (pinfunction "BA04") (pintype "output") (tstamp ec10f30c-ede1-46c7-a14e-ff6b0a48cffa))
+      (net 58 "unconnected-(J1-BA04-Pad58)") (pinfunction "BA04") (pintype "output") (tstamp eec49be5-b489-4f40-9588-8afe88694a88))
     (pad "59" connect rect (at -65.382107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 59 "unconnected-(J1-BA03-Pad59)") (pinfunction "BA03") (pintype "output") (tstamp ba318206-3c58-4f80-8d91-e8088e41f758))
+      (net 59 "unconnected-(J1-BA03-Pad59)") (pinfunction "BA03") (pintype "output") (tstamp 406332f8-ac6d-4c3b-94ff-af9f7772115d))
     (pad "60" connect rect (at -67.922107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 60 "unconnected-(J1-BA02-Pad60)") (pinfunction "BA02") (pintype "output") (tstamp 8b48ae90-2e29-458d-8204-006482f16030))
+      (net 60 "unconnected-(J1-BA02-Pad60)") (pinfunction "BA02") (pintype "output") (tstamp b2c63358-be64-4762-93ed-0b936b76c6f3))
     (pad "61" connect rect (at -70.462107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 61 "unconnected-(J1-BA01-Pad61)") (pinfunction "BA01") (pintype "output") (tstamp 14a2a00b-b8a9-414b-bcf9-919b00cd29f1))
+      (net 61 "unconnected-(J1-BA01-Pad61)") (pinfunction "BA01") (pintype "output") (tstamp 9f762056-9fcd-42df-bafa-dfab3654db7a))
     (pad "62" connect rect (at -73.002107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 62 "unconnected-(J1-BA00-Pad62)") (pinfunction "BA00") (pintype "output") (tstamp 2f97f038-f3d8-4daa-950e-7e999a2e99df))
+      (net 62 "unconnected-(J1-BA00-Pad62)") (pinfunction "BA00") (pintype "output") (tstamp ab053b3f-21ac-4184-a6ce-2e73046f4d27))
     (pad "63" connect rect (at -83.162107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 63 "unconnected-(J1-MEMCS16-Pad63)") (pinfunction "MEMCS16") (pintype "input") (tstamp d097a227-3fb6-4220-a40d-37fb1690e0f9))
+      (net 63 "unconnected-(J1-MEMCS16-Pad63)") (pinfunction "MEMCS16") (pintype "input") (tstamp 342e70f6-df4e-4553-9617-3e393ae56d1d))
     (pad "64" connect rect (at -85.702107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 64 "unconnected-(J1-IOCS16-Pad64)") (pinfunction "IOCS16") (pintype "input") (tstamp e4a109fe-c9fd-4428-9f53-19040ac9f165))
+      (net 64 "unconnected-(J1-IOCS16-Pad64)") (pinfunction "IOCS16") (pintype "input") (tstamp 7bce5f52-7aea-49f8-8fae-dd780d778bae))
     (pad "65" connect rect (at -88.242107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 65 "unconnected-(J1-IRQ10-Pad65)") (pinfunction "IRQ10") (pintype "open_collector") (tstamp 51182283-26be-4085-9406-ea8babe0a0ae))
+      (net 65 "unconnected-(J1-IRQ10-Pad65)") (pinfunction "IRQ10") (pintype "open_collector") (tstamp 708c00f5-a04e-474d-9ca5-d173924844bc))
     (pad "66" connect rect (at -90.782107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 66 "unconnected-(J1-IRQ11-Pad66)") (pinfunction "IRQ11") (pintype "open_collector") (tstamp 052d560e-8d5f-4521-81de-3eb834263283))
+      (net 66 "unconnected-(J1-IRQ11-Pad66)") (pinfunction "IRQ11") (pintype "open_collector") (tstamp 5b29834f-6f50-46d4-9702-b5fedacaa9ba))
     (pad "67" connect rect (at -93.322107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 67 "unconnected-(J1-IRQ12-Pad67)") (pinfunction "IRQ12") (pintype "open_collector") (tstamp 4b50fb6d-26ef-405e-9252-74e01dbeeaa7))
+      (net 67 "unconnected-(J1-IRQ12-Pad67)") (pinfunction "IRQ12") (pintype "open_collector") (tstamp 5c034b74-f6e7-4fa4-a31f-05483cdcb30d))
     (pad "68" connect rect (at -95.862107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 68 "unconnected-(J1-IRQ15-Pad68)") (pinfunction "IRQ15") (pintype "open_collector") (tstamp c6e50c9d-cef3-4af0-a861-390f6dbbcd52))
+      (net 68 "unconnected-(J1-IRQ15-Pad68)") (pinfunction "IRQ15") (pintype "open_collector") (tstamp 6116a9e7-9fc6-43da-bd4d-de179c580b0a))
     (pad "69" connect rect (at -98.402107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 69 "unconnected-(J1-IRQ14-Pad69)") (pinfunction "IRQ14") (pintype "open_collector") (tstamp 4cc6d048-e19c-43f3-af18-e9e69fa9caf1))
+      (net 69 "unconnected-(J1-IRQ14-Pad69)") (pinfunction "IRQ14") (pintype "open_collector") (tstamp e611d739-da5b-43bc-9d13-12a9020c8300))
     (pad "70" connect rect (at -100.942107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 70 "unconnected-(J1-DACK0-Pad70)") (pinfunction "DACK0") (pintype "output") (tstamp f7044152-e6a3-479c-9c52-c67a6e131419))
+      (net 70 "unconnected-(J1-DACK0-Pad70)") (pinfunction "DACK0") (pintype "output") (tstamp 66124da3-7bc3-4f12-8342-b222585c32c9))
     (pad "71" connect rect (at -103.482107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 71 "unconnected-(J1-DRQ0-Pad71)") (pinfunction "DRQ0") (pintype "input") (tstamp 4912876f-3150-4a7a-98c1-c2312800f8df))
+      (net 71 "unconnected-(J1-DRQ0-Pad71)") (pinfunction "DRQ0") (pintype "input") (tstamp 94e565bb-9e9b-4382-a2b2-9266d52e1acf))
     (pad "72" connect rect (at -106.022107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 72 "unconnected-(J1-DACK5-Pad72)") (pinfunction "DACK5") (pintype "output") (tstamp e99ae59e-51c6-46d1-ad4b-a3a2a5679859))
+      (net 72 "unconnected-(J1-DACK5-Pad72)") (pinfunction "DACK5") (pintype "output") (tstamp 2f7cacd9-6d4b-4170-a5c5-7fc356587312))
     (pad "73" connect rect (at -108.562107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 73 "unconnected-(J1-DRQ5-Pad73)") (pinfunction "DRQ5") (pintype "input") (tstamp 13734036-e452-45f4-8399-cdfafcc668ca))
+      (net 73 "unconnected-(J1-DRQ5-Pad73)") (pinfunction "DRQ5") (pintype "input") (tstamp 97c64c50-15b2-4c2f-b6ca-89ff49b76963))
     (pad "74" connect rect (at -111.102107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 74 "unconnected-(J1-DACK6-Pad74)") (pinfunction "DACK6") (pintype "output") (tstamp 65ceb22b-4f05-4e6c-adfd-b180e4bc2a11))
+      (net 74 "unconnected-(J1-DACK6-Pad74)") (pinfunction "DACK6") (pintype "output") (tstamp a3a43f20-1c52-465d-8d24-b54983306c7d))
     (pad "75" connect rect (at -113.642107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 75 "unconnected-(J1-DRQ6-Pad75)") (pinfunction "DRQ6") (pintype "input") (tstamp c09b6ce6-babd-46bc-9e85-b6950f71d605))
+      (net 75 "unconnected-(J1-DRQ6-Pad75)") (pinfunction "DRQ6") (pintype "input") (tstamp 6e2e38e6-bcea-4e70-a63c-1c499330f928))
     (pad "76" connect rect (at -116.182107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 76 "unconnected-(J1-DACK7-Pad76)") (pinfunction "DACK7") (pintype "output") (tstamp fe60a876-c988-4aa3-bc35-9e0c03307a08))
+      (net 76 "unconnected-(J1-DACK7-Pad76)") (pinfunction "DACK7") (pintype "output") (tstamp 08bc64e0-e35a-4896-bd16-875aaa5830a4))
     (pad "77" connect rect (at -118.722107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 77 "unconnected-(J1-DRQ7-Pad77)") (pinfunction "DRQ7") (pintype "input") (tstamp 880aa20f-945d-4ec1-85d6-e5e148d2bf66))
+      (net 77 "unconnected-(J1-DRQ7-Pad77)") (pinfunction "DRQ7") (pintype "input") (tstamp ca559a2a-39f5-4c99-8d0b-a10dfe635e4a))
     (pad "78" connect rect (at -121.262107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 78 "unconnected-(J1-+5V-Pad78)") (pinfunction "+5V") (pintype "power_out") (tstamp 0a0ab712-68c3-4aa5-947e-e55e9a64710c))
+      (net 78 "unconnected-(J1-+5V-Pad78)") (pinfunction "+5V") (pintype "power_out") (tstamp f7e13636-8ff8-44fb-aacd-bdb0c893aebf))
     (pad "79" connect rect (at -123.802107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 79 "unconnected-(J1-MASTER-Pad79)") (pinfunction "MASTER") (pintype "open_collector") (tstamp 3edd3233-0480-4ceb-908d-cdfbf8233aa5))
+      (net 79 "unconnected-(J1-MASTER-Pad79)") (pinfunction "MASTER") (pintype "open_collector") (tstamp cca87acf-ae0d-4cc9-91fe-0dd830a31ec9))
     (pad "80" connect rect (at -126.342107 0.156) (size 1.78 7.62) (layers "B.Cu" "B.Mask")
-      (net 80 "unconnected-(J1-GND-Pad80)") (pinfunction "GND") (pintype "power_out") (tstamp 69aff5d0-8f2b-4c12-829d-1395de3242b7))
+      (net 80 "unconnected-(J1-GND-Pad80)") (pinfunction "GND") (pintype "power_out") (tstamp d59cbcfc-64a4-4909-83d3-739a48868081))
     (pad "81" connect rect (at -83.162107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 81 "unconnected-(J1-SBHE-Pad81)") (pinfunction "SBHE") (pintype "output") (tstamp 96f440fb-6d74-47cb-a310-4f3106495438))
+      (net 81 "unconnected-(J1-SBHE-Pad81)") (pinfunction "SBHE") (pintype "output") (tstamp 53dfeadd-cd57-45d2-a359-542c0ff136e5))
     (pad "82" connect rect (at -85.702107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 82 "unconnected-(J1-LA23-Pad82)") (pinfunction "LA23") (pintype "output") (tstamp dff705a6-7046-4124-9b7b-c166a7c20a6b))
+      (net 82 "unconnected-(J1-LA23-Pad82)") (pinfunction "LA23") (pintype "output") (tstamp fe7f2f5e-3d11-451e-8af2-2f730fa750ff))
     (pad "83" connect rect (at -88.242107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 83 "unconnected-(J1-LA22-Pad83)") (pinfunction "LA22") (pintype "output") (tstamp e34e0e81-ad9c-4b7c-81aa-1ccf15bc8ac4))
+      (net 83 "unconnected-(J1-LA22-Pad83)") (pinfunction "LA22") (pintype "output") (tstamp 6d3daef2-705f-41de-9ad3-830d5df972df))
     (pad "84" connect rect (at -90.782107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 84 "unconnected-(J1-LA21-Pad84)") (pinfunction "LA21") (pintype "output") (tstamp 78032862-5c8e-434f-a0d9-51bb76024124))
+      (net 84 "unconnected-(J1-LA21-Pad84)") (pinfunction "LA21") (pintype "output") (tstamp 1d5bf856-55e0-49f9-b7ea-03b9e4637c33))
     (pad "85" connect rect (at -93.322107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 85 "unconnected-(J1-LA20-Pad85)") (pinfunction "LA20") (pintype "output") (tstamp 957253c2-11ae-429f-91fd-a58b85d18075))
+      (net 85 "unconnected-(J1-LA20-Pad85)") (pinfunction "LA20") (pintype "output") (tstamp a67d3cd9-e6fe-499f-af77-7dd0c6e1b1ac))
     (pad "86" connect rect (at -95.862107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 86 "unconnected-(J1-LA19-Pad86)") (pinfunction "LA19") (pintype "output") (tstamp 14501be7-978b-4f46-aed3-10a1b754c90e))
+      (net 86 "unconnected-(J1-LA19-Pad86)") (pinfunction "LA19") (pintype "output") (tstamp 890e3f74-e685-4e25-80e0-5e7616d54ae4))
     (pad "87" connect rect (at -98.402107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 87 "unconnected-(J1-LA18-Pad87)") (pinfunction "LA18") (pintype "output") (tstamp 0d53788d-ae2f-4041-8782-233485d2b119))
+      (net 87 "unconnected-(J1-LA18-Pad87)") (pinfunction "LA18") (pintype "output") (tstamp 628d2153-4f40-485d-bd85-18a56fe2e749))
     (pad "88" connect rect (at -100.942107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 88 "unconnected-(J1-LA17-Pad88)") (pinfunction "LA17") (pintype "output") (tstamp f2d2e1d1-2bfe-453e-ae9b-457233634956))
+      (net 88 "unconnected-(J1-LA17-Pad88)") (pinfunction "LA17") (pintype "output") (tstamp 850b0197-e2a6-48c7-8450-169d45ebcaa2))
     (pad "89" connect rect (at -103.482107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 89 "unconnected-(J1-MEMR-Pad89)") (pinfunction "MEMR") (pintype "output") (tstamp 49f91a5c-b321-4ddf-90c4-223393de83b6))
+      (net 89 "unconnected-(J1-MEMR-Pad89)") (pinfunction "MEMR") (pintype "output") (tstamp 7871c15f-9e1b-4b9d-8a12-f28478edf4d2))
     (pad "90" connect rect (at -106.022107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 90 "unconnected-(J1-MEMW-Pad90)") (pinfunction "MEMW") (pintype "output") (tstamp 044d4da9-47c3-477c-b9c8-02a544a14b16))
+      (net 90 "unconnected-(J1-MEMW-Pad90)") (pinfunction "MEMW") (pintype "output") (tstamp 477c71a1-eab2-4a33-945b-6e4e9938651c))
     (pad "91" connect rect (at -108.562107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 91 "unconnected-(J1-D8-Pad91)") (pinfunction "D8") (pintype "tri_state") (tstamp 48f8fdac-3aac-4296-8785-01771dcce5cc))
+      (net 91 "unconnected-(J1-D8-Pad91)") (pinfunction "D8") (pintype "tri_state") (tstamp e7a750a1-0798-4a15-bf6a-2cfd5c0899e9))
     (pad "92" connect rect (at -111.102107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 92 "unconnected-(J1-D9-Pad92)") (pinfunction "D9") (pintype "tri_state") (tstamp f41dce78-9941-4752-b093-f8aea6307275))
+      (net 92 "unconnected-(J1-D9-Pad92)") (pinfunction "D9") (pintype "tri_state") (tstamp c994efb8-9296-4d78-ac7e-7efef1df6764))
     (pad "93" connect rect (at -113.642107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 93 "unconnected-(J1-D10-Pad93)") (pinfunction "D10") (pintype "tri_state") (tstamp 26c62769-3600-4342-b206-6049a295dbc0))
+      (net 93 "unconnected-(J1-D10-Pad93)") (pinfunction "D10") (pintype "tri_state") (tstamp 45888920-4cc5-4716-82c2-eecdb25b74a6))
     (pad "94" connect rect (at -116.182107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 94 "unconnected-(J1-D11-Pad94)") (pinfunction "D11") (pintype "tri_state") (tstamp 0c2ca123-56c0-415e-b8cf-aa26b86d6dcd))
+      (net 94 "unconnected-(J1-D11-Pad94)") (pinfunction "D11") (pintype "tri_state") (tstamp 09d998e3-c926-4a30-886a-00c9781adc75))
     (pad "95" connect rect (at -118.722107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 95 "unconnected-(J1-D12-Pad95)") (pinfunction "D12") (pintype "tri_state") (tstamp 48115a65-750b-4f9c-9143-5f89f3fed93f))
+      (net 95 "unconnected-(J1-D12-Pad95)") (pinfunction "D12") (pintype "tri_state") (tstamp 20eb1e35-b283-4ccc-9491-ec129752b859))
     (pad "96" connect rect (at -121.262107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 96 "unconnected-(J1-D13-Pad96)") (pinfunction "D13") (pintype "tri_state") (tstamp aed12d0f-0f71-43f6-960c-33484500595e))
+      (net 96 "unconnected-(J1-D13-Pad96)") (pinfunction "D13") (pintype "tri_state") (tstamp afb5d4ce-650a-4a47-abc5-c1cff8ffb1b4))
     (pad "97" connect rect (at -123.802107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 97 "unconnected-(J1-D14-Pad97)") (pinfunction "D14") (pintype "tri_state") (tstamp 9fdea4d5-7254-4093-b90e-12be7ea12b22))
+      (net 97 "unconnected-(J1-D14-Pad97)") (pinfunction "D14") (pintype "tri_state") (tstamp d0a50cb4-4bae-490e-b246-1187183e5fea))
     (pad "98" connect rect (at -126.342107 0.156) (size 1.78 7.62) (layers "F.Cu" "F.Mask")
-      (net 98 "unconnected-(J1-D15-Pad98)") (pinfunction "D15") (pintype "tri_state") (tstamp 9332b2b8-a669-459a-9a67-8345d5b35364))
+      (net 98 "unconnected-(J1-D15-Pad98)") (pinfunction "D15") (pintype "tri_state") (tstamp a2b50637-81b1-442f-8edf-dff20c9f58de))
     (pad "H1" thru_hole circle (at 24.267893 -7.524) (size 6 6) (drill 3.2) (layers "*.Cu" "*.Mask")
-      (net 99 "unconnected-(J1-PadH1)") (pintype "passive") (solder_mask_margin 0.1524) (thermal_bridge_angle 0) (tstamp 18081f29-2528-4ec8-9dd4-8b7954102438))
+      (net 99 "unconnected-(J1-PadH1)") (pintype "passive") (solder_mask_margin 0.1524) (thermal_bridge_angle 0) (tstamp 5f2f7b4c-35e7-4ef6-b904-6c92f16e1fc3))
     (pad "H2" thru_hole circle (at 24.267893 -64.044) (size 6 6) (drill 3.2) (layers "*.Cu" "*.Mask")
-      (net 100 "unconnected-(J1-PadH2)") (pintype "passive") (solder_mask_margin 0.1524) (thermal_bridge_angle 0) (tstamp b6fdca49-3746-4023-8fac-7a419aed44d0))
+      (net 100 "unconnected-(J1-PadH2)") (pintype "passive") (solder_mask_margin 0.1524) (thermal_bridge_angle 0) (tstamp c1aa297b-d9d7-482a-8e7b-67c104b919cd))
   )
 
   (gr_line (start 65.6508 134.9502) (end 111.767799 134.9502)
