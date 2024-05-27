@@ -1,0 +1,13 @@
+(footprint "ATX_hole" (version 20221018) (generator pcbnew)
+  (layer "F.Cu")
+  (attr through_hole)
+  (fp_text reference "H6" (at 0 0) (layer "F.SilkS") hide
+      (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp c96bb7e6-fd34-45c4-909a-4eb1bd6d545c)
+  )
+  (fp_text value "PTH_mount" (at 0 -4) (layer "F.Fab") hide
+      (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp eaedca63-4a63-46ff-afd3-eef89e81ff67)
+  )
+  (pad "1" thru_hole circle (at 0 0) (size 6 6) (drill 3.9) (layers "*.Cu" "*.Mask") (tstamp 9e5f27fd-ef0c-478a-84e4-91572b3b3708))
+)
