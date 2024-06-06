@@ -557,7 +557,7 @@ Joy_Monitoring
 		movwf TEMP1
 		movf JOY1,W; lecture joystick 1
 		andlw 0x0F;    DGBHDGBH (Droite, Gauche, Bas, Haut)
-		iorwf TEMP1,W; nnnnmmmm  avec m pour le joystick 1 et n pour le joystick 0
+		inpwf TEMP1,W; nnnnmmmm  avec m pour le joystick 1 et n pour le joystick 0
 		call SerialTransmit_Host
 		goto End_Read
 		
@@ -925,8 +925,8 @@ Not_Interrog_Time
 		movwf PTRL_LOAD; ADRLSB
 		call SerialReceive
 		movwf Counter_LOAD; NUM
-		iorwf PTRL_LOAD,W; ADRLSB
-		iorwf PTRH_LOAD,W; ADRMSB
+		inpwf PTRL_LOAD,W; ADRLSB
+		inpwf PTRH_LOAD,W; ADRMSB
 		btfsc STATUS,Z
 			goto Prog_Flash; adresse $0000 taille $00 => programmation FLASH
 		bsf Flags3,RE_TIMER_IKBD; flag reception donnees IKBD dans boucle principale
@@ -3390,7 +3390,7 @@ Get_Set2_ScanCode_1
 		retlw 0x00; offset + 0x4F  jamais utilise
 		retlw 0x00; offset + 0x50  jamais utilise
 		retlw 0x00; offset + 0x51  jamais utilise
-		retlw 0x28; offset + 0x52 <—> (')
+		retlw 0x28; offset + 0x52 <ï¿½> (')
 		retlw 0x2B; offset + 0x53 <*> (\) touche sur COMPAQ
 		retlw 0x1A; offset + 0x54 <^> ([)
 		retlw 0x0D; offset + 0x55 <=> (=)
@@ -3914,7 +3914,7 @@ Get_List_Idx_Set3
 		retlw 0x4C; M   (;)
 		retlw 0x4E; <)> (-)
 		retlw 0x4F; F10
-		retlw 0x52; <—> (')
+		retlw 0x52; <ï¿½> (')
 		retlw 0x53; <*> (\) COMPAQ
 		retlw 0x54; <^> ([)
 		retlw 0x55; <=> (=)
@@ -3973,7 +3973,7 @@ Get_List_Def_Set3
 		retlw 0x27; M   (;)
 		retlw 0x0C; <)> (-)
 		retlw 0x44; F10
-		retlw 0x28; <—> (')
+		retlw 0x28; <ï¿½> (')
 		retlw 0x2B; <*> (\) COMPAQ
 		retlw 0x1A; <^> ([)
 		retlw 0x0D; <=> (=)
@@ -4200,7 +4200,7 @@ Loop_Bcd
 Exit_Bcd
 		swapf TEMP2,W
 		andlw 0xF0; 4 bits de poids fort
-		iorwf TEMP1,W
+		inpwf TEMP1,W
 		return
 
 ;------------------------------------------------------------------------
@@ -4343,7 +4343,7 @@ KGetLoop
 			rrf Value,F; rotate to right to get a shift
 			bcf Value,7; force MSB to zero to disable Carry state used
 			call KPSGetBit; get a bit from keyboard
-			iorwf Value,F; logical OR with previous value
+			inpwf Value,F; logical OR with previous value
 			xorwf PARITY,F; parity calc
 			decfsz Counter,F; check if we should get another one
 		goto KGetLoop
@@ -4428,7 +4428,7 @@ MGetLoop
 			rrf Value,F; rotate to right to get a shift
 			bcf Value,7; force MSB to zero to disable Carry state used
 			call MPSGetBit; get a bit from mouse
-			iorwf Value,F; logical OR with previous value
+			inpwf Value,F; logical OR with previous value
 			xorwf PARITY,F; parity calc
 			decfsz Counter,F; check if we should get another one
 		goto MGetLoop
@@ -5363,7 +5363,7 @@ Init_Page_0
 		call Read_Flash; lecture 2 octets en 0x0FFF	
 		bcf PCLATH,3; page 0
 		movf BUFFER_FLASH,W
-		iorwf BUFFER_FLASH+1,W
+		inpwf BUFFER_FLASH+1,W
 		btfss STATUS,Z
 			goto Startup; lance programme en page page 0 si programme en page 2 invalide (0x1000 - 0x17FF)
 		movlw 0xFF
@@ -5463,7 +5463,7 @@ Tab_Scan_Codes
 		DE 0x44; offset + 0x4F F10
 		DE 0x00; offset + 0x50  jamais utilise
 		DE 0x00; offset + 0x51  jamais utilise
-		DE 0x28; offset + 0x52 <—> (')
+		DE 0x28; offset + 0x52 <ï¿½> (')
 		DE 0x2B; offset + 0x53 <*> (\) touche sur COMPAQ
 		DE 0x1A; offset + 0x54 <^> ([)
 		DE 0x0D; offset + 0x55 <=> (=)
