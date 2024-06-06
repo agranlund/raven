@@ -7,7 +7,7 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
 
 ## Status:
-Finalizing for manufacture
+Untested. Finalizing to place an order for boards.
 
 
 
