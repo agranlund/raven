@@ -5,7 +5,7 @@
 
 This computer is primarily designed to be an Atari clone computer with
 the goal of being able to natively run clean GEM/TOS applications.
-The machine is fast enough to run Atari ST games through partial
+The machine is fast enough to run hardware-hitting Atari ST games through partial
 software emulation.
 
 
