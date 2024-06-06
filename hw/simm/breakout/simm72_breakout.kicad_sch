@@ -8,7 +8,9 @@
     (title "Raven SIMM breakout")
     (date "2023")
     (rev "A0")
-    (company "www.happydaze.se")
+    (company "Licensed under CERN-OHL-P v2")
+    (comment 1 "Anders Granlund")
+    (comment 4 "PCB depth : 1.2mm")
   )
 
   (lib_symbols
@@ -2781,7 +2783,7 @@
     (pin "8" (uuid 36e1052f-fc57-4bbc-9256-08aa3732327b))
     (pin "9" (uuid 81344e9d-43b9-49b8-ab59-aa9021aa7cf9))
     (instances
-      (project "simm72"
+      (project "simm72_breakout"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "J1") (unit 1)
         )
@@ -2821,7 +2823,7 @@
     (pin "13" (uuid f6f3f9c6-6ce8-4c69-a1f7-9fa509361863))
     (pin "14" (uuid 2bd6d2cc-cf13-411d-b363-f6cc561720ff))
     (instances
-      (project "simm72"
+      (project "simm72_breakout"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "J2") (unit 1)
         )
@@ -2846,7 +2848,7 @@
     )
     (pin "1" (uuid 8d2f0073-f616-422e-a84a-608d11741f71))
     (instances
-      (project "simm72"
+      (project "simm72_breakout"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR04") (unit 1)
         )
@@ -2871,7 +2873,7 @@
     )
     (pin "1" (uuid f708375d-3ab9-46bf-ac52-14c5e1fc12e2))
     (instances
-      (project "simm72"
+      (project "simm72_breakout"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR02") (unit 1)
         )
@@ -2896,7 +2898,7 @@
     )
     (pin "1" (uuid 832fe58f-329a-440a-8782-d44f95e4d5b2))
     (instances
-      (project "simm72"
+      (project "simm72_breakout"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR01") (unit 1)
         )
@@ -2936,7 +2938,7 @@
     (pin "8" (uuid 4847b2ac-454d-450d-b8dc-f629e7db039e))
     (pin "9" (uuid 5948c1de-34be-4dee-895c-f3663f688da0))
     (instances
-      (project "simm72"
+      (project "simm72_breakout"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "J3") (unit 1)
         )
@@ -2976,7 +2978,7 @@
     (pin "8" (uuid 844b2d81-5ece-4b6b-a5b3-7bc2514f8123))
     (pin "9" (uuid ddf3023b-1a0f-4415-9da7-d4639181f2c5))
     (instances
-      (project "simm72"
+      (project "simm72_breakout"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "J5") (unit 1)
         )
@@ -3001,7 +3003,7 @@
     )
     (pin "1" (uuid 78f0a927-4867-4cd0-b619-f3b64533e81b))
     (instances
-      (project "simm72"
+      (project "simm72_breakout"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR03") (unit 1)
         )
@@ -3041,7 +3043,7 @@
     (pin "4" (uuid 2709394e-da38-4ebc-9bb6-2af484e18a02))
     (pin "5" (uuid e13d46a9-700a-4286-8685-bad229be84b6))
     (instances
-      (project "simm72"
+      (project "simm72_breakout"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "J4") (unit 1)
         )
@@ -3066,7 +3068,7 @@
     )
     (pin "1" (uuid 34833c33-60fa-4663-942d-3145d0f6a870))
     (instances
-      (project "simm72"
+      (project "simm72_breakout"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR05") (unit 1)
         )

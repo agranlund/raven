@@ -4,13 +4,6 @@
 
   (paper "A4")
 
-  (title_block
-    (title "Raven SIMM template")
-    (date "2023")
-    (rev "A0")
-    (company "www.happydaze.se")
-  )
-
   (lib_symbols
     (symbol "68k:SIMM72-Raven" (in_bom yes) (on_board yes)
       (property "Reference" "J" (at 0 29.21 0)

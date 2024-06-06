@@ -8,7 +8,8 @@
     (title "Raven ROM programmer")
     (date "2024")
     (rev "A1")
-    (company "www.happydaze.se")
+    (company "Licensed under CERN-OHL-P v2")
+    (comment 1 "Anders Granlund")
   )
 
   (lib_symbols

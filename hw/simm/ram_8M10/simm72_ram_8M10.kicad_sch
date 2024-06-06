@@ -8,7 +8,8 @@
     (title "Raven 8MB Ram, 10ns")
     (date "2023")
     (rev "A0")
-    (company "www.happydaze.se")
+    (company "Licensed under CERN-OHL-P v2")
+    (comment 1 "Anders Granlund")
   )
 
   (lib_symbols

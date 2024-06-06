@@ -8,9 +8,9 @@
   (title_block
     (title "Raven SRAM module")
     (date "2023")
-    (rev "A")
-    (company "www.happydaze.se")
-    (comment 2 "PCB depth : 1.2mm")
+    (rev "A0")
+    (company "Licensed under CERN-OHL-P v2")
+    (comment 1 "Anders Granlund")
   )
 
   (layers

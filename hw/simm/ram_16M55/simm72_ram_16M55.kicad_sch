@@ -8,7 +8,8 @@
     (title "Raven 16MB SRAM 55ns")
     (date "2023")
     (rev "A0")
-    (company "www.happydaze.se")
+    (company "Licensed under CERN-OHL-P v2")
+    (comment 1 "Anders Granlund")
   )
 
   (lib_symbols
@@ -3374,7 +3375,7 @@
     (pin "8" (uuid 36e1052f-fc57-4bbc-9256-08aa3732327b))
     (pin "9" (uuid 81344e9d-43b9-49b8-ab59-aa9021aa7cf9))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "J1") (unit 1)
         )
@@ -3399,7 +3400,7 @@
     )
     (pin "1" (uuid 80e84a2f-93ec-444d-a410-fb93585c46a7))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR014") (unit 1)
         )
@@ -3424,7 +3425,7 @@
     )
     (pin "1" (uuid 1ce0c542-c26b-41cc-a015-e4d7349404df))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR04") (unit 1)
         )
@@ -3449,7 +3450,7 @@
     )
     (pin "1" (uuid 2c79f751-eef9-46c9-8a11-687151819c51))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR09") (unit 1)
         )
@@ -3474,7 +3475,7 @@
     )
     (pin "1" (uuid f708375d-3ab9-46bf-ac52-14c5e1fc12e2))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR02") (unit 1)
         )
@@ -3561,7 +3562,7 @@
     (pin "28" (uuid 4bd93560-bcf9-4aea-88c8-037f3fc171d7))
     (pin "29" (uuid 3f74d0f5-cb3b-4bbd-ad11-67bd736e450b))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "IC1") (unit 1)
         )
@@ -3586,7 +3587,7 @@
     )
     (pin "1" (uuid 832fe58f-329a-440a-8782-d44f95e4d5b2))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR01") (unit 1)
         )
@@ -3611,7 +3612,7 @@
     )
     (pin "1" (uuid 00b1d49e-13b1-4c24-98f1-1d421177130e))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR07") (unit 1)
         )
@@ -3636,7 +3637,7 @@
     )
     (pin "1" (uuid 8185d1e7-9096-4273-80ee-1f3f7413235a))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR010") (unit 1)
         )
@@ -3723,7 +3724,7 @@
     (pin "28" (uuid 18ea03c0-925e-4794-9ed5-38679f5797c8))
     (pin "29" (uuid ec3841c8-f736-4119-95a8-a9483d01d3cf))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "IC2") (unit 1)
         )
@@ -3748,7 +3749,7 @@
     )
     (pin "1" (uuid 6070b053-e12f-4ae0-840c-d49f158f1fff))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR08") (unit 1)
         )
@@ -3773,7 +3774,7 @@
     )
     (pin "1" (uuid 103772ea-3c15-4ec4-9518-b06609186f8f))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR013") (unit 1)
         )
@@ -3798,7 +3799,7 @@
     )
     (pin "1" (uuid d4b0068f-7706-4205-865e-b4a5851a361b))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR011") (unit 1)
         )
@@ -3823,7 +3824,7 @@
     )
     (pin "1" (uuid 388d145d-33b0-469f-a40c-7db0f1a88f92))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR06") (unit 1)
         )
@@ -3848,7 +3849,7 @@
     )
     (pin "1" (uuid eace742f-7fb6-4353-93bc-7cd0de4bd76e))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR05") (unit 1)
         )
@@ -3880,7 +3881,7 @@
     (pin "2" (uuid b25f5877-a70c-48e6-8c50-0af0494dce87))
     (pin "1" (uuid cb8c3ed1-79c7-4c79-bd63-5c049e3e4be7))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "C2") (unit 1)
         )
@@ -3905,7 +3906,7 @@
     )
     (pin "1" (uuid 0f5bb966-94cf-46c4-8e2c-dc9171757441))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR03") (unit 1)
         )
@@ -3937,7 +3938,7 @@
     (pin "2" (uuid 6a37cc6a-fdc6-41f2-a104-3dd7ce476bbf))
     (pin "1" (uuid 9c31b2d5-7420-4041-afa9-d8e0c23c6788))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "C1") (unit 1)
         )
@@ -3962,7 +3963,7 @@
     )
     (pin "1" (uuid 204933dc-4e41-49fe-a660-8d107da14e1e))
     (instances
-      (project "simm72"
+      (project "simm72_ram_16M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR012") (unit 1)
         )

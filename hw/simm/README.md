@@ -3,6 +3,11 @@
 - They are probably be a tiny bit too wide but do fit in the socket ok. Would be good to shave off a millimeter or so in a future update.
 
 
+### License:
+Unless stated otherwise these hardware designs are licensed under CERN-OHL-P v2
+See LICENSE.md or visit https://cern.ch/cern-ohl
+
+
 ### Sub projects:
 - breakout
 	- simple simm breakout module for debugging. untested.

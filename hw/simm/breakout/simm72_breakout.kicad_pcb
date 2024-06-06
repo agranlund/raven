@@ -8,11 +8,10 @@
   (title_block
     (title "Raven SRAM module template")
     (date "2023")
-    (rev "A")
-    (company "www.happydaze.se")
-    (comment 2 "PCB depth : 1.2mm")
-    (comment 3 "Jedec Standard 21-C. Page 4.4.1-1")
-    (comment 4 "72 pin SIMM module for SRAM")
+    (rev "A0")
+    (company "Licensed under CERN-OHL-P v2")
+    (comment 1 "Anders Granlund")
+    (comment 4 "PCB depth : 1.2mm")
   )
 
   (layers
