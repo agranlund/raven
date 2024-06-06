@@ -36,7 +36,7 @@
 - Pushbuttons:     SW101, SW201, SW202
 - 3.3V backup:     D201, D202, D203
 - Constant fans:   J204, J205, J206
-- Eiffel fan:      TH301, R11, U302, J305
+- Eiffel fan:      TH301, R311, U302, J305
 - Midi-In:         U601, J604, D601, R609
 - Midi-Out:        U602, C605, R611
 - ISA -5V:         U201, C202, C203
