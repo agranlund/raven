@@ -10,6 +10,10 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 Untested. Boards being manufactured.
 
 
+## Info:
+- Designed for JLCPCB Standard Service 6 layers
+- [Interactive BOM](https://htmlpreview.github.io/?https://github.com/agranlund/raven/blob/main/hw/raven/a1/production/raven-a1_ibom.html)
+
 
 ## Changelog:
 - Changed locations of H607, H609
