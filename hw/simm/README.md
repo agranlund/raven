@@ -1,12 +1,28 @@
 # Info:
 - Simm modules should be manufactured with a thickness of 1.2 mm
-
-- The panel folder contains a template for merging two Simms
-onto one board separated with mouse-bites, for the case
-when this is more cost effective to manufacture.
+- They are probably be a tiny bit too wide but do fit in the socket ok. Would be good to shave off a millimeter or so in a future update.
 
 
-# Pinout:
+### Sub projects:
+- breakout
+	- simple simm breakout module for debugging. untested.
+- panel
+	- template for merging two simms onto one board separated by mouse-bites
+- programmer
+	- Pico based programmer for ROM simm modules
+- ram_16M55
+	- 16MB 55ns RAM module
+- ram_8M10
+	- 8MB 10ns RAM module
+- rom_16M55
+	- module with SMD roms (recommended)
+- rom_2M55
+	- module for 4x socketed PLCC roms
+- template
+	- blank simm module template
+
+
+### Pinout:
 
 1. vcc     * 
 2. a2
