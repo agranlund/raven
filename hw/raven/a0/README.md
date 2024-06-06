@@ -17,9 +17,7 @@ Revision.A1 should be considered instead as the corrected version of this board.
 
 
 
-## Interactive BOM
-[a link](https://htmlpreview.github.io/?https://github.com/agranlund/raven/blob/main/hw/raven/a0/production/raven-a0_ibom.html)
-
+[Interactive BOM](https://htmlpreview.github.io/?https://github.com/agranlund/raven/blob/main/hw/raven/a0/production/raven-a0_ibom.html)
 
 
 ## Notes:
