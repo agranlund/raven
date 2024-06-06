@@ -7,13 +7,13 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
 
 ## Status:
-Untested. Finalizing to place an order for boards.
+Untested. Finalizing to place order for board.
 
 
 
 ## Changelog:
 - Changed locations of H607, H609
-- Changed IDE ADR: A1:A -> A2:A4
+- Changed IDE ADR: A1:A3 -> A2:A4
 - Changed I2C DTA: MFP1_I7 -> MFP1_I3
 - Changed I2C CLK: MFP1_I3 -> MFP1_I7
 - Added UART IRQ6 (MFP1:I4)
