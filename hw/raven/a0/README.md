@@ -1,5 +1,16 @@
 # Raven060 Rev.A0
 
+(c)2024 Anders Granlund
+This source describes Open Hardware and is licensed under the CERN-OHLW v2
+You may redistribute and modify this documentation and make products
+using it under the terms of the CERN-OHL-W v2 (https:/cern.ch/cern-ohl).
+This documentation is distributed WITHOUT ANY EXPRESS OR IMPLIED
+WARRANTY, INCLUDING OF MERCHANTABILITY, SATISFACTORY QUALITY
+AND FITNESS FOR A PARTICULAR PURPOSE. Please see the CERN-OHL-W v2
+for applicable conditions.
+
+
+## Status:
 All major features has been tested and works in EmuTOS and FreeMiNT.
 
 This is the first prototype and I do not recommend building it as more recent software development will be incompatible with parts of this board.
