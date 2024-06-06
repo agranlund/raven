@@ -4,7 +4,7 @@ All major features has been tested and works in EmuTOS and FreeMiNT.
 
 This is the first prototype and I do not recommend building it as more recent software development will be incompatible with parts of this board.
 
-Revision.A1 should be considered the corrected version of this board.
+Revision.A1 should be considered instead as the corrected version of this board.
 
 ![Alt text](images/raven_a0.jpg?raw=true "")
 
