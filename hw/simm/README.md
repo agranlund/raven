@@ -1,83 +1,82 @@
---------------------
-Info:
---------------------
-Simm modules should be manufactured with a thickness of 1.2 mm
+# Info:
+- Simm modules should be manufactured with a thickness of 1.2 mm
 
-The panel folder contains a template for merging two Simms
+- The panel folder contains a template for merging two Simms
 onto one board separated with mouse-bites, for the case
 when this is more cost effective to manufacture.
 
 
---------------------
-Pinout:
---------------------
-vcc     * 
-a0
-a1
-a2
-a3
-a4
-a5
-a6
-a7
-gnd     *
-d31
-d30
-d29
-d28
-d27
-d26
-d25
-d24
-gnd     *
-d23
-d22
-d21
-d20
-d19
-d18
-d17
-d16
-gnd     *
-d15
-d14
-d13
-d12
-d11
-d10
-d9
-d8
-gnd     *
-d7
-d6
-d5
-d4
-d3
-d2
-d1
-d0
-gnd     *
-a21
-a20
-a19
-a18
-a17
-a16
-gnd     *
-a15
-a14
-a13
-a12
-a11
-a10
-a9
-a8
-gnd     *
-b0
-b1
-b2
-b3
-nc      -
-oe
-we
-vcc     *
+# Pinout:
+
+1. vcc     * 
+2. a2
+3. a3
+4. a4
+5. a5
+6. a6
+7. a7
+8. a8
+9. a9
+10. gnd     *
+11. d31
+12. d30
+13. d29
+14. d28
+15. d27
+16. d26
+17. d25
+18. d24
+19. gnd     *
+20. d23
+21. d22
+22. d21
+23. d20
+24. d19
+25. d18
+26. d17
+27. d16
+28. gnd     *
+29. d15
+30. d14
+31. d13
+32. d12
+33. d11
+34. d10
+35. d9
+36. d8
+37. gnd     *
+38. d7
+39. d6
+40. d5
+41. d4
+42. d3
+43. d2
+44. d1
+45. d0
+46. gnd     *
+47. a21
+48. a20
+49. a19
+50. a18
+51. a17
+52. a16
+53. gnd     *
+54. a15
+55. a14
+56. a13
+57. a12
+58. a11
+59. a10
+60. a9
+61. a8
+62. gnd     *
+63. b0
+64. b1
+65. b2
+66. b3
+67. nc      -
+68. oe
+69. we
+70. nc      -
+71. nc      -
+72. vcc     *
