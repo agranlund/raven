@@ -1,11 +1,8 @@
 # Raven060 Rev.A0
-### Atari clone computer based on Motorola 68060
 
 (c)2024 Anders Granlund
 
 This source describes Open Hardware and is licensed under the CERN-OHLW v2.
-
-Disclaimer: I am not an electrical engineer. This is a hobbyist project and is provided as-is and for free with no guarantees or promise of support.
 
 
 
