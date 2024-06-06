@@ -2,7 +2,6 @@
 ### A homemade Atari compatible computer based on Motorola 68060
 
 ![Alt text](hw/raven/a0/images/raven_a0_cased1.jpg?raw=true "")
-![Alt text](hw/raven/a0/images/raven_a0_cased2.jpg?raw=true "")
 
 This computer is primarily designed to be an Atari clone computer with
 the goal of being able to natively run clean GEM/TOS applications.
