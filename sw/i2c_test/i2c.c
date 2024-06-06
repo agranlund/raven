@@ -1,9 +1,9 @@
 #include "i2c.h"
 #include "mint/osbind.h"    // for Super/Supexec
 
-#define BOARD_REV 0
+#define BOARD_REV 0xA0
 
-#if (BOARD_REV == 0)
+#if (BOARD_REV == 0xA0)
 #define MFP_BIT_DTA     7
 #define MFP_BIT_CLK     3
 #else
