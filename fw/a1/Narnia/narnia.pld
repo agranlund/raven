@@ -1,0 +1,89 @@
+Name     Narnia ;
+PartNo   00 ;
+Date     2024-06-06 ;
+Revision 01 ;
+Designer Anders Granlund ;
+Company  HappyDaze ;
+Assembly None ;
+Location  ;
+Device   g22v10;
+
+
+//------------------------------------------------------------------------------
+// Copyright Anders Granlund 2024.
+// This source describes Open Hardware and is licensed under the CERN-OHLW v2
+// You may redistribute and modify this documentation and make products
+// using it under the terms of the CERN-OHL-W v2 (https:/cern.ch/cern-ohl).
+// This documentation is distributed WITHOUT ANY EXPRESS OR IMPLIED
+// WARRANTY, INCLUDING OF MERCHANTABILITY, SATISFACTORY QUALITY
+// AND FITNESS FOR A PARTICULAR PURPOSE.
+// Please see the CERN-OHL-W v2 for applicable conditions.
+//------------------------------------------------------------------------------
+
+
+//----------------------------------------------
+// ATF22V10C-10PU : PDIP24, 10ns
+//----------------------------------------------
+
+  /*---------------------
+--|  1 CLK/IN   VCC  24 |
+--|  2 IN       I/O  23 |--
+--|  3 IN       I/O  22 |--
+--|  4 IN       I/O  21 |--
+--|  5 IN       I/O  20 |--
+--|  6 IN       I/O  19 |--
+--|  7 IN       I/O  18 |--
+--|  8 IN       I/O  17 |--
+--|  9 IN       I/O  16 |--
+--| 10 IN       I/O  15 |--
+--| 11 IN       I/O  14 |--
+  | 12 GND      IN   13 |--
+  ---------------------*/
+
+//----------------------------------------------
+// inputs
+//----------------------------------------------
+
+pin 1 = CLK;            // BCLK
+pin 2 = RESET;          // active low
+pin 3 = ISAIO;          // active low
+pin 4 = ISACS;          // active low
+pin 5 = ISA8;           // active low
+pin 6 = A0;
+pin 7 = A1;
+pin 8 = LRW;
+pin 9 = URW;
+pin 10 = RW;            
+pin 11 = DS;            // active low
+//pin 13 = ;
+
+//----------------------------------------------
+// outputs
+//----------------------------------------------
+
+pin 14 = ISA_A0;
+pin 15 = !ISA_SBHE;
+pin 16 = !ISA_MEMR;
+pin 17 = !ISA_MEMW;
+pin 18 = ISA_ALE;
+pin 19 = !ISA_IOR;
+pin 20 = !ISA_IOW;
+pin 21 = !ISA_SMEMR;
+pin 22 = !ISA_SMEMW;
+pin 23 = ISA_RESET;
+
+
+//----------------------------------------------
+// ISA control signals
+//----------------------------------------------
+
+ISA_A0      = (!ISA8 & A0) # (ISA8 & ((!RW & URW) # (RW & A0)));
+ISA_SBHE    = ISA8 & (RW # (!RW & !LRW));
+ISA_MEMR    = !ISACS & ISAIO & RW;
+ISA_MEMW    = !ISACS & ISAIO & !RW;
+ISA_ALE     = ISACS; //'b'0;
+ISA_IOR     = !ISACS & !ISAIO & RW;
+ISA_IOW     = !ISACS & !ISAIO & !RW;
+ISA_SMEMR   = !ISACS & ISAIO & RW;
+ISA_SMEMW   = !ISACS & ISAIO & !RW;
+ISA_RESET   = !RESET;
