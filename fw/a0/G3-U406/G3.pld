@@ -1,0 +1,122 @@
+Name     G3 ;
+PartNo   00 ;
+Date     2024-02-05 ;
+Revision 01 ;
+Designer Anders Granlund ;
+Company  HappyDaze ;
+Assembly None ;
+Location  ;
+Device   g22v10;
+
+
+//------------------------------------------------------------------------------
+// Copyright Anders Granlund 2024.
+// This source describes Open Hardware and is licensed under the CERN-OHLW v2
+// You may redistribute and modify this documentation and make products
+// using it under the terms of the CERN-OHL-W v2 (https:/cern.ch/cern-ohl).
+// This documentation is distributed WITHOUT ANY EXPRESS OR IMPLIED
+// WARRANTY, INCLUDING OF MERCHANTABILITY, SATISFACTORY QUALITY
+// AND FITNESS FOR A PARTICULAR PURPOSE.
+// Please see the CERN-OHL-W v2 for applicable conditions.
+//------------------------------------------------------------------------------
+
+
+//----------------------------------------------
+// ATF22V10C-10PU : PDIP24, 10ns
+//----------------------------------------------
+
+  /*---------------------
+--|  1 CLK/IN   VCC  24 |
+--|  2 IN       I/O  23 |--
+--|  3 IN       I/O  22 |--
+--|  4 IN       I/O  21 |--
+--|  5 IN       I/O  20 |--
+--|  6 IN       I/O  19 |--
+--|  7 IN       I/O  18 |--
+--|  8 IN       I/O  17 |--
+--|  9 IN       I/O  16 |--
+--| 10 IN       I/O  15 |--
+--| 11 IN       I/O  14 |--
+  | 12 GND      IN   13 |--
+  ---------------------*/
+
+//----------------------------------------------
+// inputs
+//----------------------------------------------
+
+pin 1 = CLK8;
+pin 2 = YMCS;
+pin 3 = IDECS;
+pin 4 = IDEIRQ;
+pin 5 = IDE_RDY;
+pin 6 = DS;
+pin 7 = RW;
+pin 8 = A1;
+pin 9 = A5;
+//pin 10 = ;
+//pin 11 = ;
+//pin 13 = ;
+
+//----------------------------------------------
+// outputs
+//----------------------------------------------
+
+pin 14 = YM_BDIR;
+pin 15 = YM_BC1;
+pin 16 = CLK2;
+pin 17 = CLK4;
+pin 18 = !DTACK;
+pin 19 = !IRQ_HDD;
+pin 20 = !IDE_WR;
+pin 21 = !IDE_RD;
+pin 22 = !IDE_CS0;
+pin 23 = !IDE_CS1;
+
+//----------------------------------------------
+// clocks
+//----------------------------------------------
+
+CLK4.ar = 'b'0;
+CLK4.sp = 'b'0;
+CLK4.d = !CLK4;
+
+CLK2.ar = 'b'0;
+CLK2.sp = 'b'0;
+CLK2.d = (!CLK2 & CLK4) # (CLK2 & !CLK4);
+
+
+//----------------------------------------------
+// ym
+// 
+// bdir bc1   mode
+//    0   0   inactive
+//    0   1   read
+//    1   0   write
+//    1   1   address
+//
+//----------------------------------------------
+
+YM_BC1 = !YMCS & !A1; // read 0, write 0
+YM_BDIR = !YMCS & !RW; // write 0, write 2
+
+
+//----------------------------------------------
+// ide
+//----------------------------------------------
+
+IRQ_HDD = 'b'0;
+IDE_WR = !IDECS & !RW & !DS;
+IDE_RD = !IDECS & RW & !DS;
+IDE_CS0 = !IDECS & !A5;
+IDE_CS1 = !IDECS & A5;
+
+
+//----------------------------------------------
+// dtack
+//----------------------------------------------
+
+DTACK.ar = 'b'0;
+DTACK.sp = 'b'0;
+DTACK.d = 'b'1;
+DTACK.oe = 'b'0;
+
