@@ -1,10 +1,10 @@
 # ---------------------------------------------------------------------------
 # Bus configuration
 # ---------------------------------------------------------------------------
-#   isa.io          = <hex>     (iobase)
-#   isa.mem         = <hex>     (membase)
+#   isa.iobase      = <hex>     (iobase)
+#   isa.membase     = <hex>     (membase)
 #   isa.irqmask     = <hex>     (supported ISA irq mask. bit0 = irq1 etc)
-#   isa.dmamask     = <hex>     (supported ISA dma mask. bit0 = dma1 etc)
+#   isa.drqmask     = <hex>     (supported ISA dma mask. bit0 = dma1 etc)
 #   isa.endian      = <string>  (endian mode, default = be)
 #   isa.pnp.enable  = <dec>     (pnp enable, default = 1)
 #   isa.pnp.port    = <hex>     (pnp read port, default = 203)
@@ -15,13 +15,13 @@
 #   leas : Little endian address swapped
 # ---------------------------------------------------------------------------
 
-isa.endian      = leas
-isa.io          = 0x81000000
-isa.mem         = 0x82000000
-isa.irqmask     = 0xff
-isa.drqmask     = 0x0f
-isa.pnp.port    = 0x203
-isa.pnp.enable  = 1
+#isa.endian      = leas
+#isa.iobase      = 0x81000000
+#isa.membase     = 0x82000000
+#isa.irqmask     = 0xff
+#isa.drqmask     = 0x0f
+#isa.pnp.port    = 0x203
+#isa.pnp.enable  = 1
 
 
 # ---------------------------------------------------------------------------
@@ -52,11 +52,11 @@ isa.pnp.enable  = 1
 #   hidden        = <dec>       (default = 0)
 #   name          = <string>    (name of device)
 #   conf          = <dec>       (pnp config number, default 0)
-#   id{.idx}      = <string>    (device ID)
-#   io{.idx}      = <hex>       (i/o base)
-#   mem{.idx}     = <hex>       (mem base)
-#   irq{.idx}     = <dec>       (irq numer,  0 - 15)
-#   dma{.idx}     = <dec>       (dma number, 0 - 7)
+#   id{idx}       = <string>    (device ID)
+#   io{idx}       = <hex>       (i/o base)
+#   mem{idx}      = <hex>       (mem base)
+#   irq{idx}      = <dec>       (irq numer,  0 - 15)
+#   dma{idx}      = <dec>       (dma number, 0 - 7)
 #
 # ---------------------------------------------------------------------------
 # valid idx for the different resource types
@@ -67,54 +67,11 @@ isa.pnp.enable  = 1
 #   dma : 0 - 1
 # ---------------------------------------------------------------------------
 
-#dev.PNP80d6.PNP80d6.io.0    330
-#dev.PNP80d6.PNP80d6.irq.0   7
+#dev.PNP80d6.PNP80d6.io0    330
+#dev.PNP80d6.PNP80d6.irq0   7
 
 
 # ---------------------------------------------------------------------------
 # examples
 # ---------------------------------------------------------------------------
-
-# Manually jumpered NE2000 card
-#card.PNP80d6                "NE2000 Ethernet card"
-
-# Changing io port of existing card/device
-#dev.PNP80d6.PNP80d6.io.0    330
-
-
-# Single virtual card for multiple non-pnp Devices
-# in this case two ethernet cards of same type.
-# The "card" is a vitual container.
-# All we, and drivers/software, really care about
-# are the devices.
-
-#card.MAN0001                "ISA devices"
-#dev.MAN0001.PNP80d6:0.name  "NE2000 Ethernet card #0"
-#dev.MAN0001.PNP80d6:0.io    330
-#dev.MAN0001.PNP80d6:0.irq   7
-#dev.MAN0001.PNP80d6:1.name  "NE2000 Ethernet card #1"
-#dev.MAN0001.PNP80d6:1.io    300
-#dev.MAN0001.PNP80d6:1.irq   5
-
-#PNP0906         Tseng ET4000
-#PNP0912         Tseng Labs W32/W32i/W32p
-#PNP090A         ATI Ultra Pro/Plus (Mach 32)
-#PNP0916         ATI Ultra Pro Turbo (Mach64)
-#PNP0A00         ISA Bus
-#PNP80d6         NE2000 Compatible
-#PNPB005         Adlib-compatible FM synthesizer device
-#PNPB006         MPU401 compatible 
-#PNPB020         Yamaha OPL3-compatible FM synthesizer device
-#PNPB02F         Joystick/Game port
-
-
-#card.PNP0906                "Tseng ET4000"
-#dev.PNP0906.PNP0906.io      82000000
-#dev.PNP0906.PNP0906.mem     83000000
-#dev.PNP0906.PNP0906.irq     2
-
-#card.PNPB020                "Yamaha OPL3-compatible FM synthesizer device"
-#dev.PNPB020.PNPB020.io      388
-
-
 
