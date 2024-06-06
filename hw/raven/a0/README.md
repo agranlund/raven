@@ -1,8 +1,11 @@
 # Raven060 Rev.A0
+Atari clone computer based on Motorola 68060
 
 (c)2024 Anders Granlund
 
-This source describes Open Hardware and is licensed under the CERN-OHLW v2.
+#####This source describes Open Hardware and is licensed under the CERN-OHLW v2.
+
+Disclaimer: I am not an electrical engineer. This is a hobbyist project and is provided as-is and for free with no guarantees or promise of support.
 
 
 
@@ -17,7 +20,9 @@ Revision.A1 should be considered instead as the corrected version of this board.
 
 
 
-[Interactive BOM](https://htmlpreview.github.io/?https://github.com/agranlund/raven/blob/main/hw/raven/a0/production/raven-a0_ibom.html)
+## Info:
+- Designed for JLCPCB Standard Service 6 layers
+- [Interactive BOM](https://htmlpreview.github.io/?https://github.com/agranlund/raven/blob/main/hw/raven/a0/production/raven-a0_ibom.html)
 
 
 ## Notes:
