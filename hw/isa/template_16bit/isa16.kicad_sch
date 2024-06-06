@@ -4,10 +4,6 @@
 
   (paper "A3")
 
-  (title_block
-    (title "ISA Template 16bit")
-  )
-
   (lib_symbols
     (symbol "68k:ISA16_Edge" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
       (property "Reference" "J" (at 0 54.61 0)

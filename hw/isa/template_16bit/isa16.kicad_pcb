@@ -5,10 +5,6 @@
   )
 
   (paper "A4")
-  (title_block
-    (title "ISA Template 16Bit")
-  )
-
   (layers
     (0 "F.Cu" signal)
     (31 "B.Cu" signal)
