@@ -23,16 +23,15 @@ In fact, I can only in good conscience recommend building one of these if you ar
 - Motorola 68060 CPU
 - Max 48MB RAM
 - Max 16MB ROM
-- High speed serial 1Mbps
 - PS/2 Mouse & Keyboard
+- 1Mbps serial port
 - Legacy Atari serial port
 - Legacy Atari parallel port
 - Legacy Atari joystick ports
-- Realtime clock
 - IDE Harddisk interface
+- Realtime clock
 - Midi In/Out
 - YM2149 sound
 - MC68901 mfp
 - ISA 16bit expansion slots x4
-
 
