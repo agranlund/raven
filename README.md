@@ -36,8 +36,28 @@ In fact, I can only in good conscience recommend building one of these if you ar
 - ISA 16bit expansion slots x4
 
 
-## What do you need?
+## What parts would you need?
 
 - Raven motherboard
     - [Revision.A0](hw/raven/a0/)
     - [Revision.A1](hw/raven/a0/)
+- ROM module
+    - [SMD](hw/simm/rom_16M55/)
+    - [PLCC](hw/simm/rom_2M55/)
+- RAM modules
+    - [16MB 55ns](hw/simm/ram_16M55/)
+    - [8MB 10ns](hw/simm/ram_8M10/)
+- ATX power supply
+- PS/2 Keyboard and mouse
+- Some kind of 44pin IDE->CF/SD adapter and cable
+- ISA graphics card supported by Atari drivers (ET4000AX / ATI Mach32)
+- RS232->USB cable is highly recommended
+
+
+## Additional tools
+
+- [ROM module programmer](hw/simm/programmer/)
+- JTAG programmer for ATF1508AS, such as ATDH1150-USB
+- Programmer for ATF22V10 chips, such as XGecu TL866
+- Programmer for PIC16F chips, such as XGecu TL866
+
