@@ -12,8 +12,9 @@ Untested. Boards being manufactured.
 
 ## Info:
 - Designed for JLCPCB Standard Service 6 layers
-- [Interactive BOM](https://htmlpreview.github.io/?https://github.com/agranlund/raven/blob/main/hw/raven/a1/production/raven-a1_ibom.html)
 - [BOM](production/raven-a1_bom.md)
+- [Interactive BOM](https://htmlpreview.github.io/?https://github.com/agranlund/raven/blob/main/hw/raven/a1/production/raven-a1_ibom.html)
+
 
 
 ## Changelog:
