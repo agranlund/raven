@@ -35,3 +35,9 @@ In fact, I can only in good conscience recommend building one of these if you ar
 - MC68901 mfp
 - ISA 16bit expansion slots x4
 
+
+## What do you need?
+
+- Raven motherboard
+    - [Revision.A0](hw/raven/a0/)
+    - [Revision.A1](hw/raven/a0/)
