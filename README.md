@@ -1,22 +1,21 @@
 # Raven
 ### A homemade Atari clone computer based on Motorola 68060
+This computer is primarily designed to be an Atari clone computer with
+the goal of being able to natively run clean GEM/TOS applications.
+The machine is fast enough to run hardware-hitting Atari ST games with help from software emulation.
 
 ![Alt text](hw/raven/a0/images/raven_a0.jpg?raw=true "")
 
-This computer is primarily designed to be an Atari clone computer with
-the goal of being able to natively run clean GEM/TOS applications.
-The machine is fast enough to run hardware-hitting Atari ST games through partial
-software emulation.
 
+##This is not a product.
+It was designed as a one-off computer for myself for learning and as a platform for low-level programming. 
+Thus, things like cost-reduction or other factors that might be important for a product was never high on the priority.
 
-Disclaimer: I am not an elecrical engineer and I've designed this computer primarily as a one-off for myself.
-I'm sure these things are reflected in the design compared to if someone would have made something like this as a product.
-
-Hardware and software sources are provided as-is and free of charge but I cannot make any guarantees or provide much in terms of support.
+Hardware and software sources are provided as-is and for free but I cannot make any guarantees or promise of support.
 This thread on the Exxos forums is the build log of my machine: https://www.exxosforum.co.uk/forum/viewtopic.php?f=18&t=6940
 
-Do not expect this to be a finished and polished end-user product. The software side and driver support is very much a work in progress.
-In fact, I can only in good conscience recommend building one of these if you are someone who likes tinkering with hardware and enjoy a bit of low level programming.
+Prototype A0 was a success and runs EmuTOS and FreeMiNT but I still want to stress that if you're expecting everything to just work then you probably don't want to build this. It's early days still but if you're coming in with a DIY mindset and don't mind getting your hands dirty then it could potentially provide a bunch of fun - it is for me.
+
 
 ## Specifications
 
