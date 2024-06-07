@@ -14,6 +14,6 @@ I am using the newer ATF1508 fitter v1918 extracted from the Atmel Prochip packa
 It's probably going to work fine with the old version bundled with WinCUPL but I have not tested it.
 
 ATF1508AS can be programmed in-place using ATMISP software and ATDH1150USB programming cable.
-Both of the ATF22V10C chips needs to be programmed off-board in an XGecu-TL866 or similar.
+Both of the ATF22V10C chips needs to be programmed off-board in an external programmer.
 
 
