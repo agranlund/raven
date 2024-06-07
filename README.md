@@ -39,8 +39,8 @@ In fact, I can only in good conscience recommend building one of these if you ar
 ## What parts would you need?
 
 - Raven motherboard
+    - [Revision.A1](hw/raven/a1/)
     - [Revision.A0](hw/raven/a0/)
-    - [Revision.A1](hw/raven/a0/)
 - ROM module
     - [SMD](hw/simm/rom_16M55/)
     - [PLCC](hw/simm/rom_2M55/)
