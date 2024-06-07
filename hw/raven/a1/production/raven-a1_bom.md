@@ -100,7 +100,7 @@ My own revision.A0 build was tested with these following speeds:
 
 The CPU can be either the full version or the LC variant without FPU. An MMU is required so EC models cannot be used.
 
-I recommend the full version unless you are comfortable recompiling software to get rid of fpu requirement, want to implement a soft-fpu emulator, or just generally don't mind being in uncharted territory and enjoys troubleshooting old applications from the 90's :)
+I recommend the full version unless you are comfortable recompiling software to get rid of fpu requirement, want to implement a soft-fpu emulator, or just generally don't mind being in uncharted territory and enjoys troubleshooting old applications from the 90's.
 A lot of Atari software is going to assume that there is an FPU if you have a 68060, they might even refuse to start even if they aren't using it for anything.
 
 
