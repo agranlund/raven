@@ -29,7 +29,7 @@ Raven060 Revision.A1
 |                       |                             |             |       |
 | Wurth Elektronik      | 61300211121                 | 01x02       | 2     |
 | Wurth Elektronik      | 61300311121                 | 01x03       | 4     |
-| Wurth Elektronik      | 61300211021                 | 01x04       | 3     |
+| Wurth Elektronik      | 61300411121                 | 01x04       | 3     |
 | Wurth Elektronik      | 61300821121                 | 02x04       | 1     |
 | Wurth Elektronik      | 61301021121                 | 02x05       | 1     |
 | Wurth Elektronik      | 61201021621                 | jtag        | 1     |
