@@ -7,7 +7,7 @@ The machine is fast enough to run hardware-hitting Atari ST games with help from
 ![Alt text](hw/raven/a0/images/raven_a0.jpg?raw=true "")
 
 
-##This is not a product.
+## This is not a product.
 It was designed as a one-off computer for myself for learning and as a platform for low-level programming. 
 Thus, things like cost-reduction or other factors that might be important for a product was never high on the priority.
 
