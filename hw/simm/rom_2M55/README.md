@@ -1,6 +1,8 @@
 
 # ROM module: 2MB / 55ns (socketed plcc)
 
+![Alt text](images/render.png?raw=true "")
+
 
 ## BOM
 

@@ -1,6 +1,8 @@
 
 # ROM module: 1MB / 55ns
 
+![Alt text](images/render.png?raw=true "")
+
 
 ## BOM
 

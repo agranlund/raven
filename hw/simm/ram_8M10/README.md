@@ -1,6 +1,8 @@
 
 # RAM module: 8MB / 10ns
 
+![Alt text](images/render.png?raw=true "")
+
 
 ## BOM
 
