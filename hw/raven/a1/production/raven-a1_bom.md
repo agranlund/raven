@@ -74,7 +74,7 @@ Raven060 Revision.A1
 | Vishay                | CNY17F-3                    | cny17f-3    | 1     |
 | Vishay                | IRF510PBF                   | irf510      | 1     |
 |                       |                             |             |       |
-| Abracon               | ACHL-48.000MHZ-EK       (*) | 48m         | 1     |
+| Abracon               | * ACHL-48.000MHZ-EK         | 48m         | 1     |
 | Abracon               | ASV-24.000MHZ-EJ-T          | 24m         | 1     |
 | Abracon               | ACH-8.000MHZ-EK             | 8m          | 1     |
 | Abracon               | ACH-14.31818MHZ-EK          | 14.31818m   | 1     |
@@ -82,8 +82,8 @@ Raven060 Revision.A1
 | ECS                   | ECS-.327-12.5-13X-C         | 32.768k     | 1     |
 |-----------------------|-----------------------------|-------------|-------|
 | Yamaha                | YM2149F                     | YM2149      | 1     |
-| Motorola              | MC68150FN40             (*) | MC68150     | 1     |
-| Motorola              | MC68060RC50             (*) | MC68060     | 1     |
+| Motorola              | * MC68150FN40               | MC68150     | 1     |
+| Motorola              | * MC68060RC50               | MC68060     | 1     |
 | Motorola              | MC68901P                    | MC68901     | 2     |
 | Archi-Tech            | 1870-5222B                  | pga206      | 1     |
 
