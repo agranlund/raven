@@ -56,7 +56,7 @@ In fact, I can only in good conscience recommend building one of these if you ar
 ## Additional tools
 
 - [ROM module programmer](hw/simm/programmer/)
-- JTAG programmer for ATF1508AS, such as ATDH1150-USB
-- Programmer for ATF22V10 chips, such as XGecu TL866
-- Programmer for PIC16F chips, such as XGecu TL866
+- Programmer for ATF1508AS, for example ATDH1150-USB
+- Programmer for ATF22V10C, for example XGecu TL866II-Plus
+- Programmer for PIC16F876A, for example XGecu TL866II-Plus
 
