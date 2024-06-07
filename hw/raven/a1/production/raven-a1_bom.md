@@ -88,4 +88,11 @@ Raven060 Revision.A1
 | Archi-Tech            | 1870-5222B                  | pga206      | 1     |
 
 
+* for 48mhz bus speed and 96/48 cpu
+You may need to use a slower oscillator depending on your MC68060 / MC68150 combination.
+I am uncertain how far the lower rated MC68150FN33 overclocks but the 40mzh version seem comfortable being overclocked to 48mhz.
+
+My own revision.A0 build was tested with these following speeds:
+- 48mhz bus, 96mhz cpu
+- 25mhz bus, 50mhz cpu
 
