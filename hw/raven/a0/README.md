@@ -11,9 +11,10 @@ All major features has been tested and works in EmuTOS and FreeMiNT.
 
 Computer runs stable at 96mhz CPU, 48mhz BUS speed.
 
-This is the first prototype and I do not recommend building it as more recent software development will be incompatible with parts of this board.
+This is the very first "throw away" prototype and I do not recommend building it.
+No efforts will be made to ensure software or firmware developments maintain compatibility with this version.
 
-Revision.A1 should be considered instead as the corrected version of this board.
+Revision.A1 should be considered as the corrected version of this board.
 
 ![Alt text](images/raven_a0.jpg?raw=true "")
 
