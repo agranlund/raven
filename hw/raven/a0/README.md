@@ -7,14 +7,14 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
 
 ## Status:
-All major features has been tested and works in EmuTOS and FreeMiNT.
+Success: All major features has been tested and works in EmuTOS and FreeMiNT.
 
-Computer runs stable at 96mhz CPU, 48mhz BUS speed.
+Computer runs stable at 96mhz CPU / 48mhz BUS speed.
 
 This is the very first "throw away" prototype and I do not recommend building it.
 No efforts will be made to ensure software or firmware developments maintain compatibility with this version.
 
-Revision.A1 should be considered as the corrected version of this board.
+Revision.A1 should be considered the corrected version of this board.
 
 ![Alt text](images/raven_a0.jpg?raw=true "")
 
