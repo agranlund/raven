@@ -53,7 +53,6 @@ In fact, I can only in good conscience recommend building one of these if you ar
 - ISA graphics card supported by Atari drivers (ET4000AX / ATI Mach32)
 - RS232->USB cable is highly recommended
 
-
 ## Additional tools
 
 - [ROM module programmer](hw/simm/programmer/)
