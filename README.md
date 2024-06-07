@@ -36,7 +36,7 @@ In fact, I can only in good conscience recommend building one of these if you ar
 - ISA 16bit expansion slots x4
 
 
-## Minimum required parts
+## Required or recommended parts
 
 - Raven motherboard
     - [Revision.A1](hw/raven/a1/)
