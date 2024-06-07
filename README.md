@@ -41,12 +41,12 @@ In fact, I can only in good conscience recommend building one of these if you ar
 - Raven motherboard
     - [Revision.A1](hw/raven/a1/)
     - [Revision.A0](hw/raven/a0/)
-- ROM module
-    - [1MB 55ns SMD](hw/simm/rom_16M55/)
-    - [2MB 55ns PLCC](hw/simm/rom_2M55/)
 - RAM modules
     - [16MB 55ns](hw/simm/ram_16M55/)
     - [8MB 10ns](hw/simm/ram_8M10/)
+- ROM module
+    - [1MB 55ns SMD](hw/simm/rom_16M55/)
+    - [2MB 55ns PLCC](hw/simm/rom_2M55/)
 - ATX power supply
 - PS/2 Keyboard and mouse
 - Some kind of 44pin IDE->CF/SD adapter and cable
