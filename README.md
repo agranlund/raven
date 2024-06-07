@@ -36,7 +36,7 @@ In fact, I can only in good conscience recommend building one of these if you ar
 - ISA 16bit expansion slots x4
 
 
-## What parts would you need?
+## Minimum required parts
 
 - Raven motherboard
     - [Revision.A1](hw/raven/a1/)
@@ -51,7 +51,7 @@ In fact, I can only in good conscience recommend building one of these if you ar
 - PS/2 Keyboard and mouse
 - Some kind of 44pin IDE->CF/SD adapter and cable
 - ISA graphics card supported by Atari drivers (ET4000AX / ATI Mach32)
-- RS232->USB cable is highly recommended
+- RS232<->USB cable is highly recommended
 
 ## Additional tools
 
