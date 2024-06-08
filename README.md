@@ -11,7 +11,7 @@ The machine is fast enough to run hardware-hitting Atari ST games with help from
 It was designed as a one-off computer for myself for learning and as a platform for low-level programming. 
 Thus, things like cost-reduction or other factors that might be important for a product was never high on the priority.
 
-Hardware and software sources are provided as-is and for free but I cannot make any guarantees or promise of support.
+Hardware and software sources are provided as-is and for free but I cannot make any guarantees or promise of support, it's all very much work in progress.
 This thread on the Exxos forums is the build log of my machine: https://www.exxosforum.co.uk/forum/viewtopic.php?f=18&t=6940
 
 Prototype A0 was a success and runs EmuTOS and FreeMiNT but I still want to stress that if you're expecting everything to just work then you probably don't want to build this. It's early days still but if you're coming in with a DIY mindset and don't mind getting your hands dirty then it could potentially provide a bunch of fun - it is for me.
