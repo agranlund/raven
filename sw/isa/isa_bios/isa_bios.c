@@ -136,10 +136,10 @@ bool bus_init()
     return Createcookie(C__ISA, (uint32)&isa.bus);
 }
 
-int main() {
+int super_main() {
     OpenFiles();
 
-    if (!Supexec(bus_init) || (isa.bus.iobase == 0)) {
+    if (!bus_init() || (isa.bus.iobase == 0)) {
         return 0;
     }
 
@@ -151,5 +151,13 @@ int main() {
     printf("\r\n");
 
     CloseFiles();
+    return 1;
+}
+
+int main() {
+    if (!Supexec(super_main)) {
+        return -1;
+    }
     ExitTsr();
+    return 0;
 }
