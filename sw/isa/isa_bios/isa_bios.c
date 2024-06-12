@@ -58,6 +58,14 @@ static bool bus_hwconf() {
         //isa.bus.endian = ISA_ENDIAN_LEAS;
         //isa.bus.iobase = 0x80000000;
     }
+    else if (Getcookie(C__P2I, &cookie) == C_FOUND)       // Panther/2
+    {
+        uint32* cardpth2 = (uint32*) (cookie+6);
+        isa.bus.endian = ISA_ENDIAN_LELS;
+        isa.bus.iobase  = *cardpth2;
+        cardpth2 += 2;
+        isa.bus.membase = *cardpth2;
+    }    
     else if (Getcookie(C_RAVN, &cookie) == C_FOUND)       // Raven
     {
         isa.bus.endian = ISA_ENDIAN_LELS;
@@ -67,7 +75,6 @@ static bool bus_hwconf() {
         //isa.bus.irq_set = irq_set_raven;
         //isa.bus.irq_en  = irq_en_raven;
     }
-    // todo: detect panther/2
     return true;
 }
 
