@@ -412,7 +412,7 @@ static bool pnp_register_card(uint8 csn, uint32 card_vendor, uint32 card_serial,
     uint8 ldn = 0;
     isa_device_t* dev = 0;
     isa_card_t* card = &isa.cards[isa.numcards];
-    memset(card, 0, sizeof(card));
+    memset(card, 0, sizeof(isa_card_t));
     sprintf(card->name, "%s:%08x", IdToStr(card_vendor), card_serial);
     card->flags = ISA_FLG_ENABLED | ISA_FLG_PNP;
     card->vendor = card_vendor;

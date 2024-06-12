@@ -36,8 +36,7 @@ endif
 
 CFLAGS=\
 	   -Wall -Wstrict-prototypes -Wmissing-prototypes -Wdeclaration-after-statement -Werror \
-	   -Os \
-	   -fomit-frame-pointer
+	   -fomit-frame-pointer -std=c99 -D__USE_ISOC99 -Os
 
 -include Make.config
 -include Make.config.local

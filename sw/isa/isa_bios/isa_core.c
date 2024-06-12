@@ -18,8 +18,9 @@ static void LoadInf()
     char fname[64];
     sprintf(fname, "%c:\\isa_bios.inf", 'a' + (char) (*((volatile uint16*)0x446)));
     int32 fhandle = open(fname, 0);
-    if (fhandle <= 0)
+    if (fhandle <= 0) {
         return;
+    }
 
 	int32 fsize = lseek(fhandle, 0, SEEK_END);
     if (fsize < 2) {

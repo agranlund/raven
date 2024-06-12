@@ -3,7 +3,6 @@
 
 #include "isa_core.h"
 
-uint32 pnp_readport;
 extern int32 pnp_init();
 
 typedef struct
