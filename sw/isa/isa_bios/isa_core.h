@@ -86,7 +86,7 @@ typedef struct
 // cookies
 //---------------------------------------------------------------------
 #ifndef C_hade
-#define C_hade  0x48616465      /* 'Hade' */
+#define C_hade  0x68616465      /* 'hade' */
 #endif
 #ifndef C__MIL
 #define C__MIL  0x5F4D494C      /* '_MIL' */
