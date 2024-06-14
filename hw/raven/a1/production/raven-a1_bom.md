@@ -48,8 +48,8 @@ Raven060 Revision.A1
 | TE Connectivity       | 1-2199298-9                 | dip28       | 1     |
 | 3M                    | 4840-6000-CP                | dip40       | 1     |
 | 3M                    | 4848-6000-CP                | dip48       | 2     |
-| Preci-dip             | 540-88-068-24-008           | plcc68      | 1     |
-| Preci-dip             | 540-88-084-24-008           | plcc84      | 1     |
+| Preci-dip             | 540-88-068-24-008      (1)  | plcc68      | 1     |
+| Preci-dip             | 540-88-084-24-008      (1)  | plcc84      | 1     |
 | Aries Electronics     | 1108800                     | osc8        | 1     |
 |                       |                             |             |       |
 | TE Connectivity       | 1-881545-4                  | jumper      | 8     |
@@ -74,7 +74,7 @@ Raven060 Revision.A1
 | Vishay                | CNY17F-3                    | cny17f-3    | 1     |
 | Vishay                | IRF510PBF                   | irf510      | 1     |
 |                       |                             |             |       |
-| Abracon               | * ACHL-48.000MHZ-EK         | 48m         | 1     |
+| Abracon               | * ACHL-48.000MHZ-EK    (2)  | 48m         | 1     |
 | Abracon               | ASV-24.000MHZ-EJ-T          | 24m         | 1     |
 | Abracon               | ACH-8.000MHZ-EK             | 8m          | 1     |
 | Abracon               | ACH-14.31818MHZ-EK          | 14.31818m   | 1     |
@@ -82,13 +82,15 @@ Raven060 Revision.A1
 | ECS                   | ECS-.327-12.5-13X-C         | 32.768k     | 1     |
 |-----------------------|-----------------------------|-------------|-------|
 | Yamaha                | YM2149F                     | YM2149      | 1     |
-| Motorola              | * MC68150FN40               | MC68150     | 1     |
-| Motorola              | * MC68060RC50               | MC68060     | 1     |
+| Motorola              | * MC68150FN40          (2)  | MC68150     | 1     |
+| Motorola              | * MC68060RC50          (2)  | MC68060     | 1     |
 | Motorola              | MC68901P                    | MC68901     | 2     |
 | Archi-Tech            | 1870-5222B                  | pga206      | 1     |
 
 
-(*) for 48mhz bus speed and 96/48 cpu.
+(1) these sockets are brown color. todo: find part no for a black alternative.
+
+(2) for 48mhz bus speed and 96/48 cpu.
 
 You may need to use a slower oscillator depending on your MC68060 / MC68150 combination. 
 I don't know how far a lower rated MC68150FN33 overclocks but the 40mzh version seems comfortable at 48mhz.
