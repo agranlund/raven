@@ -20,14 +20,8 @@ Device   f1508ispplcc84;
 // Please see the CERN-OHL-W v2 for applicable conditions.
 //------------------------------------------------------------------------------
 
-
 //
 // Based on 48mhz bus speed, 2x cpu speed.
-//
-
-//
-// todo: modify for rev.A1 board:
-//  spare out, spare in, iocs16, exbusen
 //
 
 
@@ -61,9 +55,9 @@ PROPERTY ATMEL{xor_synthesis=on};
 //--------------------------------------------
 // Global inputs
 //--------------------------------------------
-pin 81 = TP106;            // io/gclk3
+pin 81 = SPARE_J106_IN_81;      // unused J106 (in)
 pin 83 = BCLK;
-pin 84 = TP110;            // in/oe1
+pin 84 = SPARE_J105_IN_84;      // unused J105 (in - hi/lo jumpered)
 pin 1  = !RSTI;
 pin 2  = PCLK;
 
@@ -76,7 +70,7 @@ pin 5  = !TEA;
 pin 6  = !AVEC;
 pin 8  = !TBI;
 pin 9  = !TCI;
-pin 10 = TP105;            // unused
+pin 10 = CPUX1;
 pin 11 = !TRA;
 pin 12 = !CLKEN;
 
@@ -114,8 +108,8 @@ pin 50 = !RB2WR;
 pin 51 = !RB3RD;
 pin 52 = !RB3WR;
 
-pin 54 = !EXCS;
-pin 55 = !EXBUSEN;      // todo: remove and use EXCS instead
+pin 54 = !IOCS16;
+pin 55 = !EXCS;
 pin 56 = !EXDSACK0;
 pin 57 = !EXTA;
 pin 58 = !EXDS;
@@ -130,7 +124,7 @@ pin 68 = ISARDY;
 pin 69 = !RESET;
 pin 70 = !RSTO;
 
-pin 73 = TP107;            // unused
+pin 73 = SPARE_J106_IO_73;            // unused J106 (io)
 pin 74 = !IACK;
 pin 75 = !IDECS;
 pin 76 = !YMCS;
@@ -145,7 +139,8 @@ pin 80 = !UARTCS;
 // General logic
 //
 //--------------------------------------------
-CLKEN = BCLK;
+CLKEN = BCLK # CPUX1;
+
 RESET = RSTI # RSTO;        // peripheral reset
 TEA = 'b'0;                 // bus error
 TRA = 'b'0;                 // bus retry
@@ -277,10 +272,6 @@ SELECT_68150 = TIP & (DECODE_68150 # MFPIRQ);
 EXCS.ck = !BCLK;
 EXCS.ar = RSTI;
 EXCS.d = SELECT_68150;
-
-EXBUSEN.ck = !BCLK;
-EXBUSEN.ar = RSTI;
-EXBUSEN.d = SELECT_68150;
 
 node [DTACK0..1];           // synchronised dtack from mfp,ym,ide
 [DTACK0..1].ck = BCLK;
