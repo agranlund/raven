@@ -59,3 +59,10 @@ Built and being tested.
 - RTC:             Y402, R402, U406, C413
 
 
+## Errata:
+- Silkscreen: J305 pinout mislabeled
+- BOM: PLCC socket Preci-Dip 540-88-068-24-008 is brown, find black replacement
+- BOM: PLCC socket Preci-Dip 540-88-084-24-008 is brown, find black replacement
+- BOM: ATX connector TE 1-1775099-3 is white, find black replacement
+- BOM: Jumpers TE 1-881545-4 are difficult to grab, pick a different variant
+
