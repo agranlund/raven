@@ -8,6 +8,7 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
 ## Status:
 Success: All major features has been tested and works in EmuTOS and FreeMiNT.
+
 Tested with 48mhz oscillator for 96mhz CPU, 48mhz BUS speed.
 
 
