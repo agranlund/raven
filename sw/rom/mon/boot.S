@@ -2,7 +2,8 @@
 
     #define UART_BAUDR      750000
     #define UART_BAUDD      (UART_CLK/(UART_BAUDR*16))
-
+    #define UART_FLOWCTRL   0
+    
     .text
     .global __main
     .global _main
@@ -88,6 +89,7 @@ _vec_boot:
     move.b  #0x00,UART_MCR(a5)                 // modem control
 
     // enable tcr regs
+#if (UART_FLOWCTRL != 0)
     move.b  UART_LCR(a5),d0                         // access efr regs
     move.b  #0xBF,UART_LCR(a5)
 //    bset.b  #4,UART_EFR(a5)
@@ -99,6 +101,7 @@ _vec_boot:
     move.b  #0xC0,UART_EFR(a5)                 // auto cts,rts
     move.b  d0,UART_LCR(a5)                         // normal regs
     bset.b  #1,UART_MCR(a5)                         // start rts flow control
+#endif
 
     bset.b  #7,UART_LCR(a5)                         // access divisor regs
     move.b  #(UART_BAUDD&0xFF),UART_DLL(a5)          // baudrate L

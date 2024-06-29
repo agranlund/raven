@@ -9,6 +9,9 @@ extern void sp060_Install(void);
 extern void sp060_Test(void);
 extern uint8 kgfx;
 
+#define LAUNCH_TOS  1
+
+
 const char* cpuNames[] = {
     "M68XC060",
     "M68EC060",
@@ -26,19 +29,13 @@ const char* gfxNames[] = {
 
 int Init()
 {
-    // clear bios bss area
-    extern uint8 _bss_start, _end;
-    uint32* kbss = (uint32*)&_bss_start;
-    while (kbss < (uint32*)&_end) {
-        *kbss++ = 0;
-    }
-
     // identify cpu
     uint32 cpuRev = 0;
     uint32 cpuSku = DetectCPU(&cpuRev, 0);
+    uart_printString("\n");
     uart_printString("CPU:  ");
     uart_printString(cpuNames[cpuSku]);
-    uart_printHex(3, "R", cpuRev, "\n");
+    uart_printHex(4, "R", cpuRev, "\n");
 
     // identify rom
     uint32 simm[4];
@@ -60,14 +57,16 @@ int Init()
 	// identify ram
     for (int i=0; i<3; i++) {
         for (int j=15; j>=0; j--) {
-            *((volatile uint32*)((((i*16)+j)*1024*1024))) = j;
+            uint32 addr = (((i*16)+j)*1024*1024UL);
+            *((volatile uint32*)addr) = j;
         }
     }
     for (int i=0; i<3; i++) {
         simm[i] = 0;
         for (int j=0; j<16; j++) {
-            if ( *((volatile uint32*)((((i*16)+j)*1024*1024))) == j) {
-                simm[i] = (j+1) * 1024 * 1024;
+            uint32 addr = (((i*16)+j)*1024*1024UL);
+            if ( *((volatile uint32*)addr) == j) {
+                simm[i] = ((j+1) * 1024) * 1024UL;
             } else {
                 j = 16;
             }
@@ -76,35 +75,44 @@ int Init()
         uart_printHex(32, 0, simm[i], "\n");
     }
 
+
+    uart_printString("\n");
+
+    // clear bios bss area
+    uart_printString("InitBss\n");
+    extern uint8 _bss_start, _end;
+    uint32* kbss = (uint32*)&_bss_start;
+    while (kbss < (uint32*)&_end) {
+        *kbss++ = 0;
+    }
+
     // init heap
+    uart_printString("InitHeap\n");
     kmem_Init();
 
     // init hardware
+    uart_printString("InitSys\n");
     sys_Init();
 
     // init monitor
+    uart_printString("InitMon\n");
     InitMonitor();
 
     // init vbr
+    uart_printString("InitVbr\n");
     vbr_Init();
 
     // install motorola support packages
     //sp060_Install();
 
     // init mmu
+    uart_printString("InitMmu\n");
     pmmu_Init(simm);
-/*
-    {
-        uint32* dst = (uint32*)8;
-        uint32* src = (uint32*)0x00E00008;
-        for (uint32 i=8; i<256; i++) {
-            *dst++ = *src++;
-        }
-    }
-*/
+
+    // start
+    uart_printString("Launch\n");
     SetCACR(0x00000000);        // tos will enable cache later
     SetPCR(3);
-
 //    test_ym_write(1);
 
 /*
@@ -113,26 +121,20 @@ int Init()
     uart_printString("after sp060_Test\n");
 */
 
+#if LAUNCH_TOS
     // clear TOS variables and launch
 	for (int i=0x400; i<0x700; i+=4) {
 		IOL(0, i) = 0;
 	}
     Call(0xe00000);
 
+#else
+
     // launch monitor
     StartMonitor();
 
-/*
-    uart_printString("\n\n");
-    while(1) {
-//        uart_printString("> ");
+#endif
 
-        if ((IOB(PADDR_UART2, UART_LSR) & (1 << 0)) != 0) {
-            uint8 c = IOB(PADDR_UART2, UART_RHR);
-            uart_printChar(c);
-        }
-    }
-*/
     return 0;
 }
 
