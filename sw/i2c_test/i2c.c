@@ -1,14 +1,14 @@
 #include "i2c.h"
 #include "mint/osbind.h"    // for Super/Supexec
 
-#define BOARD_REV 0xA0
+#define BOARD_REV 0xA1
 
 #if (BOARD_REV == 0xA0)
 #define MFP_BIT_DTA     7
 #define MFP_BIT_CLK     3
 #else
-#define MFP_BIT_DTA     7
-#define MFP_BIT_CLK     3
+#define MFP_BIT_DTA     3
+#define MFP_BIT_CLK     7
 #endif
 #define MFP_BITMASK     ((1 << MFP_BIT_CLK) | (1 << MFP_BIT_DTA))
 #define I2C_DELAY       10000
