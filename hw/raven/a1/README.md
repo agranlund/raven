@@ -7,7 +7,7 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
 
 ## Status:
-Built and being tested.
+Working.
 
 
 ## Info:
@@ -65,4 +65,19 @@ Built and being tested.
 - BOM: PLCC socket Preci-Dip 540-88-084-24-008 is brown, find black replacement
 - BOM: ATX connector TE 1-1775099-3 is white, find black replacement
 - BOM: Jumpers TE 1-881545-4 are difficult to grab, pick a different variant
+
+
+## Untested:
+- Midi In
+- Eiffel Fan control (Eiffel software change likely required)
+- 5V -> 3.3V voltage drop diodes
+
+
+## Todo:
+- Burst access
+- Tune 55ns RAM/ROM access
+- Tune 10ns RAM access
+- Support rom/ram combo simm
+- Acknowledge ISA:IOCS16
+- Acknowledge ISA:ZEROWS
 
