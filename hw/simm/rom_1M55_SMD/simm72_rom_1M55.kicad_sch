@@ -5,7 +5,7 @@
   (paper "A4")
 
   (title_block
-    (title "Raven SIMM template")
+    (title "Raven 1MB ROM")
     (date "2023")
     (rev "A0")
     (company "Licensed under CERN-OHL-P v2")
@@ -3512,7 +3512,7 @@
     (pin "8" (uuid 36e1052f-fc57-4bbc-9256-08aa3732327b))
     (pin "9" (uuid 81344e9d-43b9-49b8-ab59-aa9021aa7cf9))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "J1") (unit 1)
         )
@@ -3537,7 +3537,7 @@
     )
     (pin "1" (uuid f708375d-3ab9-46bf-ac52-14c5e1fc12e2))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR02") (unit 1)
         )
@@ -3569,7 +3569,7 @@
     (pin "1" (uuid 6db07a82-b7a1-4cbc-a13a-1bbefe7b6ff9))
     (pin "2" (uuid f2a53edf-55f0-4e62-86b5-d0efa23ccc74))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "C2") (unit 1)
         )
@@ -3594,7 +3594,7 @@
     )
     (pin "1" (uuid f6c34432-d0e3-416a-a545-0fc369882bec))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR013") (unit 1)
         )
@@ -3619,7 +3619,7 @@
     )
     (pin "1" (uuid 832fe58f-329a-440a-8782-d44f95e4d5b2))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR01") (unit 1)
         )
@@ -3644,7 +3644,7 @@
     )
     (pin "1" (uuid e2548ec6-619d-4ec3-a267-05b534586874))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR07") (unit 1)
         )
@@ -3669,7 +3669,7 @@
     )
     (pin "1" (uuid feaa5895-09ed-40aa-8886-66a76df38ef7))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR011") (unit 1)
         )
@@ -3694,7 +3694,7 @@
     )
     (pin "1" (uuid 454cb9d4-87d1-47fd-ac01-e06e3540e2ea))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR012") (unit 1)
         )
@@ -3741,7 +3741,7 @@
     (pin "1" (uuid b71e0c25-61d7-43a2-bcc0-3c2bc8d9a606))
     (pin "3" (uuid e0ea50d2-ed12-4e44-a4d2-07b3d634d503))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "IC1") (unit 1)
         )
@@ -3766,7 +3766,7 @@
     )
     (pin "1" (uuid b039129a-c2bc-444a-87f0-389bd700fb20))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR05") (unit 1)
         )
@@ -3791,7 +3791,7 @@
     )
     (pin "1" (uuid 19a1a26c-2c2e-4c75-9e5a-1d454ec4a4b7))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR04") (unit 1)
         )
@@ -3823,7 +3823,7 @@
     (pin "1" (uuid e1462f7d-bd90-417a-b93d-007612454a1e))
     (pin "2" (uuid a4e74d95-503b-45f3-98d8-85780d38e119))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "C3") (unit 1)
         )
@@ -3848,7 +3848,7 @@
     )
     (pin "1" (uuid b2ca7c84-2d9b-494f-9546-944d88405201))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR03") (unit 1)
         )
@@ -3873,7 +3873,7 @@
     )
     (pin "1" (uuid f9b6db7f-ff9a-464e-9f54-87617f5fbc08))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR010") (unit 1)
         )
@@ -3960,7 +3960,7 @@
     (pin "8" (uuid 210f3b42-acc7-4fd2-9b28-5c513620099c))
     (pin "39" (uuid f58327b5-ab4d-4eb9-8e73-690ed01dfc41))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "IC2") (unit 1)
         )
@@ -3985,7 +3985,7 @@
     )
     (pin "1" (uuid ab0aa4f4-bd79-4302-aac8-a59756b3e6a8))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR06") (unit 1)
         )
@@ -4010,7 +4010,7 @@
     )
     (pin "1" (uuid 8aafb65e-6812-4f6f-b65c-56c14eb3809b))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR08") (unit 1)
         )
@@ -4035,7 +4035,7 @@
     )
     (pin "1" (uuid 977231bc-1060-4313-8599-74656b971ba7))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR09") (unit 1)
         )
@@ -4122,7 +4122,7 @@
     (pin "8" (uuid 40b2fa0a-0a73-4fdb-804a-36d37a038fcb))
     (pin "39" (uuid 77d1d5ba-6703-4985-879d-608a7495549c))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "IC3") (unit 1)
         )
@@ -4154,7 +4154,7 @@
     (pin "1" (uuid 892cd23b-c40b-46ad-a396-b2e4926b61da))
     (pin "2" (uuid 6660fb17-c3e0-4ae7-9890-48f6a1ccb62f))
     (instances
-      (project "simm72_rom_16M55"
+      (project "simm72_rom_1M55"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "C1") (unit 1)
         )
