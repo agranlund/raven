@@ -18,6 +18,9 @@ The computer works and runs EmuTOS + FreeMiNT but if you decide to build or buy 
 It's early days still and waiting on drivers or fixes made by others could very well have you waiting indefinitely.
 If you are into that sort of programming then this board could potentially provide a bunch of fun.
 
+## Manual
+
+- [Revision.A1](manual.pdf)
 
 ## Specifications
 
