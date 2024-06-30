@@ -18,12 +18,8 @@ The computer works and runs EmuTOS + FreeMiNT but if you decide to build or buy 
 It's early days still and waiting on drivers or fixes made by others could very well have you waiting indefinitely.
 If you are into that sort of programming then this board could potentially provide a bunch of fun.
 
-## Manual
-
-- [Revision.A1](manual.pdf)
 
 ## Specifications
-
 - Motorola 68060 CPU
 - Max 48MB RAM
 - Max 16MB ROM
@@ -39,9 +35,10 @@ If you are into that sort of programming then this board could potentially provi
 - MC68901 mfp
 - ISA 16bit expansion slots x4
 
+## Manual
+- [Revision.A1](manual.pdf)
 
 ## Required or recommended parts
-
 - Raven motherboard
     - [Revision.A1](hw/raven/a1/)
     - [Revision.A0](hw/raven/a0/)
@@ -58,7 +55,6 @@ If you are into that sort of programming then this board could potentially provi
 - RS232<->USB cable is highly recommended
 
 ## Additional tools
-
 - [ROM module programmer](hw/simm/programmer/)
 - Programmer for ATF1508AS, for example ATDH1150-USB
 - Programmer for ATF22V10C, for example XGecu TL866II-Plus
