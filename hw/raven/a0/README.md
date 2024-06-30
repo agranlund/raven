@@ -16,9 +16,6 @@ No efforts will be made to ensure software or firmware developments maintain com
 
 Revision.A1 should be considered the corrected version of this board.
 
-![Alt text](images/raven_a0.jpg?raw=true "")
-
-
 
 ## Info:
 - Designed for JLCPCB Standard Service 6 layers
