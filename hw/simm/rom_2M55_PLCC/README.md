@@ -13,4 +13,5 @@
 | Kemet                 | C1206C104K5RACTU            | 0.1u        | 4     | C1, C2, C3, C4                        |
 
 
+Alternatively, use SST39LF020-55 for a total of 1MB instead of 2MB
 
