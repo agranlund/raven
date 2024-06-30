@@ -14,7 +14,9 @@ Thus, things like cost-reduction or other factors that might be important for a 
 Hardware and software sources are provided as-is and for free but I cannot make any guarantees or promise of support, it's all very much work in progress.
 This thread on the Exxos forums is the build log of my machine: https://www.exxosforum.co.uk/forum/viewtopic.php?f=18&t=6940
 
-Prototype A0 was a success and runs EmuTOS and FreeMiNT but I still want to stress that if you're expecting everything to just work then you probably don't want to build this. It's early days still but if you're coming in with a DIY mindset and don't mind getting your hands dirty then it could potentially provide a bunch of fun - it is for me.
+The computer works and runs EmuTOS + FreeMiNT but if you decide to build or buy this board I very much recommend coming in with a DIY mindset.
+It's early days still and waiting on drivers or fixes made by others could very well have you waiting indefinitely.
+If you are into that sort of programming then this board could potentially provide a bunch of fun.
 
 
 ## Specifications
