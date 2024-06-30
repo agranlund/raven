@@ -36,7 +36,7 @@ If you are into that sort of programming then this board could potentially provi
 - ISA 16bit expansion slots x4
 
 ## Manual
-- [Revision.A1](manual.pdf)
+- [Revision.A1](manual_a1.pdf)
 
 ## Required or recommended parts
 - Raven motherboard
