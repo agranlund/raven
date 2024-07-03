@@ -81,8 +81,8 @@ Tested with 48mhz oscillator for 96mhz CPU, 48mhz BUS speed.
 - Support rom/ram combo simm
 - Acknowledge ISA:IOCS16
 - Acknowledge ISA:ZEROWS
-- Eiffel fan connector works only in default setting (On: 40°C, Off 30°C)
-  Software needs modification to allow changing settings.
+- Eiffel fan connector J305 operates in default setting (On: 40°C, Off 30°C)
+  Software needs modification to support changing settings.
 
 
 
