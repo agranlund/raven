@@ -10,8 +10,8 @@ isa_core_t  isa;
 
 //-----------------------------------------------------------------------------------
 // interrupts
+//  todo: implement and move these to a separate isa_irq.c file
 //-----------------------------------------------------------------------------------
-
 unsigned int irq_set_hades(unsigned char irq, unsigned int funct) {
     return 0;
 }
@@ -23,6 +23,13 @@ unsigned int irq_set_milan(unsigned char irq, unsigned int funct) {
     return 0;
 }
 unsigned char irq_en_milan(unsigned char irq, unsigned char enabled) {
+    return 0;
+}
+
+unsigned int irq_set_panther(unsigned char irq, unsigned int funct) {
+    return 0;
+}
+unsigned char irq_en_panther(unsigned char irq, unsigned char enabled) {
     return 0;
 }
 
@@ -145,7 +152,6 @@ bool bus_init()
 
 int super_main() {
     OpenFiles();
-
     if (!bus_init() || (isa.bus.iobase == 0)) {
         return 0;
     }

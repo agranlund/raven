@@ -1,0 +1,64 @@
+# ------------------------------------------------------
+CC      		= m68k-atari-mint-gcc
+STRIP	        = m68k-atari-mint-strip -s
+FLAGS	        = m68k-atari-mint-flags -S
+LIBCMINI_DIR	= $(ROOTDIR)/ext/libcmini
+LIBCMINI_CRT	= $(LIBCMINI_DIR)/build/minicrt0.o
+GCC_OBJS		= $(ROOTDIR)/ext/lgcc.o
+
+CPUFLAGS 	    = -m68000
+OUTBIN          = $(BIN)
+
+SFLAGS = $(OPT) $(CPUFLAGS)
+
+CFLAGS = $(OPTS) $(CPUFLAGS) \
+    -I$(LIBCMINI_DIR)/include \
+    -std=c99 -fomit-frame-pointer -fno-exceptions -ffast-math \
+	-Wall -Wno-multichar -Wno-unused-but-set-variable -Wno-unused-variable
+
+LFLAGS = \
+    -L$(LIBCMINI_DIR)/build \
+    -nodefaultlibs -nostdlib -nostartfiles -lcmini \
+	-Wl,-Map,mapfile
+
+LINKOBJS        = $(LIBCMINI_CRT) $(GCC_OBJS) $(OBJS)
+
+# ------------------------------------------------------
+
+.PHONY: clean all
+
+all: $(OUTBIN)
+
+$(OUTBIN) : $(BIN)
+	cp $(BIN) $(OUTBIN)
+
+$(BIN): common Makefile $(LINKOBJS)
+	$(CC) $(CFLAGS) $(LINKOBJS) $(LFLAGS) -o $(BIN)
+	$(STRIP) $(BIN)
+	$(FLAGS) $(BIN)
+
+clean:
+	rm -f $(BIN)
+	rm -f $(LINKOBJS)
+	rm -f mapfile
+
+# ------------------------------------------------------
+
+common_clean:
+	rm -f $(GCC_OBJS)
+	rm -f ext/stripx/stripx
+	cd $(LIBCMINI_DIR) && make clean
+
+common:
+	cd $(LIBCMINI_DIR) && make
+
+$(LIBCMINI_CRT):
+	cd $(LIBCMINI_DIR) && make
+
+%.o : %.S
+	$(CC) $(SFLAGS) -c $< -o $@
+
+%.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+
