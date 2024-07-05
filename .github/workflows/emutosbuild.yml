@@ -1,0 +1,72 @@
+name: EmuTOS build, test and deploy
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-20.04
+
+    # Prevent forks from running this job.
+    # Note that this is merely for convenience, to avoid forks from being
+    # bothered by failing GitHub Actions jobs. Forks cannot accidentally
+    # or deliberately deploy to EmuTOS SourceForge page without access
+    # to the SSH key.
+    if: ${{startsWith( github.repository, 'emutos/' ) }}
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Install SSH keys
+      env:
+        SSH_ID: ${{ secrets.SSH_ID }}
+      run: .scripts/install_ssh_id.sh
+    - name: Install packages
+      run: |
+        sudo add-apt-repository ppa:vriviere/ppa && sudo apt-get update
+        sudo apt-get install cross-mint-essential dos2unix hatari aranym mtools lftp
+    - name: Display package versions
+      run: |
+        git --version
+        make --version
+        ld --version
+        gcc --version
+        awk -W version
+        m68k-atari-mint-ld --version
+        m68k-atari-mint-ar --version
+        m68k-atari-mint-gcc --version
+        tar --version
+        unix2dos --version
+        lftp --version
+        hatari --version || true
+        aranym --version
+    - name: Build binaries
+      run: |
+        export VERSION=$(date -u +%Y%m%d-%H%M%S)-$(git rev-parse --short ${GITHUB_SHA})
+        echo VERSION=$VERSION >> $GITHUB_ENV
+        echo VERSION=$VERSION
+        make clean
+        make release VERSION=$VERSION
+    - name: Add README.md
+      env:
+        COMPARE_URL: ${{ github.event.compare }}
+        PREVIOUS_COMMIT: ${{ github.event.before }}
+        CURRENT_COMMIT: ${{ github.event.after }}
+      run: .scripts/generate-readme.sh >release-archives/README.md
+    - name: Display resulting tree
+      run: ls -l release-archives
+    - name: Test the build
+      run: |
+        unzip release-archives/emutos-1024k-*.zip
+        make test EMUTOS=$(ls $PWD/emutos-1024k-*/etos1024k.img)
+    - name: Deploy to SourceForge
+      run: .scripts/deploy.sh
+#    - name: Save binaries as build artifacts
+#      uses: actions/upload-artifact@v4
+#      with:
+#        name: emutos-${{env.VERSION}}
+#        path: release-archives/

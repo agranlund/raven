@@ -1,0 +1,108 @@
+Some coding guidelines for EmuTOS
+=================================
+This file is about coding for EmuTOS.  Like all such documents, it is
+out-of-date and incomplete.  Please feel free to suggest updates!
+
+
+Rules for the format of source files
+====================================
+- all non-binary files must have Unix line endings (i.e. lf-only NOT cr/lf or cr-only)
+
+- there must be no hard TABs in C/assembler source files (.c, .h and .S)
+
+- lines must not end with trailing spaces
+
+
+Rules for C coding
+==================
+- use an indentation of 4 spaces
+
+- the code must compile without errors using the current 'standard'
+  compiler & cross-compiler versions and flags (see the WARNFLAGS
+  makefile variable in particular)
+
+- different modules are (alas) written using different coding styles,
+  particularly with respect to the placement of braces {}.  when
+  modifying a module, try to follow the existing format of that module.
+
+- avoid cpp tricks that do not respect brace balancing, like:
+
+  instead of     please do    |  instead of     please do
+                              |
+  if( a &&    |  if( a        |  foo_t a = {  | foo_t a = {
+  #if FOO     |  #if FOO      |    1,         |   1,
+      foo )   |     && foo    |  #if FOO      | #if FOO
+  #else       |  #else        |    2};        |   2,
+      bar )   |     && bar    |  #else        | #else
+  #endif      |  #endif       |    4};        |   4,
+     ...      |    ) ...      |  #endif       | #endif
+              |               |               | };
+
+Also, when in doubt please refer to the file doc/old_code.txt, which
+contains a summary of bugs linked to old C code and ways to fix them.
+
+
+Rules for assembler coding
+==========================
+
+(1) Compatibility with C code
+-----------------------------
+As a general rule, ensure that external functions and variables can be
+accessed from C language code. To achieve this:
+- name external symbols with a leading underscore;
+- make sure external functions use CDECL conventions
+  o parameters passed on the stack,
+  o registers saved except d0-d1/a0-a1,
+  o return value in d0
+
+When TOS specifications (or, in special circumstances, considerations of
+efficiency) mean that a routine must use register parameters, name this
+routine without an underscore and make a glue routine, as in the following
+example:
+  _my_routine:
+     move.w 4(sp),d0
+     move.w 6(sp),d1
+  my_routine:
+     ...
+     rts
+Here C code would call my_routine(a,b), and assembler code would pass
+parameters in D0 and D1.
+
+Exceptions to the 'leading underscore' rule are:
+- routines and variables that can only be used from assembler, and whose
+  addresses need not be manipulated by C code (for example, the memory
+  configuration routines).
+  Note: although the exception routines will never be *called* by C code,
+  their vectors will be *accessed* by C code, so the vectors must have
+  a leading underscore.
+- addresses used to represent the names of fields in a structure, for
+  example:
+    _struct_a:
+    structamemberx:  dc.l 1
+    structamembery:  dc.l 1
+  equivalent to the following C header:
+    extern struct {
+        long x;
+        long y;
+    } struct_a;
+
+
+(2) Processor compatibility
+---------------------------
+Assembler code must be capable of running on all 680x0 processors as well
+as ColdFire.  This means that you should use 68000-only instructions
+and addressing modes for code that will be executed on 680x0 processors.
+Because ColdFire has restricted address modes for certain instructions
+(move.m is a notable example), this may mean that you will have to use
+conditional compilation in some cases.
+
+Certain parts of the code may require 680x0 instructions that are not
+present on the 68000: for example, processor detection needs this.  These
+must be generated via dc.w/dc.l.  In order to reduce the possibility of
+mistakes, there are now macros that will generate dc.w/dc.l statements
+for some of the commonly-used 680x0 mnemonics: see asmdefs.h for specifics.
+
+
+See also
+========
+- the notice on processor-specific support in bios/processor.h
