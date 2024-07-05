@@ -249,6 +249,41 @@ nosfp:  move.l  a1,(0x08).w     // restore bus error
  */
 _processor_init:
 #ifndef __mcoldfire__           // On ColdFire, the caches are enabled by the pre-OS
+
+
+
+	/* todo: this is temp */
+#ifdef MACHINE_RAVEN
+
+        moveq   #60,d0
+        swap    d0
+        move.w  d0,_mcpu_subtype    // save processor subtype
+        clr.w   d0
+        swap    d0
+        move.l  d0,_mcpu            // & type
+        move.w  #1,_longframe.w     // this is a 68010 or later
+
+        sub.l   d0,d0
+        jbsr    _detect_fpu
+        move.l  d0,_fputype
+
+
+        //moveq.l #0,d1
+        move.l  #0x80c08000,d1  // set 060 CACR value: EDC, EBC/CABC and EIC
+
+        nop
+        CINVA_BC                // invalidate the caches
+        nop
+
+        move.l  d1,d0           // recover the enable value
+#if CONF_WITH_CACHE_CONTROL
+        move.l  d0,cacr_enable  // save value to use when enabling caches
+#endif
+        MOVEC_D0_CACR
+        rts
+#endif	/* MACHINE_RAVEN */
+
+
         jbsr    _detect_cpu
         swap    d0
         move.w  d0,_mcpu_subtype    // save processor subtype

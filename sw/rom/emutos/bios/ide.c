@@ -35,6 +35,7 @@
 #include "processor.h"
 #include "biosmem.h"
 #include "amiga.h"
+#include "raven.h"
 #include "intmath.h"
 
 #if CONF_WITH_IDE
@@ -131,7 +132,7 @@ struct IDE
 #endif /* MACHINE_M548X */
 
 /* the data register is naturally byteswapped on some hardware */
-#if defined(MACHINE_AMIGA)
+#if defined(MACHINE_AMIGA) || defined(MACHINE_RAVEN)
 #define IDE_DATA_REGISTER_IS_BYTESWAPPED TRUE
 #else
 #define IDE_DATA_REGISTER_IS_BYTESWAPPED FALSE
@@ -536,6 +537,8 @@ BOOL detect_ide(void)
     has_ide = 0x01;
 #elif defined(MACHINE_FIREBEE)
     has_ide = 0x03;
+#elif defined(MACHINE_RAVEN)
+    has_ide = 0x01;	
 #elif CONF_ATARI_HARDWARE
 
     /*

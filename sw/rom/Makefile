@@ -1,6 +1,6 @@
 #Makefile
 
-EMUTOS_DIR	= ../../../emutos
+EMUTOS_DIR	= emutos
 EMUTOS_IMG	= emutos.img
 EMUTOS_ROM	= emutos-raven.rom
 OUT_BIN		= rom.bin

@@ -86,6 +86,16 @@ SECTIONS
     } >altram
 #endif
 
+#if MACHINE_RAVEN
+    .raven_reserved :
+    {
+        /* 0x0800 - 0x0C00 : unused     */
+        /* 0x0C00 - 0x0C08 : acia emu   */
+        /* 0x0C10 - 0x0CFF : unused     */
+        . = 0x0D00;
+    } >stram
+#endif
+
     /* This section is the internal BIOS stack.
      * It will *not* be cleared on startup or reset.
      */

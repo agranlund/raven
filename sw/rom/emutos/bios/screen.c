@@ -36,6 +36,7 @@
 #include "bdosbind.h"
 #include "amiga.h"
 #include "lisa.h"
+#include "raven.h"
 #include "nova.h"
 
 void detect_monitor_change(void);
@@ -628,6 +629,10 @@ void screen_init_mode(void)
     lisa_screen_init();
 #endif
 
+#ifdef MACHINE_RAVEN
+    raven_screen_init();
+#endif
+
     rez_was_hacked = FALSE; /* initial assumption */
 }
 
@@ -804,6 +809,10 @@ void screen_get_current_mode_info(UWORD *planes, UWORD *hz_rez, UWORD *vt_rez)
     *planes = 1;
     *hz_rez = 720;
     *vt_rez = 364;
+#elif defined(MACHINE_RAVEN)
+    *planes = 1;
+    *hz_rez = 640;
+    *vt_rez = 400;
 #else
     atari_get_current_mode_info(planes, hz_rez, vt_rez);
 #endif
@@ -1031,6 +1040,8 @@ const UBYTE *physbase(void)
     return amiga_physbase();
 #elif defined(MACHINE_LISA)
     return lisa_physbase();
+#elif defined(MACHINE_RAVEN)
+    return raven_physbase();
 #elif CONF_WITH_ATARI_VIDEO
     return atari_physbase();
 #else

@@ -193,14 +193,20 @@ void detect_nova(void)
     use_16bit_io = 1; /* Default for everything but Volksfarben/ST */
     is_crazydots = 0;
 
-    if (IS_BUS32 && HAS_VME && check_read_byte(0xFE900000UL+VIDSUB))
+#ifdef MACHINE_RAVEN
+	const int check_vme = 1;
+#else
+	const int check_vme = HAS_VME;
+#endif
+
+    if (IS_BUS32 && check_vme && check_read_byte(0xFE900000UL+VIDSUB))
     {
         /* Nova/Mach32 in Atari TT */
         novaregbase = (UBYTE *)0xFE900000UL;
         novamembase = (UBYTE *)0xFE800000UL;
         has_nova = 1;
     }
-    else if (HAS_VME && check_read_byte(0xFEDC0000UL+VIDSUB))
+    else if (check_vme && check_read_byte(0xFEDC0000UL+VIDSUB))
     {
         /*
          * Nova/ET4000 in Atari MegaSTe or TT:
@@ -210,7 +216,7 @@ void detect_nova(void)
         novamembase = (UBYTE *)0xFEC00000UL;
         has_nova = 1;
     }
-    else if (HAS_VME && check_read_byte(0xFEBF0000UL+VIDSUB))
+    else if (check_vme && check_read_byte(0xFEBF0000UL+VIDSUB))
     {
         /* CrazyDots in Atari MegaSTe or TT */
         novaregbase = (UBYTE *)0xFEBF0000UL;

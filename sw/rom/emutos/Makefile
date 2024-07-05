@@ -64,6 +64,9 @@ help:
 	@echo "m548x-dbug $(SREC_M548X_DBUG), EmuTOS-RAM for dBUG on ColdFire Evaluation Boards"
 	@echo "m548x-bas  $(SREC_M548X_BAS), EmuTOS for BaS_gcc on ColdFire Evaluation Boards"
 	@echo "m548x-prg  emutos.prg, a RAM tos for ColdFire Evaluation Boards with BaS_gcc"
+	@echo "raven      $(ROM_RAVEN), EmuTOS for Raven"
+	@echo "raven-prg  emutos.prg, a RAM tos for Raven"
+
 	@echo "prg     emutos.prg, a RAM tos"
 	@echo "prg256  $(EMU256_PRG), a RAM tos for ST/STe systems"
 	@echo "flop    $(EMUTOS_ST), a bootable floppy with RAM tos"
@@ -305,6 +308,7 @@ bios_src +=  memory.S processor.S vectors.S aciavecs.S bios.c xbios.c acsi.c \
              pmmu030.c 68040_pmmu.S \
              amiga.c amiga2.S spi_vamp.c \
              lisa.c lisa2.S \
+             raven.c raven2.S \
              delay.c delayasm.S sd.c memory2.c bootparams.c scsi.c nova.c \
              dsp.c dsp2.S \
              scsidriv.c
@@ -908,6 +912,42 @@ lisaboot.img: obj/lisaboot.o obj/lisautil.o obj/bootram.o
 	$(LD) $+ $(PCREL_LDFLAGS) -o $@
 
 obj/lisaboot.o: obj/ramtos.h
+
+
+#
+# Raven
+#
+
+ROM_RAVEN = emutos-raven.rom
+
+RAVEN_CPUFLAGS = -m68060
+RAVEN_OPTFLAGS = $(SMALL_OPTFLAGS)
+#RAVEN_DEFS = -DMACHINE_RAVEN -DSTATIC_ALT_RAM_ADDRESS=0x01000000 -DINITINFO_DURATION=0 -DSHOW_STARTUP_MESSAGE=0
+RAVEN_DEFS = -DMACHINE_RAVEN -DINITINFO_DURATION=0 -DSHOW_STARTUP_MESSAGE=0
+#RAVEN_DEFS = -DMACHINE_RAVEN -DINITINFO_DURATION=0 -DSHOW_STARTUP_MESSAGE=0 -DRS232_DEBUG_PRINT=1 -DENABLE_KDEBUG
+
+.PHONY: raven
+NODEP += raven
+raven: UNIQUE = $(COUNTRY)
+raven: ROM_PADDED = $(ROM_RAVEN)
+raven: CPUFLAGS = $(RAVEN_CPUFLAGS)
+raven: OPTFLAGS = $(RAVEN_OPTFLAGS)
+raven: override DEF += $(RAVEN_DEFS)
+raven: WITH_CLI = 1
+raven: WITH_AES = 1
+raven: ROMSIZE = 256
+raven:
+	$(MAKE) CPUFLAGS='$(CPUFLAGS)' DEF='$(DEF)' OPTFLAGS='$(OPTFLAGS)' WITH_CLI=$(WITH_CLI) WITH_AES=$(WITH_AES) UNIQUE=$(UNIQUE) ROMSIZE=$(ROMSIZE) ROM_PADDED=$(ROM_PADDED) $(ROM_PADDED) REF_OS=TOS206
+	@printf "$(LOCALCONFINFO)"
+
+.PHONY: raven-prg
+NODEP += raven-prg
+raven-prg: CPUFLAGS = $(RAVEN_CPUFLAGS)
+raven-prg: OPTFLAGS = $(RAVEN_OPTFLAGS)
+raven-prg: override DEF += $(RAVEN_DEFS)
+raven-prg:
+	@echo "# Building raven $(EMUTOS_PRG)"
+	$(MAKE) CPUFLAGS='$(CPUFLAGS)' DEF='$(DEF)' OPTFLAGS='$(OPTFLAGS)' WITH_CLI=1 WITH_AES=1 UNIQUE=$(UNIQUE) prg
 
 #
 # localisation support: create bios/ctables.h include/i18nconf.h

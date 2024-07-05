@@ -39,6 +39,7 @@
 #include "coldfire.h"
 #include "amiga.h"
 #include "lisa.h"
+#include "raven.h"
 
 
 /* forward declarations */
@@ -1082,6 +1083,10 @@ void kbd_init(void)
 
 #ifdef MACHINE_LISA
     lisa_kbd_init();
+#endif
+
+#ifdef MACHINE_RAVEN
+    raven_kbd_init();
 #endif
 
     /* initialize the IKBD */

@@ -599,7 +599,7 @@ void machine_detect(void)
 #endif
 
     detected_busses = check_busses();
-    KDEBUG(("detected_busses = 0x%04x\n", detected_busses));
+    KDEBUG(("detected_busses = 0x%04x\n", (unsigned int)detected_busses));
 
 #if CONF_WITH_MONSTER
     detect_monster();
@@ -834,6 +834,8 @@ const char * machine_name(void)
     return "Apple Lisa";
 #elif defined(MACHINE_M548X)
     return m548x_machine_name();
+#elif defined(MACHINE_RAVEN)
+    return "Raven";
 #else
     return guess_machine_name();
 #endif

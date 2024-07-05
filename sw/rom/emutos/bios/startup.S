@@ -254,6 +254,15 @@ _main:
 # define OSXH_68060     0
 # define OSXH_68080     0
 # define OSXH_COLDFIRE  (1<<8)
+#elif defined(MACHINE_RAVEN)
+# define OSXH_68000     0
+# define OSXH_68010     0
+# define OSXH_68020     0
+# define OSXH_68030     0
+# define OSXH_68040     0
+# define OSXH_68060     (1<<5)
+# define OSXH_68080     0
+# define OSXH_COLDFIRE  0
 #else
 # define OSXH_COLDFIRE  0
 # ifndef __mcoldfire__
@@ -407,7 +416,7 @@ valid_st_mmu_config:
 // Note: LisaEm doesn't properly implement movec/pmove illegal instructions,
 // so we just avoid them on MACHINE_LISA.
 
-#if !defined(__mcoldfire__) && !defined(MACHINE_LISA)
+#if !defined(__mcoldfire__) && !defined(MACHINE_LISA) && !defined(MACHINE_RAVEN)
         // first, reset the VBR
         // it may have been modified before emutos-ram or soft reset
         move.l  #vbr_ok,16     // must be 68000 if we get illegal instrn error
@@ -416,7 +425,7 @@ valid_st_mmu_config:
 vbr_ok:
 #endif
 
-#if CONF_WITH_RESET && !defined(MACHINE_AMIGA)
+#if CONF_WITH_RESET && !defined(MACHINE_AMIGA) && !defined(MACHINE_RAVEN)
         // now, reset the external hardware
 
         // we don't need to call reset on Amiga
@@ -483,7 +492,7 @@ cache_done:
 /*
  * disable the MMU
  */
-#if !defined(__mcoldfire__) && !defined(MACHINE_LISA)
+#if !defined(__mcoldfire__) && !defined(MACHINE_LISA) && !defined(MACHINE_RAVEN)
         move.l  #not_68030,0x2c    // PMOVE is lineF on non-68030 systems
         lea     zero,a0
         PMOVE_A0_TTR0              // first we initialise the TTRs (ACRs on a 68ec030)

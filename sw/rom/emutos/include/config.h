@@ -621,6 +621,63 @@
 #endif
 
 /*
+ * Defaults for the Raven machine
+ */
+#ifdef MACHINE_RAVEN
+# ifndef CONF_ATARI_HARDWARE
+#  define CONF_ATARI_HARDWARE 0
+# endif
+# ifndef CONF_STRAM_SIZE
+#  define CONF_STRAM_SIZE 4UL*1024*1024
+# endif
+# ifndef CONF_WITH_TTRAM
+#  define CONF_WITH_TTRAM 1
+# endif
+# ifndef CONF_WITH_ADVANCED_CPU
+#  define CONF_WITH_ADVANCED_CPU 1
+# endif
+# ifndef CONF_WITH_APOLLO_68080
+#  define CONF_WITH_APOLLO_68080 0
+# endif
+# ifndef CONF_WITH_CACHE_CONTROL
+#  define CONF_WITH_CACHE_CONTROL 1
+# endif
+# ifndef CONF_WITH_MFP
+#  define CONF_WITH_MFP 1
+# endif
+# ifndef CONF_WITH_MFP_RS232
+#  define CONF_WITH_MFP_RS232 1
+# endif
+# ifndef CONF_WITH_YM2149
+#  define CONF_WITH_YM2149 1
+# endif
+# ifndef CONF_WITH_PRINTER_PORT
+#  define CONF_WITH_PRINTER_PORT 1
+# endif
+# ifndef CONF_WITH_IDE
+#  define CONF_WITH_IDE 1
+# endif
+# ifndef CONF_WITH_BUS_ERROR
+#  define CONF_WITH_BUS_ERROR 1
+# endif
+# ifndef CONF_WITH_68040_PMMU
+#  define CONF_WITH_68040_PMMU 0
+# endif
+# ifndef CONF_WITH_NOVA
+#  define CONF_WITH_NOVA 1
+# endif
+# ifndef CONF_WITH_ALT_DESKTOP_GRAPHICS
+#  define CONF_WITH_ALT_DESKTOP_GRAPHICS 0 /* Like ST, not Falcon */
+# endif
+# ifndef CONF_WITH_3D_OBJECTS
+#  define CONF_WITH_3D_OBJECTS 0 /* Like ST, not Falcon */
+# endif
+# ifndef CONF_DETECT_FIRST_BOOT_WITHOUT_MEMCONF
+#  define CONF_DETECT_FIRST_BOOT_WITHOUT_MEMCONF 1
+# endif
+#endif
+
+/*
  * Defaults for the M548x machine
  */
 #ifdef MACHINE_M548X

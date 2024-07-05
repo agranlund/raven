@@ -61,6 +61,7 @@
 #include "tosvars.h"
 #include "amiga.h"
 #include "lisa.h"
+#include "raven.h"
 #include "coldfire.h"
 #if WITH_CLI
 #include "../cli/clistub.h"
@@ -300,6 +301,12 @@ static void bios_init(void)
 #if CONF_WITH_MFP
     KDEBUG(("mfp_init()\n"));
     mfp_init();
+#endif
+
+#if MACHINE_RAVEN
+	cookie_add(0x5241564E, 0);		/* 'RAVN' */
+    KDEBUG(("raven_mfp_init()\n"));
+    raven_mfp_init();
 #endif
 
 #if CONF_WITH_TT_MFP
