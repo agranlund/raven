@@ -212,19 +212,20 @@ DECODE_ISA16        = DECODE_ISA_IO16 # DECODE_ISA_RAM16;
 DECODE_68150        = DECODE_IDE # DECODE_YM # DECODE_MFP1 # DECODE_MFP2 # DECODE_ISA;
 
 
-node [BSTATE0..8];
+//----------------------------------------------------------------------------------------
+// Localbus
+//----------------------------------------------------------------------------------------
 node BUSEN;
 node BUSTA;
-
-[BSTATE0..6].ck = PCLK;
-[BSTATE0..6].ar = RSTI # BSTATE5 # (BUSTA & TS) # !TIP;
+node [BSTATE0..5];
+[BSTATE0..5].ck = PCLK;
+[BSTATE0..5].ar = RSTI # BSTATE5 # (BUSTA & TS) # !TIP;
 BSTATE0.d = BSTATE0 # SAS;
 BSTATE1.d = BSTATE0;
 BSTATE2.d = BSTATE1;
 BSTATE3.d = BSTATE2;
 BSTATE4.d = BSTATE3;
 BSTATE5.d = BSTATE4;
-BSTATE6.d = BSTATE5;
 
 BUSEN = BSTATE0 & !TS & TIP & !BSTATE4;           // 48mhz
 BUSTA = BSTATE3 & !TS & TIP;
