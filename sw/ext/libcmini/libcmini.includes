@@ -1,7 +1,0 @@
-include
-sources
-/usr/m68k-atari-mint/include
-tests/acctest
-tests/acctest/sources
-tests/acctest/include
-.
