@@ -9,4 +9,5 @@ bak/*
 *-backups/
 _autosave*
 #auto_saved_files#
-sw/isa/drivers/*
+sw/isa/drivers/ne2000/*
+
