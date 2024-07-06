@@ -59,7 +59,8 @@ typedef struct
     unsigned int    (*irq_set)(unsigned char irq, unsigned int func);
     unsigned int    (*irq_en)(unsigned char irq, unsigned char enabled);
 
-    // todo: replace with function calls to find device by name/uid (and index)
+    isa_dev_t*      (*find_dev)(const char* id, unsigned short idx);
+
     unsigned short  numdevs;
     isa_dev_t       devs[ISA_MAX_DEVS];
 

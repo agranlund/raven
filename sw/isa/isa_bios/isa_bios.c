@@ -40,6 +40,26 @@ unsigned char irq_en_raven(unsigned char irq, unsigned char enabled) {
     return 0;
 }
 
+//-----------------------------------------------------------------------------------
+// device helpers
+//-----------------------------------------------------------------------------------
+isa_dev_t* dev_find(const char* idstr, unsigned short idx) {
+    uint32 id = StrToId(idstr);
+    unsigned short found = 0;
+    for (unsigned short i=0; i<isa.bus.numdevs; i++) {
+        for (int j=0; j<ISA_MAX_DEV_IDS && (isa.bus.devs[i].id[j] != 0); j++) {
+            if (isa.bus.devs[i].id[j] == id) {
+                if (found == idx) {
+                    return &isa.bus.devs[i];
+                }
+                found++;
+                break;
+            }
+        }
+    }
+    return 0;
+}
+
 
 //-----------------------------------------------------------------------------------
 //
@@ -110,6 +130,7 @@ bool bus_init()
 
     // common setup
     isa.bus.version = ISA_BIOS_VERSION;
+    isa.bus.find_dev = dev_find;
     switch (isa.bus.endian) {
         case ISA_ENDIAN_BE:
             isa.bus.inp = isa.bus.inp ? isa.bus.inp : inp_be;

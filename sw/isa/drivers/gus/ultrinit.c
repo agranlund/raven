@@ -212,7 +212,7 @@ int gusDetect(unsigned short port)
     gusdev.ram_gf1.total = gusDetectRam(16 * 1024 * 1024UL, gusdev.ram_gf1.size, &gusdev.ram_gf1.cfg);
     gusWriteSynthRegW(0x52, gusReadSynthRegB(0x52) | gusdev.ram_gf1.cfg);
 
-    printf("gf1 ram = %d\r\n", gusdev.ram_gf1.total);
+    //printf("gf1 ram = %d\r\n", gusdev.ram_gf1.total);
 
     // amd dram config
     if (gusSetEnhancedMode(1)) {
@@ -221,7 +221,7 @@ int gusDetect(unsigned short port)
         gusWriteSynthRegW(0x52, (gusReadSynthRegW(0x52) & 0xfff0) | gusdev.ram_amd.cfg);
     }
 
-    printf("amd ram = %d\r\n", gusdev.ram_amd.total);
+    //printf("amd ram = %d\r\n", gusdev.ram_amd.total);
 
     // todo: rom bank settings
 
@@ -294,9 +294,13 @@ int gusDetect(unsigned short port)
 
 int gusAutoDetect()
 {
-    // todo: find device in pnp bios
+    // ask isa_bios
+    isa_dev_t* dev = isa->find_dev("GRV0000", 0);
+    if (dev) {
+        return gusDetect(dev->port[0]);
+    }
 
-    // probe the isa bus like a caveman
+    // poke at the bus like a caveman
     const unsigned short port_st = 0x200;
     const unsigned short port_en = 0x280;
     for (unsigned short port = port_st; port < port_en; port += 0x10) {
