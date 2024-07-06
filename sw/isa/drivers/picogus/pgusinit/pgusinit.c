@@ -1,11 +1,26 @@
-#include <conio.h>
-#include <dos.h> 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <i86.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+    #include <stdint.h>
+    #include <stdbool.h>
+
+#ifdef __ATARI__
+    #include <ext.h>
+    #include <mint/cookie.h>
+    #include "../../../isa.h"
+
+    isa_t* isa;
+    #define inp(x)     isa->inp((x))
+    #define inpw(x)    isa->inpw((x))
+    #define outp(x,y)  isa->outp((x),(y))
+    #define outpw(x,y) isa->outpw((x),(y))
+
+#else
+
+    #include <conio.h>
+    #include <dos.h> 
+    #include <i86.h>
+#endif
 
 #define CONTROL_PORT 0x1D0
 #define DATA_PORT_LOW  0x1D1
@@ -326,7 +341,21 @@ int write_firmware(const char* fw_filename, uint8_t protocol) {
     return 0;
 }
 
+
+#ifdef __ATARI__
+int super_main();
+int argc; char** argv;
+int main(int _argc, char* _argv[]) {
+    argc = _argc; argv = _argv;
+    return Supexec(super_main);
+}
+int super_main() {
+    if (Getcookie(C__ISA, (long*)&isa) == C_NOTFOUND) {
+        return 0;
+    }
+#else
 int main(int argc, char* argv[]) {
+#endif
     int e;
     unsigned short buffer_size = 0;
     unsigned short dma_interval = 0;
@@ -529,10 +558,11 @@ int main(int argc, char* argv[]) {
         if (!buffer_size) {
             buffer_size = 4;
         }
+
         outp(CONTROL_PORT, 0x10); // Select audio buffer register
         outp(DATA_PORT_HIGH, (unsigned char)(buffer_size - 1));
         printf("Audio buffer size set to %u samples\n", buffer_size);
-        
+
         outp(CONTROL_PORT, 0x11); // Select DMA interval register
         outp(DATA_PORT_HIGH, dma_interval);
         if (dma_interval == 0) {
@@ -547,6 +577,10 @@ int main(int argc, char* argv[]) {
             printf("Fixed 44.1kHz output enabled (EXPERIMENTAL)\n");
         }
         
+        #ifdef __ATARI__
+        delay(20);
+        #endif
+
         outp(CONTROL_PORT, 0x04); // Select port register
         port = inpw(DATA_PORT_LOW); // Get port
         printf("Running in GUS mode on port %x\n", port);

@@ -1,0 +1,8 @@
+ROOTDIR 	= ../../../..
+BIN  		= pgusinit.prg
+OPTS 		= -D__ATARI__ -Os
+
+OBJS =  pgusinit.o
+
+include $(ROOTDIR)/Makefile.common
+
