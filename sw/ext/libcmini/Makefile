@@ -3,7 +3,7 @@
 # run "VERBOSE=yes make <target>"
 
 ifndef VERBOSE
-  	VERBOSE=no
+  	VERBOSE=yes
 endif
 ifeq (,$(filter $(VERBOSE),Y yes))
   	Q=@
@@ -19,13 +19,14 @@ all:$(patsubst %,%/$(APP),$(TRGTDIRS))
 # ONLY_68K: for faster developing; set to Y to build only the 68000 library
 # BUILD_CF: Build ColdFire binaries.
 #
-ONLY_68K=N
-BUILD_CF=Y
+ONLY_68K=Y
+BUILD_CF=N
 BUILD_FAST=$(shell if $(CC) -mfastcall -E - < /dev/null >/dev/null 2>&1; then echo Y; else echo N; fi)
-BUILD_SOFT_FLOAT=Y
-BUILD_SHORT=Y
+BUILD_SOFT_FLOAT=N
+BUILD_SHORT=N
 COMPILE_ELF=N
 STDIO_WITH_LONG_LONG=N
+ONLY_INTEGERS=Y
 
 ifneq (,$(filter $(COMPILE_ELF),Y yes))
 	CROSSPREFIX=m68k-atari-mintelf-
@@ -35,7 +36,7 @@ endif
 
 CFLAGS=\
 	   -Wall -Wstrict-prototypes -Wmissing-prototypes -Wdeclaration-after-statement -Werror \
-	   -Os \
+	   -Os -std=c99 -D__USE_ISOC99 \
 	   -fomit-frame-pointer
 
 -include Make.config
@@ -54,6 +55,11 @@ ifneq (,$(filter $(STDIO_WITH_LONG_LONG),Y yes))
 	CFLAGS+=-DSTDIO_WITH_LONG_LONG
 endif
 
+ifneq (,$(filter $(ONLY_INTEGERS),Y yes))
+	CFLAGS+=-DONLY_INTEGER_IO
+endif
+
+CFLAGS+=-DSTDIO_MAP_NEWLINE
 
 STARTUP= \
 	$(SRCDIR)/crt0.S

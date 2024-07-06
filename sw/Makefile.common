@@ -3,7 +3,7 @@ CC      		= m68k-atari-mint-gcc
 STRIP	        = m68k-atari-mint-strip -s
 FLAGS	        = m68k-atari-mint-flags -S
 LIBCMINI_DIR	= $(ROOTDIR)/ext/libcmini
-LIBCMINI_CRT	= $(LIBCMINI_DIR)/build/crt0.o
+LIBCMINI_CRT	= $(LIBCMINI_DIR)/build/objs/crt0.o
 GCC_OBJS		= $(ROOTDIR)/ext/lgcc.o
 
 CPUFLAGS 	    = -m68000
