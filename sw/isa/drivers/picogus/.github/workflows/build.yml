@@ -1,0 +1,142 @@
+name: Build
+on: [push, pull_request]
+jobs:
+    build-firmware:
+      runs-on: ubuntu-latest
+      env: 
+        BUILD_TYPE: "Release"
+        PICOSDK_VER: "1.5.1"
+        PICOEXTRA_VER: "sdk-1.5.1"
+        # The Pico-SDK will listen to these environment vars
+        PICO_SDK_PATH: ${{github.workspace}}/pico/pico-sdk
+        PICO_EXTRAS_PATH: ${{github.workspace}}/pico/pico-extras
+        OUTPUT_DIR: ${{github.workspace}}/binaries
+      steps:
+      - name: Checkout repo with submodules
+        uses: actions/checkout@v4
+        with:
+            submodules: recursive
+
+      - name: Install Arm GNU Toolchain (arm-none-eabi-gcc)
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
+        with:
+          release: '13.2.Rel1'
+
+      # Since we reference stable versions of Pico-SDK and pico-extras, we can cache their downloads.
+      # If this were to reference changing branches (like "master"), this caching step must be removed!!!
+      - name: Cache Pico-SDK and Extras 
+        id: cache-sdk
+        uses: actions/cache@v4
+        with:
+          path: ${{github.workspace}}/pico/
+          key: ${{ env.PICOSDK_VER }}-${{ env.PICOEXTRA_VER }}          
+
+      # If we did not find stuff in the cache, download it fresh.
+      # Use method recommended by Pico SDK docs: not a full recursive clone
+      - name: Clone Pico-SDK
+        if: steps.cache-sdk.outputs.cache-hit != 'true'
+        run: |
+          git clone -b "$PICOSDK_VER" --depth 1 https://github.com/raspberrypi/pico-sdk.git $PICO_SDK_PATH
+          cd $PICO_SDK_PATH
+          git submodule update --init --depth 1
+      - name: Clone Pico-Extras
+        if: steps.cache-sdk.outputs.cache-hit != 'true'
+        run: |
+          git clone -b "$PICOEXTRA_VER" --depth 1 https://github.com/raspberrypi/pico-extras.git $PICO_EXTRAS_PATH
+          cd $PICO_EXTRAS_PATH
+          git submodule update --init --depth 1
+
+      - name: Create Build Environment
+        run: cmake -E make_directory ${{github.workspace}}/build
+
+      - name: Patch Pico SDK to allow LTO
+        run: sed -i 's/WRAPPER_FUNC(x) __wrap_/WRAPPER_FUNC(x) __attribute__((used)) __wrap_/' ${{env.PICO_SDK_PATH}}/src/rp2_common/pico_platform/include/pico/platform.h
+
+      - name: Build Mega Firmware
+        shell: bash
+        working-directory: ${{github.workspace}}/build
+        run: |
+          mkdir -p $OUTPUT_DIR
+          cmake $GITHUB_WORKSPACE/sw -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPROJECT_TYPE="MULTIFW" -DUSE_LTO=1 -DUSB_JOYSTICK=1
+          cmake --build . --config $BUILD_TYPE --parallel $(nproc)
+          cp picogus.uf2 $OUTPUT_DIR/picogus.uf2
+
+      # will generate PicoGUS Firmwares.zip as downloadable artifact with all .uf2 files
+      - name: Upload All Firmwares
+        uses: actions/upload-artifact@v4
+        with:
+          name: PicoGUS Firmwares
+          path: ${{env.OUTPUT_DIR}}
+
+    build-pgusinit:
+      runs-on: ubuntu-latest
+      env: 
+        BUILD_TYPE: "Release"
+        OUTPUT_DIR: ${{github.workspace}}/binaries
+      steps:
+      - name: Checkout repo with submodules
+        uses: actions/checkout@v4
+        with:
+            submodules: recursive
+
+      - name: Install OpenWatcom 2.0
+        uses: open-watcom/setup-watcom@v0
+        with:
+          version: "2.0-64"
+          tag: "2024-03-01-Build"
+
+      - name: Build pgusinit
+        working-directory: ${{github.workspace}}/pgusinit
+        run: |
+          mkdir -p $OUTPUT_DIR
+          make -f Makefile-cross INCLUDE="$WATCOM"/h
+          cp pgusinit.exe $OUTPUT_DIR
+
+      # will generate pgusinit.zip as downloadable artifact with pgusinit.exe
+      - name: Upload pgusinit
+        uses: actions/upload-artifact@v4
+        with:
+          name: pgusinit
+          path: ${{env.OUTPUT_DIR}}/pgusinit.exe
+
+    create-release:
+      if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+      runs-on: ubuntu-latest
+      needs: [build-firmware, build-pgusinit]
+      env: 
+        STAGING_DIR: ${{github.workspace}}/release-staging-dir
+      steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Copy README
+        run: |
+          mkdir -p $STAGING_DIR
+          cp pgusinit/README.md $STAGING_DIR/README.md
+      - name: Get Tags
+        id: tag
+        uses: ildug/get-tag-action@v1
+      - name: Generate release body
+        run: |
+          awk '/^# v${{ steps.tag.outputs.version }}/{a=1;next}/^# /{a=0}a' sw/CHANGELOG.md > release-body.md
+      - name: Download firmware artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: PicoGUS Firmwares
+          path: ${{env.STAGING_DIR}}
+      - name: Download pgusinit artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pgusinit
+          path: ${{env.STAGING_DIR}}
+      - name: Install zip
+        uses: montudor/action-zip@v1
+      - name: Zip release
+        run: |
+          zip -9 -r ../picogus-v${{ steps.tag.outputs.version }}.zip .
+        working-directory: ${{env.STAGING_DIR}}
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: release-body.md
+          files: picogus-v${{ steps.tag.outputs.version }}.zip
+          draft: true

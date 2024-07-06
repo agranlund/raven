@@ -1,0 +1,70 @@
+.define public AD0_PIN 6
+.define public IRQ_PIN 21
+.define public IOW_PIN 4
+.define public IOR_PIN 5
+.define public IOCHRDY_PIN 26
+.define public ADS_PIN 27
+.define public DACK_PIN 19
+.define public DRQ_PIN 22
+.define public TC_PIN 20
+
+; budget: 12 instructions
+.program dma_write
+.side_set 2 opt                         ; sideset bit 1 is ADS, bit 0 is IOCHRDY
+restart:
+    set pins, 0                         ; deassert DRQ
+.wrap_target
+    out x, 32                           ; wait to trigger DMA operation
+    set pins, 1                         ; assert DRQ
+    wait 1 gpio DACK_PIN                ; DACK faling edge - no sideset up to this point as it could interfere with isa_io.pio
+    set pins, 0          side 0b10      ; deassert DRQ, muxes to data
+    wait 0 gpio IOW_PIN  side 0b10      ; wait for IOW assert
+    jmp pin tc_flag      side 0b10      ; if TC high, transfer is over
+    in null, 24          side 0b10      ; write 0 to TC flag, autopush
+wait_iow:
+    wait 1 gpio IOW_PIN  side 0b10      ; wait for IOW deassert
+    in pins, 8           side 0b00      ; input data, muxes back to addr
+.wrap
+tc_flag:
+    in x, 24             side 0b10      ; set TC flag. X is full o' 1s
+    jmp wait_iow         side 0b10
+
+% c-sdk {
+static inline void dma_write_program_init(PIO pio, uint sm, uint offset) {
+    pio_sm_config c = dma_write_program_get_default_config(offset);
+
+    // Set up AD0 bus as input
+    sm_config_set_in_pins(&c, AD0_PIN);
+    // Autopush at 8 bits
+    // sm_config_set_in_shift(&c, false, true, 9);
+    sm_config_set_in_shift(&c, false, true, 32);
+
+    // Autopull 32 bits (condition variables)
+    sm_config_set_out_shift(&c, true, true /* autopull */, 32);
+
+    // Set the pin direction for IOW and AD0 bus as input at the PIO
+    pio_sm_set_consecutive_pindirs(pio, sm, IOW_PIN, 1, false);
+    pio_sm_set_consecutive_pindirs(pio, sm, AD0_PIN, 8, false);
+
+    // Config DMA pins
+    sm_config_set_set_pins(&c, DRQ_PIN, 1);
+    pio_gpio_init(pio, DRQ_PIN);
+    gpio_set_drive_strength(DRQ_PIN, GPIO_DRIVE_STRENGTH_12MA);
+    pio_sm_set_consecutive_pindirs(pio, sm, DRQ_PIN, 1, true);
+    sm_config_set_jmp_pin(&c, TC_PIN);
+    pio_sm_set_consecutive_pindirs(pio, sm, TC_PIN, 1, false);
+    pio_sm_set_consecutive_pindirs(pio, sm, DACK_PIN, 1, false);
+
+    // set up IOCHRDY and ADS
+    sm_config_set_sideset_pins(&c, IOCHRDY_PIN);
+    pio_gpio_init(pio, IOCHRDY_PIN);
+    pio_gpio_init(pio, ADS_PIN);
+    pio_sm_set_consecutive_pindirs(pio, sm, IOCHRDY_PIN, 2, true);
+
+    // Load our configuration, and jump to the start of the program
+    pio_sm_init(pio, sm, offset, &c);
+    // Set the state machine running
+    pio_sm_set_enabled(pio, sm, true);
+}
+%}
+

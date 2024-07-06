@@ -1,0 +1,113 @@
+.define public AD0_PIN 6
+.define public IRQ_PIN 21
+.define public IOW_PIN 4
+.define public IOR_PIN 5
+.define public IOCHRDY_PIN 26
+.define public ADS_PIN 27
+.define public UART_TX_PIN 28
+.define public DACK_PIN 19
+
+; 10 instructions
+.program iow
+.side_set 2 opt                   ; sideset bit 1 is ADS, bit 0 is IOCHRDY
+restart:
+.wrap_target
+    wait 1 gpio IOW_PIN           ; IOW rising edge (or already high when PIO starts)
+    wait 0 gpio IOW_PIN           ; IOW falling edge, no sideset to not conflict with other SMs
+    jmp pin restart               ; if this is not during DMA (DACK deasserted), go ahead and read address
+read_addr:
+    in pins, 10 [3]     side 0b10 ; Read address and flip mux simultaneously.. yolo
+    nop [3]             side 0b10 ; Wait more for mux to switch; max 3 because of optional sideset
+    in pins, 8          side 0b10 ; Read data
+    out X, 32           side 0b00 ; get condition from handle_iow, set muxes back to address
+    jmp !X restart      side 0b00 ; if we get a 0 condition from handle_iow, it's not an interesting address
+    out null, 32        side 0b01 ; stall with IOCHRDY low until handle_iow completes
+    nop                 side 0b00 ; bring IOCHRDY back. TODO see if we can move the sideset back to restart
+.wrap
+
+% c-sdk {
+static inline void iow_program_init(PIO pio, uint sm, uint offset, float clkdiv) {
+    pio_sm_config c = iow_program_get_default_config(offset);
+
+    // Set up AD0 pins as input
+    sm_config_set_in_pins(&c, AD0_PIN);
+    // Autopush at 18 bits (10 addr + 8 data)
+    sm_config_set_in_shift(&c, false, true, 18);
+    sm_config_set_clkdiv(&c, clkdiv);
+
+    // Autopull 32 bits (condition variables from handle_ior)
+    sm_config_set_out_shift(&c, true, true /* autopull */, 32);
+
+    // Set the pin direction for IOW and AD0 bus as input at the PIO
+    pio_sm_set_consecutive_pindirs(pio, sm, IOW_PIN, 1, false);
+    pio_sm_set_consecutive_pindirs(pio, sm, AD0_PIN, 10, false);
+
+    // set up IOCHRDY and ADS
+    sm_config_set_sideset_pins(&c, IOCHRDY_PIN);
+    pio_gpio_init(pio, IOCHRDY_PIN);
+    pio_gpio_init(pio, ADS_PIN);
+    pio_sm_set_consecutive_pindirs(pio, sm, IOCHRDY_PIN, 2, true);
+    pio_sm_set_pins_with_mask(pio, sm, 0, 1u << IOCHRDY_PIN);
+    pio_sm_set_pins_with_mask(pio, sm, 0, 1u << ADS_PIN);
+
+    // JMP on DACK so we can ignore iow during DMA write
+    sm_config_set_jmp_pin(&c, DACK_PIN);
+
+    // Load our configuration, and jump to the start of the program
+    pio_sm_init(pio, sm, offset, &c);
+    // Set the state machine running
+    pio_sm_set_enabled(pio, sm, true);
+}
+%}
+
+; 10 instructions
+.program ior
+.side_set 2 opt                   ; sideset bit 1 is ADS, bit 0 is IOCHRDY
+restart:
+    wait 1 gpio IOR_PIN           ; ensure IOR high when PIO starts
+.wrap_target
+    wait 0 gpio IOR_PIN           ; IOR falling edge, no sideset to not conflict with other SMs
+    in pins, 10         side 0b00 ; - Read address
+    out X, 32           side 0b00 ; stall until we get condition from handle_ior
+    jmp !X restart      side 0b00 ; if we get a 0 condition from handle_ior, it's not an interesting address
+    out pins, 8         side 0b01 ; output data to be written, stalling with IOCHRDY low until data is ready
+    out pindirs, 8      side 0b11 ; next 8 in pindirs is FF - set pindirs as output
+    wait 1 gpio IOR_PIN side 0b10 ; - wait for IOR rising edge with IOCHRDY high and muxes to data
+    ; out pins, 8         side 0b10 ; next 8 in pindirs is FF - reset data pins back to high
+    out pindirs, 8      side 0b00 ; next 8 in pindirs is 00 - set pindirs back as input
+.wrap
+
+% c-sdk {
+static inline void ior_program_init(PIO pio, uint sm, uint offset) {
+    pio_sm_config c = ior_program_get_default_config(offset);
+
+    // sm_config_set_out_pins(&c, pin, 1);
+    sm_config_set_in_pins(&c, AD0_PIN);
+    sm_config_set_in_shift(&c, false, true, 10);
+
+    // Set the pin direction to input at the PIO
+    pio_sm_set_consecutive_pindirs(pio, sm, IOR_PIN, 1, false);
+    pio_sm_set_consecutive_pindirs(pio, sm, AD0_PIN, 10, false);
+
+    sm_config_set_out_pins(&c, AD0_PIN, 8);
+    sm_config_set_out_shift(&c, true, true /* autopull */, 24);
+    // Set this pin's GPIO function (connect PIO to the pad)
+    for (int i = AD0_PIN; i <= AD0_PIN + 8; i++) {
+        pio_gpio_init(pio, i);
+    }
+
+    // set up IOCHRDY and ADS
+    sm_config_set_sideset_pins(&c, IOCHRDY_PIN);
+    pio_gpio_init(pio, IOCHRDY_PIN);
+    pio_gpio_init(pio, ADS_PIN);
+    pio_sm_set_pins_with_mask(pio, sm, 0, 1u << IOCHRDY_PIN);
+    pio_sm_set_pins_with_mask(pio, sm, 0, 1u << ADS_PIN);
+    pio_sm_set_consecutive_pindirs(pio, sm, IOCHRDY_PIN, 2, true);
+
+    // Load our configuration, and jump to the start of the program
+    // pio->input_sync_bypass = ((0x1u << IOR_PIN) | (0x3ffu << AD0_PIN));
+    pio_sm_init(pio, sm, offset, &c);
+    // Set the state machine running
+    pio_sm_set_enabled(pio, sm, true);
+}
+%}
