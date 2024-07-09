@@ -93,14 +93,31 @@ function(config_target TARGET_NAME MULTIFW)
         set_linker_script(${TARGET_NAME} ${CMAKE_BINARY_DIR}/${TARGET_NAME}.ld)
     endif()
 
+    if(USB_JOYSTICK OR USB_MOUSE)
+        set(USB_STACK TRUE)
+    endif()
+    if (USB_STACK)
+        # USB stack common stuff
+        target_link_libraries(${TARGET_NAME} tinyusb_host)
+        target_compile_definitions(${TARGET_NAME} PRIVATE USB_STACK=1)
+        target_sources(${TARGET_NAME} PRIVATE usb_hid/hid_app.c)
+    endif()
     if(USB_JOYSTICK)
         # Joystick stuff
-        target_sources(${TARGET_NAME} PRIVATE joy_hid/joy_hid.c)
         target_link_libraries(${TARGET_NAME} hardware_pwm)
-        target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/joy_hid)
-        target_link_libraries(${TARGET_NAME} tinyusb_host)
-        target_link_libraries(${TARGET_NAME} xinput_host_app_driver)
+        target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/usb_hid)
+        target_link_libraries(${TARGET_NAME} xinput_host)
         target_compile_definitions(${TARGET_NAME} PRIVATE USB_JOYSTICK=1)
+    endif()
+    if (USB_MOUSE) 
+        # USB Mouse stuff
+        target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/mouse)
+        target_compile_definitions(${TARGET_NAME} PRIVATE USB_MOUSE=1)
+        target_sources(${TARGET_NAME} PRIVATE
+            mouse/8250uart.cpp
+            mouse/sermouse.cpp
+            pico_pic.c
+        )
     endif()
 
     target_sources(${TARGET_NAME} PRIVATE M62429/M62429.cpp)
@@ -122,10 +139,7 @@ function(config_target TARGET_NAME MULTIFW)
     pico_add_extra_outputs(${TARGET_NAME})
 endfunction()
 
-if(USB_JOYSTICK)
-    # Joystick stuff
-    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tusb_xinput)
-endif()
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tusb_xinput)
 add_subdirectory(rp2040-psram)
 add_subdirectory(opl)
 
@@ -133,6 +147,7 @@ add_subdirectory(opl)
 ################################################################################
 # Build GUS firmware
 function(build_gus TARGET_NAME MULTIFW)
+    set(USB_JOYSTICK TRUE)
     config_target(${TARGET_NAME} ${MULTIFW})
     pico_set_program_name(${TARGET_NAME} "picogus-gus")
     target_sources(${TARGET_NAME} PRIVATE gusplay.cpp pico_pic.c isa_dma.c)
@@ -166,13 +181,14 @@ endfunction()
 ################################################################################
 # Build SB firmware
 function(build_sb TARGET_NAME MULTIFW)
+    set(USB_JOYSTICK TRUE)
     config_target(${TARGET_NAME} ${MULTIFW})
     pico_set_program_name(${TARGET_NAME} "picogus-sb")
     target_sources(${TARGET_NAME} PRIVATE sbdsp.cpp sbplay.cpp pico_pic.c isa_dma.c)    
     target_link_libraries(${TARGET_NAME} opl)
     target_compile_definitions(${TARGET_NAME} PRIVATE
         SOUND_SB=1
-        # SOUND_OPL=1
+        SOUND_OPL=1
         SOUND_DSP=1
         USE_ALARM=1
         USE_EMU8950_OPL=1        
@@ -186,8 +202,30 @@ function(build_sb TARGET_NAME MULTIFW)
 endfunction()
 
 ################################################################################
+# Build AdLib firmware
+function(build_adlib TARGET_NAME MULTIFW)
+    set(USB_JOYSTICK TRUE)
+    set(USB_MOUSE TRUE)
+    config_target(${TARGET_NAME} ${MULTIFW})
+    pico_set_program_name(${TARGET_NAME} "picogus-adlib")
+    target_sources(${TARGET_NAME} PRIVATE sbplay.cpp)    
+    target_link_libraries(${TARGET_NAME} opl)
+    target_compile_definitions(${TARGET_NAME} PRIVATE
+        SOUND_OPL=1
+        USE_ALARM=1
+        USE_EMU8950_OPL=1        
+        EMU8950_ASM=1
+        # PICOW=1
+    )
+    pico_enable_stdio_uart(${TARGET_NAME} 1)
+    pico_enable_stdio_usb(${TARGET_NAME} 0)
+    pico_enable_stdio_semihosting(${TARGET_NAME} 0)
+endfunction()
+
+################################################################################
 # Build MPU firmware
 function(build_mpu TARGET_NAME MULTIFW)
+    set(USB_JOYSTICK TRUE)
     config_target(${TARGET_NAME} ${MULTIFW})
     pico_set_program_name(${TARGET_NAME} "picogus-mpu401")
     target_compile_definitions(${TARGET_NAME} PRIVATE
@@ -212,6 +250,8 @@ endfunction()
 ################################################################################
 # Build Tandy firmware
 function(build_tandy TARGET_NAME MULTIFW)
+    set(USB_JOYSTICK TRUE)
+    set(USB_MOUSE TRUE)
     config_target(${TARGET_NAME} ${MULTIFW})
     pico_set_program_name(${TARGET_NAME} "picogus-tandy")
     target_compile_definitions(${TARGET_NAME} PRIVATE
@@ -231,6 +271,8 @@ endfunction()
 ################################################################################
 # Build CMS firmware
 function(build_cms TARGET_NAME MULTIFW)
+    set(USB_JOYSTICK TRUE)
+    set(USB_MOUSE TRUE)
     config_target(${TARGET_NAME} ${MULTIFW})
     pico_set_program_name(${TARGET_NAME} "picogus-cms")
     target_compile_definitions(${TARGET_NAME} PRIVATE
@@ -247,21 +289,22 @@ function(build_cms TARGET_NAME MULTIFW)
 endfunction()
 
 ################################################################################
-# Build joystick-only firmware
-function(build_joy TARGET_NAME MULTIFW)
+# Build USB-only firmware (joystick + mouse support)
+function(build_usb TARGET_NAME MULTIFW)
+    set(USB_JOYSTICK TRUE)
+    set(USB_MOUSE TRUE)
     config_target(${TARGET_NAME} ${MULTIFW})
-    pico_set_program_name(${TARGET_NAME} "picogus-joy")
-    set(USB_JOYSTICK 1)
+    pico_set_program_name(${TARGET_NAME} "picogus-usb")
     target_compile_definitions(${TARGET_NAME} PRIVATE
-        USB_JOYSTICK_ONLY=1
+        USB_ONLY=1
     )
- 
     target_sources(${TARGET_NAME} PRIVATE
         usbplay.cpp
+        pico_pic.c
     )
-     pico_enable_stdio_uart(${TARGET_NAME} 1)
-     pico_enable_stdio_usb(${TARGET_NAME} 0)
-     pico_enable_stdio_semihosting(${TARGET_NAME} 0)
+    pico_enable_stdio_uart(${TARGET_NAME} 1)
+    pico_enable_stdio_usb(${TARGET_NAME} 0)
+    pico_enable_stdio_semihosting(${TARGET_NAME} 0)
 endfunction()
 
 
@@ -273,11 +316,12 @@ if(PROJECT_TYPE STREQUAL "MULTIFW")
         OUTPUT
             "${CMAKE_BINARY_DIR}/generated/multifw/flash_firmware.h"
             "${CMAKE_BINARY_DIR}/pg-gus-multifw.ld"
-            "${CMAKE_BINARY_DIR}/pg-sb-multifw.ld"
+            "${CMAKE_BINARY_DIR}/pg-adlib-multifw.ld"
             "${CMAKE_BINARY_DIR}/pg-mpu-multifw.ld"
             "${CMAKE_BINARY_DIR}/pg-tandy-multifw.ld"
             "${CMAKE_BINARY_DIR}/pg-cms-multifw.ld"
-            "${CMAKE_BINARY_DIR}/pg-joy-multifw.ld"
+            "${CMAKE_BINARY_DIR}/pg-sb-multifw.ld"
+            "${CMAKE_BINARY_DIR}/pg-usb-multifw.ld"
         COMMAND
             ${CMAKE_COMMAND}
             -DFLASH_FIRMWARE_H_IN="${CMAKE_SOURCE_DIR}/multifw/flash_firmware.h.in"
@@ -285,42 +329,46 @@ if(PROJECT_TYPE STREQUAL "MULTIFW")
             -DFW_LD_IN="${CMAKE_SOURCE_DIR}/multifw/firmware.ld.in"
             -DFW_1_BIN="${CMAKE_BINARY_DIR}/pg-gus.bin"
             -DFW_1_LD="${CMAKE_BINARY_DIR}/pg-gus-multifw.ld"
-            -DFW_2_BIN="${CMAKE_BINARY_DIR}/pg-sb.bin"
-            -DFW_2_LD="${CMAKE_BINARY_DIR}/pg-sb-multifw.ld"
+            -DFW_2_BIN="${CMAKE_BINARY_DIR}/pg-adlib.bin"
+            -DFW_2_LD="${CMAKE_BINARY_DIR}/pg-adlib-multifw.ld"
             -DFW_3_BIN="${CMAKE_BINARY_DIR}/pg-mpu.bin"
             -DFW_3_LD="${CMAKE_BINARY_DIR}/pg-mpu-multifw.ld"
             -DFW_4_BIN="${CMAKE_BINARY_DIR}/pg-tandy.bin"
             -DFW_4_LD="${CMAKE_BINARY_DIR}/pg-tandy-multifw.ld"
             -DFW_5_BIN="${CMAKE_BINARY_DIR}/pg-cms.bin"
             -DFW_5_LD="${CMAKE_BINARY_DIR}/pg-cms-multifw.ld"
-            -DFW_6_BIN="${CMAKE_BINARY_DIR}/pg-joy.bin"
-            -DFW_6_LD="${CMAKE_BINARY_DIR}/pg-joy-multifw.ld"
+            -DFW_6_BIN="${CMAKE_BINARY_DIR}/pg-sb.bin"
+            -DFW_6_LD="${CMAKE_BINARY_DIR}/pg-sb-multifw.ld"
+            -DFW_7_BIN="${CMAKE_BINARY_DIR}/pg-usb.bin"
+            -DFW_7_LD="${CMAKE_BINARY_DIR}/pg-usb-multifw.ld"
             -P ${CMAKE_SOURCE_DIR}/multifw/generate_ld.cmake
         DEPENDS
             "${CMAKE_SOURCE_DIR}/multifw/firmware.ld.in"
             pg-gus
-            pg-sb
+            pg-adlib
             pg-mpu
             pg-tandy
             pg-cms
-            pg-joy
+            pg-sb
+            pg-usb
     )
     add_custom_target(generate_flash_firmware_h DEPENDS
         "${CMAKE_BINARY_DIR}/generated/multifw/flash_firmware.h"
         "${CMAKE_BINARY_DIR}/pg-gus-multifw.ld"
-        "${CMAKE_BINARY_DIR}/pg-sb-multifw.ld"
+        "${CMAKE_BINARY_DIR}/pg-adlib-multifw.ld"
         "${CMAKE_BINARY_DIR}/pg-mpu-multifw.ld"
         "${CMAKE_BINARY_DIR}/pg-tandy-multifw.ld"
         "${CMAKE_BINARY_DIR}/pg-cms-multifw.ld"
-        "${CMAKE_BINARY_DIR}/pg-joy-multifw.ld"
+        "${CMAKE_BINARY_DIR}/pg-sb-multifw.ld"
+        "${CMAKE_BINARY_DIR}/pg-usb-multifw.ld"
     )
 
     build_gus(pg-gus FALSE)
     build_gus(pg-gus-multifw TRUE)
     add_dependencies(pg-gus-multifw pg-gus generate_flash_firmware_h)
-    build_sb(pg-sb FALSE)
-    build_sb(pg-sb-multifw TRUE)
-    add_dependencies(pg-sb-multifw pg-sb generate_flash_firmware_h)
+    build_adlib(pg-adlib FALSE)
+    build_adlib(pg-adlib-multifw TRUE)
+    add_dependencies(pg-adlib-multifw pg-adlib generate_flash_firmware_h)
     build_mpu(pg-mpu FALSE)
     build_mpu(pg-mpu-multifw TRUE)
     add_dependencies(pg-mpu-multifw pg-mpu generate_flash_firmware_h)
@@ -330,9 +378,12 @@ if(PROJECT_TYPE STREQUAL "MULTIFW")
     build_cms(pg-cms FALSE)
     build_cms(pg-cms-multifw TRUE)
     add_dependencies(pg-cms-multifw pg-cms generate_flash_firmware_h)
-    build_joy(pg-joy FALSE)
-    build_joy(pg-joy-multifw TRUE)
-    add_dependencies(pg-joy-multifw pg-joy generate_flash_firmware_h)
+    build_sb(pg-sb FALSE)
+    build_sb(pg-sb-multifw TRUE)
+    add_dependencies(pg-sb-multifw pg-sb generate_flash_firmware_h)
+    build_usb(pg-usb FALSE)
+    build_usb(pg-usb-multifw TRUE)
+    add_dependencies(pg-usb-multifw pg-usb generate_flash_firmware_h)
 
     add_executable(bootloader)
     target_sources(bootloader PRIVATE multifw/bootloader.c flash_settings.c)
@@ -354,8 +405,8 @@ if(PROJECT_TYPE STREQUAL "MULTIFW")
     endif()
     add_custom_command(
         OUTPUT picogus.uf2
-        DEPENDS bootloader pg-gus-multifw pg-sb-multifw pg-mpu-multifw pg-tandy-multifw pg-cms-multifw pg-joy-multifw
-        COMMAND UF2CREATE bootloader.bin pg-gus-multifw.bin pg-sb-multifw.bin pg-mpu-multifw.bin pg-tandy-multifw.bin pg-cms-multifw.bin pg-joy-multifw.bin picogus.uf2
+        DEPENDS bootloader UF2CREATE pg-gus-multifw pg-adlib-multifw pg-mpu-multifw pg-tandy-multifw pg-cms-multifw pg-sb-multifw pg-usb-multifw
+        COMMAND UF2CREATE bootloader.bin pg-gus-multifw.bin pg-adlib-multifw.bin pg-mpu-multifw.bin pg-tandy-multifw.bin pg-cms-multifw.bin pg-sb-multifw.bin pg-usb-multifw.bin picogus.uf2
     )
     add_custom_target(picogus ALL DEPENDS picogus.uf2)
 
@@ -367,6 +418,9 @@ elseif(PROJECT_TYPE STREQUAL "GUS")
 elseif(PROJECT_TYPE STREQUAL "SB")
     set(FW_TARGET pg-sb)
     build_sb(pg-sb FALSE)
+elseif(PROJECT_TYPE STREQUAL "ADLIB")
+    set(FW_TARGET pg-adlib)
+    build_adlib(pg-adlib FALSE)
 elseif(PROJECT_TYPE STREQUAL "MPU")
     set(FW_TARGET pg-mpu)
     build_mpu(pg-mpu FALSE)
@@ -376,9 +430,9 @@ elseif(PROJECT_TYPE STREQUAL "TANDY")
 elseif(PROJECT_TYPE STREQUAL "CMS")
     set(FW_TARGET pg-cms)
     build_cms(pg-cms FALSE)
-elseif(PROJECT_TYPE STREQUAL "JOY")
-    set(FW_TARGET pg-joyex)
-    build_joy(pg-joyex FALSE)
+elseif(PROJECT_TYPE STREQUAL "USB")
+    set(FW_TARGET pg-usb)
+    build_usb(pg-usb FALSE)
 endif()
 
 ################################################################################
