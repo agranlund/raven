@@ -15,17 +15,9 @@
 #include "hardware/watchdog.h"
 #include "hardware/structs/watchdog.h"
 
-enum board_type { PICO_BASED = 0, PICOGUS_2 = 1 } BOARD_TYPE;
+#include "../common/picogus.h"
 
-typedef enum {
-    GUS_MODE = 0,
-    ADLIB_MODE = 1, // deprecated
-    MPU_MODE = 2,
-    TANDY_MODE = 3,
-    CMS_MODE = 4,
-    SB_MODE = 5,
-    JOYSTICK_ONLY_MODE = 0x0f
-} card_mode_t;
+board_type_t BOARD_TYPE;
 
 #ifdef PSRAM
 #include "psram_spi.h"
@@ -48,22 +40,19 @@ uint LED_PIN;
 M62429* m62429;
 
 #ifdef SOUND_SB
-#include "opl.h"
-static uint16_t basePort;
 static uint16_t sb_port_test;
-
+extern void sbdsp_write(uint8_t address, uint8_t value);
+extern uint8_t sbdsp_read(uint8_t address);
+extern void sbdsp_init();
+extern void sbdsp_process();
+#endif
+#ifdef SOUND_OPL
+#include "opl.h"
 void play_adlib(void);
 extern "C" int OPL_Pico_Init(unsigned int);
 extern "C" unsigned int OPL_Pico_PortRead(opl_port_t);
 #include "cmd_buffers.h"
 cms_buffer_t opl_buffer = { {0}, 0, 0 };
-
-extern void sbdsp_write(uint8_t address, uint8_t value);
-extern uint8_t sbdsp_read(uint8_t address);
-extern void sbdsp_init();
-extern void sbdsp_process();
-static uint16_t adlib_basePort;
-static bool adlib_wait;
 #endif
 
 #ifdef SOUND_GUS
@@ -71,7 +60,6 @@ static bool adlib_wait;
 
 #include "isa_dma.h"
 dma_inst_t dma_config;
-static uint16_t basePort;
 static uint16_t gus_port_test;
 void play_gus(void);
 #endif
@@ -79,13 +67,11 @@ void play_gus(void);
 
 #ifdef SOUND_MPU
 #include "mpu401/export.h"
-static uint16_t basePort;
 void play_mpu(void);
 #endif
 
 #ifdef SOUND_TANDY
 #include "square/square.h"
-static uint16_t basePort;
 void play_tandy(void);
 
 #include "cmd_buffers.h"
@@ -93,7 +79,6 @@ tandy_buffer_t tandy_buffer = { {0}, 0, 0 };
 #endif
 
 #ifdef SOUND_CMS
-static uint16_t basePort;
 void play_cms(void);
 static uint8_t cms_detect = 0xFF;
 
@@ -102,22 +87,20 @@ cms_buffer_t cms_buffer = { {0}, 0, 0 };
 #endif
 
 #ifdef USB_JOYSTICK
-static uint16_t joyPort;
-#ifdef USB_JOYSTICK_ONLY
-void play_usb(void);
-#endif
-#include "joy_hid/joy.h"
+#include "usb_hid/joy.h"
 extern "C" joystate_struct_t joystate_struct;
 uint8_t joystate_bin;
 #include "hardware/pwm.h"
 #endif
+#ifdef USB_MOUSE
+#include "mouse/8250uart.h"
+#include "mouse/sermouse.h"
+#endif
+#ifdef USB_ONLY
+void play_usb(void);
+#endif
 
 // PicoGUS control and data ports
-// 1D0 chosen as the base port as nothing is listed in Ralf Brown's Port List (http://www.cs.cmu.edu/~ralf/files.html)
-#define CONTROL_PORT 0x1D0
-#define DATA_PORT_LOW  0x1D1
-#define DATA_PORT_HIGH 0x1D2
-#define PICOGUS_PROTOCOL_VER 2
 static bool control_active = false;
 static uint8_t sel_reg = 0;
 static uint16_t cur_data = 0;
@@ -126,56 +109,63 @@ static bool queueSaveSettings = false;
 static bool queueReboot = false;
 
 Settings settings;
+void processSettings(void);
 
 #define IOW_PIO_SM 0
 #define IOR_PIO_SM 1
 
 const char* firmware_string = PICO_PROGRAM_NAME " v" PICO_PROGRAM_VERSION_STRING;
 
-uint16_t basePort_tmp;
-uint16_t multifw_tmp;
+static uint8_t basePort_low;
+static uint8_t  mouseSensitivity_low;
 
 __force_inline void select_picogus(uint8_t value) {
     // printf("select picogus %x\n", value);
     sel_reg = value;
     switch (sel_reg) {
-    case 0x00: // Magic string
-    case 0x01: // Protocol version
+    case MODE_MAGIC: // Magic string
+    case MODE_PROTOCOL: // Protocol version
         break;
-    case 0x02: // Firmware string
+    case MODE_FWSTRING: // Firmware string
         cur_read = 0;
         break;
-    case 0x03: // Mode (GUS, OPL, MPU, etc...)
+    case MODE_BOOTMODE: // Mode (GUS, OPL, MPU, etc...)
         break;
-    case 0x04: // Base port
-    case 0x05: // Adlib Base port
-        basePort_tmp = 0;
+    case MODE_GUSPORT: // GUS Base port
+    case MODE_OPLPORT: // Adlib Base port
+    case MODE_SBPORT: // SB Base port
+    case MODE_MPUPORT: // MPU Base port
+    case MODE_TANDYPORT: // Tandy Base port
+    case MODE_CMSPORT: // CMS Base port
+        basePort_low = 0;
         break;
-    case 0x0f: // enable joystick
+    case MODE_JOYEN: // enable joystick
         break;
-#ifdef SOUND_GUS
-    case 0x10: // Audio buffer size
-    case 0x11: // DMA interval
-    case 0x12: // Force 44k
+    case MODE_GUSBUF: // Audio buffer size
+    case MODE_GUSDMA: // DMA interval
+    case MODE_GUS44K: // Force 44k
         break;
-#endif
-    case 0x20: // Wavetable mixer volume
+    case MODE_WTVOL: // Wavetable mixer volume
         break;
-#ifdef SOUND_MPU
-    case 0x21: // MPU init
+    case MODE_MPUDELAY: // MPU sysex delay
+    case MODE_MPUFAKE: // MPU fake all notes off
         break;
-#endif
-#ifdef SOUND_SB
-    case 0x30: // Adlib speed sensitive fix
+    case MODE_OPLWAIT: // Adlib speed sensitive fix
         break;
-#endif
-    case 0xE0: // Select firmware boot mode register
-    case 0xE1: // Select save settings register
-    case 0xE2: // Select reboot register
+    case MODE_MOUSEPORT:
+        basePort_low = 0;
         break;
-    case 0xF0: // Hardware version
+    case MODE_MOUSEPROTO:
+    case MODE_MOUSERATE:
+    case MODE_MOUSESEN:
         break;
-    case 0xFF: // Firmware write mode
+    case MODE_SAVE: // Select save settings register
+    case MODE_REBOOT: // Select reboot register
+    case MODE_DEFAULTS: // Select reset to defaults register
+        break;
+    case MODE_HWTYPE: // Hardware version
+        break;
+    case MODE_FLASH: // Firmware write mode
         pico_firmware_start();
         break;
     default:
@@ -186,97 +176,129 @@ __force_inline void select_picogus(uint8_t value) {
 
 __force_inline void write_picogus_low(uint8_t value) {
     switch (sel_reg) {
-    case 0x04: // Base port
-    case 0x05: // Adlib Base port
-        basePort_tmp = value;
+    case MODE_GUSPORT: // GUS Base port
+    case MODE_OPLPORT: // Adlib Base port
+    case MODE_SBPORT: // SB Base port
+    case MODE_MPUPORT: // MPU Base port
+    case MODE_TANDYPORT: // Tandy Base port
+    case MODE_CMSPORT: // CMS Base port
+    case MODE_MOUSEPORT:  // USB Mouse port (0 - disabled)
+        basePort_low = value;
+        break;
+    case MODE_MOUSESEN:  // USB Mouse Sensitivity (8.8 fixedpoint)
+        mouseSensitivity_low = value;
         break;
     }
 }
 
 __force_inline void write_picogus_high(uint8_t value) {
     switch (sel_reg) {
-    case 0x04: // Base port
-#if defined(SOUND_GUS) || defined(SOUND_SB) || defined(SOUND_MPU) || defined(SOUND_TANDY) || defined(SOUND_CMS)
-        basePort = (value << 8) | basePort_tmp;
-#endif
+    case MODE_GUSPORT: // GUS Base port
+        settings.GUS.basePort = (value && basePort_low) ? ((value << 8) | (basePort_low & 0xFF)) : 0xFFFF;
 #ifdef SOUND_GUS
-        settings.GUS.basePort = basePort;
-        gus_port_test = basePort >> 4 | 0x10;
-        // GUS_SetPort(basePort);
+        gus_port_test = settings.GUS.basePort >> 4 | 0x10;
 #endif
+        break;
+    case MODE_OPLPORT: // Adlib Base port
+        settings.SB.oplBasePort = (value && basePort_low) ? ((value << 8) | (basePort_low & 0xFF)) : 0xFFFF;
+        break;
+    case MODE_SBPORT: // SB Base port
+        settings.SB.basePort = (value && basePort_low) ? ((value << 8) | (basePort_low & 0xFF)) : 0xFFFF;
 #ifdef SOUND_SB
-        settings.SB.basePort = basePort;
-        sb_port_test = basePort >> 4;
-#endif
-#ifdef SOUND_MPU
-        settings.MPU.basePort = basePort;
-#endif
-#ifdef SOUND_TANDY
-        settings.Tandy.basePort = basePort;
-#endif
-#ifdef SOUND_CMS
-        settings.CMS.basePort = basePort;
+        sb_port_test = settings.SB.basePort >> 4;
 #endif
         break;
-    case 0x05: // Adlib Base port
-#ifdef SOUND_SB
-        adlib_basePort = (value << 8) | basePort_tmp;
-        settings.SB.oplBasePort = adlib_basePort;
-#endif
+    case MODE_MPUPORT: // MPU Base port
+        settings.MPU.basePort = (value && basePort_low) ? ((value << 8) | (basePort_low & 0xFF)) : 0xFFFF;
         break;
-    case 0x0f: // enable joystick
-#ifdef USB_JOYSTICK
-        joyPort = value ? 0x201u : 0xffff;
-        settings.Joy.basePort = joyPort;
-#endif
+    case MODE_TANDYPORT: // Tandy Base port
+        settings.Tandy.basePort = (value && basePort_low) ? ((value << 8) | (basePort_low & 0xFF)) : 0xFFFF;
         break;
-#ifdef SOUND_GUS
-    case 0x10: // Audio buffer size
+    case MODE_CMSPORT: // CMS Base port
+        settings.CMS.basePort = (value && basePort_low) ? ((value << 8) | (basePort_low & 0xFF)) : 0xFFFF;
+        break;
+    case MODE_JOYEN: // enable joystick
+        settings.Joy.basePort = value ? 0x201u : 0xffff;
+        break;
+    case MODE_GUSBUF: // GUS audio buffer size
         // Value is sent by pgusinit as the size - 1, so we need to add 1 back to it
-        GUS_SetAudioBuffer(value + 1);
         settings.GUS.audioBuffer = value + 1;
-        break;
-    case 0x11: // DMA interval
-        GUS_SetDMAInterval(value);
-        settings.GUS.dmaInterval = value;
-        break;
-    case 0x12: // Force 44k output
-        GUS_SetFixed44k(value);
-        settings.GUS.force44k = value;
-        break;
+#ifdef SOUND_GUS
+        GUS_SetAudioBuffer(settings.GUS.audioBuffer);
 #endif
-    case 0x20: // Wavetable mixer volume
+        break;
+    case MODE_GUSDMA: // GUS DMA interval
+        settings.GUS.dmaInterval = value;
+#ifdef SOUND_GUS
+        GUS_SetDMAInterval(settings.GUS.dmaInterval);
+#endif
+        break;
+    case MODE_GUS44K: // Force 44k output
+        settings.GUS.force44k = value;
+#ifdef SOUND_GUS
+        GUS_SetFixed44k(settings.GUS.force44k);
+#endif
+        break;
+    case MODE_WTVOL: // Wavetable mixer volume
+        settings.Global.waveTableVolume = value;
         if (BOARD_TYPE == PICOGUS_2) {
-            m62429->setVolume(M62429_BOTH, value);
-            settings.Global.waveTableVolume = value;
+            m62429->setVolume(M62429_BOTH, settings.Global.waveTableVolume);
         }
         break;
+    case MODE_MPUDELAY: // MPU SYSEX delay
+        settings.MPU.delaySysex = value;
 #ifdef SOUND_MPU
-    case 0x21: // MIDI emulation flags
-        MPU401_Init(value & 0x1 /* delaysysex */, value & 0x2 /* fakeallnotesoff */);
-        settings.MPU.delaySysex = value & 0x1;
-        settings.MPU.fakeAllNotesOff = value & 0x2;
-        break;
+        MPU401_Init(settings.MPU.delaySysex, settings.MPU.fakeAllNotesOff);
 #endif
-#ifdef SOUND_SB
-    case 0x30: // Adlib speed sensitive fix
-        adlib_wait = value;
         break;
+    case MODE_MPUFAKE: // MPU fake all notes off
+        settings.MPU.fakeAllNotesOff = value;
+#ifdef SOUND_MPU
+        MPU401_Init(settings.MPU.delaySysex, settings.MPU.fakeAllNotesOff);
 #endif
+        break;
+    case MODE_OPLWAIT: // Adlib speed sensitive fix
+        settings.SB.oplSpeedSensitive = value;
+        break;
+    case MODE_MOUSEPORT:  // USB Mouse port (0 - disabled)
+        settings.Mouse.basePort = (value && basePort_low) ? ((value << 8) | (basePort_low & 0xFF)) : 0xFFFF;
+        break;
+    case MODE_MOUSEPROTO:  // USB Mouse protocol
+        settings.Mouse.protocol = value;
+#ifdef USB_MOUSE
+        sermouse_set_protocol(settings.Mouse.protocol);
+#endif
+        break;
+    case MODE_MOUSERATE:  // USB Mouse Report Rate
+        settings.Mouse.reportRate = value;
+#ifdef USB_MOUSE
+        sermouse_set_report_rate_hz(settings.Mouse.reportRate);
+#endif
+        break;
+    case MODE_MOUSESEN:  // USB Mouse Sensitivity (8.8 fixedpoint)
+        settings.Mouse.sensitivity = (value << 8) | (mouseSensitivity_low & 0xFF);
+#ifdef USB_MOUSE
+        sermouse_set_sensitivity(settings.Mouse.sensitivity);
+#endif
+        break;
     // For multifw
-    case 0xE0:
-        // set firmware num, perm flag and reboot
+    case MODE_BOOTMODE:
         settings.startupMode = value;
         printf("requesting startup mode: %u\n", value);
         break;
-    case 0xE1:
+    case MODE_SAVE:
         queueSaveSettings = true;
         break;
-    case 0xE2:
+    case MODE_REBOOT:
         watchdog_hw->scratch[3] = settings.startupMode;
         printf("rebooting into mode: %u\n", settings.startupMode);
         watchdog_reboot(0, 0, 0);
-    case 0xff: // Firmware write
+        break;
+    case MODE_DEFAULTS:
+        getDefaultSettings(&settings);
+        processSettings();
+        break;
+    case MODE_FLASH: // Firmware write
         pico_firmware_write(value);
         break;
     }
@@ -284,19 +306,22 @@ __force_inline void write_picogus_high(uint8_t value) {
 
 __force_inline uint8_t read_picogus_low(void) {
     switch (sel_reg) {
-    case 0x04: // Base port
-#if defined(SOUND_GUS) || defined(SOUND_SB) || defined(SOUND_MPU) || defined(SOUND_TANDY) || defined(SOUND_CMS)
-        return basePort & 0xff;
-#else
-        return 0xff;
-#endif
-        break;
-    case 0x05: // Adlib Base port
-#if defined(SOUND_SB)
-        return adlib_basePort & 0xff;
-#else
-        return 0xff;
-#endif
+    case MODE_GUSPORT: // GUS Base port
+        return settings.GUS.basePort == 0xFFFF ? 0 : (settings.GUS.basePort & 0xFF);
+    case MODE_OPLPORT: // Adlib Base port
+        return settings.SB.oplBasePort == 0xFFFF ? 0 : (settings.SB.oplBasePort & 0xFF);
+    case MODE_SBPORT: // SB Base port
+        return settings.SB.basePort == 0xFFFF ? 0 : (settings.SB.basePort & 0xFF);
+    case MODE_MPUPORT: // MPU Base port
+        return settings.MPU.basePort == 0xFFFF ? 0 : (settings.MPU.basePort & 0xFF);
+    case MODE_TANDYPORT: // Tandy Base port
+        return settings.Tandy.basePort == 0xFFFF ? 0 : (settings.Tandy.basePort & 0xFF);
+    case MODE_CMSPORT: // CMS Base port
+        return settings.CMS.basePort == 0xFFFF ? 0 : (settings.CMS.basePort & 0xFF);
+    case MODE_MOUSEPORT:  // USB Mouse port (0 - disabled)
+        return settings.Mouse.basePort == 0xFFFF ? 0 : (settings.Mouse.basePort & 0xFF);
+    case MODE_MOUSESEN:  // USB Mouse Sensitivity (8.8 fixedpoint)
+        return settings.Mouse.sensitivity & 0xFF;
     default:
         return 0x0;
     }
@@ -305,96 +330,83 @@ __force_inline uint8_t read_picogus_low(void) {
 __force_inline uint8_t read_picogus_high(void) {
     uint8_t ret;
     switch (sel_reg) {
-    case 0x00:  // PicoGUS magic string
+    case MODE_MAGIC:  // PicoGUS magic string
         return 0xdd;
-        break;
-    case 0x01:  // PicoGUS protocol version
+    case MODE_PROTOCOL:  // PicoGUS protocol version
         return PICOGUS_PROTOCOL_VER;
-        break;
-    case 0x02: // Firmware string
+    case MODE_FWSTRING: // Firmware string
         ret = firmware_string[cur_read++];
         if (ret == 0) { // Null terminated
             cur_read = 0;
         }
         return ret;
-        break;
-    case 0x03: // Mode (GUS, OPL, MPU, etc...)
-#if defined(SOUND_GUS)
-        return GUS_MODE;
-#elif defined(SOUND_MPU)
-        return MPU_MODE;
-#elif defined(SOUND_TANDY)
-        return TANDY_MODE;
-#elif defined(SOUND_CMS)
-        return CMS_MODE;
-#elif defined(SOUND_SB)
-        return SB_MODE;
-#elif defined(USB_JOYSTICK_ONLY)
-        return JOYSTICK_ONLY_MODE;
-#else
-        return 0xff;
-#endif
-        break;
-    case 0x04: // Base port
-#if defined(SOUND_GUS) || defined(SOUND_SB) || defined(SOUND_MPU) || defined(SOUND_TANDY) || defined(SOUND_CMS)
-        return basePort >> 8;
-#else
-        return 0xff;
-#endif
-        break;
-    case 0x05: // Adlib Base port
-#if defined(SOUND_SB)
-        return adlib_basePort >> 8;
-#else
-        return 0xff;
-#endif
-        break;
-    case 0x0f: // enable joystick
-#ifdef USB_JOYSTICK
-        return joyPort == 0x201u;
-#else
-        return 0;
-#endif
-    case 0x20: // Wavetable mixer volume
-        if (BOARD_TYPE == PICOGUS_2) {
-            return m62429->getVolume(0);
-        } else {
-            return 0;
-        }
-        break;
-    case 0xF0: // Hardware version
+    case MODE_BOOTMODE: // Mode (GUS, OPL, MPU, etc...)
+        return settings.startupMode;
+    case MODE_GUSPORT: // GUS Base port
+        return settings.GUS.basePort >> 8;
+    case MODE_OPLPORT: // Adlib Base port
+        return settings.SB.oplBasePort >> 8;
+    case MODE_SBPORT: // SB Base port
+        return settings.SB.basePort >> 8;
+    case MODE_MPUPORT: // MPU Base port
+        return settings.MPU.basePort >> 8;
+    case MODE_TANDYPORT: // Tandy Base port
+        return settings.Tandy.basePort >> 8;
+    case MODE_CMSPORT: // CMS Base port
+        return settings.CMS.basePort >> 8;
+    case MODE_JOYEN: // enable joystick
+        return settings.Joy.basePort == 0x201u;
+    case MODE_GUSBUF: // GUS audio buffer size
+        return settings.GUS.audioBuffer - 1;
+    case MODE_GUSDMA: // GUS DMA interval
+        return settings.GUS.dmaInterval;
+    case MODE_GUS44K: // Force 44k output
+        return settings.GUS.force44k;
+    case MODE_WTVOL: // Wavetable mixer volume
+        return (BOARD_TYPE == PICOGUS_2) ? m62429->getVolume(0) : 0;
+    case MODE_MPUDELAY: // SYSEX delay
+        return settings.MPU.delaySysex;
+    case MODE_MPUFAKE: // MPU fake all notes off
+        return settings.MPU.fakeAllNotesOff;
+    case MODE_OPLWAIT: // Adlib speed sensitive fix
+        return settings.SB.oplSpeedSensitive;
+    case MODE_MOUSEPORT:  // USB Mouse port (0 - disabled)
+        return settings.Mouse.basePort == 0xFFFF ? 0 : (settings.Mouse.basePort >> 8);
+    case MODE_MOUSEPROTO:  // USB Mouse protocol
+        return settings.Mouse.protocol;
+    case MODE_MOUSERATE:  // USB Mouse Report Rate
+        return settings.Mouse.reportRate;
+    case MODE_MOUSESEN:  // USB Mouse Sensitivity (8.8 fixedpoint)
+        return settings.Mouse.sensitivity >> 8;
+    case MODE_HWTYPE: // Hardware version
         return BOARD_TYPE;
-    case 0xff:
+    case MODE_FLASH:
         // Get status of firmware write
         return pico_firmware_getStatus();
-        break;
     default:
         return 0xff;
-        break;
     }
 }
 
 
 void processSettings(void) {
 #ifdef SOUND_SB
-    basePort = settings.SB.basePort;
-    sb_port_test = basePort >> 4;
-    adlib_basePort = settings.SB.oplBasePort;
-    adlib_wait = settings.SB.oplSpeedSensitive;
+    sb_port_test = settings.SB.basePort >> 4;
 #endif
 #ifdef SOUND_GUS
-    basePort = settings.GUS.basePort;
-    gus_port_test = basePort >> 4 | 0x10;
+    gus_port_test = settings.GUS.basePort >> 4 | 0x10;
+    GUS_SetFixed44k(settings.GUS.force44k);
+    GUS_SetAudioBuffer(settings.GUS.audioBuffer);
+    GUS_SetDMAInterval(settings.GUS.dmaInterval);
 #endif
-#ifdef SOUND_MPU
-    basePort = settings.MPU.basePort;
+#ifdef USB_MOUSE
+    sermouse_set_protocol(settings.Mouse.protocol);
+    sermouse_set_report_rate_hz(settings.Mouse.reportRate);
+    sermouse_set_sensitivity(settings.Mouse.sensitivity);
 #endif
-#ifdef SOUND_CMS
-    basePort = settings.CMS.basePort;
-#endif
-#ifdef SOUND_TANDY
-    basePort = settings.Tandy.basePort;
-#endif
+    if (BOARD_TYPE == PICOGUS_2) {
+        m62429->setVolume(M62429_BOTH, settings.Global.waveTableVolume);
+    }
 }
 
 
@@ -410,7 +422,7 @@ __force_inline void handle_iow(void) {
     // printf("IOW: %x %x\n", port, iow_read & 0xFF);
 #ifdef SOUND_GUS
     if ((port >> 4 | 0x10) == gus_port_test) {
-        port -= basePort;
+        port -= settings.GUS.basePort;
         switch (port) {
         case 0x8:
         case 0xb:
@@ -437,7 +449,7 @@ __force_inline void handle_iow(void) {
 #endif // SOUND_GUS
 #ifdef SOUND_SB
     if ((port >> 4) == sb_port_test) {      
-        switch (port - basePort) {
+        switch (port - settings.SB.basePort) {
         // OPL ports
         case 0x8:
             // Fast write
@@ -464,7 +476,10 @@ __force_inline void handle_iow(void) {
             sbdsp_process();                                         
             break;
         } 
-    } else if (port == adlib_basePort) {
+    } else // if follows down below
+#endif // SOUND_SB
+#if defined(SOUND_OPL)
+    if (port == settings.SB.oplBasePort) {
         // Fast write
         pio_sm_put(pio0, IOW_PIO_SM, IO_END);
         opl_buffer.cmds[opl_buffer.head++] = {
@@ -473,9 +488,9 @@ __force_inline void handle_iow(void) {
         };
         // Fast write - return early as we've already written 0x0u to the PIO
         return;
-    } else if (port == adlib_basePort + 1) {
+    } else if (port == settings.SB.oplBasePort + 1) {
         pio_sm_put(pio0, IOW_PIO_SM, IO_WAIT);
-        if (adlib_wait) {
+        if (settings.SB.oplSpeedSensitive) {
             busy_wait_us(1); // busy wait for speed sensitive games
         }
         opl_buffer.cmds[opl_buffer.head++] = {
@@ -483,9 +498,9 @@ __force_inline void handle_iow(void) {
             (uint8_t)(iow_read & 0xFF)
         };
     } else // if follows down below
-#endif // SOUND_SB
+#endif // SOUND_OPL
 #ifdef SOUND_MPU
-    switch (port - basePort) {
+    switch (port - settings.MPU.basePort) {
     case 0:
         pio_sm_put(pio0, IOW_PIO_SM, IO_WAIT);
         // printf("MPU IOW: port: %x value: %x\n", port, iow_read & 0xFF);
@@ -501,14 +516,14 @@ __force_inline void handle_iow(void) {
     }
 #endif // SOUND_MPU
 #ifdef SOUND_TANDY
-    if (port == basePort) {
+    if (port == settings.Tandy.basePort) {
         pio_sm_put(pio0, IOW_PIO_SM, IO_END);
         tandy_buffer.cmds[tandy_buffer.head++] = iow_read & 0xFF;
         return;
     } else // if follows down below
 #endif // SOUND_TANDY
 #ifdef SOUND_CMS
-    switch (port - basePort) {
+    switch (port - settings.CMS.basePort) {
     // SAA data/address ports
     case 0x0:
     case 0x1:
@@ -531,7 +546,7 @@ __force_inline void handle_iow(void) {
     }
 #endif // SOUND_CMS
 #ifdef USB_JOYSTICK
-    if (port == joyPort) {
+    if (port == settings.Joy.basePort) {
         pio_sm_put(pio0, IOW_PIO_SM, IO_END);
         // Set times in # of cycles (affected by clkdiv) for each PWM slice to count up and wrap back to 0
         // TODO better calibrate this
@@ -555,7 +570,13 @@ __force_inline void handle_iow(void) {
         pwm_set_wrap(3, 0);
         return;
     } else // if follows down below
-#endif
+#endif // USB_JOYSTICK
+#ifdef USB_MOUSE
+    if ((port & ~7) == settings.Mouse.basePort) {
+        pio_sm_put(pio0, IOW_PIO_SM, IO_WAIT);      // leave some time for UART logic emualtion
+        uartemu_write(port & 7, iow_read & 0xFF);
+    } else // if follows down below
+#endif // USB_MOUSE
     // PicoGUS control
     if (port == CONTROL_PORT) {
         pio_sm_put(pio0, IOW_PIO_SM, IO_WAIT);
@@ -595,16 +616,17 @@ __force_inline void handle_ior(void) {
     if ((port >> 4 | 0x10) == gus_port_test) {
         // Tell PIO to wait for data
         pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
-        uint32_t value = read_gus(port - basePort) & 0xff;
+        uint32_t value = read_gus(port - settings.GUS.basePort) & 0xff;
         // OR with 0x0000ff00 is required to set pindirs in the PIO
         pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | value);
         // printf("GUS IOR: port: %x value: %x\n", port, value);
         // gpio_xor_mask(LED_PIN);
     } else // if follows down below
-#elif defined(SOUND_SB)
+#endif
+#if defined(SOUND_SB)
     if ((port >> 4) == sb_port_test) {
         pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
-        if (port - basePort == 0x8) {
+        if (port - settings.SB.basePort == 0x8) {
             // wait for OPL buffer to process
             while (opl_buffer.tail != opl_buffer.head) {
                 tight_loop_contents();
@@ -615,7 +637,10 @@ __force_inline void handle_ior(void) {
             pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | sbdsp_read(port & 0xF));        
             sbdsp_process();
         }
-    } else if (port == adlib_basePort) {
+    } else // if follows down below
+#endif
+#if defined(SOUND_OPL)
+    if (port == settings.SB.oplBasePort) {
         // Tell PIO to wait for data
         pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
         // wait for OPL buffer to process
@@ -624,15 +649,16 @@ __force_inline void handle_ior(void) {
         }
         pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | OPL_Pico_PortRead(OPL_REGISTER_PORT));
     } else // if follows down below
-#elif defined(SOUND_MPU)
-    if (port == basePort) {
+#endif
+#if defined(SOUND_MPU)
+    if (port == settings.MPU.basePort) {
         // Tell PIO to wait for data
         pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
         uint32_t value = MPU401_ReadData();
         // printf("MPU IOR: port: %x value: %x\n", port, value);
         // OR with 0x0000ff00 is required to set pindirs in the PIO
         pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | value);
-    } else if (port == basePort + 1) {
+    } else if (port == settings.MPU.basePort + 1) {
         // Tell PIO to wait for data
         pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
         uint32_t value = MPU401_ReadStatus();
@@ -640,8 +666,9 @@ __force_inline void handle_ior(void) {
         // OR with 0x0000ff00 is required to set pindirs in the PIO
         pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | value);
     } else // if follows down below
-#elif defined(SOUND_CMS)
-    switch (port - basePort) {
+#endif
+#if defined(SOUND_CMS)
+    switch (port - settings.CMS.basePort) {
     // CMS autodetect ports
     case 0x4:
         pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
@@ -655,7 +682,7 @@ __force_inline void handle_ior(void) {
     }
 #endif // SOUND_CMS
 #ifdef USB_JOYSTICK
-    if (port == joyPort) {
+    if (port == settings.Joy.basePort) {
         pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
         uint8_t value =
             // Proportional bits: 1 if counter is still counting, 0 otherwise
@@ -666,7 +693,15 @@ __force_inline void handle_ior(void) {
             joystate_struct.button_mask;
         pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | value);
     } else // if follows down below
-#endif
+#endif // USB_JOYSTICK
+#ifdef USB_MOUSE
+    if ((port & ~7) == settings.Mouse.basePort) {
+        pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
+        uint8_t value = uartemu_read(port & 7);
+        pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | value);
+        return;
+    } else // if follows down below
+#endif // USB_MOUSE
     if (port == CONTROL_PORT) {
         // Tell PIO to wait for data
         pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
@@ -732,7 +767,6 @@ __force_inline bool ior_has_data() {
 #include "hardware/structs/xip_ctrl.h"
 int main()
 {
-    hw_clear_bits(&xip_ctrl_hw->ctrl, XIP_CTRL_EN_BITS);
 #ifdef ASYNC_UART
     stdio_async_uart_init_full(UART_ID, BAUD_RATE, UART_TX_PIN, UART_RX_PIN);
 #else
@@ -750,7 +784,24 @@ int main()
 
     // Load settings from flash
     loadSettings(&settings);
-    processSettings();
+#if defined(SOUND_GUS)
+    settings.startupMode = GUS_MODE;
+#elif defined(SOUND_MPU)
+    settings.startupMode = MPU_MODE;
+#elif defined(SOUND_TANDY)
+    settings.startupMode = TANDY_MODE;
+#elif defined(SOUND_CMS)
+    settings.startupMode = CMS_MODE;
+#elif defined(SOUND_SB)
+    settings.startupMode = SB_MODE;
+#elif defined(SOUND_OPL)
+    settings.startupMode = ADLIB_MODE;
+#elif defined(USB_ONLY)
+    settings.startupMode = USB_MODE;
+#else
+    settings.startupMode = INVALID_MODE;
+#endif
+    hw_clear_bits(&xip_ctrl_hw->ctrl, XIP_CTRL_EN_BITS);
 
     // Determine board type. GPIO 29 is grounded on PicoGUS v2.0, and on a Pico, it's VSYS/3 (~1.666V)
     // GPIO 25 must be high to read GPIO 29 on the Pico W
@@ -820,8 +871,8 @@ int main()
         m62429->begin(24, 25, pio1, -1);
 #else
         m62429->begin(24, 25);
-        m62429->setVolume(M62429_BOTH, settings.Global.waveTableVolume);
-#endif // SOUND_MPU
+        // Initial volume is set in processSettings()
+#endif // M62429_PIO
     }
 
     gpio_init(IRQ_PIN);
@@ -879,17 +930,16 @@ int main()
 #ifdef SOUND_SB
     puts("Initializing SoundBlaster DSP");
     sbdsp_init();
-    puts("Creating OPL");
-    OPL_Pico_Init(basePort);
-    multicore_launch_core1(&play_adlib);
 #endif // SOUND_SB
+#ifdef SOUND_OPL
+    puts("Creating OPL");
+    OPL_Pico_Init(0);
+    multicore_launch_core1(&play_adlib);
+#endif
 
 #ifdef SOUND_GUS
     puts("Creating GUS");
     GUS_OnReset();
-    GUS_SetAudioBuffer(settings.GUS.audioBuffer);
-    GUS_SetDMAInterval(settings.GUS.dmaInterval);
-    GUS_SetFixed44k(settings.GUS.force44k);
     multicore_launch_core1(&play_gus);
 #endif // SOUND_GUS
 
@@ -920,10 +970,16 @@ int main()
     pwm_init(1, &pwm_c, true);
     pwm_init(2, &pwm_c, true);
     pwm_init(3, &pwm_c, true);
-#ifdef USB_JOYSTICK_ONLY
-    multicore_launch_core1(&play_usb);
-#endif // USB_JOYSTICK_ONLY
 #endif // USB_JOYSTICK
+#ifdef USB_MOUSE
+    puts("Config USB Mouse emulation");
+    uartemu_init(0);
+    sermouse_init(settings.Mouse.protocol, settings.Mouse.reportRate, settings.Mouse.sensitivity);
+    sermouse_attach_uart();
+#endif // USB_MOUSE
+#ifdef USB_ONLY
+    multicore_launch_core1(&play_usb);
+#endif // USBONLY
 
     for(int i=AD0_PIN; i<(AD0_PIN + 10); ++i) {
         gpio_disable_pulls(i);
@@ -978,18 +1034,16 @@ int main()
     PIC_Init();
 #endif
 
+    processSettings();
+
     for (;;) {
 #ifndef USE_IRQ
-        // if (!pio_sm_is_rx_fifo_empty(pio0, IOW_PIO_SM)) {
         if (iow_has_data()) {
             handle_iow();
-            // gpio_xor_mask(LED_PIN);
         }
 
-        // if (!pio_sm_is_rx_fifo_empty(pio0, IOR_PIO_SM)) {
         if (ior_has_data()) {
             handle_ior();
-            // gpio_xor_mask(LED_PIN);
         }
 #endif
 #ifndef USE_ALARM
