@@ -71,7 +71,6 @@ Tested with 48mhz oscillator for 96mhz CPU, 48mhz BUS speed.
 
 ## Untested:
 - Midi In
-- 5V -> 3.3V voltage drop diodes
 
 
 ## Todo:
