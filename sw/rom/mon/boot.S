@@ -42,51 +42,41 @@
 __main:
 _main:
 _vec_boot:
-    move.w  #0x2700,sr                               // no interrupts
+    move.w  #0x2700,sr                          // no interrupts
+    cinva   ic                                  // invalidate caches
+    cinva   dc
     cinva   bc
-    reset
+    move.l  #0x400000,d0                        // clear branch cache
+    movec   d0,cacr                             // disable all caches
     sub.l   d0,d0
-    movec   d0,tc
+    movec   d0,tc                               // disable pmmu
     pflusha
-    move.l  #0x00ff8040,d0
+    //move.l  #0x00ff8040,d0
+    sub.l   d0,d0
     movec   d0,dtt0
     movec   d0,itt0
     sub.l   d0,d0
     movec   d0,dtt1
     movec   d0,itt1
     pflusha
-
-
-//    pflusha
-    move.l  #__bss_start,sp                        // bios stack
-    cinva   ic                                      // invalidate caches
-    cinva   dc
-    cinva   bc
-    move.l  #0x400000,d0                            // clear branch cache
-    movec   d0,cacr
-    sub.l   d0,d0                                   // clear special regs
-//    movec   d0,tc
-//    pflusha
-//    movec   d0,srp
-//    movec   d0,urp
-//    movec   d0,itt0
-//    movec   d0,itt1
-//    movec   d0,dtt0
-//    movec   d0,dtt1
-//    pflusha
+    reset                                       // reset peripherals
+    sub.l   d0,d0                               // reset vbr
     movec   d0,vbr
+
+
+    move.l  #__bss_start,sp                     // bios stack
 
     // init uart2
     move.l  #PADDR_UART2,a5
-    bclr.b  #7,UART_LCR(a5)                         // access normal regs
-    move.b  #0x00,UART_IER(a5)                      // no interrupts
+    bclr.b  #7,UART_LCR(a5)                     // access normal regs
+    move.b  #0x00,UART_IER(a5)                  // no interrupts
 
-    //move.b  #0x00,UART_FCR(a5)                 // fifo off
-    move.b  #0x01,UART_FCR(a5)                 // fifo on
-    move.b  #0x07,UART_FCR(a5)                 // clear fifo buffers
-    move.b  #0x03,UART_LCR(a5)                 // 8 data bits, no parity, 1 stop bit
-    move.b  #0x00,UART_SPR(a5)                 // clear scratch reg
-    move.b  #0x00,UART_MCR(a5)                 // modem control
+    //move.b  #0x00,UART_FCR(a5)                // fifo off
+    move.b  #0x01,UART_FCR(a5)                  // fifo on
+    move.b  #0x07,UART_FCR(a5)                  // clear fifo buffers
+    move.b  #0x03,UART_LCR(a5)                  // 8 data bits, no parity, 1 stop bit
+    move.b  #0x00,UART_SPR(a5)                  // clear scratch reg
+    move.b  #0x00,UART_MCR(a5)                  // modem control
 
     // enable tcr regs
 #if (UART_FLOWCTRL != 0)
@@ -94,18 +84,18 @@ _vec_boot:
     move.b  #0xBF,UART_LCR(a5)
 //    bset.b  #4,UART_EFR(a5)
 //    bset.b  #6,UART_MCR(a5)
-//    move.b  #0x4A,UART_TCR(a5)                       // rts resume/halt levels
-//    move.b  #0x88,UART_TLR(a5)                       // rx/tx fifo trigger
+//    move.b  #0x4A,UART_TCR(a5)                    // rts resume/halt levels
+//    move.b  #0x88,UART_TLR(a5)                    // rx/tx fifo trigger
 //    bclr.b  #6,UART_MCR(a5)
 //    bclr.b  #4,UART_EFR(a5)
-    move.b  #0xC0,UART_EFR(a5)                 // auto cts,rts
+    move.b  #0xC0,UART_EFR(a5)                      // auto cts,rts
     move.b  d0,UART_LCR(a5)                         // normal regs
     bset.b  #1,UART_MCR(a5)                         // start rts flow control
 #endif
 
     bset.b  #7,UART_LCR(a5)                         // access divisor regs
-    move.b  #(UART_BAUDD&0xFF),UART_DLL(a5)          // baudrate L
-    move.b  #((UART_BAUDD>>8)&0xFF),UART_DLM(a5)     // baudrate H
+    move.b  #(UART_BAUDD&0xFF),UART_DLL(a5)         // baudrate L
+    move.b  #((UART_BAUDD>>8)&0xFF),UART_DLM(a5)    // baudrate H
     bclr.b  #7,UART_LCR(a5)                         // access normal regs
 
     // welcome message
@@ -118,18 +108,9 @@ _vec_boot:
     BPRINT  a5,#msg_ramfail
     stop    #0x2700
 
-    // continue in c
 vec_boot_ram_ok:
 
-//    move.l  #$A0C08000,d0       // d + b + i
-//    move.l  #$00C08000,d0      // b + i
-//    move.l  #$00008000,d0      // i
-    move.l  #0x00000000,d0
-    movec   d0,cacr
-
-//    move.l  #0x03000000,a0
-//    move16  (a0),0x00
-
+    // expection handlers
     move.l  #_vec_berr,0x8
 
     // init

@@ -628,7 +628,7 @@
 #  define CONF_ATARI_HARDWARE 0
 # endif
 # ifndef CONF_STRAM_SIZE
-#  define CONF_STRAM_SIZE 4UL*1024*1024
+#  define CONF_STRAM_SIZE 1UL*1024*1024
 # endif
 # ifndef CONF_WITH_TTRAM
 #  define CONF_WITH_TTRAM 1

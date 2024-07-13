@@ -1,5 +1,7 @@
 #include "sys.h"
 
+extern int test_ym_write(int size);
+
 #define MONBUFFERSIZE 1024
 uint8 monBuffer[MONBUFFERSIZE];
 uint16 monActive;
@@ -33,7 +35,7 @@ void monRead(uint32 bits, uint32 addr);
 void monWrite(uint32 bits, uint32 addr, uint32 val);
 void monLoad(uint32 addr, uint32 size);
 void monRun(uint32 addr);
-
+void monTest(char* cmd, uint32 val);
 
 __attribute__((interrupt)) void IntIkbd(void)
 {
@@ -160,10 +162,23 @@ void Monitor(TRegs* regs)
             else if (strcmp(argc[0], "load") == 0)      { monLoad(strtoi(argc[1]), strtoi(argc[2])); }
             else if (strcmp(argc[0], "run") == 0)       { monRun(strtoi(argc[1])); }
             else if (strcmp(argc[0], "reset") == 0)     { extern void vec_boot(); vec_boot(); }
+            else if (strcmp(argc[0], "test") == 0)      { monTest((args > 1) ? argc[1] : 0, (args > 2) ? strtoi(argc[2]) : 0); }
             else                                        { monHelp(); }
         }
     }
     monActive = 0;
+}
+
+void monTest(char* test, uint32 val) {
+    if (strcmp(test, "ym") == 0) {
+        test_ym_write(1);
+    }
+    else {
+        uart_printString("\n");
+        uart_printString("Test commands:\n");
+        uart_printString("  ym\r\n");
+        uart_printString("\n");
+    }
 }
 
 void monHelp()
@@ -180,6 +195,7 @@ void monHelp()
     uart_printString("  r                 : show registers\n");
     uart_printString("  x                 : exit monitor\n");
     uart_printString("  reset             : reset computer\n");
+    uart_printString("  test {cmd} {val}  : test hardware\n");
     uart_printString("\n");
 }
 

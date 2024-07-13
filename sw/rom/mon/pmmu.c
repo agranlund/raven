@@ -14,7 +14,6 @@ uint32* pmmuRoot;
 
 #define PDT_USED        (1 << 3)
 
-
 #define PMMU_PAGESIZE           (4 * 1024UL)
 
 #define PMMU_INVALID            (0 << 0)
@@ -30,10 +29,11 @@ uint32* pmmuRoot;
 #define PMMU_READONLY           (PMMU_VALID | PMMU_USED | (1 << 2))
 #define PMMU_READWRITE          (PMMU_VALID | PMMU_USED)
 
+#define RESERVED_SIZE			(3 * (1024 * 1024))
 
-#define RESERVED_START			0x00500000
-#define RESERVED_SIZE			(4 * (1024 * 1024))
-#define RESERVED_END			RESERVED_START + RESERVED_SIZE
+#define COPYBACK_STRAM          0
+#define COPYBACK_TTRAM          0
+
 
 extern uint8 kgfx;
 uint32* mmuRootTable;
@@ -147,55 +147,63 @@ void pmmu_Init(uint32* simms)
 
     // Raven peripherals
 
+    extern uint32 _bss_start;
+    uint32 stram_size = ((uint32)&_bss_start) & 0xfff00000;
+    uint32 reserved_start = stram_size;
+    uint32 reserved_end = reserved_start + RESERVED_SIZE;
+
     uint32 lmem = 0x00000000;
     for (uint32 i=0; i<3; i++)
     {
         uint32 pmem = i << 24;
         for (uint32 j=0; j<(simms[i] >> 20); j++)
         {
-			if (pmem < RESERVED_START || pmem >= RESERVED_END)
+			if (pmem < reserved_start || pmem >= reserved_end)
             {
-                if (lmem == 0x00400000)  // > 4MB --> TT-RAM
-                    lmem = 0x01000000;
-
-#if 1
-				if (pmem == 0) {
+				if (lmem == 0) {
 					// system vectors + variables
 	                pmmu_Map(0x00000000, 0x00000000, 0x00002000, PMMU_READWRITE | PMMU_CM_PRECISE);
 	                pmmu_Map(0x00002000, 0x00002000, 0x000FE000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
-					//pmmu_Map(0x00000000, 0x00000000, 0x00002000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
-	                //pmmu_Map(lmem, pmem, 0x00100000, PMMU_READWRITE | PMMU_CM_COPYBACK);
 				}
-				else if (pmem >= 0x01000000) {
+				else if (lmem >= 0x01000000) {
 					// tt-ram
-	            	pmmu_Map(lmem, pmem, 0x00100000, PMMU_READWRITE | PMMU_CM_COPYBACK);					
-	                //pmmu_Map(lmem, pmem, 0x00100000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
+                    #if COPYBACK_TTRAM
+	            	    pmmu_Map(lmem, pmem, 0x00100000, PMMU_READWRITE | PMMU_CM_COPYBACK);
+                    #else
+	            	    pmmu_Map(lmem, pmem, 0x00100000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
+                    #endif
+
 				}
 				else {
 					// st-ram
-	                pmmu_Map(lmem, pmem, 0x00100000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
+                    #if COPYBACK_STRAM
+	                    pmmu_Map(lmem, pmem, 0x00100000, PMMU_READWRITE | PMMU_CM_COPYBACK);
+                    #else
+	                    pmmu_Map(lmem, pmem, 0x00100000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
+                    #endif
 				}
-#else
-                pmmu_Map(lmem, pmem, 0x00100000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
-//                pmmu_Map(lmem, pmem, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);
-#endif
-
                 lmem += 0x00100000;
+            }
+            if (lmem == stram_size) {
+                lmem = 0x01000000;
             }
             pmem += 0x00100000;
         }
     }
 
     // internally reserved ram
-	for (uint32 addr = RESERVED_START; addr < RESERVED_END; addr += 0x00100000) {
+	for (uint32 addr = reserved_start; addr < reserved_end; addr += 0x00100000) {
 	    pmmu_Map(addr, addr, 0x00100000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
 	}
 
-    // bus errors
-    pmmu_Invalid(lmem, 0x00100000);         // end of tt-ram
-    pmmu_Invalid(0x00400000, 0x00100000);   // end of st-ram
+    // bus error on MB block after tt-ram
+    pmmu_Invalid(lmem, 0x00100000);
 
+    // bus error on 64k block at start and end of the MB block after st-ram
+    pmmu_Invalid(stram_size, 0x00010000);
+    pmmu_Invalid(stram_size + 0x000F0000, 0x00010000);
 
+    // peripheral access flags
     pmmu_Map(0x03000000, 0x03000000, 0x00100000, PMMU_READONLY  | PMMU_CM_WRITETHROUGH);    // ROM
     pmmu_Map(0x20000000, 0x20000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // LOCBUS (uart)
     pmmu_Map(0xA0000000, 0xA0000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // EXTBUS (ide, mfp2)
@@ -213,30 +221,18 @@ void pmmu_Init(uint32* simms)
 
     pmmu_Map(0x83000000, 0x83000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // ISA16-IO
 
-    pmmu_Redirect(0xC0000000, 0x80000000, 0x00400000);                                      // ISA8-RAM (alt)
-    pmmu_Redirect(0xC1000000, 0x81000000, 0x00100000);                                      // ISA8-RAM (alt)
-    pmmu_Redirect(0xC2000000, 0x82000000, 0x00400000);                                      // ISA8-RAM (alt)
-    pmmu_Redirect(0xC3000000, 0x83000000, 0x00100000);                                      // ISA8-RAM (alt)
-
-    // Atari peripherals
+    // peripheral memory map
     pmmu_Redirect(0xFF000000, 0x00000000, 0x01000000);  // 24bit space
-
     pmmu_Redirect(0x00E00000, 0x03040000, 0x00080000);  // ROM
     pmmu_Redirect(0xFFE00000, 0x03040000, 0x00080000);
-
-
-//    pmmu_Redirect(0x00E00000, 0x00600000, 0x00040000);  // ROM
     pmmu_Redirect(0x00F00000, 0xA0000000, 0x00001000);  // IDE      ($f00000 -> $a0000000)
     pmmu_Redirect(0xFFF00000, 0xA0000000, 0x00001000);
-
     pmmu_Redirect(0x00FF8000, 0xA1000000, 0x00001000);  // YM2149   ($ff8800 -> $a1000800)
     pmmu_Redirect(0xFFFF8000, 0xA1000000, 0x00001000);
-
     pmmu_Redirect(0x00FFF000, 0xA1000000, 0x00001000);  // MFP1     ($fffa00 -> $a1000a00)
     pmmu_Redirect(0xFFFFF000, 0xA1000000, 0x00001000);
 
-	// todo: detect Mach32 vs ET4000
-
+    // special case graphics card access to satisfy existing Atari drivers
 	if (kgfx == 3) {
 		// Mach32
 	    pmmu_Redirect(0xFE900000, 0x83000000, 0x00100000);      // TT Nova Mach32 reg base : 1024 kb
@@ -265,22 +261,19 @@ void pmmu_Init(uint32* simms)
 	    pmmu_Redirect(0x00C00000, 0x82000000, 0x00100000);      // ST Nova ET4k mem base    : 1024 kb
 	}
 
-    //                      xxx...xx ........ .....xx. ..x.....
-    //  ff8800      ym2149  00000000 11111111 10001000 00000000     [A9..10]    00
-    //  fffa00      mfp1    00000000 11111111 11111010 00000000     [A9..10]    01
-    //  fffc00      acia    00000000 11111111 11111100 00000000     [A9..10]    10
-
-
-	// Emulator space 0x04000000
-    pmmu_Redirect(0x04000000, 0x00600000, 0x00100000);		// ram	1024kb
-    pmmu_Redirect(0x04E00000, 0x00700000, 0x00040000);		// tos2	 256kb
-    pmmu_Redirect(0x04FA0000, 0x00740000, 0x00020000);		// cart  128kb
-    pmmu_Redirect(0x04FC0000, 0x00760000, 0x00030000);		// tos1	 192kb
-    pmmu_Redirect(0x04FF0000, 0x00790000, 0x00010000);		// io	  64kb
-
-
-	// Hades compatible ISA-I/O
+    // hades compatible ISA I/O to take advantage of existing drivers
 	pmmu_Redirect(0xFFF30000, 0x81000000, 0x00010000);
+
+
+    // !! temp !!
+    // todo: get rid of this and let the program allocate and map this,
+    // after we've exposed the pmmu functions in some kind of bootrom api
+	// Emulator space
+    pmmu_Redirect(0x04000000, stram_size + 0x00100000, 0x00100000);		// ram	1024kb  : 0x00500000-0x00600000
+    pmmu_Redirect(0x04E00000, stram_size + 0x00200000, 0x00040000);		// tos	 256kb
+    pmmu_Redirect(0x04FC0000, stram_size + 0x00200000, 0x00030000);
+    pmmu_Redirect(0x04FA0000, stram_size + 0x00240000, 0x00020000);		// cart  128kb
+    pmmu_Redirect(0x04FF0000, stram_size + 0x00260000, 0x00010000);		// io	  64kb  : 0x00600000-0x00680000
 
     TMMU mmu;
     mmu.urp = mmuRootTable;

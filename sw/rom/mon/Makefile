@@ -9,11 +9,9 @@ OFILES = $(SFILES:%.S=build/%.o) $(CFILES:%.c=build/%.o)
 DEPS   = $(HFILES) Makefile
 
 
-BOARD_REV	= 0xA1
-BIOS_ROM	= 0x03000000
-BIOS_RAM	= 0x00500000
-BIOS_BSS	= 0x00504000
-
+BOARD_REV		= 0xA1
+BIOS_ROM		= 0x03000000
+BIOS_BSS		= 0x00114000
 
 BUILD_DATE_HEX := $(shell date +%Y%m%d)
 BUILD_DATE_DEC := $(shell printf %d 0x$(BUILD_DATE_HEX))
@@ -25,6 +23,9 @@ CFLAGS = $(DEFS) -m68060 -Os \
 	-std=c99 -fomit-frame-pointer -fno-common \
 	-Wall \
 
+ifeq ($(target),tos)
+	CFLAGS += -DLAUNCH_TOS
+endif
 
 LFLAGS = -nostartfiles -nostdlib \
 	-Wl,-Map,mon.map \

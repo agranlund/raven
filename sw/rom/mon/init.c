@@ -1,15 +1,10 @@
 #include "sys.h"
 
 extern void vec_berr();
-
 extern uint32 GetPCR();
-extern int test_ym_write(int size);
-
 extern void sp060_Install(void);
 extern void sp060_Test(void);
 extern uint8 kgfx;
-
-#define LAUNCH_TOS  1
 
 
 const char* cpuNames[] = {
@@ -103,6 +98,7 @@ int Init()
     vbr_Init();
 
     // install motorola support packages
+    //uart_printString("InitSP060\n");
     //sp060_Install();
 
     // init mmu
@@ -110,18 +106,15 @@ int Init()
     pmmu_Init(simm);
 
     // start
-    uart_printString("Launch\n");
-    SetCACR(0x00000000);        // tos will enable cache later
+    uart_printString("InitPcr\n");
     SetPCR(3);
-//    test_ym_write(1);
 
-/*
-    uart_printString("before sp060_Test\n");
-    sp060_Test();
-    uart_printString("after sp060_Test\n");
-*/
+    //uart_printString("TestSP060\n");
+    //sp060_Test();
 
-#if LAUNCH_TOS
+    uart_printString("Start\n");
+
+#ifdef LAUNCH_TOS
     // clear TOS variables and launch
 	for (int i=0x400; i<0x700; i+=4) {
 		IOL(0, i) = 0;
@@ -137,5 +130,4 @@ int Init()
 
     return 0;
 }
-
 

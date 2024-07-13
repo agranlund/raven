@@ -169,7 +169,7 @@ void uart_printHex(uint32 bits, const char* prefix, uint32 val, const char* suff
 //-----------------------------------------------------------------------
 int strcmp(char* s0, char* s1)
 {
-    while(1)
+    while ((s0 != 0) && (s1 != 0))
     {
         uint8 b0 = *s0; b0 = ((b0 >= 'a') && (b0 <= 'z')) ? b0 - 32 : b0;
         uint8 b1 = *s1; b1 = ((b1 >= 'a') && (b1 <= 'z')) ? b1 - 32 : b1;
@@ -179,6 +179,7 @@ int strcmp(char* s0, char* s1)
             return 0;
         s0++; s1++;
     }
+    return -1;
 }
 
 uint32 strtoi(char* s)

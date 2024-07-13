@@ -482,7 +482,7 @@ nodiag:
 /*
  * disable the instruction/data caches
  */
-#if !defined(__mcoldfire__) && !defined(MACHINE_LISA)
+#if !defined(__mcoldfire__) && !defined(MACHINE_LISA) && !defined(MACHINE_RAVEN)
         move.l  #cache_done,0x10   // must be 68000 if we get illegal instrn error
         move.l  #0x00000808,d0     // clear & disable instruction/data caches on
         MOVEC_D0_CACR              //  68020-60 (even though bit usage differs!)

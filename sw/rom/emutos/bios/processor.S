@@ -267,9 +267,7 @@ _processor_init:
         jbsr    _detect_fpu
         move.l  d0,_fputype
 
-
-        //moveq.l #0,d1
-        move.l  #0x80c08000,d1  // set 060 CACR value: EDC, EBC/CABC and EIC
+        move.l  #0xa0c08000,d1  // set 060 CACR value: EDC, ESB, EBC/CABC and EIC
 
         nop
         CINVA_BC                // invalidate the caches

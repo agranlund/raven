@@ -1,6 +1,6 @@
 #include "sys.h"
 
-#define VBR_PROXY_IN_ROM    1
+#define VBR_PROXY_IN_ROM    0
 
 uint32* vbrTable;
 #if VBR_PROXY_IN_ROM
