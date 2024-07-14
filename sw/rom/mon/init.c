@@ -39,6 +39,7 @@ int Init()
 
 	// identify gfx
 	kgfx = 1;	// assume ET4000
+#ifdef LAUNCH_TOS    
 	if ((IOB(0x82000000, 0xC0032)) == '6' && (IOB(0x82000000, 0xC0034) == '2')) {
 		IOB(0x83000000, 0x56EE) = 0x55;
 		if (IOB(0x83000000, 0x56EE) == 0x55) {
@@ -48,6 +49,7 @@ int Init()
 	uart_printString("GFX:  ");
 	uart_printString(gfxNames[kgfx]);
 	uart_printString("\n");
+#endif
 
 	// identify ram
     for (int i=0; i<3; i++) {
