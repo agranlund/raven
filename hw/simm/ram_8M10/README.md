@@ -1,6 +1,8 @@
 
 # RAM module: 8MB / 10ns
 
+# !DO NOT USE! NOT YET SUPPORTED BY RAVEN FIRMWARE
+
 ![Alt text](images/render.png?raw=true "")
 
 

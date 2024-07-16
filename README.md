@@ -44,7 +44,7 @@ If you are into that sort of programming then this board could potentially provi
     - [Revision.A0](hw/raven/a0/)
 - RAM modules
     - [16MB 55ns](hw/simm/ram_16M55/)
-    - [8MB 10ns](hw/simm/ram_8M10/)
+    - ~~[8MB 10ns](hw/simm/ram_8M10/)~~
 - ROM module
     - [1MB 55ns SMD](hw/simm/rom_1M55_SMD/)
     - [2MB 55ns PLCC](hw/simm/rom_2M55_PLCC/)
