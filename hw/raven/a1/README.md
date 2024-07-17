@@ -63,6 +63,17 @@ Tested with 48mhz oscillator for 96mhz CPU, 48mhz BUS speed.
 
 ## Errata:
 - Silkscreen: J305 pinout mislabeled
+- Silkscreen: U203 orientation is not obvious
+- Silkscreen: J204-206,J305 orientation is not obvious
+- Silkscreen: J301-304 orientation is not obvious
+- Silkscreen: J103, J401 orientation is not obvious
+
+- Footprints: D201-203 pads are small and hard to solder by hand
+- Footprints: C601-603 hole spacing slightly too wide
+- Footprints: C502-513 hole spacing slightly too wide
+
+- Components: C310 could probably be 0.1uF
+
 - BOM: PLCC socket Preci-Dip 540-88-068-24-008 is brown, find black replacement
 - BOM: PLCC socket Preci-Dip 540-88-084-24-008 is brown, find black replacement
 - BOM: ATX connector TE 1-1775099-3 is white, find black replacement
