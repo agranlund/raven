@@ -1,6 +1,6 @@
-Name     Narnia ;
+Name     Iksi ;
 PartNo   00 ;
-Date     2024-06-06 ;
+Date     2024-04-18 ;
 Revision 01 ;
 Designer Anders Granlund ;
 Company  HappyDaze ;
@@ -44,46 +44,79 @@ Device   g22v10;
 // inputs
 //----------------------------------------------
 
-pin 1 = CLK;            // BCLK
-pin 2 = RESET;          // active low
-pin 3 = ISAIO;          // active low
-pin 4 = ISACS;          // active low
-pin 5 = ISA8;           // active low
-pin 6 = A0;
-pin 7 = A1;
-pin 8 = LRW;
-pin 9 = URW;
-pin 10 = RW;            
-pin 11 = DS;            // active low
+pin 1 = CLK8;
+pin 2 = YMCS;
+pin 3 = IDECS;
+pin 4 = IDEIRQ;
+pin 5 = IDE_RDY;
+pin 6 = DS;
+pin 7 = RW;
+pin 8 = A1;
+pin 9 = A5;
+//pin 10 = ;
+//pin 11 = ;
 //pin 13 = ;
 
 //----------------------------------------------
 // outputs
 //----------------------------------------------
 
-pin 14 = ISA_A0;
-pin 15 = !ISA_SBHE;
-pin 16 = !ISA_MEMR;
-pin 17 = !ISA_MEMW;
-pin 18 = ISA_ALE;
-pin 19 = !ISA_IOR;
-pin 20 = !ISA_IOW;
-pin 21 = !ISA_SMEMR;
-pin 22 = !ISA_SMEMW;
-pin 23 = ISA_RESET;
+pin 14 = YM_BDIR;
+pin 15 = YM_BC1;
+pin 16 = CLK2;
+pin 17 = CLK4;
+pin 18 = !DTACK;
+pin 19 = !IRQ_HDD;
+pin 20 = !IDE_WR;
+pin 21 = !IDE_RD;
+pin 22 = !IDE_CS0;
+pin 23 = !IDE_CS1;
+
+//----------------------------------------------
+// clocks
+//----------------------------------------------
+
+CLK4.ar = 'b'0;
+CLK4.sp = 'b'0;
+CLK4.d = !CLK4;
+
+CLK2.ar = 'b'0;
+CLK2.sp = 'b'0;
+CLK2.d = (!CLK2 & CLK4) # (CLK2 & !CLK4);
 
 
 //----------------------------------------------
-// ISA control signals
+// ym
+// 
+// bdir bc1   mode
+//    0   0   inactive
+//    0   1   read
+//    1   0   write
+//    1   1   address
+//
 //----------------------------------------------
 
-ISA_A0      = (!ISA8 & A0) # (ISA8 & ((!RW & URW) # (RW & A0)));
-ISA_SBHE    = ISA8 & (RW # (!RW & !LRW));
-ISA_MEMR    = !ISACS & ISAIO & RW;
-ISA_MEMW    = !ISACS & ISAIO & !RW;
-ISA_ALE     = ISACS; //'b'0;
-ISA_IOR     = !ISACS & !ISAIO & RW;
-ISA_IOW     = !ISACS & !ISAIO & !RW;
-ISA_SMEMR   = !ISACS & ISAIO & RW;
-ISA_SMEMW   = !ISACS & ISAIO & !RW;
-ISA_RESET   = !RESET;
+YM_BC1 = !YMCS & !A1; // read 0, write 0
+YM_BDIR = !YMCS & !RW; // write 0, write 2
+
+
+//----------------------------------------------
+// ide
+//----------------------------------------------
+
+IRQ_HDD = 'b'0;
+IDE_WR = !IDECS & !RW & !DS;
+IDE_RD = !IDECS & RW & !DS;
+IDE_CS0 = !IDECS & !A5;
+IDE_CS1 = !IDECS & A5;
+
+
+//----------------------------------------------
+// dtack
+//----------------------------------------------
+
+DTACK.ar = 'b'0;
+DTACK.sp = 'b'0;
+DTACK.d = 'b'1;
+DTACK.oe = 'b'0;
+
