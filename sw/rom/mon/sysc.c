@@ -1,4 +1,5 @@
 #include "sys.h"
+#include "lib.h"
 
 extern uint32 GetPCR();
 
@@ -92,7 +93,7 @@ uint32 kmem_Alloc(uint32 size, uint32 alignment)
         kheapPtr = m;
         return kheapPtr;
     }
-    uart_printString("ERROR: kmem_Alloc()\n");
+    puts("ERROR: kmem_Alloc()");
     return 0;
 }
 
@@ -131,57 +132,31 @@ uint32 DetectCPU(uint32* revout, uint32* idout)
 // uart
 //
 //-----------------------------------------------------------------------
-const char* hexTable = "0123456789ABCDEF";
-
-void uart_printChar(const char d)
+void uart_sendChar(const char d)
 {
-    while ((IOB(PADDR_UART2, UART_LSR) & (1 << 5)) == 0) {
+    if (d == '\n')
+        uart_sendChar('\r');
+    while ((IOB(PADDR_UART2, UART_LSR) & (1 << 5)) == 0)
         nop();
-    }
     IOB(PADDR_UART2, UART_THR) = d;
+
+    /* line-buffered */
+    while ((d == '\n') && (IOB(PADDR_UART2, UART_LSR) & (1 << 6)) == 0)
+        nop();
 }
 
-void uart_printString(const char* string)
+int uart_recvChar()
 {
-    while (*string != 0) {
-        uart_printChar(*string);
-        string++;
-    }
-}
+    uint8 lsr = IOB(PADDR_UART2, UART_LSR);
 
-void uart_printHex(uint32 bits, const char* prefix, uint32 val, const char* suffix)
-{
-    if (prefix)
-        uart_printString(prefix);
-    for (int i=0; i<(bits>>2); i++) {
-        uart_printChar(hexTable[(val >> (bits-4)) & 0xF]);
-        val <<= 4;
-    }
-    if (suffix)
-        uart_printString(suffix);
+    return ((lsr & (1 << 0)) == 0) ? -1 : IOB(PADDR_UART2, UART_RHR);
 }
-
 
 //-----------------------------------------------------------------------
 //
 // misc helpers
 //
 //-----------------------------------------------------------------------
-int strcmp(char* s0, char* s1)
-{
-    while ((s0 != 0) && (s1 != 0))
-    {
-        uint8 b0 = *s0; b0 = ((b0 >= 'a') && (b0 <= 'z')) ? b0 - 32 : b0;
-        uint8 b1 = *s1; b1 = ((b1 >= 'a') && (b1 <= 'z')) ? b1 - 32 : b1;
-        if (b0 != b1)
-            return -1;
-        else if (b0 == 0)
-            return 0;
-        s0++; s1++;
-    }
-    return -1;
-}
-
 uint32 strtoi(char* s)
 {
     uint32 v = 0;

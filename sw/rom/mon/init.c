@@ -1,4 +1,5 @@
 #include "sys.h"
+#include "lib.h"
 
 extern void vec_berr();
 extern uint32 GetPCR();
@@ -27,15 +28,11 @@ int Init()
     // identify cpu
     uint32 cpuRev = 0;
     uint32 cpuSku = DetectCPU(&cpuRev, 0);
-    uart_printString("\n");
-    uart_printString("CPU:  ");
-    uart_printString(cpuNames[cpuSku]);
-    uart_printHex(4, "R", cpuRev, "\n");
+    fmt("\nCPU:  %sR%b\n", cpuNames[cpuSku], cpuRev);
 
     // identify rom
     uint32 simm[4];
-    simm[3] = IOL(PADDR_SIMM3, 0);
-    uart_printHex(32, "ROM:  ", simm[3], "\n");
+    fmt("ROM:  %l\n", IOL(PADDR_SIMM3, 0));
 
 	// identify gfx
 	kgfx = 1;	// assume ET4000
@@ -46,9 +43,7 @@ int Init()
 			kgfx = 3;	// todo: further detect Mach32 vs Mach64
 		}
 	}
-	uart_printString("GFX:  ");
-	uart_printString(gfxNames[kgfx]);
-	uart_printString("\n");
+    fmt("GFX:  %s\n", gfxNames[kgfx]);
 #endif
 
 	// identify ram
@@ -68,15 +63,12 @@ int Init()
                 j = 16;
             }
         }
-        uart_printHex(4, "RAM", i, ": ");
-        uart_printHex(32, 0, simm[i], "\n");
+        fmt("RAM%d: %l\n", i, simm[i]);
     }
-
-
-    uart_printString("\n");
+    putchar('\n');
 
     // clear bios bss area
-    uart_printString("InitBss\n");
+    puts("InitBss");
     extern uint8 _bss_start, _end;
     uint32* kbss = (uint32*)&_bss_start;
     while (kbss < (uint32*)&_end) {
@@ -84,37 +76,37 @@ int Init()
     }
 
     // init heap
-    uart_printString("InitHeap\n");
+    puts("InitHeap");
     kmem_Init();
 
     // init hardware
-    uart_printString("InitSys\n");
+    puts("InitSys");
     sys_Init();
 
     // init monitor
-    uart_printString("InitMon\n");
+    puts("InitMon");
     InitMonitor();
 
     // init vbr
-    uart_printString("InitVbr\n");
+    puts("InitVbr");
     vbr_Init();
 
     // install motorola support packages
-    //uart_printString("InitSP060\n");
+    //puts("InitSP060\n");
     //sp060_Install();
 
     // init mmu
-    uart_printString("InitMmu\n");
+    puts("InitMmu");
     pmmu_Init(simm);
 
     // start
-    uart_printString("InitPcr\n");
+    puts("InitPcr");
     SetPCR(3);
 
-    //uart_printString("TestSP060\n");
+    //puts("TestSP060");
     //sp060_Test();
 
-    uart_printString("Start\n");
+    puts("Start");
 
 #ifdef LAUNCH_TOS
     // clear TOS variables and launch
