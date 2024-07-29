@@ -16,9 +16,9 @@ Building:
 Todo:
 - Automatically erase before programming
 
-- Support Windows line-endings
-On Windows you'll need to change "Enter Key Emulation" to CR instead of CR+LF
+- Support Windows line-endings:
+In CoolTerm you currently need to change "Enter Key Emulation" to CR instead of CR+LF on the Windows version.
 
-- Fix compatibility with other terminal programs
-Works well with CoolTerm under both Mac and Windows, but file transfer does not work correctly from TeraTerm or RealTerm.
+- Fix compatibility with other terminal programs:
+It works well with CoolTerm for both Mac and Windows, but file transfer does not work correctly from TeraTerm or RealTerm.
 
