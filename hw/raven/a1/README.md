@@ -75,22 +75,13 @@ Tested with 48mhz oscillator for 96mhz CPU, 48mhz BUS speed.
 - BOM: PLCC socket Preci-Dip 540-88-068-24-008 is brown, find black replacement
 - BOM: PLCC socket Preci-Dip 540-88-084-24-008 is brown, find black replacement
 - BOM: ATX connector TE 1-1775099-3 is white, find black replacement
+- BOM: Buttons are red, find black replacement
 - BOM: Jumpers TE 1-881545-4 are difficult to grab, pick a different variant
+- PCB: BS0 on CPU side should connect better
+- PCB: Some kind of sign-of-life LEDs
+- PCB: Combining excs/exbusen was a misstake. Separate signals could allow faster synchronous termination.
 
 
 ## Untested:
 - Midi In
-
-
-## Todo:
-- Burst access
-- Tune 55ns RAM/ROM access
-- Tune 10ns RAM access
-- Support rom/ram combo simm
-- Acknowledge ISA:IOCS16
-- Acknowledge ISA:ZEROWS
-- Eiffel fan connector J305 operates in default setting (On: 40°C, Off 30°C)
-  Software needs modification to support changing settings.
-
-
 
