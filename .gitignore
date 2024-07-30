@@ -9,7 +9,6 @@ bak/*
 *-backups/
 _autosave*
 #auto_saved_files#
-sw/isa/drivers/ne2000/*
 sw/rom/mon/mon.map
 sw/rom/mon/mon.bin
 sw/rom/boot.bin
