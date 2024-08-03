@@ -935,16 +935,27 @@ int pnp_init() {
 
     // settings
     uint32 cfgint;
-    bool pnp_disable = (GetInfHex("isa.pnp.enable", &cfgint) && (cfgint == 0)) ? true : false;
-    pnp_rdport = (!pnp_disable && GetInfHex("isa.pnp.port", &cfgint) && (cfgint != 0)) ? cfgint : 0x203;
 
-    // create non-pnp cards
+    bool pnp_probe = true;
+    bool pnp_disable = (GetInfHex("isa.pnp.enable", &cfgint) && (cfgint == 0)) ? true : false;
+
+    if (!pnp_disable) {
+        pnp_rdport = (GetInfHex("isa.pnp.port", &cfgint) && (cfgint != 0)) ? cfgint : 0x203;
+        pnp_probe = true;
+    } else {
+        pnp_rdport = 0;
+        pnp_probe = false;
+    }
+
+    // manually created cards
     pnp_inf_create_cards();
 
-    // probe for non-pnp cards
-    isa_probe();
+    // autodetect non-pnp cards
+    if (pnp_probe) {
+        isa_probe();
+    }
 
-    // detect pnp cards & devices
+    // detect pnp cards
     int found = 0;
     if (pnp_rdport) {
         found = pnp_detect();

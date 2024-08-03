@@ -224,11 +224,21 @@ const char* GetInfCommand(const char* find, const char* start, char** outc, int*
 }
 
 bool GetInfInt(const char* key, int* val) {
-    return StrToInt(GetInfStr(key));
+    const char* str = GetInfStr(key);
+    if (str) {
+        *val = StrToInt(str);
+        return true;
+    }
+    return false;
 }
 
 bool GetInfHex(const char* key, uint32* val) {
-    return StrToHex(GetInfStr(key));
+    const char* str = GetInfStr(key);
+    if (str) {
+        *val = StrToHex(str);
+        return true;
+    }
+    return false;
 }
 
 bool Createcookie(uint32 id, uint32 value)
