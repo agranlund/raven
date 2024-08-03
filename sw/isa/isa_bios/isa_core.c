@@ -244,8 +244,8 @@ bool GetInfHex(const char* key, uint32* val) {
 bool Createcookie(uint32 id, uint32 value)
 {
     // find free slot
+    int cookies_size = 0;
 	int cookies_used = 0;
-	int cookies_avail = 0;
 	uint32* jar = (uint32*) *((uint32*)0x5a0);
 	uint32* c = jar;
 	while (1) {
@@ -255,40 +255,36 @@ bool Createcookie(uint32 id, uint32 value)
 			return true;
 		}
 		else if (c[0] == 0) {
-			cookies_avail = c[1] - cookies_used;
+            cookies_size = c[1];
 			break;
 		}
 		c += 2;
 	}
 
     // grow jar when necessary
+    int cookies_avail = cookies_size - cookies_used;
 	if (cookies_avail <= 0) {
-        cookies_avail = cookies_used + 8;
-        int oldsize = cookies_used * 2 * 4;
-        int newsize = cookies_avail * 2 * 4;
+        int oldsize = (2*4*(cookies_size));
+        cookies_size += 8;
+        int newsize = (2*4*(cookies_size));
         uint32* newjar = (uint32*)malloc(newsize);
         memcpy(newjar, jar, oldsize);
+        *((uint32*)0x5a0) = (uint32)newjar;
         jar = newjar;
 	}
 
 	// install cookie
-	jar[(cookies_used<<1)-2] = id;
+	jar[(cookies_used<<1)-2] = id;                  // overwrite end marker
 	jar[(cookies_used<<1)-1] = value;
-	jar[(cookies_used<<1)+0] = 0;
-	jar[(cookies_used<<1)+1] = cookies_avail - 1;
+	jar[(cookies_used<<1)+0] = 0;                   // write new end marker
+	jar[(cookies_used<<1)+1] = cookies_size;
 	return true;    
-}
-
-static uint32 TsrSize()
-{
-    BASEPAGE* bp = _base;
-    uint32 size = 0x100 + bp->p_tlen + bp->p_dlen + bp->p_blen + _stksize;
-    return size;
 }
 
 void ExitTsr()
 {
-    uint32 size = Supexec(TsrSize);
+    extern unsigned long _PgmSize;
+    uint32 size = _PgmSize;
     Ptermres(size, 0);
 }
 
