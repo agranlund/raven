@@ -189,6 +189,8 @@ int gusDetect(unsigned short port)
     gusdev.p3xr = gusdev.port + 0x100;
     gusdev.pcodar = gusdev.port + 0x10C;
 
+    //printf("try detect at: %04x, %04x, %04x\r\n", gusdev.p2xr, gusdev.p3xr, gusdev.pcodar);
+
     // reset
     gusWriteSynthRegB(0x4C, 0x00);
     delay(20);
@@ -198,7 +200,16 @@ int gusDetect(unsigned short port)
     // try reading and writing synth ram
     gusWriteSynthRam(0x000000, 0xAA);
     gusWriteSynthRam(0x000100, 0x55);
-    if (gusReadSynthRam(0x000000) != 0xAA) {
+
+    unsigned char verify = gusReadSynthRam(0x000000);
+    if (verify != 0xAA) {
+        /*
+        printf("fail. readback = %02x\r\n", verify);
+        printf("000000 = %02x\r\n", gusReadSynthRam(0x000000));
+        printf("000001 = %02x\r\n", gusReadSynthRam(0x000001));
+        printf("000100 = %02x\r\n", gusReadSynthRam(0x000100));
+        printf("000101 = %02x\r\n", gusReadSynthRam(0x000101));
+        */
         return 0;
     }
 
@@ -260,9 +271,9 @@ int gusDetect(unsigned short port)
         isa->outp(gusdev.pcodar+1, 0x0f);           // synth
 
         isa->outp(gusdev.pcodar+0, b | 0x04);       // aux2 left gain
-        isa->outp(gusdev.pcodar+1, 0x08);           // 
+        isa->outp(gusdev.pcodar+1, 0x0f);           // 
         isa->outp(gusdev.pcodar+0, b | 0x05);       // aux2 right gain
-        isa->outp(gusdev.pcodar+1, 0x08);           //
+        isa->outp(gusdev.pcodar+1, 0x0f);           //
 
         isa->outp(gusdev.pcodar+0, b | 0x06);       // dac left gain
         isa->outp(gusdev.pcodar+1, 0x80);           // 
@@ -275,9 +286,9 @@ int gusDetect(unsigned short port)
         isa->outp(gusdev.pcodar+1, 0x10);           // 
 
         isa->outp(gusdev.pcodar+0, b | 0x16);       // mic-in left gain
-        isa->outp(gusdev.pcodar+1, 0x80);           //
+        isa->outp(gusdev.pcodar+1, 0x10);           //
         isa->outp(gusdev.pcodar+0, b | 0x17);       // mic-in right gain
-        isa->outp(gusdev.pcodar+1, 0x80);           //
+        isa->outp(gusdev.pcodar+1, 0x10);           //
 
         isa->outp(gusdev.pcodar+0, b | 0x19);       // line-out left attenuation
         isa->outp(gusdev.pcodar+1, 0x20);           // 
@@ -297,12 +308,14 @@ int gusAutoDetect()
     // ask isa_bios
     isa_dev_t* dev = isa->find_dev("GRV0000", 0);
     if (dev) {
+        //printf("found in pnp registry\r\n");
         return gusDetect(dev->port[0]);
     }
 
     // poke at the bus like a caveman
     const unsigned short port_st = 0x200;
     const unsigned short port_en = 0x280;
+    //printf("probing bus range: %04x-%04x\r\n", port_st, port_en);
     for (unsigned short port = port_st; port < port_en; port += 0x10) {
         if (gusDetect(port)) {
             return 1;
@@ -316,10 +329,12 @@ int gusAutoDetect()
 int super_main() {
 
     if (Getcookie(C__ISA, (long*)&isa) != C_FOUND) {
+        //printf("fail: no isa cookie\r\n");
         return 0;
     }
 
     if (!gusAutoDetect()) {
+        //printf("fail: card not detected\r\n");
         return 0;
     }
 
