@@ -271,9 +271,9 @@ int gusDetect(unsigned short port)
         isa->outp(gusdev.pcodar+1, 0x0f);           // synth
 
         isa->outp(gusdev.pcodar+0, b | 0x04);       // aux2 left gain
-        isa->outp(gusdev.pcodar+1, 0x0f);           // 
+        isa->outp(gusdev.pcodar+1, 0x0c);           // 
         isa->outp(gusdev.pcodar+0, b | 0x05);       // aux2 right gain
-        isa->outp(gusdev.pcodar+1, 0x0f);           //
+        isa->outp(gusdev.pcodar+1, 0x0c);           //
 
         isa->outp(gusdev.pcodar+0, b | 0x06);       // dac left gain
         isa->outp(gusdev.pcodar+1, 0x80);           // 
@@ -281,9 +281,9 @@ int gusDetect(unsigned short port)
         isa->outp(gusdev.pcodar+1, 0x80);           // 
 
         isa->outp(gusdev.pcodar+0, b | 0x12);       // line-in left gain
-        isa->outp(gusdev.pcodar+1, 0x10);           // 
+        isa->outp(gusdev.pcodar+1, 0x0c);           // 
         isa->outp(gusdev.pcodar+0, b | 0x13);       // line-in right gain
-        isa->outp(gusdev.pcodar+1, 0x10);           // 
+        isa->outp(gusdev.pcodar+1, 0x0c);           // 
 
         isa->outp(gusdev.pcodar+0, b | 0x16);       // mic-in left gain
         isa->outp(gusdev.pcodar+1, 0x10);           //
