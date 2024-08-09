@@ -24,7 +24,7 @@ mon_bin:
 	dd if=mon/mon.bin of=boot.bin conv=notrunc
 
 emutos_bin:
-	cd $(EMUTOS_DIR) && make raven UNIQUE=uk
+	cd $(EMUTOS_DIR) && make raven UNIQUE=us
 	cp $(EMUTOS_DIR)/$(EMUTOS_IMG) tos.bin
 	dd if=/dev/zero ibs=1k count=256 | LC_ALL=C tr "\000" "\377" >os.bin
 	dd if=tos.bin of=os.bin conv=notrunc
