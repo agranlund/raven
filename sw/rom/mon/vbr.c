@@ -1,6 +1,6 @@
 #include "sys.h"
 
-#define VBR_PROXY_IN_ROM    0
+#define VBR_PROXY_IN_ROM    1
 
 uint32* vbrTable;
 #if VBR_PROXY_IN_ROM
@@ -83,6 +83,8 @@ void vbr_Set(uint32 vec, uint32 addr)
 
 void vbr_Init()
 {
+    // Create first-chance expection handlers at the (relocated) VBR location.
+    // By default they all simply jump to the corresponding vector starting at offset $0
     vbrTable = (uint32*) kmem_Alloc(256 * 4, 256);
 #if VBR_PROXY_IN_ROM
     for (uint32 i=0; i<256*4; i+=4)
@@ -101,7 +103,24 @@ void vbr_Init()
         vbr_Set(i, (uint32) &vbrProxy[j-4]);
     }
 #endif
+      
 
-    vbr_Set(0x7C, (uint32) StartMonitorIrq);        // IRQ7
+    // Install first-chance expection handlers.
+    // Anything not specified here is passed down to the operating system to deal with.
+
+                                                    //          RavenBios   RavenEmuTOS     AtariST
+    vbr_Set(0x60,   (uint32) vecRTE);               // IRQ0 -   IGNORE      bomb            bomb        (spurious interrupt)
+//  vbr_Set(0x64,   (uint32) vecRTE);               // IRQ1 -   ->          bomb            bomb
+//  vbr_Set(0x68,   (uint32) vecRTE);               // IRQ2 -   ->          unused          HBLANK      (not connected in HW)
+//  vbr_Set(0x6C,   (uint32) vecRTE);               // IRQ3 -   ->          bomb            bomb
+//  vbr_Set(0x70,   (uint32) vecRTE);               // IRQ4 -   ->          EMULATED        VBLANK      (not connected in HW)
+//  vbr_Set(0x74,   (uint32) vecRTE);               // IRQ5 -   ->          UART            bomb        (also connected to MFP1:I4)
+//  vbr_Set(0x78,   (uint32) vecRTE);               // IRQ6 -   ->          bomb            bomb
+    vbr_Set(0x7C,   (uint32) vecNMI);               // IRQ7 -   NMI         bomb            bomb
+
+    vbr_Set(0x10C,  (uint32) vecMFP_I3);            // MFP1 -   IGNORE                      Blitter     (used as I2C line)
+    vbr_Set(0x118,  (uint32) vecMFP_I4);            // MFP1 -   IGNORE, for now             Acia        (todo: can use it, same as IRQ5)
+    vbr_Set(0x11C,  (uint32) vecMFP_I5);            // MFP1 -   IGNORE, for now             Fdd/Hdd     (todo: can use it, connected to HDD)
+    vbr_Set(0x13C,  (uint32) vecMFP_I7);            // MFP1 -   IGNORE                      MonoDetect  (used as I2C line)
 }
 

@@ -2,7 +2,6 @@
     
     .text
     .global  _StartMonitor
-    .global  _StartMonitorIrq
     .global  _GetIPL
     .global  _SetIPL
     .global  _GetCACR
@@ -14,6 +13,17 @@
     .global  _GetMMU
     .global  _SetMMU
     .global  _Call
+    .global  _vecMFP_I0
+    .global  _vecMFP_I1
+    .global  _vecMFP_I2
+    .global  _vecMFP_I3
+    .global  _vecMFP_I4
+    .global  _vecMFP_I5
+    .global  _vecMFP_I6
+    .global  _vecMFP_I7
+    .global  _vecNMI
+    .global  _vecRTE
+
 
 // ----------------------------------------------------------
     .macro pushrl,r
@@ -58,10 +68,45 @@ _StartMonitor:
     rts
 
 // ----------------------------------------------------------
-_StartMonitorIrq:
+_vecNMI:
     move.w  #0x2700,sr
     callMonitor
     rte
+
+// ----------------------------------------------------------
+_vecRTE:
+    rte
+
+// ----------------------------------------------------------
+_vecMFP_I0:  // 0x100
+    move.b  #0xfe,0xfffffa11        // clear lpt1 in service
+    rte
+_vecMFP_I1:  // 0x104
+    move.b  #0xfd,0xfffffa11        // clear cd in service
+    rte
+_vecMFP_I2:  // 0x108
+    move.b  #0xfb,0xfffffa11        // clear cts in service
+    rte
+_vecMFP_I3:  // 0x10C
+    move.b  #0xf7,0xfffffa11        // clear blitter in service
+    rte
+_vecMFP_I4:  // 0x118
+    move.b  #0xbf,0xfffffa11        // clear acia in service
+    rte
+_vecMFP_I5:  // 0x11C
+    move.b  #0x7f,0xfffffa11        // clear fdd/hdd in service
+    rte
+_vecMFP_I6:  // 0x138
+    move.b  #0xbf,0xfffffa13        // clear ri in service
+    rte
+_vecMFP_I7:  // 0x13C
+    move.b  #0x7f,0xfffffa13        // clear mono in service
+    rte
+
+
+// ----------------------------------------------------------
+
+// ----------------------------------------------------------
 
 
 // ----------------------------------------------------------

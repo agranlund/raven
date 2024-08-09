@@ -60,8 +60,17 @@ uint32 DetectCPU(uint32* revout, uint32* idout);
 
 void InitMonitor();
 void StartMonitor();
-void StartMonitorIrq();
 
+void vecNMI();
+void vecRTE();
+void vecMFP_I0();
+void vecMFP_I1();
+void vecMFP_I2();
+void vecMFP_I3();
+void vecMFP_I4();
+void vecMFP_I5();
+void vecMFP_I6();
+void vecMFP_I7();
 
 void sys_Init();
 
