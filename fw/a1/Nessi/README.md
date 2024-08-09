@@ -3,6 +3,8 @@
 
 - nessi.pld
     - current wip
+    - slowed isa i/o access to accommodate for PicoGUS
+    - fixed isa i/o 16bit access to 8bit cards
 
 - nessi_240805.pld
     - Timing fixes, especially fixes for 1x CPU mode (48/48mhz).
