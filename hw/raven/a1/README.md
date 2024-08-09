@@ -61,7 +61,7 @@ Tested with 48mhz oscillator for 96mhz CPU, 48mhz BUS speed.
 - RTC:             Y402, R402, U406, C413
 
 
-## Errata:
+## Errata / Notes for next revision:
 - Silkscreen: J305 pinout mislabeled
 - Silkscreen: U203 orientation is not obvious
 - Silkscreen: J204-206,J305 orientation is not obvious
@@ -80,6 +80,12 @@ Tested with 48mhz oscillator for 96mhz CPU, 48mhz BUS speed.
 - PCB: BS0 on CPU side should connect better
 - PCB: Some kind of sign-of-life LEDs
 - PCB: Combining excs/exbusen was a misstake. Separate signals could allow faster synchronous termination.
+- PCB: A5 signal to CPLD is unused and pin could potentially be freed up for something else
+- PCB: Hardware debounce the NMI switch
+
+
+## Future:
+- direct 060 bus expansion slot similar to Macintosh PDS
 
 
 ## Untested:
