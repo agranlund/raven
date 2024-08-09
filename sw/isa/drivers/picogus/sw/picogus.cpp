@@ -67,7 +67,9 @@ void play_gus(void);
 
 #ifdef SOUND_MPU
 #include "mpu401/export.h"
+#ifdef MPU_ONLY
 void play_mpu(void);
+#endif
 #endif
 
 #ifdef SOUND_TANDY
@@ -343,17 +345,17 @@ __force_inline uint8_t read_picogus_high(void) {
     case MODE_BOOTMODE: // Mode (GUS, OPL, MPU, etc...)
         return settings.startupMode;
     case MODE_GUSPORT: // GUS Base port
-        return settings.GUS.basePort >> 8;
+        return settings.GUS.basePort == 0xFFFF ? 0 : (settings.GUS.basePort >> 8);
     case MODE_OPLPORT: // Adlib Base port
-        return settings.SB.oplBasePort >> 8;
+        return settings.SB.oplBasePort == 0xFFFF ? 0 : (settings.SB.oplBasePort >> 8);
     case MODE_SBPORT: // SB Base port
-        return settings.SB.basePort >> 8;
+        return settings.SB.basePort == 0xFFFF ? 0 : (settings.SB.basePort >> 8);
     case MODE_MPUPORT: // MPU Base port
-        return settings.MPU.basePort >> 8;
+        return settings.MPU.basePort == 0xFFFF ? 0 : (settings.MPU.basePort >> 8);
     case MODE_TANDYPORT: // Tandy Base port
-        return settings.Tandy.basePort >> 8;
+        return settings.Tandy.basePort == 0xFFFF ? 0 : (settings.Tandy.basePort >> 8);
     case MODE_CMSPORT: // CMS Base port
-        return settings.CMS.basePort >> 8;
+        return settings.CMS.basePort == 0xFFFF ? 0 : (settings.CMS.basePort >> 8);
     case MODE_JOYEN: // enable joystick
         return settings.Joy.basePort == 0x201u;
     case MODE_GUSBUF: // GUS audio buffer size
@@ -390,6 +392,23 @@ __force_inline uint8_t read_picogus_high(void) {
 
 
 void processSettings(void) {
+#if defined(SOUND_GUS)
+    settings.startupMode = GUS_MODE;
+#elif defined(SOUND_TANDY)
+    settings.startupMode = TANDY_MODE;
+#elif defined(SOUND_CMS)
+    settings.startupMode = CMS_MODE;
+#elif defined(SOUND_SB)
+    settings.startupMode = SB_MODE;
+#elif defined(SOUND_OPL)
+    settings.startupMode = ADLIB_MODE;
+#elif defined(MPU_ONLY)
+    settings.startupMode = MPU_MODE;
+#elif defined(USB_ONLY)
+    settings.startupMode = USB_MODE;
+#else
+    settings.startupMode = INVALID_MODE;
+#endif
 #ifdef SOUND_SB
     sb_port_test = settings.SB.basePort >> 4;
 #endif
@@ -499,22 +518,6 @@ __force_inline void handle_iow(void) {
         };
     } else // if follows down below
 #endif // SOUND_OPL
-#ifdef SOUND_MPU
-    switch (port - settings.MPU.basePort) {
-    case 0:
-        pio_sm_put(pio0, IOW_PIO_SM, IO_WAIT);
-        // printf("MPU IOW: port: %x value: %x\n", port, iow_read & 0xFF);
-        MPU401_WriteData(iow_read & 0xFF, true);
-        gpio_xor_mask(LED_PIN);
-        break;
-    case 1:
-        pio_sm_put(pio0, IOW_PIO_SM, IO_WAIT);
-        MPU401_WriteCommand(iow_read & 0xFF, true);
-        // printf("MPU IOW: port: %x value: %x\n", port, iow_read & 0xFF);
-        // __dsb();
-        break;
-    }
-#endif // SOUND_MPU
 #ifdef SOUND_TANDY
     if (port == settings.Tandy.basePort) {
         pio_sm_put(pio0, IOW_PIO_SM, IO_END);
@@ -522,29 +525,6 @@ __force_inline void handle_iow(void) {
         return;
     } else // if follows down below
 #endif // SOUND_TANDY
-#ifdef SOUND_CMS
-    switch (port - settings.CMS.basePort) {
-    // SAA data/address ports
-    case 0x0:
-    case 0x1:
-    case 0x2:
-    case 0x3:
-        pio_sm_put(pio0, IOW_PIO_SM, IO_END);
-        cms_buffer.cmds[cms_buffer.head++] = {
-            port,
-            (uint8_t)(iow_read & 0xFF)
-        };
-        return;
-        break;
-    // CMS autodetect ports
-    case 0x6:
-    case 0x7:
-        pio_sm_put(pio0, IOW_PIO_SM, IO_END);
-        cms_detect = iow_read & 0xFF;
-        return;
-        break;
-    }
-#endif // SOUND_CMS
 #ifdef USB_JOYSTICK
     if (port == settings.Joy.basePort) {
         pio_sm_put(pio0, IOW_PIO_SM, IO_END);
@@ -600,6 +580,46 @@ __force_inline void handle_iow(void) {
         if (control_active) {
             write_picogus_high(iow_read & 0xFF);
         }
+    } else {
+#ifdef SOUND_CMS
+        switch (port - settings.CMS.basePort) {
+        // SAA data/address ports
+        case 0x0:
+        case 0x1:
+        case 0x2:
+        case 0x3:
+            pio_sm_put(pio0, IOW_PIO_SM, IO_END);
+            cms_buffer.cmds[cms_buffer.head++] = {
+                port,
+                (uint8_t)(iow_read & 0xFF)
+            };
+            return;
+            break;
+        // CMS autodetect ports
+        case 0x6:
+        case 0x7:
+            pio_sm_put(pio0, IOW_PIO_SM, IO_END);
+            cms_detect = iow_read & 0xFF;
+            return;
+            break;
+        }
+#endif // SOUND_CMS
+#ifdef SOUND_MPU
+        switch (port - settings.MPU.basePort) {
+        case 0:
+            pio_sm_put(pio0, IOW_PIO_SM, IO_WAIT);
+            // printf("MPU IOW: port: %x value: %x\n", port, iow_read & 0xFF);
+            MPU401_WriteData(iow_read & 0xFF, true);
+            gpio_xor_mask(LED_PIN);
+            break;
+        case 1:
+            pio_sm_put(pio0, IOW_PIO_SM, IO_WAIT);
+            MPU401_WriteCommand(iow_read & 0xFF, true);
+            // printf("MPU IOW: port: %x value: %x\n", port, iow_read & 0xFF);
+            // __dsb();
+            break;
+        }
+#endif // SOUND_MPU
     }
     // Fallthrough if no match, or for slow write, reset PIO
     pio_sm_put(pio0, IOW_PIO_SM, IO_END);
@@ -616,10 +636,7 @@ __force_inline void handle_ior(void) {
     if ((port >> 4 | 0x10) == gus_port_test) {
         // Tell PIO to wait for data
         pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
-        uint32_t value = read_gus(port - settings.GUS.basePort) & 0xff;
-        // OR with 0x0000ff00 is required to set pindirs in the PIO
-        pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | value);
-        // printf("GUS IOR: port: %x value: %x\n", port, value);
+        pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | read_gus(port - settings.GUS.basePort));
         // gpio_xor_mask(LED_PIN);
     } else // if follows down below
 #endif
@@ -654,33 +671,15 @@ __force_inline void handle_ior(void) {
     if (port == settings.MPU.basePort) {
         // Tell PIO to wait for data
         pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
-        uint32_t value = MPU401_ReadData();
         // printf("MPU IOR: port: %x value: %x\n", port, value);
-        // OR with 0x0000ff00 is required to set pindirs in the PIO
-        pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | value);
+        pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | MPU401_ReadData());
     } else if (port == settings.MPU.basePort + 1) {
         // Tell PIO to wait for data
         pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
-        uint32_t value = MPU401_ReadStatus();
         // printf("MPU IOR: port: %x value: %x\n", port, value);
-        // OR with 0x0000ff00 is required to set pindirs in the PIO
-        pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | value);
+        pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | MPU401_ReadStatus());
     } else // if follows down below
 #endif
-#if defined(SOUND_CMS)
-    switch (port - settings.CMS.basePort) {
-    // CMS autodetect ports
-    case 0x4:
-        pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
-        pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | 0x7F);
-        return;
-    case 0xa:
-    case 0xb:
-        pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
-        pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | cms_detect);
-        return;
-    }
-#endif // SOUND_CMS
 #ifdef USB_JOYSTICK
     if (port == settings.Joy.basePort) {
         pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
@@ -697,28 +696,36 @@ __force_inline void handle_ior(void) {
 #ifdef USB_MOUSE
     if ((port & ~7) == settings.Mouse.basePort) {
         pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
-        uint8_t value = uartemu_read(port & 7);
-        pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | value);
+        pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | uartemu_read(port & 7));
         return;
     } else // if follows down below
 #endif // USB_MOUSE
     if (port == CONTROL_PORT) {
         // Tell PIO to wait for data
         pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
-        uint32_t value = sel_reg;
-        // OR with 0x0000ff00 is required to set pindirs in the PIO
-        pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | value);
+        pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | sel_reg);
     } else if (port == DATA_PORT_LOW) {
         // Tell PIO to wait for data
         pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
-        uint32_t value = read_picogus_low();
-        // OR with 0x0000ff00 is required to set pindirs in the PIO
-        pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | value);
+        pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | read_picogus_low());
     } else if (port == DATA_PORT_HIGH) {
         pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
-        uint32_t value = read_picogus_high();
-        pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | value);
+        pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | read_picogus_high());
     } else {
+#if defined(SOUND_CMS)
+        switch (port - settings.CMS.basePort) {
+        // CMS autodetect ports
+        case 0x4:
+            pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
+            pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | 0x7F);
+            return;
+        case 0xa:
+        case 0xb:
+            pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
+            pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | cms_detect);
+            return;
+        }
+#endif // SOUND_CMS
         // Reset PIO
         pio_sm_put(pio0, IOR_PIO_SM, IO_END);
     }
@@ -784,23 +791,6 @@ int main()
 
     // Load settings from flash
     loadSettings(&settings);
-#if defined(SOUND_GUS)
-    settings.startupMode = GUS_MODE;
-#elif defined(SOUND_MPU)
-    settings.startupMode = MPU_MODE;
-#elif defined(SOUND_TANDY)
-    settings.startupMode = TANDY_MODE;
-#elif defined(SOUND_CMS)
-    settings.startupMode = CMS_MODE;
-#elif defined(SOUND_SB)
-    settings.startupMode = SB_MODE;
-#elif defined(SOUND_OPL)
-    settings.startupMode = ADLIB_MODE;
-#elif defined(USB_ONLY)
-    settings.startupMode = USB_MODE;
-#else
-    settings.startupMode = INVALID_MODE;
-#endif
     hw_clear_bits(&xip_ctrl_hw->ctrl, XIP_CTRL_EN_BITS);
 
     // Determine board type. GPIO 29 is grounded on PicoGUS v2.0, and on a Pico, it's VSYS/3 (~1.666V)
@@ -944,7 +934,9 @@ int main()
 #endif // SOUND_GUS
 
 #ifdef SOUND_MPU
+#ifdef MPU_ONLY
     multicore_launch_core1(&play_mpu);
+#endif // MPU_ONLY
 #endif // SOUND_MPU
 
 #ifdef SOUND_TANDY
