@@ -19024,7 +19024,7 @@
     (property "Manufacturer_Name" "Alps Alpine" (at 242.57 73.025 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Manufacturer_Part_Number" "SKHHARA010" (at 242.57 73.025 0)
+    (property "Manufacturer_Part_Number" "SKHHAKA010" (at 242.57 73.025 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 9b45e2d6-0cad-4fb1-951b-118065302d0b))
