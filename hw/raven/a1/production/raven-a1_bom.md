@@ -89,12 +89,16 @@ Raven060 Revision.A1
 
 
 (1) connector is white. todo: find a black alternative.
+
 (2) sockets are brown. possible black replacements (not tested)
  * 8468-11B1-RK-TP, 3M (PLCC68)
  * 8484-11B1-RK-TP, 3M (PLCC84)
+
 (3) buttons are red, possible black replacement (not tested)
  * SKHHAKA010, Alps Alpine
+
 (3) these jumpers are very hard to grab. todo: find better alternative.
+
 (4) for 48mhz bus speed and 96/48 cpu.
 
 You may need to use a slower oscillator depending on your MC68060 / MC68150 combination. 
