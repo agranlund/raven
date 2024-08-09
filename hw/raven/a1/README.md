@@ -77,7 +77,6 @@ Tested with 48mhz oscillator for 96mhz CPU, 48mhz BUS speed.
 - BOM: ATX connector TE 1-1775099-3 is white, find black replacement
 - BOM: Buttons are red, find black replacement
 - BOM: Jumpers TE 1-881545-4 are difficult to grab, pick a different variant
-- PCB: BS0 on CPU side should connect better
 - PCB: Some kind of sign-of-life LEDs
 - PCB: Combining excs/exbusen was a misstake. Separate signals could allow faster synchronous termination.
 - PCB: A5 signal to CPLD is unused and the pin could potentially be freed up for something else
