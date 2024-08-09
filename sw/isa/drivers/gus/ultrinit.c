@@ -66,15 +66,17 @@ static void gusWriteSynthRegB(unsigned char reg, unsigned char data) {
 }
 
 static void gusWriteSynthRegW(unsigned char reg, unsigned short data) {
-    isa->outp(gusdev.p3xr + 3, reg);
+    isa->outp( gusdev.p3xr + 3, reg);
     isa->outpw(gusdev.p3xr + 4, data);
 }
 
 static void gusWriteSynthRam(unsigned int addr, unsigned char data) {
+    unsigned char  a8  = (addr >> 16) & 0xff;
+    unsigned short a16 = ((addr & 0xff00)>>8) | ((addr & 0x00ff)<<8);
     isa->outp( gusdev.p3xr + 3, 0x43);
-    isa->outpw(gusdev.p3xr + 4, (addr & 0xffff));
+    isa->outpw(gusdev.p3xr + 4, a16);
     isa->outp( gusdev.p3xr + 3, 0x44);
-    isa->outpw(gusdev.p3xr + 5, (addr >> 16) & 0xff);
+    isa->outp( gusdev.p3xr + 5, a8);
     isa->outp( gusdev.p3xr + 7, data);
 }
 
@@ -89,10 +91,12 @@ static unsigned char gusReadSynthRegW(unsigned char reg) {
 }
 
 static unsigned char gusReadSynthRam(unsigned int addr) {
+    unsigned char  a8  = (addr >> 16) & 0xff;
+    unsigned short a16 = ((addr & 0xff00)>>8) | ((addr & 0x00ff)<<8);
     isa->outp( gusdev.p3xr + 3, 0x43);
-    isa->outpw(gusdev.p3xr + 4, (addr & 0xffff));
+    isa->outpw(gusdev.p3xr + 4, a16);
     isa->outp( gusdev.p3xr + 3, 0x44);
-    isa->outpw(gusdev.p3xr + 5, (addr >> 16) & 0xff);
+    isa->outp( gusdev.p3xr + 5, a8);
     return isa->inp(gusdev.p3xr + 7);
 }
 
@@ -107,8 +111,62 @@ static unsigned char gusSetEnhancedMode(unsigned char enable) {
 
 // --------------------------------------------------------------------
 
+int gusDetectRamGF1(unsigned int max, unsigned int* bank_sizes, unsigned short* ram_cfg)
+{
+    int i,j;
+    unsigned char oldmem[4];
+    for (int i=0; i<4; i++) {
+        oldmem[i]=gusReadSynthRam(i*256*1024);
+    }
+
+    int total = 256 * 1024;
+    gusWriteSynthRam(0,1);
+    gusWriteSynthRam(0,1);
+    for (i=1; i<4; i++)
+    {
+        gusWriteSynthRam(i*256*1024, 15+i);
+        gusWriteSynthRam(i*256*1024, 15+i);
+        for (j=0; j<i; j++) {
+            if (gusReadSynthRam(j*256*1024)!=(1+j))
+                break;
+            if (gusReadSynthRam(j*256*1024)!=(1+j))
+                break;
+        }
+        if (j!=i)
+            break;
+        if (gusReadSynthRam(i*256*1024)!=(15+i))
+            break;
+        if (gusReadSynthRam(i*256*1024)!=(15+i))
+            break;
+        gusWriteSynthRam(i*256*1024, 1+i);
+        gusWriteSynthRam(i*256*1024, 1+i);
+        total+=256*1024;
+    }
+    for (int i=3; i>=0; i--)
+    {
+        gusWriteSynthRam(i*256*1024, oldmem[i]);
+        gusWriteSynthRam(i*256*1024, oldmem[i]);
+    }
+
+    if (bank_sizes) {
+        bank_sizes[0] = total;
+        bank_sizes[1] = 0;
+        bank_sizes[2] = 0;
+        bank_sizes[3] = 0;
+    }
+
+    if (ram_cfg) {
+        ram_cfg = 0;
+    }
+
+    return total;
+}
+
 int gusDetectRam(unsigned int max, unsigned int* bank_sizes, unsigned short* ram_cfg)
 {
+    if (!gusdev.iw) {
+        return gusDetectRamGF1(max, bank_sizes, ram_cfg);
+    }
     unsigned int stepsize = 16 * 1024UL;
     unsigned int max_bank_size = 4 * 1024 * 1024UL;
     unsigned int total = 0;
