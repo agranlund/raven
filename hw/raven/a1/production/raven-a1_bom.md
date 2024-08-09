@@ -52,8 +52,8 @@ Raven060 Revision.A1
 | Preci-dip             | 540-88-084-24-008           | plcc84      | 1     | (2)  |
 | Aries Electronics     | 1108800                     | osc8        | 1     |      |
 |                       |                             |             |       |      |
-| TE Connectivity       | 1-881545-4                  | jumper      | 8     | (3)  |
-| Alps Alpine           | SKHHARA010                  | button      | 3     |      |
+| TE Connectivity       | 1-881545-4                  | jumper      | 8     | (4)  |
+| Alps Alpine           | SKHHARA010                  | button      | 3     | (3)  |
 |                       |                             |             |       |      |
 | Texas Instruments     | SN74LS07DR                  | 74ls07      | 1     |      |
 | Texas Instruments     | SN74LS148DR                 | 74ls148     | 1     |      |
@@ -74,7 +74,7 @@ Raven060 Revision.A1
 | Vishay                | CNY17F-3                    | cny17f-3    | 1     |      |
 | Vishay                | IRF510PBF                   | irf510      | 1     |      |
 |                       |                             |             |       |      |
-| Abracon               | ACHL-48.000MHZ-EK           | 48m         | 1     | (4)  |
+| Abracon               | ACHL-48.000MHZ-EK           | 48m         | 1     | (5)  |
 | Abracon               | ASV-24.000MHZ-EJ-T          | 24m         | 1     |      |
 | Abracon               | ACH-8.000MHZ-EK             | 8m          | 1     |      |
 | Abracon               | ACH-14.31818MHZ-EK          | 14.31818m   | 1     |      |
@@ -82,15 +82,19 @@ Raven060 Revision.A1
 | ECS                   | ECS-.327-12.5-13X-C         | 32.768k     | 1     |      |
 |-----------------------|-----------------------------|-------------|-------|------|
 | Yamaha                | YM2149F                     | YM2149      | 1     |      |
-| Motorola              | MC68150FN40                 | MC68150     | 1     | (4)  |
-| Motorola              | MC68060RC50                 | MC68060     | 1     | (4)  |
+| Motorola              | MC68150FN40                 | MC68150     | 1     | (5)  |
+| Motorola              | MC68060RC50                 | MC68060     | 1     | (5)  |
 | Motorola              | MC68901P                    | MC68901     | 2     |      |
 | Archi-Tech            | 1870-5222B                  | pga206      | 1     |      |
 
 
 (1) connector is white. todo: find a black alternative.
-(2) sockets are brown. todo: find part no for a black alternative.
-(3) jumpers are very hard to grab. todo: find part no for better alternative.
+(2) sockets are brown. possible black replacements (not tested)
+ * 8468-11B1-RK-TP, 3M (PLCC68)
+ * 8484-11B1-RK-TP, 3M (PLCC84)
+(3) buttons are red, possible black replacement (not tested)
+ * SKHHAKA010, Alps Alpine
+(3) these jumpers are very hard to grab. todo: find better alternative.
 (4) for 48mhz bus speed and 96/48 cpu.
 
 You may need to use a slower oscillator depending on your MC68060 / MC68150 combination. 
