@@ -1,8 +1,9 @@
 
 # Nessi : Main bus logic
 
-- nessi.pld
-    - current wip
+- nessi.pld (wip)
+
+- nessi_240809.pld
     - slowed isa i/o access to accommodate for PicoGUS
     - fixed isa i/o 16bit access to 8bit cards
 
