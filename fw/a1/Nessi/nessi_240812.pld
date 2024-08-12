@@ -1,6 +1,6 @@
 Name     Nessi ;
 PartNo   00 ;
-Date     2024-08-05 ;
+Date     2024-07-05 ;
 Revision 01 ;
 Designer Anders Granlund ;
 Company  HappyDaze ;
@@ -19,6 +19,11 @@ Device   f1508ispplcc84;
 // AND FITNESS FOR A PARTICULAR PURPOSE.
 // Please see the CERN-OHL-W v2 for applicable conditions.
 //------------------------------------------------------------------------------
+
+//
+// Based on 48mhz bus speed, 2x cpu speed.
+//
+
 
 //--------------------------------------------
 // ATF1508AS-7JX84 : PLCC84, ISP, 7ns
@@ -134,7 +139,7 @@ pin 80 = !UARTCS;
 // General logic
 //
 //--------------------------------------------
-CLKEN = !BCLK # CPUX1;
+CLKEN = BCLK # CPUX1;
 
 RESET = RSTI # RSTO;        // peripheral reset
 TEA = 'b'0;                 // bus error
@@ -162,8 +167,8 @@ TRA = 'b'0;                 // bus retry
 
 IRQCYCLE    = [TT1..0]:'b'11;
 BUSCYCLE    = [TT1..0]:'b'0X;
-AUTOIRQ     = IRQCYCLE & !([TM2..0]:'b'110);  // autovector everything except mfp
-MFPIRQ      = IRQCYCLE & ([TM2..0]:'b'110);   // MFP = IRQ6
+AUTOIRQ     = IRQCYCLE & ![TM2..0]:'b'110;  // autovector everything except mfp
+MFPIRQ      = IRQCYCLE & [TM2..0]:'b'110;   // MFP = IRQ6
 AVEC        = !MFPIRQ;
 
 
@@ -176,7 +181,6 @@ DECODE_SIMM0        = [A31..0]:'b'000XXX00XXXXXXXXXXXXXXXXXXXXXXXX;	// $00000000
 DECODE_SIMM1        = [A31..0]:'b'000XXX01XXXXXXXXXXXXXXXXXXXXXXXX;	// $01000000
 DECODE_SIMM2        = [A31..0]:'b'000XXX10XXXXXXXXXXXXXXXXXXXXXXXX;	// $02000000
 DECODE_SIMM3        = [A31..0]:'b'000XXX11XXXXXXXXXXXXXXXXXXXXXXXX;	// $03000000
-DECODE_SIMM         = [A31..0]:'b'000XXXXXXXXXXXXXXXXXXXXXXXXXXXXX;	// $0X000000
 DECODE_UART         = [A31..0]:'b'001XXX00XXXXXXXXXXXXXXXXXXXXXXXX;	// $20000000
 
 //----------------------------------------------------------------------------------------
@@ -211,58 +215,45 @@ DECODE_68150        = DECODE_IDE # DECODE_YM # DECODE_MFP1 # DECODE_MFP2 # DECOD
 //----------------------------------------------------------------------------------------
 // Localbus
 //----------------------------------------------------------------------------------------
-// Quick and dirty, clock speed dependent. Should be refactored and be registered.
-// SIMMS has a long hold time and data bus will be tainted for up to 20ns after access
-//
-// todo:
-//  - different paths for:
-//      - 55ns SIMM
-//      - 10ns SIMM
-//      - UART
-//      - Interrupt cycles
-//  - burst for SIMMS
-//  - timeout & undecoded access
-//  - work on any clock speed
-//----------------------------------------------------------------------------------------
-node LBUSEN;
-node LBUSTA;
+node BUSEN;
+node BUSTA;
 node [BSTATE0..5];
-
 [BSTATE0..5].ck = PCLK;
-[BSTATE0..5].ar = RSTI # BSTATE5 # (LBUSTA & TS) # !TIP;
-BSTATE0.d = BSTATE0 # SAS;      // start late to ensure we are rid of crap on the bus
-BSTATE1.d = BSTATE0;            // we could probably start one clock earlier though.
+[BSTATE0..5].ar = RSTI # BSTATE5 # (BUSTA & TS) # !TIP;
+BSTATE0.d = BSTATE0 # SAS;
+BSTATE1.d = BSTATE0;
 BSTATE2.d = BSTATE1;
 BSTATE3.d = BSTATE2;
 BSTATE4.d = BSTATE3;
 BSTATE5.d = BSTATE4;
 
-LBUSTA = BSTATE3 & !BSTATE5 & TIP;          // TA during 50-70ns
-SIMMEN = TIP & BSTATE0 & !BSTATE4;          // total 60ns, OE 40ns
-UARTEN = TIP & BSTATE0 & !BSTATE4 & (RW # !BSTATE3);
+BUSEN = BSTATE0 & !TS & TIP & !BSTATE4;           // 48mhz
+BUSTA = BSTATE3 & !TS & TIP;
+
 
 
 //----------------------------------------------------------------------------------------
 // RAM / ROM
-//----------------------------------------------------------------------------------------
-// todo: change to new ROM overlay method which work regardless of oscillator
-//
 //----------------------------------------------------------------------------------------
 node ROM_OVERLAY_DISABLED;
 ROM_OVERLAY_DISABLED.ck = TS & RW & DECODE_SIMM3;
 ROM_OVERLAY_DISABLED.ar = RSTI;
 ROM_OVERLAY_DISABLED.d = 'b'1;
 
-RB0RD = SIMMEN &  RW & (DECODE_SIMM0 # DECODE_ACIA) & ROM_OVERLAY_DISABLED;
-RB0WR = SIMMEN & !RW & DECODE_SIMM0;
-RB1RD = SIMMEN &  RW & DECODE_SIMM1;
-RB1WR = SIMMEN & !RW & DECODE_SIMM1;
-RB2RD = SIMMEN &  RW & DECODE_SIMM2;
-RB2WR = SIMMEN & !RW & DECODE_SIMM2;
-RB3RD = SIMMEN &  RW & (DECODE_SIMM3 # (DECODE_SIMM0 & !ROM_OVERLAY_DISABLED));
-RB3WR = SIMMEN & !RW & DECODE_SIMM3;
+RB0RD = BUSEN & TIP &  RW & (DECODE_SIMM0 # DECODE_ACIA) & ROM_OVERLAY_DISABLED;
+RB0WR = BUSEN & TIP & !RW & DECODE_SIMM0;
+RB1RD = BUSEN & TIP &  RW & DECODE_SIMM1;
+RB1WR = BUSEN & TIP & !RW & DECODE_SIMM1;
+RB2RD = BUSEN & TIP &  RW & DECODE_SIMM2;
+RB2WR = BUSEN & TIP & !RW & DECODE_SIMM2;
+RB3RD = BUSEN & TIP &  RW & (DECODE_SIMM3 # (DECODE_SIMM0 & !ROM_OVERLAY_DISABLED));
+RB3WR = BUSEN & TIP & !RW & DECODE_SIMM3;
 
-TCI = !(TIP & (DECODE_SIMM /*# DECODE_ACIA*/));
+
+DECODE_RAM = DECODE_SIMM0 /*# DECODE_ACIA*/ # DECODE_SIMM1 # DECODE_SIMM2;
+DECODE_ROM = DECODE_SIMM3;
+
+TCI = !(TIP & (DECODE_SIMM0 /*# DECODE_ACIA*/ # DECODE_SIMM1 # DECODE_SIMM2 # DECODE_SIMM3));
 
 TBI = 'b'1;                 // burst inhibit
 CLA = 'b'0;                 // burst address increment
@@ -271,81 +262,76 @@ CLA = 'b'0;                 // burst address increment
 //----------------------------------------------------------------------------------------
 // UART
 //----------------------------------------------------------------------------------------
-UARTCS = UARTEN & DECODE_UART;
+UARTCS = BUSEN & TIP & DECODE_UART;
 
 
 //----------------------------------------------------------------------------------------
 // MC68150 bus
 //----------------------------------------------------------------------------------------
-// Force asynchronous termination by negating CS _after_ 68150:TA.
-// Synchronous mode is impossible due to how the 68150:CS signal was
-// routed to both the 68150 as well as data-bus buffers.
-//
-// Asynchronous termination:
-//  68150 asserts TA and holds it until CS is negated
-//  68150 holds TA between 2-8.5ns after negating CS
-//  Buffers hold data valid between 1.5-7ns after negating CS
-// 
-//  We sample 68150:TA and control how it becomes presented to 68060
-//  We negated 68150:CS after data was read by CPU, the cpu-side bus
-//  will now be tained for up to 7ns, the 68150 side longer.
-//----------------------------------------------------------------------------------------
-
 SELECT_68150 = TIP & (DECODE_68150 # MFPIRQ);
 
-node [ESTATE0..8];
-[ESTATE0..8].ck = PCLK;
-[ESTATE0..8].ar = RSTI # ESTATE8;
-ESTATE0.d = ESTATE0 # (TS & SELECT_68150);      // --> 68060:TS
-ESTATE1.d = ESTATE0;                            // 68150:CS -->
-ESTATE2.d = ESTATE1;                            // 68150 isn't meant to TA for a while so
-ESTATE3.d = ESTATE2;                            // delay for a bit until we look.
-ESTATE4.d = ESTATE3;
-ESTATE5.d = ESTATE4 & EXTA;                     // --> 68150:TA
-ESTATE6.d = ESTATE5;                            // 060:TA -->
-ESTATE7.d = ESTATE6;                            // 060:TA -->
-ESTATE8.d = ESTATE7;                            // !68150:CS -->
+EXCS.ck = !BCLK;
+EXCS.ar = RSTI;
+EXCS.d = SELECT_68150;
 
-EBUSTA = ESTATE6 & !ESTATE8;
-EXCS = ESTATE1 & !ESTATE8;
+node [DTACK0..1];           // synchronised dtack from mfp,ym,ide
+[DTACK0..1].ck = BCLK;
+[DTACK0..1].ar = RSTI;
+DTACK0.d = EXDTACK;
+DTACK1.d = DTACK0;
 
 
-// todo:
-//  - waitstate counters could be shared
-//  - we probably want to register EXDSACK to control skew and hold time
-//  - only consider DTACK for the device accessed
-node [YMDTACK0..3];
+node [YMDTACK0..3];         // todo: shared generic waitstate
 node [IDEDTACK0..5];
-EXDSACK1 = EXDTACK # YMDTACK3 # IDEDTACK5 # ISADSACK1;
+
+node ISADSACK0;
+node ISADSACK1;
+
+EXDSACK1 = EXDTACK # YMDTACK3 # IDEDTACK3 # ISADSACK1;
 EXDSACK0 = ISADSACK0;
 
 
 //----------------------------------------------------------------------------------------
 // 68150 : IRQ
 //----------------------------------------------------------------------------------------
-IACK = EXDS & MFPIRQ;
+IACK.ck = BCLK;
+IACK.ar = RSTI;
+IACK.d = EXDS & EXCS & MFPIRQ;
 
 //----------------------------------------------------------------------------------------
 // 68150 : MFP
 //----------------------------------------------------------------------------------------
-MFP1CS = EXDS & DECODE_MFP1;
-MFP2CS = EXDS & DECODE_MFP2;
+MFP1CS.ck = BCLK;
+MFP1CS.ar = RSTI;
+MFP1CS.d = EXDS & EXCS & DECODE_MFP1;
+
+MFP2CS.ck = BCLK;
+MFP2CS.ar = RSTI;
+MFP2CS.d = EXDS & EXCS & DECODE_MFP2;
 
 //----------------------------------------------------------------------------------------
 // 68150 : YM
 //----------------------------------------------------------------------------------------
-YMCS = EXDS & DECODE_YM;
+YMCS.ck = BCLK;
+YMCS.ar = RSTI;// # !EXDS;
+YMCS.d  = EXDS & EXCS & DECODE_YM;
+
 [YMDTACK0..3].ck = BCLK;
-[YMDTACK0..3].ar = RSTI # !YMCS;
+[YMDTACK0..3].ar = RSTI # !YMCS # !EXDS;
 YMDTACK3.d = YMDTACK2;
 YMDTACK2.d = YMDTACK1;
 YMDTACK1.d = YMDTACK0;
-YMDTACK0.d = 'b'1;
+YMDTACK0.d = YMCS;
 
 //----------------------------------------------------------------------------------------
 // 68150 : IDE
 //----------------------------------------------------------------------------------------
-IDECS = EXDS & DECODE_IDE;
+//IDECS = 'b'0;
+
+IDECS.ck = BCLK;
+IDECS.ar = RSTI;
+IDECS.d  = EXDS & EXCS & DECODE_IDE;
+
 [IDEDTACK0..5].ck = BCLK;
 [IDEDTACK0..5].ar = RSTI # !IDECS;
 IDEDTACK5.d = IDEDTACK4;
@@ -353,51 +339,50 @@ IDEDTACK4.d = IDEDTACK3;
 IDEDTACK3.d = IDEDTACK2;
 IDEDTACK2.d = IDEDTACK1;
 IDEDTACK1.d = IDEDTACK0;
-IDEDTACK0.d = 'b'1;
+IDEDTACK0.d = IDECS;
+
+
+
+
 
 //----------------------------------------------------------------------------------------
 // 68150 : ISA
 //----------------------------------------------------------------------------------------
-// quick and dirty and should be refactored.
-//  - sample ZEROWS and act accordingly
-//  - sample IOCHRDY at correct times
-//  - sample IOCS16 and act upon it
-//  - more proper timing and consideration for back-to-back access
-//----------------------------------------------------------------------------------------
 node [ISADTACK0..20];
 
-DECODE_ISA_IO = DECODE_ISA_IO8 # DECODE_ISA_IO16;
-DECODE_ISA_RAM = DECODE_ISA_RAM8 # DECODE_ISA_RAM16;
-
 ISA8 = !DECODE_ISA16;
-ISAIO = DECODE_ISA_IO;
+ISAIO = DECODE_ISA_IO8 # DECODE_ISA_IO16;
 
-ISADS = EXDS & DECODE_ISA;
-ISACS = ISADS & ISADTACK1 & (RW # !ISADTACK20);
+ISADS = EXCS & DECODE_ISA & EXDS;
+
+ISACS.ck = PCLK;
+ISACS.ar = (ISADSACK0 # ISADSACK1);
+ISACS.d = ISADS;
+
+[ISADTACK0..20].ck = BCLK;
+[ISADTACK0..20].ar = RSTI # !ISADS # ISADTACK20;
 
 ISADSACK16 = DECODE_ISA_RAM16 # (DECODE_ISA_IO16 & IOCS16);
-ISADSACK1 = ISADS & ISADSACK16 & ISADTACK20;
-ISADSACK0 = ISADS & !ISADSACK16 & ISADTACK20;
+ISADSACK1 = ISADS & ISADSACK16 & ISADTACK18;
+ISADSACK0 = ISADS & !ISADSACK16 & ISADTACK18;
 
 node ISADONE;
 ISADONE.ck = BCLK;
 ISADONE.ar = RSTI # !ISACS;
 ISADONE.d = ISARDY # (!RW & !ISAIO);    // special case writes to gfxcard ram
 
-[ISADTACK0..20].ck = BCLK;
-[ISADTACK0..20].ar = RSTI # !ISADS;
 ISADTACK20.d = ISADTACK19;
 ISADTACK19.d = ISADTACK18;
 ISADTACK18.d = ISADTACK17;
 ISADTACK17.d = ISADTACK16 & ISADONE;
 ISADTACK16.d = ISADTACK15;
 ISADTACK15.d = ISADTACK14;
-ISADTACK14.d = ISADTACK13;// # (DECODE_ISA_RAM);      // et4k: this is ok for writes too on fast cards
+ISADTACK14.d = ISADTACK13;
 ISADTACK13.d = ISADTACK12;
 ISADTACK12.d = ISADTACK11;
-ISADTACK11.d = ISADTACK10;
+ISADTACK11.d = ISADTACK10 # (ISADS & DECODE_ISA_RAM16);
 ISADTACK10.d = ISADTACK9;
-ISADTACK9.d = ISADTACK8 # (DECODE_ISA_RAM);      // et4k: seems fine on several cards
+ISADTACK9.d = ISADTACK8;
 ISADTACK8.d = ISADTACK7;
 ISADTACK7.d = ISADTACK6;
 ISADTACK6.d = ISADTACK5;
@@ -406,19 +391,19 @@ ISADTACK4.d = ISADTACK3;    // <--
 ISADTACK3.d = ISADTACK2;
 ISADTACK2.d = ISADTACK1;
 ISADTACK1.d = ISADTACK0;
-ISADTACK0.d = 'b'1;
-
-
+ISADTACK0.d = ISADS;
 
 
 //----------------------------------------------------------------------------------------
 // Bus cycle end
 //----------------------------------------------------------------------------------------
 
-TA = AUTOIRQ # (
-    TIP & (
-        (SELECT_68150 & EBUSTA) #
-        (!SELECT_68150 & LBUSTA)
-    )
-);
+LOCTA1 = BUSTA;
+
+TA = AUTOIRQ #              // autovector irq
+    (EXCS & EXTA) #         // slowbus ta
+    (!EXCS & LOCTA1);
+//    !EXCS;                  // fastbus ta
+
+
 
