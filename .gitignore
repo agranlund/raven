@@ -9,11 +9,9 @@ bak/*
 *-backups/
 _autosave*
 #auto_saved_files#
+hw/simm/programmer/firmware/build/*
 sw/rom/mon/mon.map
 sw/rom/mon/mon.bin
 sw/rom/boot.bin
 sw/rom/os.bin
 sw/rom/tos.bin
-fw/a1/bak/*
-
-
