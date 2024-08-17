@@ -19,6 +19,7 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - Silkscreen: Clearer orientation for J103 and J401
 - Silkscreen: Clearer orientation for J204, J205, J206, J305
 - Silkscreen: Clearer orientation for U601
+- Footprint:  Larger footprints for handsolder D201, D202, D203 
 - BOM: Replaced PLCC64 socket for U104 with black part
 - BOM: Replaced PLCC84 socket for U108 with black part
 - BOM: Replaced buttons SW101,SW201,SW202 with black parts
