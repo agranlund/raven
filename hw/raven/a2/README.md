@@ -15,11 +15,15 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
 
 ## Changelog:
-- Fixed silkscreen for J305
-- Replaced PLCC64 socket for U104 with black part
-- Replaced PLCC84 socket for U108 with black part
-- Replaced buttons SW101,SW201,SW202 with black parts
-- Changed C310 to 0.1uF (was 0.01uF)
+- Silkscreen: Fixed wrong pinout info for J305
+- Silkscreen: Clearer orientation for J103 and J401
+- Silkscreen: Clearer orientation for J204, J205, J206, J305
+- Silkscreen: Clearer orientation for U601
+- BOM: Replaced PLCC64 socket for U104 with black part
+- BOM: Replaced PLCC84 socket for U108 with black part
+- BOM: Replaced buttons SW101,SW201,SW202 with black parts
+- BOM: Changed C310 to 0.1uF (was 0.01uF)
+
 
 
 ## Optional / non-critical:
