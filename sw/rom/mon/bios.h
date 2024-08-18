@@ -11,9 +11,11 @@ typedef struct
 
     void(*dbgOut)(int num, int val);
 
-    // ikbd api
-    // midi api
-    // uart api
+    // ikbd
+    // midi
+    // uart
+    // rtc
+    // i2c
 
 } biosHeader_t;
 

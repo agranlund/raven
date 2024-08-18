@@ -5,6 +5,7 @@
 #include "hw/mfp.h"
 #include "hw/ikbd.h"
 #include "hw/midi.h"
+#include "hw/rtc.h"
 #include "monitor.h"
 #include "atari.h"
 
@@ -122,6 +123,9 @@ bool sys_Init()
 
     puts("InitMidi");
     midi_Init();
+
+    puts("InitRtc");
+    rtc_Init();
 
     puts("InitVbr");
     vbr_Init();
