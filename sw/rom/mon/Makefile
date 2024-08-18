@@ -3,7 +3,8 @@
 #
 BOARD_REV	 = 0xA1
 BIOS_ROM	 = 0x03000000
-BIOS_BSS	 = 0x00114000
+BIOS_BSS	 = 0x00118000
+BIOS_EMU	 = 0x00110000
 
 # Tools
 CC		 = m68k-atari-mint-gcc
@@ -16,15 +17,15 @@ MON_SREC	 = mon.s19
 
 
 # Sources
-SFILES		:= $(wildcard *.S)
-CFILES		:= $(wildcard *.c)
+SFILES		:= $(wildcard *.S) $(wildcard hw/*.S)
+CFILES		:= $(wildcard *.c) $(wildcard hw/*.c)
 OFILES		 = $(SFILES:%.S=build/%.o) $(CFILES:%.c=build/%.o)
 DEPS   		 = $(MAKEFILE_LIST)
 
 BUILD_DATE_HEX	:= $(shell date +%Y%m%d)
 BUILD_DATE_DEC	:= $(shell printf %d 0x$(BUILD_DATE_HEX))
 
-DEFS		 = -DVERSION=$(BUILD_DATE_DEC) -DREV=$(BOARD_REV)
+DEFS		 = -DVERSION=$(BUILD_DATE_DEC) -DREV=$(BOARD_REV) -DBIOS_EMU_MEM=$(BIOS_EMU) -DCONF_ATARI
 SFLAGS		 = $(DEFS) -m68060 -D__ASM__
 
 CFLAGS		 = $(DEFS) \
@@ -68,7 +69,7 @@ build/%.o : %.c $(DEPS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f build/*.o
+	rm -f -r build/*
 	rm -f *.bin *.map
 
 -include build/*.d

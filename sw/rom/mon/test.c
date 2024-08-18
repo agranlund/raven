@@ -1,4 +1,6 @@
 
+#include "sys.h"
+
 int test_ym_write(int size)
 {
     static const unsigned char data[14*2] =
@@ -21,7 +23,7 @@ int test_ym_write(int size)
 
     if (size == 1)
     {
-        volatile unsigned char* ym2149 = (volatile unsigned char*)0xA1000800;
+        volatile unsigned char* ym2149 = (volatile unsigned char*)PADDR_YM;
         for (int i=0; i<14*2; i+=2)
         {
             ym2149[0] = data[i+0];
@@ -34,7 +36,7 @@ int test_ym_write(int size)
     }
     else if (size == 4)
     {
-        volatile unsigned int* ym2149 = (volatile unsigned int*)0xA1000800;
+        volatile unsigned int* ym2149 = (volatile unsigned int*)PADDR_YM;
         for (int i=0; i<14; i++)
         {
             unsigned int d0 = 0xFF & data[(i<<1)+0];

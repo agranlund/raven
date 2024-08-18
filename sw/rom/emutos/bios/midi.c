@@ -25,6 +25,7 @@
 
 LONG bconstat3(void)
 {
+#if CONF_WITH_MIDI_ACIA
     if (midiiorec.head == midiiorec.tail)
     {
         return 0;   /* iorec empty */
@@ -33,6 +34,11 @@ LONG bconstat3(void)
     {
         return -1;  /* not empty => input available */
     }
+#elif defined(MACHINE_RAVEN)
+    return raven_midi_bconstat();
+#else
+    return 0;
+#endif    
 }
 
 LONG bconin3(void)
@@ -59,6 +65,8 @@ LONG bconin3(void)
         set_sr(old_sr);
         return value;
     }
+#elif defined(MACHINE_RAVEN)
+    return raven_midi_readb();
 #else
     return 0;
 #endif
@@ -68,7 +76,9 @@ LONG bconin3(void)
 /* can we send a byte to the MIDI ACIA ? */
 LONG bcostat3(void)
 {
-#if CONF_WITH_MIDI_ACIA
+#if defined (MACHINE_RAVEN)
+    return raven_midi_bcostat();
+#elif CONF_WITH_MIDI_ACIA
     if (midi_acia.ctrl & ACIA_TDRE)
     {
         return -1;  /* OK */
@@ -78,8 +88,6 @@ LONG bcostat3(void)
         /* Data register not empty */
         return 0;   /* not OK */
     }
-#elif MACHINE_RAVEN
-    return (RAVEN_MFP2_BASE->tsr & 0x80) ? -1 : 0;
 #else
     return 0;       /* not OK */
 #endif
@@ -91,12 +99,12 @@ LONG bconout3(WORD dev, WORD c)
     while(!bcostat3())
         ;
 
-#if CONF_WITH_MIDI_ACIA
+#if defined(MACHINE_RAVEN)
+    raven_midi_writeb((UBYTE)c);
+    return 1;
+#elif CONF_WITH_MIDI_ACIA
     midi_acia.data = c;
     return 1L;
-#elif defined(MACHINE_RAVEN)
-	RAVEN_MFP2_BASE->udr = (char)c;
-	return 1L;
 #else
     return 0L;
 #endif
@@ -132,18 +140,5 @@ void midi_init(void)
                      ACIA_RLTID|    /* RTS low, TxINT disabled */
                      ACIA_DIV16|    /* clock/16 */
                      ACIA_D8N1S;    /* 8 bit, 1 stop, no parity */
-#elif defined(MACHINE_RAVEN)
-
-	/* MFP2 base clock is 2000000hz */
-	MFP* mfp = RAVEN_MFP2_BASE;
-	mfp->ucr = 0x08;		// divide by 1, 8 bits, no parity, 1 start bit , 1 stop bit
-	mfp->scr = 0x00;
-	mfp->rsr = 0x00;
-	mfp->tsr = 0x01;		// transmitter enable
-	/* TimerD generates baud */
-    mfp->tcdcr &= 0xF0;
-    mfp->tddr = 2;			// divide by 2
-    mfp->tcdcr |= 0x3;		// divide by 16
-
 #endif
 }

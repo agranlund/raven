@@ -20,7 +20,6 @@
 
     .global _raven_int_ikbd
     .global _raven_int_vbl
-    .global _raven_int_50hz
     .extern ikbdraw
     .extern _int_vbl
 
@@ -32,10 +31,6 @@
 /******************************************************************************/
 /* Interrupts                                                                 */
 /******************************************************************************/
-
-.bss
-raven_vblcnt:
-        .ds.l   1
 
 .text
 
@@ -59,26 +54,7 @@ _raven_int_ikbd:
     rte
 
 _raven_int_vbl:
-    jsr     _int_vbl
-    rte
-
-_raven_int_50hz:
-    move.w   #0x2700,sr
-    movem.l d0-d1/a0-a1,-(sp)
-    move.w  16(sp),d0
-    and.w   #0x0F00,d0                      // get current ipl
-    cmp.w   #0x0300,d0                      // skip if >= 4
-    bhi.b   0f
-;    move.w  #0x2400,d0                     // set level 4
-;    jsr     _int_vbl                        // call tos vbl
-
-	movem.l (sp)+,d0-d1/a0-a1
-	move.l	0x70,-(sp)
-    move.b  #0xDF,RAVEN_PADDR_MFP2+0x11      // clear timerC in-service
-	rts
-
-0:  movem.l (sp)+,d0-d1/a0-a1
-    move.b  #0xDF,RAVEN_PADDR_MFP2+0x11      // clear timerC in-service
+    jsr     _int_vbl        /* call it since it doesn't return with RTE on clone hardware */
     rte
 
 

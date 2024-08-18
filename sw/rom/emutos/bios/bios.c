@@ -293,20 +293,16 @@ static void bios_init(void)
         has_blitter = 0;
 #endif
 
+
     /*
      * Initialize MFP and SCC: among other things this ensures that the
      * respective interrupts are disabled.
      */
 
+
 #if CONF_WITH_MFP
     KDEBUG(("mfp_init()\n"));
     mfp_init();
-#endif
-
-#if MACHINE_RAVEN
-	cookie_add(0x5241564E, 0);		/* 'RAVN' */
-    KDEBUG(("raven_mfp_init()\n"));
-    raven_mfp_init();
 #endif
 
 #if CONF_WITH_TT_MFP

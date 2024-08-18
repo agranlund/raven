@@ -1,36 +1,16 @@
 #include "sys.h"
 #include "lib.h"
+#include "hw/cpu.h"
+#include "hw/uart.h"
+#include "monitor.h"
 
 extern int test_ym_write(int size);
 
 #define MONBUFFERSIZE 1024
 char monBuffer[MONBUFFERSIZE];
-uint16 monActive;
-
-typedef struct
-{
-    uint32 buscr;
-    uint32 itt1;
-    uint32 itt0;
-    uint32 dtt1;
-    uint32 dtt0;
-    uint32 tc;
-    uint32 srp;
-    uint32 urp;
-    uint32 cacr;
-    uint32 dfc;
-    uint32 sfc;
-    uint32 vbr;
-    uint32 pcr;
-    uint32 usp;
-    uint32 d0,d1,d2,d3,d4,d5,d6,d7;
-    uint32 a0,a1,a2,a3,a4,a5,a6,a7;
-    uint16 sr;
-    uint32 pc;
-} TRegs;
 
 void monHelp();
-void monRegs(TRegs* regs);
+void monRegs(regs_t* regs);
 void monDump(uint32 addr, uint32 size);
 void monRead(uint32 bits, uint32 addr);
 void monWrite(uint32 bits, uint32 addr, uint32 val);
@@ -38,29 +18,21 @@ void monLoad(uint32 addr, uint32 size);
 void monRun(uint32 addr);
 void monTest(char* cmd, uint32 val);
 
-__attribute__((interrupt)) void IntIkbd(void)
+
+bool mon_Init()
 {
-    uint8 c = IOB(PADDR_UART1, UART_RHR);
-    fmt("ikbd int: %b\n", c);
+    void mon_Main(regs_t* regs);
+    cpu_SetNMI(mon_Main);
+    return true;
 }
 
-void InitMonitor()
+void mon_Start()
 {
-    monActive = 0;
-/*
-    *((uint32*)0x74) = (uint32)IntIkbd;
-    //IOB(PADDR_UART1, UART_FCR) &= 0xFE;     // fifo off
-    IOB(PADDR_UART1, UART_IER) = 0x01;      // RHR interrupt on
-    SetIPL(5);
-*/
+    cpu_TriggerNMI();
 }
 
-void Monitor(TRegs* regs)
+void mon_Main(regs_t* regs)
 {
-    if (monActive)
-        return;
-
-    monActive = 1;
     puts("");
     monRegs(regs);
 
@@ -73,6 +45,13 @@ void Monitor(TRegs* regs)
         if (gets(monBuffer, sizeof(monBuffer)) == NULL)
             continue;
         size_t monBufferSize = strlen(monBuffer);
+
+        // convert whitespaces to 0 as argument delimiters
+        for (int i=0; i<monBufferSize; i++) {
+            if (monBuffer[i] <= 32 || monBuffer[i] >= 127) {
+                monBuffer[i] = 0;
+            }
+        }
 
         // parse command arguments
         // XXX TODO use scan()
@@ -119,17 +98,17 @@ void Monitor(TRegs* regs)
             else                                        { monHelp(); }
         }
     }
-    monActive = 0;
 }
 
-void monTest(char* test, uint32 val) {
+void monTest(char* test, uint32 val)
+{
     if (strcmp(test, "ym") == 0) {
         test_ym_write(1);
     }
     else {
         puts("\n"
              "Test commands:\n"
-             "  ym\r\n");
+             "  ym\r\n");        
     }
 }
 
@@ -150,7 +129,7 @@ void monHelp()
          "  test {cmd} {val}  : test hardware\n");
 }
 
-void monRegs(TRegs* regs)
+void monRegs(regs_t* regs)
 {
     if (!regs)
         return;
@@ -228,7 +207,6 @@ void monLoad(uint32 addr, uint32 size)
 
 void monRun(uint32 addr)
 {
-    monActive = 0;
-    Call(addr);
+    cpu_Call(addr);
 }
 

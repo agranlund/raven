@@ -7,6 +7,13 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+typedef unsigned char   uint8;
+typedef unsigned short  uint16;
+typedef unsigned int    uint32;
+typedef signed char     sint8;
+typedef signed short    sint16;
+typedef signed int      sint32;
+
 extern size_t strlen(const char *s);
 extern int strcmp(const char *s1, const char *s2);
 extern int strncmp(const char *s1, const char *s2, size_t n);

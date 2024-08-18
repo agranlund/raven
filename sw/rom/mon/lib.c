@@ -1,5 +1,6 @@
 #include "sys.h"
 #include "lib.h"
+#include "hw/uart.h"
 
 size_t
 strlen (const char *str)
@@ -294,7 +295,7 @@ hexdump(const uint8 *addr, uint32 address, size_t length, char width)
     length &= ~(incr - 1);
 
     for (index = 0; index < length; index += 16) {
-        putx(address + index, 8);
+        putx(address + index, 4);
         putchar(':');
 
         for (uint32 col = 0; col < 16; col += incr) {
