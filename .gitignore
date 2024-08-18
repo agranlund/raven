@@ -10,6 +10,7 @@ bak/*
 _autosave*
 #auto_saved_files#
 hw/simm/programmer/firmware/build/*
+!hw/simm/programmer/firmware/build/ravenprog.uf2
 sw/rom/mon/mon.map
 sw/rom/mon/mon.bin
 sw/rom/boot.bin
