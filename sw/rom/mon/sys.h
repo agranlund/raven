@@ -84,13 +84,11 @@ void pmmu_Init(uint32* simms);
 void pmmu_Map(uint32 log, uint32 phys, uint32 size, uint32 flags);
 void pmmu_Redirect(uint32 src, uint32 dst, uint32 size);
 
-void uart_printChar(const char d);
-void uart_printString(const char* string);
-void uart_printHex(uint32 bits, const char* prefix, uint32 val, const char* suffix);
+void uart_sendChar(const char d);
+int uart_recvChar();
 
 void uart1_gpo(uint8 bit, uint8 output);
 
-int strcmp(char* s0, char* s1);
 uint32 strtoi(char* s);
 
 #endif //!__ASM__
