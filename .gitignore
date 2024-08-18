@@ -6,6 +6,7 @@ fp-info-cache
 *.o
 *.d
 *.s19
+mapfile
 bak/*
 *-backups/
 _autosave*
