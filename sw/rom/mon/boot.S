@@ -3,13 +3,13 @@
     #define UART_BAUDR      750000
     #define UART_BAUDD      (UART_CLK/(UART_BAUDR*16))
     #define UART_FLOWCTRL   0
-    
+
     .text
     .global __main
     .global _main
     .global _vec_boot
     .global _vec_berr
-    .global _vec_rte
+    .global _vec_other
 
     .extern _Init
     .extern __bss_start
@@ -20,20 +20,20 @@
     .dcb.l     1,VERSION            //   0 / 0x00 : initial sp (build version)
     .dcb.l     1,__main             //   1 / 0x04 : initial pc
     .dcb.l     1,_vec_berr          //   2 / 0x08 : bus errror
-    .dcb.l   253,_vec_rte           //  --------- 3-255
+    .dcb.l   253,_vec_other         //  --------- 3-255
 
 //--------------------------------------------
 // BPRINT(uart*, char*)
 //--------------------------------------------
             .macro BPRINT,r,str
             move.l  \str,a0
-    .0\@:   move.b  (a0)+,d0
-            beq.b   .2\@
-    .1\@:   btst.b  #5,UART_LSR(\r)
-            beq.b   .1\@
+    0:      move.b  (a0)+,d0
+            beq.b   2f
+    1:      btst.b  #5,UART_LSR(\r)
+            beq.b   1b
             move.b  d0,UART_THR(\r)
-            bra.b   .0\@
-    .2\@:   nop   
+            bra.b   0b
+    2:      nop
             .endm
 
 // ----------------------------------------------------------
@@ -62,7 +62,6 @@ _vec_boot:
     reset                                       // reset peripherals
     sub.l   d0,d0                               // reset vbr
     movec   d0,vbr
-
 
     move.l  #__bss_start,sp                     // bios stack
 
@@ -110,7 +109,7 @@ _vec_boot:
 
 vec_boot_ram_ok:
 
-    // expection handlers
+    // exception handlers
     move.l  #_vec_berr,0x8
 
     // init
@@ -125,27 +124,28 @@ vec_boot_ram_ok:
 // ----------------------------------------------------------
 // dummy vector
 // ----------------------------------------------------------
-_vec_rte:
-    rte
+_vec_other:
+    move.l  #PADDR_UART2,a5
+    BPRINT  a5,#msg_exception
+1:
+    stop    #0x2700
+    bra     1b
 
 _vec_berr:
     move.l  #PADDR_UART2,a5
     BPRINT  a5,#msg_berr
+1:
     stop    #0x2700
-.0: bra     .0
+    bra     1b
 
 // ----------------------------------------------------------
 // constants
 // ----------------------------------------------------------
 msg_boot:
-    .dc.b   10
-    .string "RAVEN060"
-    .dc.b   10,10,0
+    .asciz  "\r\nRAVEN060\r\n"
 msg_ramfail:
-    .dc.b   10
-    .string "ERROR: NO RAM IN SLOT0"
-    .dc.b   10,0
+    .asciz  "ERROR: NO RAM IN SLOT0\r\n"
 msg_berr:
-    .dc.b   10
-    .string "ERROR: ACCESS ERROR"
-    .dc.b   10,0
+    .asciz  "ERROR: ACCESS ERROR\r\n"
+msg_exception:
+    .asciz  "ERROR: UNEXPECTED EXCEPTION\r\n"

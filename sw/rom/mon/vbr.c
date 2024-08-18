@@ -78,7 +78,6 @@ uint16* vbrProxy;
 void vbr_Set(uint32 vec, uint32 addr)
 {
     vbrTable[vec >> 2] = addr;
-    SetVBR((uint32)vbrTable);
 }
 
 void vbr_Init()
@@ -122,5 +121,7 @@ void vbr_Init()
     vbr_Set(0x118,  (uint32) vecMFP_I4);            // MFP1 -   IGNORE, for now             Acia        (todo: can use it, same as IRQ5)
     vbr_Set(0x11C,  (uint32) vecMFP_I5);            // MFP1 -   IGNORE, for now             Fdd/Hdd     (todo: can use it, connected to HDD)
     vbr_Set(0x13C,  (uint32) vecMFP_I7);            // MFP1 -   IGNORE                      MonoDetect  (used as I2C line)
+
+    SetVBR((uint32)vbrTable);
 }
 
