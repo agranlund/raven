@@ -8,7 +8,7 @@
 #include "flash.h"
 
 #define APP_NAME    "Raven ROM programmer"
-#define APP_VER     "0.1A"
+#define APP_VER     "0.2A"
 
 #define GPIO_LED    25
 
@@ -18,12 +18,13 @@ int iobufpos;
 
 void cmd_help()
 {
-    printf(APP_NAME " " APP_VER "\n");
-    printf(" [h]elp\n");
-    printf(" [i]nfo\n");
-    printf(" [d]ump {offset} {len}\n");
-    printf(" [p]rog {offset}\n");
-    printf(" [e]rase\n");
+    printf(APP_NAME " " APP_VER "\n"
+           " [h]elp\n"
+           " [i]nfo\n"
+           " [d]ump {offset} {len}\n"
+           " [p]rog {offset}\n"
+           " [e]rase\n"
+           "  or start sending S-records\n");
 }
 
 void cmd_info()
@@ -131,6 +132,233 @@ void cmd_erase()
     printf("Done\n");
 }
 
+static int srec_byte(const char *buf, int index)
+{
+    unsigned int v;
+
+    if (sscanf(buf + (index * 2), "%2x", &v) == 1) {
+        return v;
+    }
+    return -1;
+}
+
+typedef struct
+{
+    uint32_t        address;
+    uint32_t        data_len;
+    const char      *data;
+} srec_info_t;
+
+static int srec_validate(const char *buf, int buf_len, srec_info_t *info)
+{
+    /* header sanity */
+    if (buf_len < 9)
+    {
+        printf("srec: buffer too short\n");
+        return -1;
+    }
+    if (buf[0] != 'S')
+    {
+        printf("srec: not 'S'\n");
+        return -1;
+    }
+
+    /* get/validate length byte */
+    int srec_len = srec_byte(buf, 1);
+    if (srec_len < 3)
+    {
+        printf("srec: len too short\n");
+        return -1;
+    }
+    if ((srec_len * 2 + 4) > buf_len)
+    {
+        printf("srec: len too long\n");
+        return -1;
+    }
+
+    /* validate checksum */
+    int sum = 0;
+    for (int i = 0; i <= srec_len; i++) 
+    {
+        sum += srec_byte(buf + 2, i);
+    }
+    if ((sum & 0xff) != 0xff)
+    {
+        printf("srec: sum mismatch\n");
+        return -1;
+    }
+
+    /* type-specific validation */
+    const char *afmt = NULL;
+    int asize = 0;
+    int type = buf[1] - '0';
+    switch (type)
+    {
+    case 0:
+        afmt = "%4x";
+        asize = 4;
+        break;
+    case 3:
+        afmt = "%8x";
+        asize = 8;
+        break;
+    case 7:
+        afmt = "%8x";
+        asize = 0;
+        break;
+    default:
+        printf("srec: bad type\n");
+        return -1;
+    }
+    if (srec_len < ((asize / 2) + 1)) {
+        printf("srec: len wrong for type\n");
+        return -1;
+    }
+    if (info)
+    {
+        if (sscanf(buf + 4, afmt, &info->address) != 1)
+        {
+            printf("srec: can't parse address");
+            return -1;
+        }
+        info->data_len = srec_len - (asize / 2) - 1;
+        info->data = buf + 4 + asize;
+    }
+
+    return type;
+}
+
+static void srec_flash(uint8_t *buf, uint32_t address, int len)
+{
+    if (len > 0)
+    {
+        /* pad to 4B multiple */
+        while (len % 4)
+            buf[len++] = 0xff;
+
+        /* write to flash, swizzle to suit layout (XXX shouldn't the flash code do this?) */
+        const uint32_t *p = (const uint32_t *)buf;
+        for (int i = 0;
+             i < len;
+             p++, i += 4)
+        {
+            flash_Write(address + i, __builtin_bswap32(*p));
+        }
+    }
+}
+
+static void cmd_srecord()
+{
+    /* we are here because a valid S0 record was received */
+    printf("S-record upload, erasing flash...");
+    flash_Erase();
+    printf("receiving data...\n");
+
+    /* set initial buffer state */
+    uint32_t iobuf_base = 0;
+    uint32_t iobuf_len = 0;
+
+    /* receive S-records */
+    for (;;) {
+        char linebuf[128];
+        int linelen = 0;
+
+        /* receive one S-record */
+        for (;;)
+        {
+            /* receive bytes, quit when upload stops */
+            int v = getchar_timeout_us(2000000);
+            if (v == PICO_ERROR_TIMEOUT)
+            {
+                /* we expect S7 at the end to flush, so buffer should be empty */
+                if (iobuf_len == 0) {
+                    printf("done.\n");
+                } else {
+                    printf("\nERROR: S-record upload timeout\n");
+                }
+                return;
+            }
+
+            /* end of record? */
+            if ((v == '\r') || (v == '\n'))
+            {
+                /* non-empty line, process */
+                if (linelen > 0)
+                {
+                    linebuf[linelen] = '\0';
+                    break;
+                }
+                /* empty line, ignore */
+                continue;
+            }
+
+            /* accumulate bytes */
+            if (linelen < (sizeof(linebuf) - 2))
+            {
+                linebuf[linelen++] = v;
+            } else {
+                printf("ERROR: S-record too long\n");
+                return;
+            }
+        }
+
+        srec_info_t sinfo;
+        switch (srec_validate(linebuf, linelen, &sinfo))
+        {
+            case 0:
+                /* ignore additional S0 records, probably concatenated uploads */
+                continue;
+            case 3:
+                /* process S3 record below */
+                break;
+            case 7:
+                /* entrypoint, usually last, clean any buffer contents ready for completion */
+                srec_flash(iobuf, iobuf_base, iobuf_len);
+                iobuf_len = 0;
+                continue;
+            default:
+                printf("ERROR: invalid / unsupported S-record '%s'\n", linebuf);
+                return;
+        }
+
+        /* new S-record not contiguous? */
+        if (sinfo.address != (iobuf_base + iobuf_len))
+        {
+            /* flush any existing buffer contents */
+            srec_flash(iobuf, iobuf_base, iobuf_len);
+
+            /* set initial buffer base address, 4-aligned, pad leading bytes */
+            iobuf_base = sinfo.address & 0xfffffffc;
+            iobuf_len = sinfo.address - iobuf_base;
+
+            /*
+             * We depend on the flash behaviour of not writing / reading back 0xff bytes
+             * to deal with the case where the 4-aligned buffer overlaps some byte(s)
+             * that were previously programmed.
+             *
+             * This is only likely in the case where the S-record stream is highly optimised,
+             * i.e. almost never.
+             */
+            iobuf[0] = iobuf[1] = iobuf[2] = 0xff;
+        }
+
+        /* update the buffer with bytes from the S-record */
+        for (int i = 0; i < sinfo.data_len; i++)
+        {
+            iobuf[iobuf_len++] = srec_byte(sinfo.data, i);
+
+            /* has buffer become full? */
+            if (iobuf_len == iobuflen)
+            {
+                /* yes, flush it */
+                srec_flash(iobuf, iobuf_base, iobuf_len);
+                iobuf_base = iobuf_base + iobuflen;
+                iobuf_len = 0;
+            }
+        }
+    }
+}
+
 uint string_to_uint(char* str)
 {
     if (str[0] == '$')
@@ -176,6 +404,10 @@ void parse_command()
     else if ((strcmp(iobuf, "erase") == 0) || (strcmp(iobuf, "e") == 0))
     {
         cmd_erase();
+    }
+    else if (srec_validate(iobuf, iobufpos, NULL) == 0)
+    {
+        cmd_srecord();
     }
     else
     {
@@ -227,4 +459,3 @@ int main()
     }
 	return 0;
 }
-
