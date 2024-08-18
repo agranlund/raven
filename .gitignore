@@ -5,6 +5,7 @@ fp-info-cache
 *.bak
 *.o
 *.d
+*.s19
 bak/*
 *-backups/
 _autosave*
