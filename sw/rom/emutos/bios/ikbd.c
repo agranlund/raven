@@ -916,7 +916,9 @@ void kbd_int(UBYTE scancode)
 /* can we send a byte to the ikbd ? */
 LONG bcostat4(void)
 {
-#if CONF_WITH_IKBD_ACIA
+#if defined(MACHINE_RAVEN)
+    return raven_ikbd_bcostat();
+#elif CONF_WITH_IKBD_ACIA
     if (ikbd_acia.ctrl & ACIA_TDRE) {
         return -1;              /* OK */
     } else {
@@ -958,9 +960,10 @@ void ikbdws(WORD cnt, const UBYTE *ptr)
 void ikbd_writeb(UBYTE b)
 {
     KDEBUG(("ikbd_writeb(0x%02x)\n", (UBYTE)b));
-
     while (!bcostat4());
-#if CONF_WITH_IKBD_ACIA
+#if defined(MACHINE_RAVEN)
+    raven_ikbd_writeb(b);
+#elif CONF_WITH_IKBD_ACIA
     ikbd_acia.data = b;
 #elif CONF_WITH_FLEXCAN
     coldfire_flexcan_ikbd_writeb(b);
@@ -981,7 +984,6 @@ void ikbd_writew(WORD w)
  */
 static UBYTE ikbd_readb(WORD timeout)
 {
-#if CONF_WITH_IKBD_ACIA
     WORD i;
 
     /* We have to use a timeout to avoid waiting forever
@@ -989,16 +991,19 @@ static UBYTE ikbd_readb(WORD timeout)
      */
     for (i = 0; i < timeout; i++)
     {
+#if CONF_WITH_IKBD_ACIA
         if (ikbd_acia.ctrl & ACIA_RDRF)
             return ikbd_acia.data;
-
+#elif defined(MACHINE_RAVEN)
+        if (raven_ikbd_bconstat())
+            return raven_ikbd_readb();
+#else
+        return 0; /* bogus value */
+#endif
         delay_loop(loopcount_1_msec);
     }
 
     return 0; /* bogus value when timeout */
-#else
-    return 0; /* bogus value */
-#endif
 }
 
 /*

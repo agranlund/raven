@@ -795,6 +795,10 @@ void fill_cookie_jar(void)
      * interrupt vector so FreeMiNT can hook it. */
     cookie_add(COOKIE__5MS, (ULONG)&vector_5ms);
 #endif
+
+#ifdef MACHINE_RAVEN
+	cookie_add(0x5241564E, 0);		/* 'RAVN' */
+#endif
 }
 
 static const char * guess_machine_name(void)

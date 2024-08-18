@@ -16,15 +16,6 @@
 #ifdef MACHINE_RAVEN
 
 #define RAVEN_BOARD_REV			0xA1
-
-/*
-#define RAVEN_PADDR_YM
-#define RAVEN_PADDR_IDE
-#define RAVEN_PADDR_MFP1
-#define RAVEN_PADDR_MFP2        0xa0000a00
-#define RAVEN_PADDR_UART1       0x20000000
-#define RAVEN_PADDR_UART2       0x20000020
-*/
 #define RAVEN_PADDR_MFP2        0xa0000a00
 #define RAVEN_UART1_BASE        0x20000000
 #define RAVEN_UART2_BASE        0x20000020
@@ -72,11 +63,19 @@ struct IDE
 
 #define ide_interface           ((volatile struct IDE *)0xfff00000)
 
-#define RAVEN_MFP2_BASE			((MFP *)RAVEN_PADDR_MFP2)
-
-void raven_mfp_init(void);
 void raven_screen_init(void);
 void raven_kbd_init(void);
+
+LONG  raven_ikbd_bcostat(void);
+LONG  raven_ikbd_bconstat(void);
+void  raven_ikbd_writeb(UBYTE b);
+UBYTE raven_ikbd_readb(void);
+
+LONG  raven_midi_bcostat(void);
+LONG  raven_midi_bconstat(void);
+void  raven_midi_writeb(UBYTE b);
+UBYTE raven_midi_readb(void);
+
 const UBYTE* raven_physbase(void);
 
 #endif /* __RAVEN__ASM__ */
