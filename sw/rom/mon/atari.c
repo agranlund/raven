@@ -8,7 +8,7 @@
 #define RESERVED_SIZE			(3 * (1024 * 1024))
 #define COPYBACK_STRAM          0
 #define COPYBACK_TTRAM          0
-
+#define ACIA_EMULATION          0
 
 extern uint8 kgfx;
 extern uint32 ksimm[4];
@@ -21,7 +21,10 @@ extern void vecRTE_MFP1I4();
 extern void vecRTE_MFP1I5();
 extern void vecRTE_MFP1I6();
 extern void vecRTE_MFP1I7();
-extern void vecVBL_MPF2TC();
+extern void vecVBL_MPF2TC();    // vblank emulation
+extern void vecKBD_MFP1I4();    // acia emulation
+
+uint32 vecKBD_Busy;
 
 
 bool atari_InitEMU()
@@ -29,13 +32,13 @@ bool atari_InitEMU()
     //---------------------------------------------------------------------
     // acia emulation
     //---------------------------------------------------------------------
+    vecKBD_Busy = 0;
     volatile uint8* acia = (volatile uint8*)PADDR_ACIA;
     for (int i=0; i<8; i++) {
         acia[i] = 0;
     }
     acia[ACIA_KEYB_CTRL] = 0x02;    // tx reg empty
     acia[ACIA_MIDI_CTRL] = 0x02;    // tx reg empty
-    // todo: interrupt handler
 
     //---------------------------------------------------------------------
     // vbl emulation - MFP2:TimerC @ 50hz
@@ -53,10 +56,16 @@ bool atari_InitEMU()
 
 bool atari_InitVBR()
 {
-    vbr_Set(0x10C,  (uint32) vecRTE_MFP1I3);        // MFP1I3 - Blitter     - IGNORE (used as I2C line)
-    vbr_Set(0x13C,  (uint32) vecRTE_MFP1I7);        // MFP1I7 - MonoDetect  - IGNORE (used as I2C line)
+    vbr_Set(0x10C,  (uint32) vecRTE_MFP1I3);        // MFP1I3 - I2C line    - IGNORE  (ST = blitter)
+    vbr_Set(0x13C,  (uint32) vecRTE_MFP1I7);        // MFP1I7 - I2C line    - IGNORE  (ST = mono detect)
 
-    vbr_Set(0x118,  (uint32) vecRTE_MFP1I4);        // MFP1I4 - Acia        - IGNORE (todo: can use it, same as IRQ5)
+#if ACIA_EMULATION
+    vbr_Set(0x74,   (uint32) vecRTE);               // IRQ5   - Eiffel      - IGNORE
+    vbr_Set(0x118,  (uint32) vecKBD_MFP1I4);        // MFP1I4 - Eiffel      - Emulate (ST = acia)
+#else
+    vbr_Set(0x118,  (uint32) vecRTE_MFP1I4);        // MFP1I4 - Eiffel      - IGNORE  (ST = acia)
+#endif
+
     //vbr_Set(0x11C,  (uint32) vecRTE_MFP1I5);        // MFP1I5 - Fdd/Hdd     - IGNORE (todo: can use it, connected to IDE)
 
     vbr_Set(0x154,  (uint32) vecVBL_MPF2TC);        // MFP2 TimerC -> IRQ4 VBLANK emulation
@@ -126,8 +135,7 @@ bool atari_InitMMU(uint32* simms)
     mmu_Invalid(stram_size + 0x000F0000, 0x00010000);
 
     // peripheral access flags
-
-    mmu_Map(0x03000000, 0x03000000, 0x00100000, PMMU_READONLY  | PMMU_CM_WRITETHROUGH);    // ROM
+    mmu_Map(0x40000000, 0x40000000, 0x00100000, PMMU_READONLY  | PMMU_CM_WRITETHROUGH);    // ROM
     mmu_Map(0x20000000, 0x20000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // LOCBUS  (uart)
     mmu_Map(0xA0000000, 0xA0000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // EXTBUS  (ide, mfp2)
     mmu_Map(0xA1000000, 0xA1000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // EXTBUS  (ym, mfp1)
@@ -140,7 +148,7 @@ bool atari_InitMMU(uint32* simms)
 
     // peripheral memory map
     mmu_Redirect(0xFF000000, 0x00000000, 0x01000000);  // 24bit space
-    mmu_Redirect(0x00E00000, 0x03040000, 0x00080000);  // ROM
+    mmu_Redirect(0x00E00000, 0x40040000, 0x00080000);  // ROM      ($e00000 -> $40040000) size 512Kb at offset 256Kb
     mmu_Redirect(0xFFE00000, 0x03040000, 0x00080000);
     mmu_Redirect(0x00F00000, 0xA0000000, 0x00001000);  // IDE      ($f00000 -> $a0000000)
     mmu_Redirect(0xFFF00000, 0xA0000000, 0x00001000);
@@ -187,11 +195,11 @@ bool atari_InitMMU(uint32* simms)
 	mmu_Redirect(0xFFF30000, 0x81000000, 0x00010000);
 
 	// ST emulation space
-    mmu_Redirect(0x06000000, stram_size + 0x00100000, 0x00100000);		// ram	1024kb
-    mmu_Redirect(0x06E00000, stram_size + 0x00200000, 0x00040000);		// tos	 256kb
-    mmu_Redirect(0x06FC0000, stram_size + 0x00200000, 0x00030000);      // tos   192kb
-    mmu_Redirect(0x06FA0000, stram_size + 0x00240000, 0x00020000);		// cart  128kb
-    mmu_Redirect(0x06FF0000, stram_size + 0x00260000, 0x00010000);		// io	  64kb
+    mmu_Redirect(0x41000000, stram_size + 0x00100000, 0x00100000);		// ram	1024kb
+    mmu_Redirect(0x41E00000, stram_size + 0x00200000, 0x00040000);		// tos	 256kb
+    mmu_Redirect(0x41FC0000, stram_size + 0x00200000, 0x00030000);      // tos   192kb
+    mmu_Redirect(0x41FA0000, stram_size + 0x00240000, 0x00020000);		// cart  128kb
+    mmu_Redirect(0x41FF0000, stram_size + 0x00260000, 0x00010000);		// io	  64kb
 
     mmuregs_t mmu;
     mmu.urp = mmuTable;

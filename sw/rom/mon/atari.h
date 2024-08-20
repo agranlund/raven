@@ -10,7 +10,11 @@
 #define ACIA_MIDI_CTRL  0x04
 #define ACIA_MIDI_DATA  0x06
 
+
+#ifndef __ASM__
+
 extern bool atari_Init();
 extern void atari_Start();
 
+#endif // __ASM__
 #endif // _ATARI_H_

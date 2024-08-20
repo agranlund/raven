@@ -645,6 +645,9 @@
 # ifndef CONF_WITH_MFP
 #  define CONF_WITH_MFP 1
 # endif
+# ifndef CONF_WITH_IKBD_ACIA
+#  define CONF_WITH_IKBD_ACIA 0
+# endif
 # ifndef CONF_WITH_MFP_RS232
 #  define CONF_WITH_MFP_RS232 1
 # endif

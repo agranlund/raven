@@ -1,5 +1,8 @@
     #include "sys.h"
-
+    #include "atari.h"
+    #include "hw/mfp.h"
+    #include "hw/uart.h"
+    
     .text
     .global _vecRTE_MFP1I0
     .global _vecRTE_MFP1I1
@@ -13,7 +16,8 @@
 
     .global _vecVBL_MPF2TC
     .global _vecVBL_MPF2I0
-
+    .global _vecKBD_MFP1I4
+    .extern _vecKBD_Busy
 
 // ----------------------------------------------------------
 // MFP interrupt blockers
@@ -86,4 +90,33 @@ _vecVBL_MFP2I0:
 // ----------------------------------------------------------
 // ACIA emulation
 // ----------------------------------------------------------
+
+_vecKBD_MFP1I4:
+    bset.b  #0,_vecKBD_Busy
+    beq.b   0f
+    rte
+
+0:  movem.l d0-d1,-(sp)                         // save regs
+    moveq.l #7,d1                               // max number of bytes to get from fifo
+1:  btst.b  #0,PADDR_UART1+UART_LSR             // rx fifo empty?
+    bne.b   3f
+    
+2:  movem.l (sp)+,d0-d1                         // restore regs
+    move.b  #0xbf,PADDR_MFP1+MFP_ISRB           // clear in-service
+    bclr.b  #0,_vecKBD_Busy
+    rte                                         // and return
+
+3:  move.b  PADDR_UART1+UART_RHR,d0             // get rx byte from uart
+    move.b  d0,PADDR_ACIA+ACIA_KEYB_DATA        // acia data
+    move.b  #0x83,PADDR_ACIA+ACIA_KEYB_CTRL     // acia ctrl : interrupt, tx empty, rx full
+
+    move.l  d1,-(sp)                            // save regs
+    clr.w   -(sp)                               // fake stackframe
+    pea     4f
+    move.w  sr,-(sp)
+    jmp     ([0x118.w])                         // call acia interrupt handler, may clear in-service flag
+
+4:  move.b  #0x02,PADDR_ACIA+ACIA_KEYB_CTRL     // acia ctrl: no interrupt, tx empty, rx empty
+    move.l  (sp)+,d1                            // restore regs
+    dbra.w  d1,1b                               // next byte from fifo
 
