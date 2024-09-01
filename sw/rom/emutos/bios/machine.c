@@ -797,7 +797,7 @@ void fill_cookie_jar(void)
 #endif
 
 #ifdef MACHINE_RAVEN
-	cookie_add(0x5241564E, 0);		/* 'RAVN' */
+	cookie_add(0x5241564E, *((ULONG*)0x40000000));		/* 'RAVN' */
 #endif
 }
 
