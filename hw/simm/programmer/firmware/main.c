@@ -154,12 +154,14 @@ static int srec_validate(const char *buf, int buf_len, srec_info_t *info)
     /* header sanity */
     if (buf_len < 9)
     {
-        printf("srec: buffer too short\n");
+        if (info != NULL)
+            printf("srec: buffer too short\n");
         return -1;
     }
     if (buf[0] != 'S')
     {
-        printf("srec: not 'S'\n");
+        if (info != NULL)
+            printf("srec: not 'S'\n");
         return -1;
     }
 
