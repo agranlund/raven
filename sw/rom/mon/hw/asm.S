@@ -16,6 +16,9 @@
     .global _cpu_Call
     .global _cpu_TriggerNMI
 
+    .global _cpu_Lock
+    .global _cpu_Unlock
+
     .global _vecNMI
     .global _vecRTE
 
@@ -85,16 +88,32 @@ _vecRTE:
 // ----------------------------------------------------------
 //
 // ----------------------------------------------------------
+
+_cpu_Lock:
+    move.l  4(a7),a0
+    bset.b  #0,(a0)
+    bne.b   1f
+    moveq.l #1,d0
+    rts
+1:  moveq.l #0,d0
+    rts
+
+_cpu_Unlock:
+    move.l  4(a7),a0
+    bclr.b  #0,(a0)
+    rts
+
+
 _cpu_GetIPL:
     move.w  sr,d0
     lsr.w   #8,d0
-    and.w   #0x000F,d0
+    and.l   #0x00000007,d0
     rts
 
 _cpu_SetIPL:
-    move.w  4(a7),d0
+    move.l  4(a7),d0
     lsl.w   #8,d0
-    and.w   #0x0F00,d0
+    and.w   #0x0700,d0
     move.w  sr,d1
     and.w   #0xF0FF,d1
     or.w    d0,d1

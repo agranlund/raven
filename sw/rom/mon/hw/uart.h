@@ -26,16 +26,16 @@
 
 #ifndef __ASM__
 
-bool    uart_Init();
+bool        uart_Init();
 
-bool    uart_txrdy();
-bool    uart_rxrdy();
-uint16  uart_sendbuf(uint8* data, uint16 count);
-bool    uart_send(uint8 data);
-uint8   uart_recv();
+bool        uart_txrdy();
+bool        uart_rxrdy();
+uint16_t    uart_sendbuf(uint8_t* data, uint16_t count);
+bool        uart_send(uint8_t data);
+uint8_t     uart_recv();
 
-void    uart_sendChar(const char d);
-int     uart_recvChar();
+void        uart_sendChar(const char d);
+int         uart_recvChar();
 
 #endif //!__ASM__
 #endif // _UART_H_

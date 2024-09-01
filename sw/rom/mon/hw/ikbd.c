@@ -16,7 +16,7 @@ bool ikbd_Init()
     //  DLD = round((rdiv-trunc(trdiv)) * 16)    = 5
     //  without DLD = 7825 = 0,16% error
     //-----------------------------------------------------------------------
-    volatile uint8* uart1 = (volatile uint8*) PADDR_UART1;
+    volatile uint8_t* uart1 = (volatile uint8_t*) PADDR_UART1;
     uart1[UART_LCR] &= 0x7F;        // normal regs
     uart1[UART_IER] = 0x00;         // disable interrupts
     uart1[UART_FCR] = 0x01;         // fifo enabled
@@ -35,11 +35,11 @@ bool ikbd_Init()
 
 
 //-----------------------------------------------------------------------
-void ikbd_GPO(uint8 bit, uint8 output)
+void ikbd_GPO(uint8_t bit, uint8_t output)
 {
     // 0 : powerled
     // 1 : TP301
-    uint8 mask = (1 << bit);
+    uint8_t mask = (1 << bit);
     if (output) {
         IOB(PADDR_UART1, UART_MCR) &= ~mask;
     } else {
@@ -63,9 +63,9 @@ bool ikbd_rxrdy()
 
 
 //-----------------------------------------------------------------------
-uint16 ikbd_sendbuf(uint8* data, uint16 count)
+uint16_t ikbd_sendbuf(uint8_t* data, uint16_t count)
 {
-   for (uint16 i=0; i<count; i++) {
+   for (uint16_t i=0; i<count; i++) {
         if (!ikbd_send(data[i])) {
             return i;
         }
@@ -75,7 +75,7 @@ uint16 ikbd_sendbuf(uint8* data, uint16 count)
 
 
 //-----------------------------------------------------------------------
-bool ikbd_send(uint8 data)
+bool ikbd_send(uint8_t data)
 {
     // todo: timeout?
     while (!ikbd_txrdy()) {
@@ -86,7 +86,7 @@ bool ikbd_send(uint8 data)
 
 
 //-----------------------------------------------------------------------
-uint8 ikbd_recv()
+uint8_t ikbd_recv()
 {
     // todo: timeout?
     while (!ikbd_rxrdy()) {

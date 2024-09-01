@@ -4,15 +4,15 @@
 #define VBR_PROXY_IN_ROM        1
 
 NMIFunc_t   NMIFunc;
-uint32      NMIBusy;
+uint32_t    NMIBusy;
 
-uint32*     mmuRootTable;
-uint32*     mmuInvalidPtrTable;
-uint32*     mmuInvalidPageTable;
-uint32*     mmuInvalidPage;
-uint32*     mmuInvalidPageDesc;
+uint32_t*   mmuRootTable;
+uint32_t*   mmuInvalidPtrTable;
+uint32_t*   mmuInvalidPageTable;
+uint32_t*   mmuInvalidPage;
+uint32_t*   mmuInvalidPageDesc;
 
-uint32*     vbrTable;
+uint32_t*   vbrTable;
 
 void cpu_NullNMI(regs_t* r) {
 }
@@ -31,12 +31,12 @@ bool cpu_Init()
 }
 
 
-uint32 cpu_Detect(uint32* revout, uint32* idout)
+uint32_t cpu_Detect(uint32_t* revout, uint32_t* idout)
 {
-    uint32 sku = CPU_UNKONWN;
-    uint32 rev = 1;
+    uint32_t sku = CPU_UNKONWN;
+    uint32_t rev = 1;
 
-    uint32 pcr = cpu_GetPCR();
+    uint32_t pcr = cpu_GetPCR();
     rev = (pcr >> 8) & 0xFF;
     if ((pcr & 0x000f0000) == 0)
         sku = CPU_68060;
@@ -63,74 +63,74 @@ NMIFunc_t cpu_SetNMI(NMIFunc_t func)
 }
 
 
-uint32* mmu_Init()
+uint32_t* mmu_Init()
 {
-    mmuRootTable        = (uint32*) mem_Alloc(128 * 4, 512);
-    mmuInvalidPtrTable  = (uint32*) mem_Alloc(128 * 4, 512);
-    mmuInvalidPageTable = (uint32*) mem_Alloc( 64 * 4, 256);
-    mmuInvalidPageDesc  = (uint32*) mem_Alloc(4, 4);
-    mmuInvalidPage      = (uint32*) mem_Alloc(PMMU_PAGESIZE, PMMU_PAGESIZE);
+    mmuRootTable        = (uint32_t*) mem_Alloc(128 * 4, 512);
+    mmuInvalidPtrTable  = (uint32_t*) mem_Alloc(128 * 4, 512);
+    mmuInvalidPageTable = (uint32_t*) mem_Alloc( 64 * 4, 256);
+    mmuInvalidPageDesc  = (uint32_t*) mem_Alloc(4, 4);
+    mmuInvalidPage      = (uint32_t*) mem_Alloc(PMMU_PAGESIZE, PMMU_PAGESIZE);
 
-    mmuInvalidPageDesc[0] = ((uint32)mmuInvalidPage) | (PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
+    mmuInvalidPageDesc[0] = ((uint32_t)mmuInvalidPage) | (PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
 
     for (int i=0; i<PMMU_PAGESIZE/4; i++)
         mmuInvalidPage[i] = 0;
 
     for (int i=0; i<64; i++)
-        mmuInvalidPageTable[i] = ((uint32)mmuInvalidPageDesc) | PMMU_INDIRECT;
+        mmuInvalidPageTable[i] = ((uint32_t)mmuInvalidPageDesc) | PMMU_INDIRECT;
 
     for (int i=0; i<128; i++)
-        mmuInvalidPtrTable[i] = ((uint32)mmuInvalidPageTable) | PMMU_READWRITE;
+        mmuInvalidPtrTable[i] = ((uint32_t)mmuInvalidPageTable) | PMMU_READWRITE;
 
     for (int i=0; i<128; i++)
-        mmuRootTable[i] = ((uint32)mmuInvalidPtrTable) | PMMU_READWRITE;
+        mmuRootTable[i] = ((uint32_t)mmuInvalidPtrTable) | PMMU_READWRITE;
 
     return mmuRootTable;
 }
 
 
-uint32* mmu_GetPageDescriptor(uint32 log)
+uint32_t* mmu_GetPageDescriptor(uint32_t log)
 {
-    const uint32 ptrTableAddressMask = ~511UL;
-    const uint32 pageTableAddressMask = ~255UL;
-    //const uint32 pageAddressMask = ~(PMMU_PAGESIZE - 1);
-    //uint32 addr = log & ~(PMMU_PAGESIZE - 1);
+    const uint32_t ptrTableAddressMask = ~511UL;
+    const uint32_t pageTableAddressMask = ~255UL;
+    //const uint32_t pageAddressMask = ~(PMMU_PAGESIZE - 1);
+    //uint32_t addr = log & ~(PMMU_PAGESIZE - 1);
 
-    uint32 rootIdx = (log >> 25) & 127;
-    uint32 ptrIdx  = (log >> 18) & 127;
-    uint32 pageIdx = (log >> 12) & 63;
+    uint32_t rootIdx = (log >> 25) & 127;
+    uint32_t ptrIdx  = (log >> 18) & 127;
+    uint32_t pageIdx = (log >> 12) & 63;
 
-    uint32* ptrTable = (uint32*) (mmuRootTable[rootIdx] & ptrTableAddressMask);
+    uint32_t* ptrTable = (uint32_t*) (mmuRootTable[rootIdx] & ptrTableAddressMask);
     if (ptrTable == mmuInvalidPtrTable) {
-        ptrTable = (uint32*) mem_Alloc(128 * 4, 512);
+        ptrTable = (uint32_t*) mem_Alloc(128 * 4, 512);
         for (int i=0; i<128; i++)
-            ptrTable[i] = ((uint32)mmuInvalidPageTable) | PMMU_READWRITE;
+            ptrTable[i] = ((uint32_t)mmuInvalidPageTable) | PMMU_READWRITE;
 
-        mmuRootTable[rootIdx] = ((uint32)ptrTable) | PMMU_READWRITE;
+        mmuRootTable[rootIdx] = ((uint32_t)ptrTable) | PMMU_READWRITE;
     }
 
-    uint32* pageTable = (uint32*) (ptrTable[ptrIdx] & pageTableAddressMask);
+    uint32_t* pageTable = (uint32_t*) (ptrTable[ptrIdx] & pageTableAddressMask);
     if (pageTable == mmuInvalidPageTable) {
-        pageTable = (uint32*) mem_Alloc(64 * 4, 256);
+        pageTable = (uint32_t*) mem_Alloc(64 * 4, 256);
         for (int i=0; i<64; i++)
-            pageTable[i] = ((uint32)mmuInvalidPageDesc) | PMMU_INDIRECT;
-        ptrTable[ptrIdx] = ((uint32)pageTable) | PMMU_READWRITE;
+            pageTable[i] = ((uint32_t)mmuInvalidPageDesc) | PMMU_INDIRECT;
+        ptrTable[ptrIdx] = ((uint32_t)pageTable) | PMMU_READWRITE;
     }
 
     return &pageTable[pageIdx];
 }
 
 
-void mmu_Map(uint32 log, uint32 phys, uint32 size, uint32 flags)
+void mmu_Map(uint32_t log, uint32_t phys, uint32_t size, uint32_t flags)
 {
-    const uint32 pageAddressMask = ~(PMMU_PAGESIZE - 1);
-    uint32 end = (log + size + (PMMU_PAGESIZE - 1)) & pageAddressMask;
-    uint32 src = log & pageAddressMask;
-    uint32 dst = phys & pageAddressMask;
+    const uint32_t pageAddressMask = ~(PMMU_PAGESIZE - 1);
+    uint32_t end = (log + size + (PMMU_PAGESIZE - 1)) & pageAddressMask;
+    uint32_t src = log & pageAddressMask;
+    uint32_t dst = phys & pageAddressMask;
 
     while (src != end)
     {
-        uint32* pageDescriptor = mmu_GetPageDescriptor(src);
+        uint32_t* pageDescriptor = mmu_GetPageDescriptor(src);
         *pageDescriptor = flags | dst;
         src += PMMU_PAGESIZE;
         dst += PMMU_PAGESIZE;
@@ -138,33 +138,33 @@ void mmu_Map(uint32 log, uint32 phys, uint32 size, uint32 flags)
 }
 
 
-void mmu_Redirect(uint32 logsrc, uint32 logdst, uint32 size)
+void mmu_Redirect(uint32_t logsrc, uint32_t logdst, uint32_t size)
 {
-    const uint32 pageAddressMask = ~(PMMU_PAGESIZE - 1);
-    uint32 end = (logsrc + size + (PMMU_PAGESIZE - 1)) & pageAddressMask;
-    uint32 src = logsrc & pageAddressMask;
-    uint32 dst = logdst & pageAddressMask;
+    const uint32_t pageAddressMask = ~(PMMU_PAGESIZE - 1);
+    uint32_t end = (logsrc + size + (PMMU_PAGESIZE - 1)) & pageAddressMask;
+    uint32_t src = logsrc & pageAddressMask;
+    uint32_t dst = logdst & pageAddressMask;
 
     while (src != end)
     {
-        uint32* srcPageDescriptor = mmu_GetPageDescriptor(src);
-        uint32* dstPageDescriptor = mmu_GetPageDescriptor(dst);
-        *srcPageDescriptor = PMMU_INDIRECT | (uint32)dstPageDescriptor;
+        uint32_t* srcPageDescriptor = mmu_GetPageDescriptor(src);
+        uint32_t* dstPageDescriptor = mmu_GetPageDescriptor(dst);
+        *srcPageDescriptor = PMMU_INDIRECT | (uint32_t)dstPageDescriptor;
         src += PMMU_PAGESIZE;
         dst += PMMU_PAGESIZE;
     }
 }
 
 
-void mmu_Invalid(uint32 log, uint32 size)
+void mmu_Invalid(uint32_t log, uint32_t size)
 {
-    const uint32 pageAddressMask = ~(PMMU_PAGESIZE - 1);
-    uint32 end = (log + size + (PMMU_PAGESIZE - 1)) & pageAddressMask;
-    uint32 src = log & pageAddressMask;
+    const uint32_t pageAddressMask = ~(PMMU_PAGESIZE - 1);
+    uint32_t end = (log + size + (PMMU_PAGESIZE - 1)) & pageAddressMask;
+    uint32_t src = log & pageAddressMask;
 
     while (src != end)
     {
-        uint32* pageDescriptor = mmu_GetPageDescriptor(src);
+        uint32_t* pageDescriptor = mmu_GetPageDescriptor(src);
         *pageDescriptor &= ~3UL;
         src += PMMU_PAGESIZE;
     }
@@ -175,7 +175,7 @@ void mmu_Invalid(uint32 log, uint32 size)
 
 
 #if VBR_PROXY_IN_ROM
-const uint16 vbrProxy[] =
+const uint16_t vbrProxy[] =
 {
     0x2F38, 0x0000, 0x4E75, 0x4E75, 0x2F38, 0x0004, 0x4E75, 0x4E75, 0x2F38, 0x0008, 0x4E75, 0x4E75, 0x2F38, 0x000C, 0x4E75, 0x4E75,
     0x2F38, 0x0010, 0x4E75, 0x4E75, 0x2F38, 0x0014, 0x4E75, 0x4E75, 0x2F38, 0x0018, 0x4E75, 0x4E75, 0x2F38, 0x001C, 0x4E75, 0x4E75,
@@ -243,43 +243,43 @@ const uint16 vbrProxy[] =
     0x2F38, 0x03F0, 0x4E75, 0x4E75, 0x2F38, 0x03F4, 0x4E75, 0x4E75, 0x2F38, 0x03F8, 0x4E75, 0x4E75, 0x2F38, 0x03FC, 0x4E75, 0x4E75,
 };
 #else
-uint16* vbrProxy;
+uint16_t* vbrProxy;
 #endif
 
 bool vbr_Init()
 {
-    vbrTable = (uint32*) mem_Alloc(256 * 4, 256);
+    vbrTable = (uint32_t*) mem_Alloc(256 * 4, 256);
 #if VBR_PROXY_IN_ROM
-    for (uint32 i=0; i<256*4; i+=4)
+    for (uint32_t i=0; i<256*4; i+=4)
     {
-        vbr_Set(i, (uint32) &vbrProxy[i]);
+        vbr_Set(i, (uint32_t) &vbrProxy[i]);
     }
 #else
-    vbrProxy = (uint16*) mem_Alloc(256 * 4 * 2, 256);
-    uint32 addr = 0;
-    for (uint32 i=0, j=0; i<256*4; i+=4, addr+=4)
+    vbrProxy = (uint16_t*) mem_Alloc(256 * 4 * 2, 256);
+    uint32_t addr = 0;
+    for (uint32_t i=0, j=0; i<256*4; i+=4, addr+=4)
     {
         vbrProxy[j++] = 0x2F38; // move.l (addr).w,-(sp)
         vbrProxy[j++] = addr;
         vbrProxy[j++] = 0x4E75; // rts
         vbrProxy[j++] = 0x4E75; // rts
-        vbr_Set(i, (uint32) &vbrProxy[j-4]);
+        vbr_Set(i, (uint32_t) &vbrProxy[j-4]);
     }
 #endif
 
-    vbr_Set(0x60, (uint32) vecRTE); // IRQ0 : Spurious
-    vbr_Set(0x7C, (uint32) vecNMI); // IRQ7 : NMI
+    vbr_Set(0x60, (uint32_t) vecRTE); // IRQ0 : Spurious
+    vbr_Set(0x7C, (uint32_t) vecNMI); // IRQ7 : NMI
     vbr_Apply();
     return true;
 }
 
 
-void vbr_Set(uint32 vec, uint32 addr)
+void vbr_Set(uint32_t vec, uint32_t addr)
 {
     vbrTable[vec >> 2] = addr;
 }
 
 void vbr_Apply()
 {
-    cpu_SetVBR((uint32)vbrTable);
+    cpu_SetVBR((uint32_t)vbrTable);
 }

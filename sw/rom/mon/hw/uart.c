@@ -23,9 +23,9 @@ bool uart_rxrdy()
 
 
 //-----------------------------------------------------------------------
-uint16 uart_sendbuf(uint8* data, uint16 count)
+uint16_t uart_sendbuf(uint8_t* data, uint16_t count)
 {
-   for (uint16 i=0; i<count; i++) {
+   for (uint16_t i=0; i<count; i++) {
         if (!uart_send(data[i])) {
             return i;
         }
@@ -35,7 +35,7 @@ uint16 uart_sendbuf(uint8* data, uint16 count)
 
 
 //-----------------------------------------------------------------------
-bool uart_send(uint8 data)
+bool uart_send(uint8_t data)
 {
     // todo: timeout?
     while (!uart_txrdy()) { nop(); }
@@ -45,7 +45,7 @@ bool uart_send(uint8 data)
 
 
 //-----------------------------------------------------------------------
-uint8 uart_recv()
+uint8_t uart_recv()
 {
     // todo: timeout?
     while (!uart_rxrdy()) { nop(); }
@@ -69,7 +69,7 @@ void uart_sendChar(const char d)
 
 int uart_recvChar()
 {
-    uint8 lsr = IOB(PADDR_UART2, UART_LSR);
+    uint8_t lsr = IOB(PADDR_UART2, UART_LSR);
     return ((lsr & (1 << 0)) == 0) ? -1 : IOB(PADDR_UART2, UART_RHR);
 }
 

@@ -15,12 +15,12 @@
 
     .extern _sys_Init
     .extern __bss_start
-    .extern _biosHeader
+    .extern _ravenBios
 
 // ----------------------------------------------------------
 // vector table
 // ----------------------------------------------------------
-    .dcb.l     1,_biosHeader        //   0 / 0x00 : initial sp (build version)
+    .dcb.l     1,_ravenBios         //   0 / 0x00 : initial sp (bios ptr)
     .dcb.l     1,__main             //   1 / 0x04 : initial pc
     .dcb.l     1,_vec_berr          //   2 / 0x08 : bus errror
     .dcb.l   253,_vec_other         //  --------- 3-255

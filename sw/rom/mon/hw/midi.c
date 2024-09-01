@@ -5,7 +5,7 @@
 bool midi_Init()
 {
     // MFP2:TimerD @ 62500hz / 32150 baud
-    volatile uint8 *mfp2 = (volatile uint8*) PADDR_MFP2;
+    volatile uint8_t *mfp2 = (volatile uint8_t*) PADDR_MFP2;
 	mfp2[MFP_UCR]   = 0x08;		// divide by 1, 8 bits, no parity, 1 start bit , 1 stop bit
     mfp2[MFP_RSR]   = 0x01;     // rx enable
     mfp2[MFP_TSR]   = 0x01;     // tx enable
@@ -25,9 +25,9 @@ bool midi_rxrdy()
     return (IOB(PADDR_MFP2, MFP_RSR) & 0x80) ? true : false;
 }
 
-uint16 midi_sendbuf(uint8* data, uint16 count)
+uint16_t midi_sendbuf(uint8_t* data, uint16_t count)
 {
-    for (uint16 i=0; i<count; i++) {
+    for (uint16_t i=0; i<count; i++) {
         if (!midi_send(data[i])) {
             return i;
         }
@@ -35,7 +35,7 @@ uint16 midi_sendbuf(uint8* data, uint16 count)
     return count;
 }
 
-bool midi_send(uint8 data)
+bool midi_send(uint8_t data)
 {
     // todo: timeout?
     while (!midi_txrdy()) {
@@ -44,7 +44,7 @@ bool midi_send(uint8 data)
     return true;
 }
 
-uint8 midi_recv()
+uint8_t midi_recv()
 {
     // todo: timeout?
     while (!midi_rxrdy()) {

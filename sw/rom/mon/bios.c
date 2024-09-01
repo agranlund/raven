@@ -1,10 +1,13 @@
 #include "sys.h"
-#include "bios.h"
+#include "raven.h"
 #include "hw/uart.h"
 #include "hw/ikbd.h"
 #include "hw/midi.h"
+#include "hw/i2c.h"
+#include "hw/rtc.h"
 
-void debugOut(int num, int val)
+
+void dbg_GPO(int num, int val)
 {
     switch (num)
     {
@@ -16,11 +19,24 @@ void debugOut(int num, int val)
 }
 
 
-biosHeader_t biosHeader =
+raven_t ravenBios =
 {
-    BIOS_MAGIC,             // magic
-    VERSION,                // rom version
+    C_RAVN,     // magic
+    VERSION,    // rom version
 
-    debugOut
+    dbg_GPO,
+
+    i2c_Aquire,
+    i2c_Release,
+    i2c_Start,
+    i2c_Stop,
+    i2c_Read,
+    i2c_Write,
+
+    rtc_SetDateTime,
+    rtc_GetDateTime,
+    rtc_GetRam,
+    rtc_SetRam
+
 };
 

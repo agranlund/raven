@@ -26,35 +26,35 @@
 //-------------------------------------------------------
 typedef struct
 {
-    uint32 buscr;
-    uint32 itt1;
-    uint32 itt0;
-    uint32 dtt1;
-    uint32 dtt0;
-    uint32 tc;
-    uint32 srp;
-    uint32 urp;
-    uint32 cacr;
-    uint32 dfc;
-    uint32 sfc;
-    uint32 vbr;
-    uint32 pcr;
-    uint32 usp;
-    uint32 d0,d1,d2,d3,d4,d5,d6,d7;
-    uint32 a0,a1,a2,a3,a4,a5,a6,a7;
-    uint16 sr;
-    uint32 pc;
+    uint32_t buscr;
+    uint32_t itt1;
+    uint32_t itt0;
+    uint32_t dtt1;
+    uint32_t dtt0;
+    uint32_t tc;
+    uint32_t srp;
+    uint32_t urp;
+    uint32_t cacr;
+    uint32_t dfc;
+    uint32_t sfc;
+    uint32_t vbr;
+    uint32_t pcr;
+    uint32_t usp;
+    uint32_t d0,d1,d2,d3,d4,d5,d6,d7;
+    uint32_t a0,a1,a2,a3,a4,a5,a6,a7;
+    uint16_t sr;
+    uint32_t pc;
 } regs_t;
 
 typedef struct
 {
-    uint32* urp;
-    uint32* srp;
-    uint32  tcr;
-    uint32  itt0;
-    uint32  itt1;
-    uint32  dtt0;
-    uint32  dtt1;
+    uint32_t* urp;
+    uint32_t* srp;
+    uint32_t  tcr;
+    uint32_t  itt0;
+    uint32_t  itt1;
+    uint32_t  dtt0;
+    uint32_t  dtt1;
 } mmuregs_t;
 
 
@@ -62,8 +62,12 @@ typedef struct
 // misc
 //-------------------------------------------------------
 bool        cpu_Init();
-uint32      cpu_Detect(uint32* revout, uint32* idout);
-void        cpu_Call(uint32 address);
+uint32_t    cpu_Detect(uint32_t* revout, uint32_t* idout);
+void        cpu_Call(uint32_t address);
+
+bool        cpu_Lock(bool* sema);
+void        cpu_Unlock(bool* sema);
+
 
 //-------------------------------------------------------
 // nmi
@@ -76,30 +80,30 @@ void        cpu_TriggerNMI();
 //-------------------------------------------------------
 // pmmu
 //-------------------------------------------------------
-uint32*     mmu_Init();
-void        mmu_Map(uint32 log, uint32 phys, uint32 size, uint32 flags);
-void        mmu_Redirect(uint32 logsrc, uint32 logdst, uint32 size);
-void        mmu_Invalid(uint32 log, uint32 size);
+uint32_t*   mmu_Init();
+void        mmu_Map(uint32_t log, uint32_t phys, uint32_t size, uint32_t flags);
+void        mmu_Redirect(uint32_t logsrc, uint32_t logdst, uint32_t size);
+void        mmu_Invalid(uint32_t log, uint32_t size);
 void        mmu_Flush();
 
 //-------------------------------------------------------
 // vbr proxy
 //-------------------------------------------------------
 bool        vbr_Init();
-void        vbr_Set(uint32 vec, uint32 addr);
+void        vbr_Set(uint32_t vec, uint32_t addr);
 void        vbr_Apply();
 
 //-------------------------------------------------------
 // special register accessors
 //-------------------------------------------------------
-uint16      cpu_GetIPL();
-void        cpu_SetIPL(uint16 v);
-uint32      cpu_GetCACR();
-void        cpu_SetCACR(uint32 v);
-uint32      cpu_GetVBR();
-void        cpu_SetVBR(uint32 v);
-uint32      cpu_GetPCR();
-void        cpu_SetPCR(uint32 v);
+uint32_t    cpu_GetIPL();
+void        cpu_SetIPL(uint32_t v);
+uint32_t    cpu_GetCACR();
+void        cpu_SetCACR(uint32_t v);
+uint32_t    cpu_GetVBR();
+void        cpu_SetVBR(uint32_t v);
+uint32_t    cpu_GetPCR();
+void        cpu_SetPCR(uint32_t v);
 void        cpu_GetMMU(mmuregs_t* mmu);
 void        cpu_SetMMU(mmuregs_t* mmu);
 

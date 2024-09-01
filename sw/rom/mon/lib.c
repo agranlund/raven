@@ -125,6 +125,17 @@ memcmp(const void *vs1, const void *vs2, size_t n)
     return 0;
 }
 
+void*
+memset(void *b, int c, size_t len)
+{
+    char* ptr = (char*)b;
+    char value = (char)c;
+    while(len--) {
+        *ptr++ = value;
+    }
+    return b;
+}
+
 int
 putchar(int c)
 {
@@ -155,7 +166,7 @@ puts(const char *str)
 static char *
 gets_internal(char * restrict buf, int bufsize, bool echo)
 {
-    uint32 len = 0;
+    uint32_t len = 0;
 
     for (;;) {
         int c = getc();
@@ -234,16 +245,16 @@ static void emits(int (*emit)(int c), const char *s)
 }
 
 static void
-emitx(int (*emit)(int c), uint32 value, size_t len)
+emitx(int (*emit)(int c), uint32_t value, size_t len)
 {
-    uint32 shifts = len * 2;
+    uint32_t shifts = len * 2;
     char buf[shifts + 1];
     char *p = buf + shifts;
 
     *p = '\0';
 
     do {
-        uint32 nibble = value & 0xf;
+        uint32_t nibble = value & 0xf;
         value >>= 4;
         *--p = hextab[nibble];
     } while (p > buf);
@@ -252,13 +263,13 @@ emitx(int (*emit)(int c), uint32 value, size_t len)
 }
 
 static void
-putx(uint32 value, size_t len)
+putx(uint32_t value, size_t len)
 {
     emitx(putchar, value, len);
 }
 
 static void
-emitd(int (*emit)(int c), uint32 value)
+emitd(int (*emit)(int c), uint32_t value)
 {
     if (value == 0) {
         putchar('0');
@@ -270,7 +281,7 @@ emitd(int (*emit)(int c), uint32 value)
     *p = '\0';
 
     while (value > 0) {
-        uint32 digit = value % 10;
+        uint32_t digit = value % 10;
         value /= 10;
         *--p = hextab[digit];
     }
@@ -279,7 +290,7 @@ emitd(int (*emit)(int c), uint32 value)
 }
 
 // static void
-// putd(uint32 value)
+// putd(uint32_t value)
 // {
 //     emitd(putchar, value);
 // }
@@ -287,10 +298,10 @@ emitd(int (*emit)(int c), uint32 value)
 #define WSELECT(_s, _l, _w, _b) ((_s) == 'l') ? (_l) : ((_s) == 'w') ? (_w) : (_b)
 
 size_t
-hexdump(const uint8 *addr, uint32 address, size_t length, char width)
+hexdump(const uint8_t *addr, uint32_t address, size_t length, char width)
 {
-    uint32 index;
-    uint32 incr = WSELECT(width, 4, 2, 1);
+    uint32_t index;
+    uint32_t incr = WSELECT(width, 4, 2, 1);
 
     length &= ~(incr - 1);
 
@@ -298,18 +309,18 @@ hexdump(const uint8 *addr, uint32 address, size_t length, char width)
         putx(address + index, 4);
         putchar(':');
 
-        for (uint32 col = 0; col < 16; col += incr) {
+        for (uint32_t col = 0; col < 16; col += incr) {
             putchar(' ');
 
             if ((index + col) >= length) {
-                uint32 count = WSELECT(width, 8, 4, 2);
+                uint32_t count = WSELECT(width, 8, 4, 2);
 
                 while (count--) {
                     putchar(' ');
                 }
             } else {
-                const uint8 *p = (addr + index + col);
-                uint32 val = WSELECT(width, *(const uint32 *)p, *(const uint16 *)p, *(const uint8 *)p);
+                const uint8_t *p = (addr + index + col);
+                uint32_t val = WSELECT(width, *(const uint32_t *)p, *(const uint16_t *)p, *(const uint8_t *)p);
                 putx(val, incr);
             }
         }
@@ -317,9 +328,9 @@ hexdump(const uint8 *addr, uint32 address, size_t length, char width)
         putchar(' ');
         putchar(' ');
 
-        for (uint32 col = 0; col < 16; col++) {
+        for (uint32_t col = 0; col < 16; col++) {
             if ((index + col) < length) {
-                const uint8 *p = (addr + index + col);
+                const uint8_t *p = (addr + index + col);
 
                 putchar(isprint(*p) ? *p : '.');
             } else {
@@ -339,11 +350,11 @@ hexdump(const uint8 *addr, uint32 address, size_t length, char width)
  * Supports:
  *  %c      character (char)
  *  %d      signed decimal integer (int)
- *  %u      uint32 decimal integer (uint32 int)
+ *  %u      uint32_t decimal integer (uint32_t int)
  *  %p      pointer (32-bit hex) (const void *)
- *  %b      hex byte (uint8)
- *  %w      hex word (uint16)
- *  %l      hex long (uint32)
+ *  %b      hex byte (uint8_t)
+ *  %w      hex word (uint16_t)
+ *  %l      hex long (uint32_t)
  *  %s      string (const char *)
  *
  * @param[in]  format     format string
@@ -388,7 +399,7 @@ _fmt(int (*emit)(int c), const char *format, va_list ap)
             }
 
         case 'u': {
-                uint32 v = va_arg(ap, uint32);
+                uint32_t v = va_arg(ap, uint32_t);
                 emitd(emit, v);
                 break;
             }
@@ -396,24 +407,24 @@ _fmt(int (*emit)(int c), const char *format, va_list ap)
         case 'p': {
                 void *v = va_arg(ap, void *);
                 emits(emit, "0x");
-                emitx(emit, (uint32)v, sizeof(v));
+                emitx(emit, (uint32_t)v, sizeof(v));
                 break;
             }
 
         case 'b': {
-                uint8 v = va_arg(ap, uint32);
+                uint8_t v = va_arg(ap, uint32_t);
                 emitx(emit, v, sizeof(v));
                 break;
             }
 
         case 'w': {
-                uint16 v = va_arg(ap, uint32);
+                uint16_t v = va_arg(ap, uint32_t);
                 emitx(emit, v, sizeof(v));
                 break;
             }
 
         case 'l': {
-                uint32 v = va_arg(ap, uint32);
+                uint32_t v = va_arg(ap, uint32_t);
                 emitx(emit, v, sizeof(v));
                 break;
             }
@@ -475,7 +486,7 @@ scan_hexval(char c)
 }
 
 static int
-scan_digits(const char **bp, uint32 *result)
+scan_digits(const char **bp, uint32_t *result)
 {
     int (*scanner)(char c);
     const char *p = *bp;
@@ -519,7 +530,7 @@ scan_digits(const char **bp, uint32 *result)
  *
  * Supports:
  *  %c      character (char *)
- *  %l      uint32 number, decimal or hex with preceding 0x or $ (uint32 *)
+ *  %l      uint32_t number, decimal or hex with preceding 0x or $ (uint32_t *)
  *  %s      string, needs 2 args, pointer & max length (char *, size_t)
  *
  * @param[in]  buf        buffer to scan
@@ -587,7 +598,7 @@ scan(const char *buf, const char *format, ...)
             }
 
         case 'l': {
-                uint32 *vp = (uint32 *)vvp;
+                uint32_t *vp = (uint32_t *)vvp;
 
                 if (scan_digits(&buf, vp) < 0) {
                     return -1;
@@ -605,7 +616,7 @@ scan(const char *buf, const char *format, ...)
                     return -1;
                 }
 
-                uint32 index = 0;
+                uint32_t index = 0;
 
                 for (;;) {
                     if ((*buf == 0) || isspace(*buf)) {

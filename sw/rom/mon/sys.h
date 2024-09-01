@@ -7,7 +7,7 @@
 #define PADDR_SIMM0     0x00000000
 #define PADDR_SIMM1     0x01000000
 #define PADDR_SIMM2     0x02000000
-#define PADDR_SIMM3     0x03000000
+#define PADDR_SIMM3     0x40000000
 #define PADDR_UART1     0x20000000
 #define PADDR_UART2     0x20000020
 #define PADDR_IDE       0xA0000000
@@ -26,21 +26,22 @@
 #include "lib.h"
 
 // macros
-#define IOB(base,offs)  *((volatile  uint8*)(base + offs))
-#define IOW(base,offs)  *((volatile uint16*)(base + offs))
-#define IOL(base,offs)  *((volatile uint32*)(base + offs))
+#define IOB(base,offs)  *((volatile  uint8_t*)(base + offs))
+#define IOW(base,offs)  *((volatile uint16_t*)(base + offs))
+#define IOL(base,offs)  *((volatile uint32_t*)(base + offs))
 
 static inline void nop() {
     __asm__ __volatile__( "\tnop\n" : : : );
 }
 
 bool sys_Init();
-uint32 mem_Alloc(uint32 size, uint32 align);
+uint32_t mem_Alloc(uint32_t size, uint32_t align);
 
-uint32 strtoi(char* s);
+uint32_t strtoi(char* s);
 
 void vecNMI();
 void vecRTE();
+
 
 #endif //!__ASM__
 

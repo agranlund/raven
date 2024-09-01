@@ -11,12 +11,12 @@ char monBuffer[MONBUFFERSIZE];
 
 void monHelp();
 void monRegs(regs_t* regs);
-void monDump(uint32 addr, uint32 size);
-void monRead(uint32 bits, uint32 addr);
-void monWrite(uint32 bits, uint32 addr, uint32 val);
-void monLoad(uint32 addr, uint32 size);
-void monRun(uint32 addr);
-void monTest(char* cmd, uint32 val);
+void monDump(uint32_t addr, uint32_t size);
+void monRead(uint32_t bits, uint32_t addr);
+void monWrite(uint32_t bits, uint32_t addr, uint32_t val);
+void monLoad(uint32_t addr, uint32_t size);
+void monRun(uint32_t addr);
+void monTest(char* cmd, uint32_t val);
 
 
 bool mon_Init()
@@ -36,7 +36,7 @@ void mon_Main(regs_t* regs)
     puts("");
     monRegs(regs);
 
-    uint16 exit = 0;
+    uint16_t exit = 0;
     while(exit == 0)
     {
         putchar('>');
@@ -58,7 +58,7 @@ void mon_Main(regs_t* regs)
         int args = 0;
         char* argc[8];
 
-        uint32 start = 0;
+        uint32_t start = 0;
         for (int i=0; i<8; i++) {
             argc[i] = 0;
             // skip whitespaces
@@ -67,11 +67,11 @@ void mon_Main(regs_t* regs)
             }
             // find length
             if (start < monBufferSize) {
-                uint32 end = start;
+                uint32_t end = start;
                 while ((end < monBufferSize) && (monBuffer[end] != 0)) {
                     end++;
                 }
-                uint32 size = end - start;
+                uint32_t size = end - start;
                 if (size > 0) {
                     argc[i] = (char*)&monBuffer[start];
                     start += size;
@@ -100,7 +100,7 @@ void mon_Main(regs_t* regs)
     }
 }
 
-void monTest(char* test, uint32 val)
+void monTest(char* test, uint32_t val)
 {
     if (strcmp(test, "ym") == 0) {
         test_ym_write(1);
@@ -143,60 +143,60 @@ void monRegs(regs_t* regs)
     fmt("\npcr: %l bcr: %l ccr: %l\n", regs->pcr, regs->buscr, regs->cacr);
 }
 
-void monDump(uint32 addr, uint32 size)
+void monDump(uint32_t addr, uint32_t size)
 {
-    const uint32 sizeDefault = 256;
-    const uint32 sizeMin = 16;
-    const uint32 sizeMax = 16*256;
+    const uint32_t sizeDefault = 256;
+    const uint32_t sizeMin = 16;
+    const uint32_t sizeMax = 16*256;
     if (size == 0)              size = sizeDefault;
     else if (size < sizeMin)    size = sizeMin;
     else if (size > sizeMax)    size = sizeMax;
 
-    hexdump((uint8 *)addr, addr, size, 'b');
+    hexdump((uint8_t *)addr, addr, size, 'b');
 }
 
-void monRead(uint32 bits, uint32 addr)
+void monRead(uint32_t bits, uint32_t addr)
 {
     fmt("%l : ", addr);
     switch (bits)
     {
         case 8: {
-            uint8 v = IOB(addr, 0);
+            uint8_t v = IOB(addr, 0);
             fmt("$%b\n", v);
         } break;
         case 16: {
-            uint16 v = IOW(addr, 0);
+            uint16_t v = IOW(addr, 0);
             fmt("$%w\n", v);
         } break;
         case 32: {
-            uint32 v = IOL(addr, 0);
+            uint32_t v = IOL(addr, 0);
             fmt("$%l\n", v);
         } break;
     }
 }
 
-void monWrite(uint32 bits, uint32 addr, uint32 val)
+void monWrite(uint32_t bits, uint32_t addr, uint32_t val)
 {
     switch (bits)
     {
         case 8:
-            IOB(addr, 0) = (uint8) val;
+            IOB(addr, 0) = (uint8_t) val;
             break;
         case 16:
-            IOW(addr, 0) = (uint16) val;
+            IOW(addr, 0) = (uint16_t) val;
             break;
         case 32:
-            IOL(addr, 0) = (uint32) val;
+            IOL(addr, 0) = (uint32_t) val;
             break;
     }
 }
 
-void monLoad(uint32 addr, uint32 size)
+void monLoad(uint32_t addr, uint32_t size)
 {
-    uint8* dst = (uint8*)addr;
+    uint8_t* dst = (uint8_t*)addr;
     while (size > 0)
     {
-        volatile uint8 lsr = IOB(PADDR_UART2, UART_LSR);
+        volatile uint8_t lsr = IOB(PADDR_UART2, UART_LSR);
         if ((lsr & (1 << 0)) != 0)
         {
             *dst = IOB(PADDR_UART2, UART_RHR);
@@ -205,7 +205,7 @@ void monLoad(uint32 addr, uint32 size)
     }
 }
 
-void monRun(uint32 addr)
+void monRun(uint32_t addr)
 {
     cpu_Call(addr);
 }

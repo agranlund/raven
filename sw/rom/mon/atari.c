@@ -10,8 +10,8 @@
 #define COPYBACK_TTRAM          0
 #define ACIA_EMULATION          0
 
-extern uint8 kgfx;
-extern uint32 ksimm[4];
+extern uint8_t kgfx;
+extern uint32_t ksimm[4];
 
 extern void vecRTE_MFP1I0();
 extern void vecRTE_MFP1I1();
@@ -24,7 +24,7 @@ extern void vecRTE_MFP1I7();
 extern void vecVBL_MPF2TC();    // vblank emulation
 extern void vecKBD_MFP1I4();    // acia emulation
 
-uint32 vecKBD_Busy;
+uint32_t vecKBD_Busy;
 
 
 bool atari_InitEMU()
@@ -33,7 +33,7 @@ bool atari_InitEMU()
     // acia emulation
     //---------------------------------------------------------------------
     vecKBD_Busy = 0;
-    volatile uint8* acia = (volatile uint8*)PADDR_ACIA;
+    volatile uint8_t* acia = (volatile uint8_t*)PADDR_ACIA;
     for (int i=0; i<8; i++) {
         acia[i] = 0;
     }
@@ -43,7 +43,7 @@ bool atari_InitEMU()
     //---------------------------------------------------------------------
     // vbl emulation - MFP2:TimerC @ 50hz
     //---------------------------------------------------------------------
-    volatile uint8* mfp2 = (volatile uint8*)PADDR_MFP2;
+    volatile uint8_t* mfp2 = (volatile uint8_t*)PADDR_MFP2;
     mfp2[MFP_TCDR]   = 200;                         // count 200     => 10000hz
     mfp2[MFP_TCDCR] &= 0x07;
     mfp2[MFP_TCDCR] |= 0x70;                        // divide by 200 => 50hz
@@ -56,38 +56,38 @@ bool atari_InitEMU()
 
 bool atari_InitVBR()
 {
-    vbr_Set(0x10C,  (uint32) vecRTE_MFP1I3);        // MFP1I3 - I2C line    - IGNORE  (ST = blitter)
-    vbr_Set(0x13C,  (uint32) vecRTE_MFP1I7);        // MFP1I7 - I2C line    - IGNORE  (ST = mono detect)
+    vbr_Set(0x10C,  (uint32_t) vecRTE_MFP1I3);        // MFP1I3 - I2C line    - IGNORE  (ST = blitter)
+    vbr_Set(0x13C,  (uint32_t) vecRTE_MFP1I7);        // MFP1I7 - I2C line    - IGNORE  (ST = mono detect)
 
 #if ACIA_EMULATION
-    vbr_Set(0x74,   (uint32) vecRTE);               // IRQ5   - Eiffel      - IGNORE
-    vbr_Set(0x118,  (uint32) vecKBD_MFP1I4);        // MFP1I4 - Eiffel      - Emulate (ST = acia)
+    vbr_Set(0x74,   (uint32_t) vecRTE);               // IRQ5   - Eiffel      - IGNORE
+    vbr_Set(0x118,  (uint32_t) vecKBD_MFP1I4);        // MFP1I4 - Eiffel      - Emulate (ST = acia)
 #else
-    vbr_Set(0x118,  (uint32) vecRTE_MFP1I4);        // MFP1I4 - Eiffel      - IGNORE  (ST = acia)
+    vbr_Set(0x118,  (uint32_t) vecRTE_MFP1I4);        // MFP1I4 - Eiffel      - IGNORE  (ST = acia)
 #endif
 
-    //vbr_Set(0x11C,  (uint32) vecRTE_MFP1I5);        // MFP1I5 - Fdd/Hdd     - IGNORE (todo: can use it, connected to IDE)
+    //vbr_Set(0x11C,  (uint32_t) vecRTE_MFP1I5);        // MFP1I5 - Fdd/Hdd     - IGNORE (todo: can use it, connected to IDE)
 
-    vbr_Set(0x154,  (uint32) vecVBL_MPF2TC);        // MFP2 TimerC -> IRQ4 VBLANK emulation
+    vbr_Set(0x154,  (uint32_t) vecVBL_MPF2TC);        // MFP2 TimerC -> IRQ4 VBLANK emulation
     vbr_Apply();
     return true;
 }
 
 
-bool atari_InitMMU(uint32* simms)
+bool atari_InitMMU(uint32_t* simms)
 {
-    uint32* mmuTable = mmu_Init();
+    uint32_t* mmuTable = mmu_Init();
 
-    extern uint32 _bss_start;
-    uint32 stram_size = ((uint32)&_bss_start) & 0xfff00000;
-    uint32 reserved_start = stram_size;
-    uint32 reserved_end = reserved_start + RESERVED_SIZE;
+    extern uint32_t _bss_start;
+    uint32_t stram_size = ((uint32_t)&_bss_start) & 0xfff00000;
+    uint32_t reserved_start = stram_size;
+    uint32_t reserved_end = reserved_start + RESERVED_SIZE;
 
-    uint32 lmem = 0x00000000;
-    for (uint32 i=0; i<3; i++)
+    uint32_t lmem = 0x00000000;
+    for (uint32_t i=0; i<3; i++)
     {
-        uint32 pmem = i << 24;
-        for (uint32 j=0; j<(simms[i] >> 20); j++)
+        uint32_t pmem = i << 24;
+        for (uint32_t j=0; j<(simms[i] >> 20); j++)
         {
 			if (pmem < reserved_start || pmem >= reserved_end)
             {
@@ -123,7 +123,7 @@ bool atari_InitMMU(uint32* simms)
     }
 
     // internally reserved ram
-	for (uint32 addr = reserved_start; addr < reserved_end; addr += 0x00100000) {
+	for (uint32_t addr = reserved_start; addr < reserved_end; addr += 0x00100000) {
 	    mmu_Map(addr, addr, 0x00100000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
 	}
 
@@ -217,16 +217,16 @@ bool atari_InitMMU(uint32* simms)
 
 bool atari_Init()
 {
-    puts("InitVBR");
+    puts("InitVbr");
     atari_InitVBR();
 
-    puts("InitMMU");
+    puts("InitMmu");
     atari_InitMMU(ksimm);
 
-    puts("InitEMU");
+    puts("InitEmu");
     atari_InitEMU();
 
-    puts("InitTOS");
+    puts("InitTos");
 	for (int i=0x400; i<0x700; i+=4) {
 		IOL(0, i) = 0;
 	}

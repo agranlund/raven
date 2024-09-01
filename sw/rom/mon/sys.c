@@ -5,6 +5,7 @@
 #include "hw/mfp.h"
 #include "hw/ikbd.h"
 #include "hw/midi.h"
+#include "hw/i2c.h"
 #include "hw/rtc.h"
 #include "monitor.h"
 #include "atari.h"
@@ -16,10 +17,10 @@ bool mem_Init();
 
 
 //-----------------------------------------------------------------------
-uint8 kheap[KMEMSIZE];
-uint32 kheapPtr;
-uint32 ksimm[4];
-uint8 kgfx;
+uint8_t  kheap[KMEMSIZE];
+uint32_t kheapPtr;
+uint32_t ksimm[4];
+uint8_t  kgfx;
 
 
 //-----------------------------------------------------------------------
@@ -49,17 +50,17 @@ bool sys_Init()
 {
     // init and identify cpu
     cpu_Init();
-    uint32 cpuRev = 0;
-    uint32 cpuSku = cpu_Detect(&cpuRev, 0);
+    uint32_t cpuRev = 0;
+    uint32_t cpuSku = cpu_Detect(&cpuRev, 0);
     fmt("\nCPU:  %sR%b\n", cpuNames[cpuSku], cpuRev);
 
     // identify rom
-    uint32 id_simm[4];
+    uint32_t id_simm[4];
     id_simm[3] = IOL(IOL(PADDR_SIMM3, 0), 4);
     fmt("ROM:  %l\n", id_simm[3]);
 
 	// identify gfx
-	uint8 id_gfx = 1;	// assume ET4000
+	uint8_t id_gfx = 1;	// assume ET4000
 #if defined(CONF_ATARI) && defined(LAUNCH_TOS)
 	if ((IOB(PADDR_GFX_RAM, 0xC0032)) == '6' && (IOB(PADDR_GFX_RAM, 0xC0034) == '2')) {
 		IOB(PADDR_GFX_IO, 0x56EE) = 0x55;
@@ -73,15 +74,15 @@ bool sys_Init()
 	// identify ram
     for (int i=0; i<3; i++) {
         for (int j=15; j>=0; j--) {
-            uint32 addr = (((i*16)+j)*1024*1024UL);
-            *((volatile uint32*)addr) = j;
+            uint32_t addr = (((i*16)+j)*1024*1024UL);
+            *((volatile uint32_t*)addr) = j;
         }
     }
     for (int i=0; i<3; i++) {
         id_simm[i] = 0;
         for (int j=0; j<16; j++) {
-            uint32 addr = (((i*16)+j)*1024*1024UL);
-            if ( *((volatile uint32*)addr) == j) {
+            uint32_t addr = (((i*16)+j)*1024*1024UL);
+            if ( *((volatile uint32_t*)addr) == j) {
                 id_simm[i] = ((j+1) * 1024) * 1024UL;
             } else {
                 j = 16;
@@ -94,9 +95,9 @@ bool sys_Init()
 
     // clear bios bss area
     puts("InitBss");
-    extern uint8 _bss_start, _end;
-    uint32* kbss = (uint32*)&_bss_start;
-    while (kbss < (uint32*)&_end) {
+    extern uint8_t _bss_start, _end;
+    uint32_t* kbss = (uint32_t*)&_bss_start;
+    while (kbss < (uint32_t*)&_end) {
         *kbss++ = 0;
     }
 
@@ -123,6 +124,9 @@ bool sys_Init()
 
     puts("InitMidi");
     midi_Init();
+
+    puts("InitI2C");
+    i2c_Init();
 
     puts("InitRtc");
     rtc_Init();
@@ -152,17 +156,17 @@ bool sys_Init()
 //-----------------------------------------------------------------------
 bool mem_Init()
 {
-    kheapPtr = ((uint32)&kheap[0] + KMEMSIZE - 4) & ~16UL;
+    kheapPtr = ((uint32_t)&kheap[0] + KMEMSIZE - 4) & ~16UL;
     return true;
 }
 
-uint32 mem_Alloc(uint32 size, uint32 alignment)
+uint32_t mem_Alloc(uint32_t size, uint32_t alignment)
 {
     if (alignment < 4)
         alignment = 4;
 
-    uint32 m = ((kheapPtr - size) & ~(alignment - 1));
-    if (m >= (uint32) &kheap[0])
+    uint32_t m = ((kheapPtr - size) & ~(alignment - 1));
+    if (m >= (uint32_t) &kheap[0])
     {
         kheapPtr = m;
         return kheapPtr;
@@ -177,15 +181,15 @@ uint32 mem_Alloc(uint32 size, uint32 alignment)
 // misc helpers
 //
 //-----------------------------------------------------------------------
-uint32 strtoi(char* s)
+uint32_t strtoi(char* s)
 {
-    uint32 v = 0;
+    uint32_t v = 0;
     if (*s == '$')
     {
         s++;
         while (*s != 0)
         {
-            uint32 b = (uint32) *s; s++;
+            uint32_t b = (uint32_t) *s; s++;
             if (b >= '0' && b <= '9')       b = b - '0';
             else if (b >= 'a' && b <= 'f')  b = 10 + b - 'a';
             else return 0;
@@ -197,7 +201,7 @@ uint32 strtoi(char* s)
     {
         while (*s != 0)
         {
-            uint32 b = (uint32) *s; s++;
+            uint32_t b = (uint32_t) *s; s++;
             if (b >= '0' && b <= '9')   b = b - '0';
             else return 0;
             v *= 10;
