@@ -1,6 +1,9 @@
 
 # Nessi : Main bus logic
 
+- nessi_240901
+    - fixes for Mach32 + W32i
+
 - nessi_240819
     - moved SIMM3 slot to address $40000000
 
