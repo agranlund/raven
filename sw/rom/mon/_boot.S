@@ -13,6 +13,9 @@
     .global _vec_other
     .global _vec_rte
 
+    .global _rambin_start
+    .global _rambin_end
+
     .extern _sys_Init
     .extern __bss_start
     .extern _ravenBios
@@ -163,3 +166,14 @@ msg_berr:
     .asciz  "ERROR: ACCESS ERROR\r\n"
 msg_exception:
     .asciz  "ERROR: UNEXPECTED EXCEPTION\r\n"
+
+
+
+// ----------------------------------------------------------
+// code+data that should be copied to ram
+// ----------------------------------------------------------
+    .balign 4
+_rambin_start:
+    .incbin "mon.ram"
+_rambin_end:
+

@@ -136,6 +136,17 @@ memset(void *b, int c, size_t len)
     return b;
 }
 
+void*
+memcpy(void *restrict dst, const void *restrict src, size_t len)
+{
+    char *d = (char *)dst;
+    const char *s = (const char *)src;
+    while (len--) {
+        *d++ = *s++;
+    }
+    return dst;
+}
+
 int
 putchar(int c)
 {

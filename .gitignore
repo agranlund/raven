@@ -6,6 +6,8 @@ fp-info-cache
 *.o
 *.d
 *.s19
+*.map
+*.ram
 mapfile
 bak/*
 *-backups/

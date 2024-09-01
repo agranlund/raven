@@ -1,5 +1,6 @@
 #include "sys.h"
 #include "lib.h"
+#include "ram/_header.h"
 #include "hw/cpu.h"
 #include "hw/uart.h"
 #include "hw/mfp.h"
@@ -21,7 +22,7 @@ uint8_t  kheap[KMEMSIZE];
 uint32_t kheapPtr;
 uint32_t ksimm[4];
 uint8_t  kgfx;
-
+ramcode_table_t* kramcode;
 
 //-----------------------------------------------------------------------
 const char* cpuNames[] = {
@@ -108,7 +109,6 @@ bool sys_Init()
     ksimm[3] = id_simm[3];
     kgfx     = id_gfx;
 
-
     // init systems
     puts("InitHeap");
     mem_Init();
@@ -156,7 +156,15 @@ bool sys_Init()
 //-----------------------------------------------------------------------
 bool mem_Init()
 {
+    // init heap pointer
     kheapPtr = ((uint32_t)&kheap[0] + KMEMSIZE - 4) & ~16UL;
+
+    // copy ramcode text+data and clear bss
+    extern ramcode_header_t rambin_start;
+    ramcode_header_t* rambin = &rambin_start;
+    memcpy((void*)rambin->text_start, (void*)rambin, rambin->text_end - rambin->text_start);
+    memset((void*)rambin->bss_start, 0, rambin->bss_end - rambin->bss_start);
+    kramcode = (ramcode_table_t*)(rambin->text_start + sizeof(ramcode_header_t));
     return true;
 }
 
