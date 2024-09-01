@@ -11,7 +11,7 @@
 #define MFP_BIT_CLK     7
 #endif
 #define MFP_BITMASK     ((1 << MFP_BIT_CLK) | (1 << MFP_BIT_DTA))
-#define I2C_DELAY       10000
+#define I2C_DELAY       1000
 
 
 static unsigned char param;
