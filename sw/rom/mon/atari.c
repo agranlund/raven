@@ -5,7 +5,8 @@
 #include "atari.h"
 #include "monitor.h"
 
-#define RESERVED_SIZE			(3 * (1024 * 1024))
+#define DEBUG_MMU               0
+#define RESERVED_SIZE			(3UL * (1024 * 1024))
 #define COPYBACK_STRAM          0
 #define COPYBACK_TTRAM          0
 #define ACIA_EMULATION          0
@@ -78,11 +79,38 @@ bool atari_InitMMU(uint32_t* simms)
 {
     uint32_t* mmuTable = mmu_Init();
 
+    // reserved area
     extern uint32_t _bss_start;
-    uint32_t stram_size = ((uint32_t)&_bss_start) & 0xfff00000;
-    uint32_t reserved_start = stram_size;
+    uint32_t reserved_start = ((uint32_t)&_bss_start) & 0xfff00000;
     uint32_t reserved_end = reserved_start + RESERVED_SIZE;
 
+    // todo: get from battery backed config
+    uint32_t stram_size = 0;
+
+    // auto select st-ram size based on total available ram
+    if (stram_size == 0) {
+        uint32_t total_mb = (simms[0] + simms[1] + simms[2]) / (1024 * 1024UL);
+        if (total_mb >= 48) {             // 48mb+ : 4mb
+            stram_size = 4 * 1024 * 1024UL;
+        } else if (total_mb >= 32) {      // 32mb+ : 3mb
+            stram_size = 3 * 1024 * 1024UL;
+        } else if (total_mb >= 16) {      // 16mb+ : 2mb
+            stram_size = 2 * 1024 * 1024UL;
+        } else {                            //  8mb+ : 1mb
+            stram_size = 1 * 1024 * 1024UL;
+        }
+    }
+
+    // clamp to maximum allowed stram
+    uint32_t stram_max = reserved_start - 0x00100000;
+    stram_size = (stram_size < stram_max) ? stram_size : stram_max;
+
+    #if DEBUG_MMU
+    fmt("rv_phys: %l -> %l\n", reserved_start, reserved_end-1);
+    fmt("st_phys: %l -> %l\n", 0, stram_size-1);
+    #endif
+
+    // map available physical memory
     uint32_t lmem = 0x00000000;
     for (uint32_t i=0; i<3; i++)
     {
@@ -91,6 +119,10 @@ bool atari_InitMMU(uint32_t* simms)
         {
 			if (pmem < reserved_start || pmem >= reserved_end)
             {
+                #if DEBUG_MMU
+                fmt("map %l -> %l\n", lmem, pmem);
+                #endif
+
 				if (lmem == 0) {
 					// system vectors + variables
 	                mmu_Map(0x00000000, 0x00000000, 0x00002000, PMMU_READWRITE | PMMU_CM_PRECISE);
@@ -127,12 +159,9 @@ bool atari_InitMMU(uint32_t* simms)
 	    mmu_Map(addr, addr, 0x00100000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
 	}
 
-    // bus error on MB block after tt-ram
-    mmu_Invalid(lmem, 0x00100000);
-
-    // bus error on first and last 4k block of the MB beyond st-ram (inside reserved area)
-    mmu_Invalid(stram_size, 0x00010000);
-    mmu_Invalid(stram_size + 0x000F0000, 0x00010000);
+    // bus error on MB block after st and tt-ram
+    mmu_Invalid(lmem,       0x00100000);
+    mmu_Invalid(stram_size, 0x00100000);
 
     // peripheral access flags
     mmu_Map(0x40000000, 0x40000000, 0x00100000, PMMU_READONLY  | PMMU_CM_WRITETHROUGH);    // ROM
