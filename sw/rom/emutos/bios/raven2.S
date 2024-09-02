@@ -18,6 +18,7 @@
 
 #ifdef MACHINE_RAVEN
 
+    .globl  raven_memconf
     .global _raven_int_ikbd
     .global _raven_int_vbl
     .extern ikbdraw
@@ -26,6 +27,24 @@
 /******************************************************************************/
 /* Asm helpers                                                                */
 /******************************************************************************/
+
+
+
+/******************************************************************************/
+/* Asm helpers                                                                */
+/******************************************************************************/
+
+raven_memconf:
+        move.l  #0x00000000,a0              // range min
+        move.l  #0x00400000,a1              // range max
+        move.l  #1f,0x08                    // bus error at end of ram
+0:      move.l  (a0),d0                     // try read
+        add.l   #0x00100000,a0              // check next block
+        cmp.l   a0,a1
+        bne.b   0b
+1:      move.l  a0,d5                       // d5 = st ram size
+        moveq   #0,d6                       // fake memctrl
+        jmp     (a6)                        // done
 
 
 /******************************************************************************/

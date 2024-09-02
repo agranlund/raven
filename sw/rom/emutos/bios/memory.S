@@ -31,6 +31,7 @@
         .extern _stktop
         .extern _meminit_flags
         .extern amiga_memconf
+        .extern raven_memconf
 
         // functions for detecting hardware
         .extern _check_read_byte
@@ -208,6 +209,11 @@ memconf:
         lea     amiga_memconf_ret(pc),a6
         jmp     amiga_memconf
 amiga_memconf_ret:
+        // Fall into memconf_done
+#elif defined(MACHINE_RAVEN)
+        lea     raven_memconf_ret(pc),a6
+        jmp     raven_memconf
+raven_memconf_ret:
         // Fall into memconf_done
 #else /* ST/TT/Falcon memconf */
 
