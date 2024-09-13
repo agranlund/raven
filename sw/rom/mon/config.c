@@ -10,27 +10,32 @@
 static const cfg_entry_t* cfgs[CFG_MAX];
 static uint32_t cfgcnt = 0;
 
+const char* strYesNo[] = {"No", "Yes"};
+
+const cfg_entry_t confs[2] = {
+    { "test1", strYesNo,    {{0x3B, 0x01, 0, 1}} },
+    { "test2", 0,           {{0x3B, 0x03, 1, 2}} },
+};
+
+
 bool cfg_Init()
 {
+    cfg_Add(confs, 2);
     return true;
 }
 
 static uint8_t cfg_GetRtcAddress(const cfg_entry_t* entry) {
-    if (entry) {
-        int addr = CFG_ADDR_MAX - entry->idx;
-        if ((addr >= CFG_ADDR_MIN) && (addr <= CFG_ADDR_MAX))
-            return (uint8_t)addr;
-    }
-    return 0;
+    if (entry && (entry->addr >= CFG_ADDR_MIN) && (entry->addr <= CFG_ADDR_MAX))
+        return entry->addr;
+    return 0xff;
 }
 
 void cfg_Add(const cfg_entry_t* cfg, int num)
 {
     for (int i=0; i<num; i++) {
-        const cfg_entry_t* cfgnew = &cfg[i];
-
         // verify config
-        if (cfg_GetRtcAddress(cfgnew) == 0) {
+        const cfg_entry_t* cfgnew = &cfg[i];
+        if (cfg_GetRtcAddress(cfgnew) == 0xff) {
             continue;
         }
         // look for existing entry with same name
@@ -74,7 +79,7 @@ int cfg_GetValue(const cfg_entry_t* entry)
 {
     uint8_t v = 0;
     if (entry) {
-        rtc_GetRam(cfg_GetRtcAddress(entry), &v, 1);
+        rtc_Read(cfg_GetRtcAddress(entry), &v, 1);
         v >>= entry->shift;
         v &= entry->mask;
     }
@@ -92,11 +97,11 @@ void cfg_SetValue(const cfg_entry_t* entry, int val)
 
         uint8_t v = 0;
         uint8_t a = cfg_GetRtcAddress(entry);
-        if (a != 0) {
-            rtc_GetRam(a, &v, 1);
+        if (a != 0xff) {
+            rtc_Read(a, &v, 1);
             v &= ~(entry->mask << entry->shift);
             v |= ((((uint8_t)val) & entry->mask) << entry->shift);
-            rtc_SetRam(a, &v, 1);
+            rtc_Write(a, &v, 1);
         }
     }
 }

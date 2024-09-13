@@ -3,17 +3,17 @@
 
 typedef struct
 {
+    const char*     name;
+    const char**    opts;
     union {
         struct {
-            uint8_t idx;
+            uint8_t addr;
             uint8_t mask;
             uint8_t shift;
             uint8_t max;
         };
         uint32_t spec;
     };
-    const char*     name;
-    const char**    enames;
 } cfg_entry_t;
 
 extern bool cfg_Init();

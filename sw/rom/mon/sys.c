@@ -9,6 +9,7 @@
 #include "hw/i2c.h"
 #include "hw/rtc.h"
 #include "monitor.h"
+#include "config.h"
 #include "atari.h"
 
 bool mem_Init();
@@ -130,6 +131,9 @@ bool sys_Init()
 
     puts("InitRtc");
     rtc_Init();
+
+    puts("InitCfg");
+    cfg_Init();
 
     puts("InitVbr");
     vbr_Init();

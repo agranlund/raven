@@ -2,7 +2,9 @@
 #include "lib.h"
 #include "hw/cpu.h"
 #include "hw/uart.h"
+#include "hw/rtc.h"
 #include "monitor.h"
+#include "config.h"
 
 extern int test_ym_write(int size);
 
@@ -14,10 +16,14 @@ void monRegs(regs_t* regs);
 void monDump(uint32_t addr, uint32_t size);
 void monRead(uint32_t bits, uint32_t addr);
 void monWrite(uint32_t bits, uint32_t addr, uint32_t val);
+void monRtcDump();
+void monRtcClear();
+void monCfgList();
+void monCfgRead(char* cfg);
+void monCfgWrite(char* cfg, uint32_t val);
 void monLoad(uint32_t addr, uint32_t size);
 void monRun(uint32_t addr);
 void monTest(char* cmd, uint32_t val);
-
 
 bool mon_Init()
 {
@@ -83,17 +89,30 @@ void mon_Main(regs_t* regs)
         // execute command
         if (args > 0) {
             if (strcmp(argc[0], "x") == 0)              { exit = 1; }
+            else if (strcmp(argc[0], "reset") == 0)     { extern void vec_boot(); vec_boot(); }
             else if (strcmp(argc[0], "r") == 0)         { monRegs(regs); }
             else if (strcmp(argc[0], "d") == 0)         { monDump(strtoi(argc[1]), strtoi(argc[2])); }
-            else if (strcmp(argc[0], "rb") == 0)        { monRead( 8, strtoi(argc[1])); }
-            else if (strcmp(argc[0], "rw") == 0)        { monRead(16, strtoi(argc[1])); }
-            else if (strcmp(argc[0], "rl") == 0)        { monRead(32, strtoi(argc[1])); }
-            else if (strcmp(argc[0], "wb") == 0)        { monWrite( 8, strtoi(argc[1]), strtoi(argc[2])); }
-            else if (strcmp(argc[0], "ww") == 0)        { monWrite(16, strtoi(argc[1]), strtoi(argc[2])); }
-            else if (strcmp(argc[0], "wl") == 0)        { monWrite(32, strtoi(argc[1]), strtoi(argc[2])); }
+            else if (strcmp(argc[0], "pb") == 0)        { if (args>2) { monWrite( 8, strtoi(argc[1]), strtoi(argc[2])); } else { monRead( 8, strtoi(argc[1])); } }
+            else if (strcmp(argc[0], "pw") == 0)        { if (args>2) { monWrite(16, strtoi(argc[1]), strtoi(argc[2])); } else { monRead(16, strtoi(argc[1])); } }
+            else if (strcmp(argc[0], "pl") == 0)        { if (args>2) { monWrite(32, strtoi(argc[1]), strtoi(argc[2])); } else { monRead(32, strtoi(argc[1])); } }
+            else if (strcmp(argc[0], "rtc") == 0) {
+                if ((args>1) && (strcmp(argc[1], "clear") == 0)) {
+                    monRtcClear();
+                } else {
+                    monRtcDump();
+                }
+            }
+            else if (strcmp(argc[0], "cfg") == 0) {
+                if (args == 1) {
+                    monCfgList();
+                } else if (args == 2) {
+                    monCfgRead(argc[1]);
+                } else {
+                    monCfgWrite(argc[1], strtoi(argc[2]));
+                }
+            }
             else if (strcmp(argc[0], "load") == 0)      { monLoad(strtoi(argc[1]), strtoi(argc[2])); }
             else if (strcmp(argc[0], "run") == 0)       { monRun(strtoi(argc[1])); }
-            else if (strcmp(argc[0], "reset") == 0)     { extern void vec_boot(); vec_boot(); }
             else if (strcmp(argc[0], "test") == 0)      { monTest((args > 1) ? argc[1] : 0, (args > 2) ? strtoi(argc[2]) : 0); }
             else                                        { monHelp(); }
         }
@@ -116,15 +135,14 @@ void monHelp()
 {
     puts("\n"
          "Commands:\n"
-         "  rb {addr}         : read byte\n"
-         "  rw {addr}         : read word\n"
-         "  rl {addr}         : read long\n"
-         "  wb {addr} {val}   : write byte\n"
-         "  ww {addr} {val}   : write word\n"
-         "  wl {addr} {val}   : write long\n"
-         "  d  {addr} {len}   : dump memory\n"
-         "  r                 : show registers\n"
          "  x                 : exit monitor\n"
+         "  r                 : show registers\n"
+         "  pb [addr] {val}   : peek/poke byte\n"
+         "  pw [addr] {val}   : peek/poke word\n"
+         "  pl [addr] {val}   : peek/poke long\n"
+         "  d  [addr] {len}   : dump memory\n"
+         "  rtc {clear}       : dump/clear rtc\n"
+         "  cfg {opt} {val}   : list/get/set option\n"
          "  reset             : reset computer\n"
          "  test {cmd} {val}  : test hardware\n");
 }
@@ -189,6 +207,50 @@ void monWrite(uint32_t bits, uint32_t addr, uint32_t val)
             IOL(addr, 0) = (uint32_t) val;
             break;
     }
+}
+
+void monRtcDump()
+{
+    uint8_t regs[RTC_RAM_END];
+    rtc_Read(0x00, regs, RTC_RAM_END);
+    hexdump(regs, 0, 0x40, 'b');
+}
+
+void monRtcClear()
+{
+    uint8_t regs[0x40];
+    memset(regs, 0, 0x40);
+    rtc_Write(RTC_RAM_START, regs, RTC_RAM_END - RTC_RAM_START - 0x04);
+}
+
+void monCfgList()
+{
+    for (int i=0; i<cfg_Num(); i++) {
+        const cfg_entry_t* c = cfg_Get(i);
+        if (c) {
+            if (c->opts) {
+                fmt(" %s : %d [", c->name, cfg_GetValue(c));
+                for (int j=0; j<=c->max; j++) {
+                    fmt("%d:%s", j, c->opts[j]);
+                    if (j < c->max) { fmt(" "); }
+                }
+                fmt("]\n");
+            } else {
+                fmt(" %s : %d [%d-%d]\n", c->name, cfg_GetValue(c), 0, c->max);
+            }
+        }
+    }
+}
+
+void monCfgRead(char* cfg)
+{
+    int v = cfg_GetValue(cfg_Find(cfg));
+    fmt("$%b\n", v);
+}
+
+void monCfgWrite(char* cfg, uint32_t val)
+{
+    cfg_SetValue(cfg_Find(cfg), val);
 }
 
 void monLoad(uint32_t addr, uint32_t size)
