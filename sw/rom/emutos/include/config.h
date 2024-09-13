@@ -657,6 +657,9 @@
 # ifndef CONF_WITH_IDE
 #  define CONF_WITH_IDE 1
 # endif
+# ifndef CONF_WITH_NVRAM
+#  define CONF_WITH_NVRAM 1
+# endif
 # ifndef CONF_WITH_BUS_ERROR
 #  define CONF_WITH_BUS_ERROR 1
 # endif

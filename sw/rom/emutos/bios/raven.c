@@ -17,6 +17,7 @@
 #include "emutos.h"
 #include "raven.h"
 #include "vectors.h"
+#include "asm.h"
 #include "tosvars.h"
 #include "bios.h"
 #include "processor.h"
@@ -65,9 +66,7 @@ void raven_kbd_init(void)
     uart[0x04]  = 0x01;     // RHR interrupts enabled
 }
 
-
-
-// todo: these should just redirect to Raven bootbios api
+// todo: redirect to bootbios api
 
 #define RAVEN_MFP2_BASE ((MFP *)RAVEN_PADDR_MFP2)
 
@@ -112,5 +111,90 @@ UBYTE raven_midi_readb(void)
 }
 
 
+
+#define RAVEN_BIOS_BASEPTR      0x40000000UL
+#define RAVEN_BIOS_RTCREAD      0x40
+#define RAVEN_BIOS_RTCWRITE     0x44
+
+#define RAVEN_RTC_EMUL_START    14
+#define RAVEN_RTC_REAL_START    8
+
+typedef void(*raven_nvram_func)(ULONG,UBYTE*,ULONG);
+
+static inline UBYTE nvram_read_raw(int index)
+{
+    UBYTE value = 0;
+    ULONG rv = *((ULONG*)RAVEN_BIOS_BASEPTR);
+    WORD old_sr = set_sr(0x2700);
+    raven_nvram_func f = *((raven_nvram_func*)(rv + RAVEN_BIOS_RTCREAD));
+    f(index, &value, 1);
+    set_sr(old_sr);
+    return value;
+}
+
+static inline void nvram_write_raw(int index, UBYTE value)
+{
+    ULONG rv = *((ULONG*)RAVEN_BIOS_BASEPTR);
+    WORD old_sr = set_sr(0x2700);
+    raven_nvram_func f = *((raven_nvram_func*)(rv + RAVEN_BIOS_RTCWRITE));
+    f(index, &value, 1);
+    set_sr(old_sr);
+}
+
+UBYTE raven_nvram_readb(int index)
+{
+    switch (index)
+    {
+        case  0: return nvram_read_raw(0) & 0x7f;
+        case  1: return 0x00;
+        case  2: return nvram_read_raw(1);
+        case  3: return 0x00;
+        case  4: return nvram_read_raw(2);
+        case  5: return 0x00;
+        case  6: return 0x00;
+        case  7: return nvram_read_raw(4);
+        case  8: return nvram_read_raw(5);
+        case  9: return nvram_read_raw(6);
+        case 10: return 0x00;
+        case 11: return 0x00;
+        case 12: return 0x00;
+        case 13: return 0x80;
+        default: return nvram_read_raw(index - RAVEN_RTC_EMUL_START + RAVEN_RTC_REAL_START);
+    }
+}
+
+void raven_nvram_writeb(int index, UBYTE value)
+{
+   switch (index)
+    {
+        case  0: nvram_write_raw(0, (nvram_read_raw(0) & 0x80) | (value & 0x7f)); break;
+        case  1: break;
+        case  2: nvram_write_raw(1, value); break;
+        case  3: break;
+        case  4: nvram_write_raw(2, value); break;
+        case  5: break;
+        case  6: break;
+        case  7: nvram_write_raw(4, value); break;
+        case  8: nvram_write_raw(5, value); break;
+        case  9: nvram_write_raw(6, value); break;
+        case 10: break;
+        case 11:
+        {
+            if (value & 0x80) {
+                nvram_write_raw(0, nvram_read_raw(0) | 0x80);
+            } else {
+                nvram_write_raw(0, nvram_read_raw(0) & 0x7f);
+            }
+        } break;
+        case 12: break;
+        case 13: break;
+        default: return nvram_write_raw(index - RAVEN_RTC_EMUL_START + RAVEN_RTC_REAL_START, value);
+    }
+}
+
+void raven_nvram_detect(void)
+{
+    has_nvram = 1;
+}
 
 #endif /* MACHINE_RAVEN */

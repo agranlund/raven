@@ -18,6 +18,7 @@
 #include "vectors.h"
 #include "nvram.h"
 #include "biosmem.h"
+#include "raven.h"
 
 #if CONF_WITH_NVRAM
 
@@ -26,8 +27,14 @@
 
 #define NVRAM_RTC_SIZE  14          /* first 14 registers are RTC */
 #define NVRAM_START     NVRAM_RTC_SIZE
+
+#if defined(MACHINE_RAVEN)
+#define NVRAM_SIZE      24          /* 24 bytes are RAM (starting at real register 8) */
+#define NVRAM_USER_SIZE 22          /* of which the user may access 22 */
+#else
 #define NVRAM_SIZE      50          /* remaining 50 are RAM */
 #define NVRAM_USER_SIZE 48          /* of which the user may access 48 */
+#endif
 #define NVRAM_CKSUM     NVRAM_USER_SIZE /* and the last 2 are checksum */
 
 /*
@@ -43,14 +50,46 @@ const UBYTE nvram_init[] = { 0x00, 0x2f, 0x20, 0xff, 0xff, 0xff };
 
 int has_nvram;
 
+#if defined(MACHINE_RAVEN)
+
+static inline UBYTE nvram_read(int index) { return raven_nvram_readb(index); }
+static inline void nvram_write(int index, UBYTE value) { return raven_nvram_writeb(index, value); }
+static inline void nvram_detect(void) { return raven_nvram_detect(); }
+
+#else
+
+static inline UBYTE nvram_read(int index)
+{
+    volatile UBYTE *addr_reg = (volatile UBYTE *)NVRAM_ADDR_REG;
+    volatile UBYTE *data_reg = (volatile UBYTE *)NVRAM_DATA_REG;
+    *addr_reg = index + NVRAM_START;
+    return *data_reg;    
+}
+
+static inline void nvram_write(int index, UBYTE value)
+{
+    volatile UBYTE *addr_reg = (volatile UBYTE *)NVRAM_ADDR_REG;
+    volatile UBYTE *data_reg = (volatile UBYTE *)NVRAM_DATA_REG;
+    *addr_reg = index + NVRAM_START;
+    *data_reg=value;    
+}
+
+static inline void nvram_detect(void)
+{
+    if (check_read_byte(NVRAM_ADDR_REG))
+        has_nvram = 1;
+    else has_nvram = 0;
+}
+
+#endif
+
+
 /*
  * detect_nvram - detect the NVRAM
  */
 void detect_nvram(void)
 {
-    if (check_read_byte(NVRAM_ADDR_REG))
-        has_nvram = 1;
-    else has_nvram = 0;
+    return nvram_detect();
 }
 
 /*
@@ -58,16 +97,13 @@ void detect_nvram(void)
  */
 UBYTE get_nvram_rtc(int index)
 {
-    volatile UBYTE *addr_reg = (volatile UBYTE *)NVRAM_ADDR_REG;
-    volatile UBYTE *data_reg = (volatile UBYTE *)NVRAM_DATA_REG;
     int ret_value = 0;
 
     if (has_nvram)
     {
         if ((index >= 0) && (index < NVRAM_RTC_SIZE))
         {
-            *addr_reg = index;
-            ret_value = *data_reg;
+            ret_value = nvram_read(index);
         }
     }
 
@@ -79,15 +115,11 @@ UBYTE get_nvram_rtc(int index)
  */
 void set_nvram_rtc(int index, int data)
 {
-    volatile UBYTE *addr_reg = (volatile UBYTE *)NVRAM_ADDR_REG;
-    volatile UBYTE *data_reg = (volatile UBYTE *)NVRAM_DATA_REG;
-
     if (has_nvram)
     {
         if ((index >= 0) && (index < NVRAM_RTC_SIZE))
         {
-            *addr_reg = index;
-            *data_reg = data;
+            nvram_write(index, data);
         }
     }
 }
@@ -97,15 +129,12 @@ void set_nvram_rtc(int index, int data)
  */
 static UWORD compute_sum(void)
 {
-    volatile UBYTE *addr_reg = (volatile UBYTE *)NVRAM_ADDR_REG;
-    volatile UBYTE *data_reg = (volatile UBYTE *)NVRAM_DATA_REG;
     UBYTE sum;
     int i;
 
     for (i = 0, sum = 0; i < NVRAM_USER_SIZE; i++)
     {
-        *addr_reg = i + NVRAM_START;
-        sum += *data_reg;
+        sum += nvram_read(i + NVRAM_START);
     }
 
     return MAKE_UWORD(~sum, sum);
@@ -116,15 +145,9 @@ static UWORD compute_sum(void)
  */
 static UWORD get_sum(void)
 {
-    volatile UBYTE *addr_reg = (volatile UBYTE *)NVRAM_ADDR_REG;
-    volatile UBYTE *data_reg = (volatile UBYTE *)NVRAM_DATA_REG;
     UWORD sum;
-
-    *addr_reg = NVRAM_START + NVRAM_CKSUM;
-    sum = *data_reg << 8;
-    *addr_reg = NVRAM_START + NVRAM_CKSUM + 1;
-    sum |= *data_reg;
-
+    sum = nvram_read(NVRAM_START + NVRAM_CKSUM) << 8;
+    sum |= nvram_read(NVRAM_START + NVRAM_CKSUM + 1);
     return sum;
 }
 
@@ -133,13 +156,8 @@ static UWORD get_sum(void)
  */
 static void set_sum(UWORD sum)
 {
-    volatile UBYTE *addr_reg = (volatile UBYTE *)NVRAM_ADDR_REG;
-    volatile UBYTE *data_reg = (volatile UBYTE *)NVRAM_DATA_REG;
-
-    *addr_reg = NVRAM_START + NVRAM_CKSUM;
-    *data_reg = HIBYTE(sum);
-    *addr_reg = NVRAM_START + NVRAM_CKSUM + 1;
-    *data_reg = LOBYTE(sum);
+    nvram_write(NVRAM_START + NVRAM_CKSUM, HIBYTE(sum));
+    nvram_write(NVRAM_START + NVRAM_CKSUM + 1, LOBYTE(sum));
 }
 
 /*
@@ -154,8 +172,6 @@ static void set_sum(UWORD sum)
  */
 WORD nvmaccess(WORD type, WORD start, WORD count, UBYTE *buffer)
 {
-    volatile UBYTE *addr_reg = (volatile UBYTE *)NVRAM_ADDR_REG;
-    volatile UBYTE *data_reg = (volatile UBYTE *)NVRAM_DATA_REG;
     int i;
 
     if (!has_nvram)
@@ -165,8 +181,7 @@ WORD nvmaccess(WORD type, WORD start, WORD count, UBYTE *buffer)
     {
         for (i = 0; i < NVRAM_USER_SIZE; i++)
         {
-            *addr_reg = i + NVRAM_START;
-            *data_reg = 0;
+            nvram_write(i + NVRAM_START, 0);
         }
         if (cookie_mch == MCH_TT)
             set_sum(compute_sum());
@@ -192,16 +207,14 @@ WORD nvmaccess(WORD type, WORD start, WORD count, UBYTE *buffer)
             }
             for (i = start; i < start + count; i++)
             {
-                *addr_reg = i + NVRAM_START;
-                *buffer++ = *data_reg;
+                *buffer++ = nvram_read(i + NVRAM_START);
             }
         }
         break;
     case 1:         /* write */
         for (i = start; i < start + count; i++)
         {
-            *addr_reg = i + NVRAM_START;
-            *data_reg = *buffer++;
+            nvram_write(i + NVRAM_START, *buffer++);
         }
         set_sum(compute_sum());
         break;
