@@ -121,6 +121,9 @@ UBYTE raven_midi_readb(void)
 
 typedef void(*raven_nvram_func)(ULONG,UBYTE*,ULONG);
 
+static inline UBYTE int2bcd(UWORD a) { return (a % 10) + ((a / 10) << 4); }
+static inline UWORD bcd2int(UBYTE a) { return (a & 15) + ((a >> 4) * 10); }
+
 static inline UBYTE nvram_read_raw(int index)
 {
     UBYTE value = 0;
@@ -145,16 +148,16 @@ UBYTE raven_nvram_readb(int index)
 {
     switch (index)
     {
-        case  0: return nvram_read_raw(0) & 0x7f;
+        case  0: return bcd2int(nvram_read_raw(0) & 0x7f);      // seconds
         case  1: return 0x00;
-        case  2: return nvram_read_raw(1);
+        case  2: return bcd2int(nvram_read_raw(1) & 0x7f);      // minutes
         case  3: return 0x00;
-        case  4: return nvram_read_raw(2);
+        case  4: return bcd2int(nvram_read_raw(2) & 0x3f);      // hours
         case  5: return 0x00;
         case  6: return 0x00;
-        case  7: return nvram_read_raw(4);
-        case  8: return nvram_read_raw(5);
-        case  9: return nvram_read_raw(6);
+        case  7: return bcd2int(nvram_read_raw(4) & 0x3f);      // date
+        case  8: return bcd2int(nvram_read_raw(5) & 0x1f);      // month
+        case  9: return bcd2int(nvram_read_raw(6) & 0xff);      // year
         case 10: return 0x00;
         case 11: return 0x00;
         case 12: return 0x00;
@@ -165,27 +168,20 @@ UBYTE raven_nvram_readb(int index)
 
 void raven_nvram_writeb(int index, UBYTE value)
 {
-   switch (index)
+    switch (index)
     {
-        case  0: nvram_write_raw(0, (nvram_read_raw(0) & 0x80) | (value & 0x7f)); break;
+        case  0: nvram_write_raw(0, (nvram_read_raw(0) & 0x80) | (int2bcd(value) & 0x7f)); break;   // seconds
         case  1: break;
-        case  2: nvram_write_raw(1, value); break;
+        case  2: nvram_write_raw(1, int2bcd(value) & 0x7f); break;                                  // minutes
         case  3: break;
-        case  4: nvram_write_raw(2, value); break;
+        case  4: nvram_write_raw(2, int2bcd(value) & 0x3f); break;                                  // hours
         case  5: break;
         case  6: break;
-        case  7: nvram_write_raw(4, value); break;
-        case  8: nvram_write_raw(5, value); break;
-        case  9: nvram_write_raw(6, value); break;
+        case  7: nvram_write_raw(4, int2bcd(value) & 0x3f); break;                                  // date
+        case  8: nvram_write_raw(5, int2bcd(value) & 0x1f); break;                                  // month
+        case  9: nvram_write_raw(6, int2bcd(value) & 0xff); break;                                  // year
         case 10: break;
-        case 11:
-        {
-            if (value & 0x80) {
-                nvram_write_raw(0, nvram_read_raw(0) | 0x80);
-            } else {
-                nvram_write_raw(0, nvram_read_raw(0) & 0x7f);
-            }
-        } break;
+        case 11: nvram_write_raw(0, (nvram_read_raw(0) & 0x7f) | (value & 0x80)); break;
         case 12: break;
         case 13: break;
         default: return nvram_write_raw(index - RAVEN_RTC_EMUL_START + RAVEN_RTC_REAL_START, value);
