@@ -40,6 +40,7 @@ CFLAGS		 = $(DEFS) \
 		  -m68060 \
 		  -Os \
 		  -std=c17 \
+		  -ffreestanding \
 		  -fomit-frame-pointer \
 		  -fno-common \
 		  -Wall \
@@ -53,13 +54,13 @@ endif
 
 LFLAGS		 = -nostartfiles \
 		   -nostdlib \
-		  -Wl,-Map,mon.map \
-		  -Wl,--oformat=binary,-Tbss=$(BIOS_BSS),-Ttext=$(BIOS_ROM),--entry=$(BIOS_ROM)
+		   -Wl,-Map,mon.map \
+		   -Wl,--oformat=binary,-Tbss=$(BIOS_BSS),-Ttext=$(BIOS_ROM),--entry=$(BIOS_ROM)
 
-LFLAGS_RAM		 = -nostartfiles \
+LFLAGS_RAM	 = -nostartfiles \
 		   -nostdlib \
-		  -Wl,-Map,mon.ram.map \
-		  -Wl,--oformat=binary,-Tbss=$(BIOS_RCBSS),-Ttext=$(BIOS_RCTEXT),--entry=$(BIOS_RCTEXT)
+		   -Wl,-Map,mon.ram.map \
+		   -Wl,--oformat=binary,-Tbss=$(BIOS_RCBSS),-Ttext=$(BIOS_RCTEXT),--entry=$(BIOS_RCTEXT)
 
 
 .PHONY: all mon
@@ -68,7 +69,7 @@ all: $(MON_BIN) $(MON_SREC)
 folders:
 	mkdir -p build
 
-$(MON_BIN): $(MON_RAM) $(OFILES) $(DEPS)
+$(MON_BIN): $(OFILES) $(DEPS)
 	$(CC) $(LFLAGS) $(OFILES) -o $@
 
 $(MON_RAM): $(OFILES_RAM) $(DEPS)
@@ -84,6 +85,8 @@ build/%.o : %.S $(DEPS)
 build/%.o : %.c $(DEPS)
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@
+
+build/_boot.o: $(MON_RAM)
 
 clean:
 	rm -f -r build/*
