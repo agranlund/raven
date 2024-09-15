@@ -224,11 +224,11 @@ bool atari_InitMMU(uint32_t* simms)
 	mmu_Redirect(0xFFF30000, 0x81000000, 0x00010000);
 
 	// ST emulation space
-    mmu_Redirect(0x41000000, stram_size + 0x00100000, 0x00100000);		// ram	1024kb
-    mmu_Redirect(0x41E00000, stram_size + 0x00200000, 0x00040000);		// tos	 256kb
-    mmu_Redirect(0x41FC0000, stram_size + 0x00200000, 0x00030000);      // tos   192kb
-    mmu_Redirect(0x41FA0000, stram_size + 0x00240000, 0x00020000);		// cart  128kb
-    mmu_Redirect(0x41FF0000, stram_size + 0x00260000, 0x00010000);		// io	  64kb
+    mmu_Redirect(0x41000000, reserved_start + 0x00100000, 0x00100000);		// ram	1024kb
+    mmu_Redirect(0x41E00000, reserved_start + 0x00200000, 0x00040000);		// tos	 256kb
+    mmu_Redirect(0x41FC0000, reserved_start + 0x00200000, 0x00030000);      // tos   192kb
+    mmu_Redirect(0x41FA0000, reserved_start + 0x00240000, 0x00020000);		// cart  128kb
+    mmu_Redirect(0x41FF0000, reserved_start + 0x00260000, 0x00010000);		// io	  64kb
 
     mmuregs_t mmu;
     mmu.urp = mmuTable;
