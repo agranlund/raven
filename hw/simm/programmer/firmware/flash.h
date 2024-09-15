@@ -7,6 +7,8 @@ bool flash_Identify(uint* mid, uint* did);
 uint flash_Read(uint addr);
 void flash_Write(uint addr, uint data);
 void flash_Erase();
+void flash_EraseSector(uint sector);
+uint flash_GetSector(uint addr);
 
 const char* flash_ManufacturerString(uint mid);
 const char* flash_DeviceString(uint mid, uint did);

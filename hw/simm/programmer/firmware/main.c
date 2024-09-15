@@ -67,20 +67,26 @@ void cmd_dump(uint addr, uint len)
 
 void cmd_prog(uint addr)
 {
+    printf("Erasing flash...\n");
+    flash_Erase();
+
     addr &= ~3UL;
     printf("Receive file at $%08x\n", addr);
+
     uint size = 0;
     uint counter = 0;
     bool started = false;
     bool finished = false;
+    uint oldsec = 0xffffffff;
+
     while(!finished)
     {
-        memset(iobuf, 0xff, 256);
+        memset(iobuf, 0xff, iobuflen);
         int pos = 0;
         while (pos < 512)
         {
             int v = getchar_timeout_us(2000000);
-            if (v == PICO_ERROR_TIMEOUT)
+            if (v < 0 || v > 255)
             {
                 if (started) {
                     finished = true;
@@ -93,12 +99,19 @@ void cmd_prog(uint addr)
             started = true;
         }
 
-        if (!finished)
+        if (started && !finished)
         {
-            //printf(".");
             int written = 0;
             for (int i=0; i<512; i+=4)
             {
+#if 0                
+                uint newsec = flash_GetSector(addr + size + i);
+                if (newsec != oldsec)
+                {
+                    flash_EraseSector(newsec);
+                    oldsec = newsec;
+                }
+#endif
                 uint dataLE = *((uint*)&iobuf[i]);
                 if (dataLE != 0xffffffff)
                 {

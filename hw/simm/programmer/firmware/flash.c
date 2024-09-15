@@ -76,6 +76,9 @@ uint tSE;       // sector erase
 uint tSCE;      // chip erase
 uint tBP;       // program time
 
+uint sector_erase_cmd;
+uint sector_erase_siz;
+
 uint GetCyclesForNs(uint ns) {
 
     float mhz = clock_get_hz(clk_sys) / 1000000;
@@ -147,16 +150,16 @@ static inline void FlashWrite16(uint dbmask, uint data)
     WaitCycles(tWP);
 }
 
-static inline void FlashCommand16(uint dbmask, uint cmd)
+static inline void FlashCommand16(uint dbmask, uint addr, uint cmd)
 {
     FlashLatchAddress(0x5555); FlashWrite16(dbmask, 0xAAAA);
     FlashLatchAddress(0x2AAA); FlashWrite16(dbmask, 0x5555);
-    FlashLatchAddress(0x5555); FlashWrite16(dbmask, cmd);
+    FlashLatchAddress(addr); FlashWrite16(dbmask, cmd);
 }
 
 static inline void FlashProg16(uint dbmask, uint addr, uint data)
 {
-    FlashCommand16(dbmask, 0xA0A0);
+    FlashCommand16(dbmask, 0x5555, 0xA0A0);
     FlashLatchAddress(addr);
     gpio_put_masked(GPIO_AD_MASK, data);
     gpio_put_masked(dbmask | GPIO_DWR_MASK, 0x00000000);
@@ -187,10 +190,10 @@ static void FlashWrite32(uint addr, uint data)
     FlashWrite16(DBMASK23, GetData23(data));
 }
 
-static void FlashCommand32(uint cmd)
+static void FlashCommand32(uint addr, uint cmd)
 {
-    FlashCommand16(DBMASK01, GetData01(cmd));
-    FlashCommand16(DBMASK23, GetData23(cmd));
+    FlashCommand16(DBMASK01, addr, GetData01(cmd));
+    FlashCommand16(DBMASK23, addr, GetData23(cmd));
 }
 
 static void FlashProg32(uint addr, uint data)
@@ -232,11 +235,11 @@ bool flash_Identify(uint* mid, uint* did)
     *mid = 0;
     *did = 0;
 
-    FlashCommand32(0x90909090);
+    FlashCommand32(0x5555, 0x90909090);
     WaitCycles(tIDA);
     uint fmid = FlashRead32(0x0000);
     uint fdid = FlashRead32(0x0001);
-    FlashCommand32(0xF0F0F0F0);
+    FlashCommand32(0x5555, 0xF0F0F0F0);
     WaitCycles(tIDA);
 
     uint fmid0 = (fmid & 0xffff0000) >> 16;
@@ -275,10 +278,24 @@ void flash_Write(uint addr, uint data)
 // ------------------------------------------------------------------
 void flash_Erase()
 {
-    FlashCommand32(0x80808080);
-    FlashCommand32(0x10101010);
+    FlashCommand32(0x5555, 0x80808080);
+    FlashCommand32(0x5555, 0x10101010);
     WaitCycles(tSCE);
 }
+
+void flash_EraseSector(uint sector)
+{
+    uint addr = sector * sector_erase_siz;
+    FlashCommand32(0x5555, 0x80808080);
+    FlashCommand32(addr, sector_erase_cmd);
+    WaitCycles(tSE);
+}
+
+uint flash_GetSector(uint addr)
+{
+    return addr / sector_erase_siz;
+}
+
 
 
 // ------------------------------------------------------------------
@@ -305,6 +322,20 @@ bool flash_Init()
     tSE  = GetCyclesForMs(25);
     tSCE = GetCyclesForMs(100);
     tBP  = GetCyclesForNs(20000);
+
+    // assume 8bit SST39xF0x0 (ex; SST39SF040)
+    sector_erase_siz = 4 * (4 * 1024);
+    sector_erase_cmd = 0x30303030;
+
+    // identify chip
+    uint mid = 0; uint did = 0;
+    flash_Identify(&mid, &did);
+
+    // 16bit SST39xFxx0xC (ex; SST39LF401C)
+    if ((did & 0xff00) == 0x2300) {
+        sector_erase_cmd = 0x50505050;
+        sector_erase_siz = 2 * (4 * 1024);
+    }
 
     return true;
 }
