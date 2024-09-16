@@ -15,6 +15,7 @@
 
 extern bool atari_Init();
 extern void atari_Start();
+extern bool atari_DetectTos();
 
 #endif // __ASM__
 #endif // _ATARI_H_
