@@ -89,7 +89,7 @@ void mon_Main(regs_t* regs)
         // execute command
         if (args > 0) {
             if (strcmp(argc[0], "x") == 0)              { exit = 1; }
-            else if (strcmp(argc[0], "reset") == 0)     { extern void vec_boot(); vec_boot(); }
+            else if (strcmp(argc[0], "reset") == 0)     { extern void start(); start(); }
             else if (strcmp(argc[0], "r") == 0)         { monRegs(regs); }
             else if (strcmp(argc[0], "d") == 0)         { monDump(strtoi(argc[1]), strtoi(argc[2])); }
             else if (strcmp(argc[0], "pb") == 0)        { if (args>2) { monWrite( 8, strtoi(argc[1]), strtoi(argc[2])); } else { monRead( 8, strtoi(argc[1])); } }

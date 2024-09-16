@@ -1,36 +1,41 @@
-#Makefile
+#
+# Raven ROM image makefile
+#
+
+MON_DIR			= mon
+MON_IMG			= $(MON_DIR)/mon.bin
 
 EMUTOS_DIR		= emutos
-EMUTOS_IMG		= emutos.img
-EMUTOS_ROM		= emutos-raven.rom
+EMUTOS_IMG		= $(EMUTOS_DIR)/emutos.img
+
 OUT_BIN_TOS		= rom_tos.bin
 OUT_BIN_MON		= rom_mon.bin
 
-.PHONY: tos mon_bin emutos_bin
+DEPS			= $(MAKEFILE_LIST)
 
+.PHONY: all tos mon clean
 
-tos: target="tos"
-tos: mon_bin emutos_bin
-	cp boot.bin $(OUT_BIN_TOS)
-	cat os.bin >> $(OUT_BIN_TOS)
+all: tos mon
+tos: $(OUT_BIN_TOS)
+mon: $(OUT_BIN_MON)
 
-mon: mon_bin
-	cp boot.bin $(OUT_BIN_MON)
+.PHONY: $(OUT_BIN_TOS)
+$(OUT_BIN_TOS): $(EMUTOS_IMG) $(OUT_BIN_MON) $(DEPS)
+	rm -f $@
+	cat $(OUT_BIN_MON) $(EMUTOS_IMG) > $@
 
-mon_bin:
-	$(MAKE) -C mon clean
-	$(MAKE) -C mon target=$(target)
-	dd if=/dev/zero ibs=1k count=256 | LC_ALL=C tr "\000" "\377" >boot.bin
-	dd if=mon/mon.bin of=boot.bin conv=notrunc
+.PHONY: $(OUT_BIN_MON)
+$(OUT_BIN_MON): $(MON_IMG) $(DEPS)
+	cp $(MON_IMG) $@
 
-emutos_bin:
+$(MON_IMG): $(DEPS)
+	$(MAKE) -C $(MON_DIR)
+
+$(EMUTOS_IMG): $(DEPS)
 	$(MAKE) -C $(EMUTOS_DIR) raven COUNTRY=us
-	cp $(EMUTOS_DIR)/$(EMUTOS_IMG) tos.bin
-	dd if=/dev/zero ibs=1k count=512 | LC_ALL=C tr "\000" "\377" >os.bin
-	dd if=tos.bin of=os.bin conv=notrunc
 
 clean:
-	$(MAKE) -C mon clean
+	$(MAKE) -C $(MON_DIR) clean
 	$(MAKE) -C $(EMUTOS_DIR) clean
-	rm -f boot.bin tos.bin os.bin
+	rm -f $(OUT_BIN_MON) $(OUT_BIN_TOS)
 

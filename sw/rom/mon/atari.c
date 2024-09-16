@@ -80,8 +80,8 @@ bool atari_InitMMU(uint32_t* simms)
     uint32_t* mmuTable = mmu_Init();
 
     // reserved area
-    extern uint32_t _bss_start;
-    uint32_t reserved_start = ((uint32_t)&_bss_start) & 0xfff00000;
+    extern uint32_t __bss_start;
+    uint32_t reserved_start = ((uint32_t)&__bss_start) & 0xfff00000;
     uint32_t reserved_end = reserved_start + RESERVED_SIZE;
 
     // todo: get from battery backed config

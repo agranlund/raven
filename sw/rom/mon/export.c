@@ -27,7 +27,7 @@ static void     b_i2c_Stop()                                                { i2
 static uint32_t b_i2c_Read(uint32_t ack)                                    { return (uint32_t) i2c_Read((uint8_t)ack); }
 static uint32_t b_i2c_Write(uint32_t val)                                   { return (uint32_t) i2c_Write((uint8_t)val); }
 
-raven_t ravenBios =
+const raven_t ravenBios =
 {
 //0x0000
     C_RAVN,             // magic

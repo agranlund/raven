@@ -3,8 +3,8 @@
 
 typedef struct
 {
-    const char*     name;
-    const char**    opts;
+    const char * name;
+    const char * const * opts;
     union {
         struct {
             uint8_t addr;

@@ -10,7 +10,7 @@
 static const cfg_entry_t* cfgs[CFG_MAX];
 static uint32_t cfgcnt = 0;
 
-const char* strYesNo[] = {"No", "Yes"};
+const char * const strYesNo[] = {"No", "Yes"};
 
 const cfg_entry_t confs[2] = {
     { "test1", strYesNo,    {{0x3B, 0x01, 0, 1}} },
