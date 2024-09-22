@@ -287,8 +287,11 @@ static void cmd_srecord()
             {
                 /* we expect S7 at the end to flush, so buffer should be empty */
                 if (iobuf_len == 0) {
-                    printf("done.\n");
-                } else {
+                    printf("done.%s\n",
+                           flash_ReadbackError ? " - WARNING, flash readback error during programming" : "");
+                }
+                else
+                {
                     printf("\nERROR: S-record upload timeout\n");
                 }
                 return;
