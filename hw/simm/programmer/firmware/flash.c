@@ -63,6 +63,11 @@ struct TId DeviceIds[] = {
     {0x00BF, 0x236C, "SST39VF6402B"},
 };
 
+// ------------------------------------------------------------------
+// error reporting
+// ------------------------------------------------------------------
+
+bool flash_ReadbackError;
 
 // ------------------------------------------------------------------
 // timing
@@ -165,8 +170,14 @@ static inline void FlashProg16(uint dbmask, uint addr, uint data)
     gpio_put_masked(dbmask | GPIO_DWR_MASK, 0x00000000);
     WaitCycles(tWP);
     gpio_put_masked(GPIO_DWR_MASK, 0xffffffff);
-    WaitCycles(tBP);
-    gpio_put_masked(dbmask, 0xffffffff);
+
+    int timeout = tBP;
+    while (timeout)
+    {
+        if (FlashRead16(dbmask) == data) break;
+        timeout -= (tRC * 2);
+    }
+    if (timeout <= 0) flash_ReadbackError = true;
 }
 
 
@@ -281,6 +292,7 @@ void flash_Erase()
     FlashCommand32(0x5555, 0x80808080);
     FlashCommand32(0x5555, 0x10101010);
     WaitCycles(tSCE);
+    flash_ReadbackError = false;
 }
 
 void flash_EraseSector(uint sector)
