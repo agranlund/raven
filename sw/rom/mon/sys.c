@@ -1,6 +1,5 @@
 #include "sys.h"
 #include "lib.h"
-#include "ram/_header.h"
 #include "hw/cpu.h"
 #include "hw/uart.h"
 #include "hw/mfp.h"
@@ -23,25 +22,28 @@ uint8_t  kheap[KMEMSIZE];
 uint32_t kheapPtr;
 uint32_t ksimm[4];
 uint8_t  kgfx;
-ramcode_table_t* kramcode;
+
+extern uint8_t __text_end;
+extern uint8_t __data_start;
+extern uint8_t __data_end;
+extern uint8_t __bss_start;
+extern uint8_t __bss_end;
 
 //-----------------------------------------------------------------------
-const char* cpuNames[] = {
+const char * const cpuNames[] = {
     "M68XC060",
     "M68EC060",
     "M68LC060",
     "M68060"
 };
 
-const char* gfxNames[] = {
+const char * const gfxNames[] = {
 	"",
 	"ET4000AX",
 	"ET4000/W32",
 	"ATI Mach32",
 	"ATI Mach64"
 };
-
-
 
 //-----------------------------------------------------------------------
 //
@@ -95,13 +97,10 @@ bool sys_Init()
     putchar('\n');
 
 
-    // clear bios bss area
+    // clear bios bss area & copy data
     puts("InitBss");
-    extern uint8_t _bss_start, _end;
-    uint32_t* kbss = (uint32_t*)&_bss_start;
-    while (kbss < (uint32_t*)&_end) {
-        *kbss++ = 0;
-    }
+    memset(&__bss_start, 0, &__bss_end - &__bss_start);
+    memcpy(&__data_start, &__text_end, &__data_end - &__data_start);
 
     // we can use bss section from this point onward
     ksimm[0] = id_simm[0];
@@ -163,12 +162,6 @@ bool mem_Init()
     // init heap pointer
     kheapPtr = ((uint32_t)&kheap[0] + KMEMSIZE - 4) & ~16UL;
 
-    // copy ramcode text+data and clear bss
-    extern ramcode_header_t rambin_start;
-    ramcode_header_t* rambin = &rambin_start;
-    memcpy((void*)rambin->text_start, (void*)rambin, rambin->text_end - rambin->text_start);
-    memset((void*)rambin->bss_start, 0, rambin->bss_end - rambin->bss_start);
-    kramcode = (ramcode_table_t*)(rambin->text_start + sizeof(ramcode_header_t));
     return true;
 }
 
