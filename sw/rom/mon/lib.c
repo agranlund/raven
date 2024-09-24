@@ -331,7 +331,7 @@ hexdump(const uint8_t *addr, uint32_t address, size_t length, char width)
                 }
             } else {
                 const uint8_t *p = (addr + index + col);
-                uint32_t val = WSELECT(width, *(const uint32_t *)p, *(const uint16_t *)p, *(const uint8_t *)p);
+                uint32_t val = WSELECT(width, *(const volatile uint32_t *)p, *(const volatile uint16_t *)p, *(const volatile uint8_t *)p);
                 putx(val, incr);
             }
         }
