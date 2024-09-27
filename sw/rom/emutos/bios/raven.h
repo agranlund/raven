@@ -78,10 +78,11 @@ UBYTE raven_midi_readb(void);
 
 const UBYTE* raven_physbase(void);
 
+#if CONF_WITH_NVRAM
 UBYTE raven_nvram_readb(int index);
 void raven_nvram_writeb(int index, UBYTE value);
 void raven_nvram_detect(void);
-
+#endif
 
 #endif /* __RAVEN__ASM__ */
 

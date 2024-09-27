@@ -111,6 +111,7 @@ UBYTE raven_midi_readb(void)
 }
 
 
+#if CONF_WITH_NVRAM
 
 #define RAVEN_BIOS_BASEPTR      0x40000000UL
 #define RAVEN_BIOS_RTCREAD      0x40
@@ -192,5 +193,7 @@ void raven_nvram_detect(void)
 {
     has_nvram = 1;
 }
+
+#endif /* CONF_WITH_NVRAM */
 
 #endif /* MACHINE_RAVEN */
