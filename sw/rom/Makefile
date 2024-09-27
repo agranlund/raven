@@ -6,7 +6,7 @@ MON_DIR			= mon
 MON_IMG			= $(MON_DIR)/mon.bin
 
 EMUTOS_DIR		= emutos
-EMUTOS_IMG		= $(EMUTOS_DIR)/emutos.img
+EMUTOS_IMG		= $(EMUTOS_DIR)/emutos-raven.rom
 
 OUT_BIN_TOS		= rom_tos.bin
 OUT_BIN_MON		= rom_mon.bin
