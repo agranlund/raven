@@ -29,7 +29,7 @@ $(OUT_BIN_MON): $(MON_IMG) $(DEPS)
 	cp $(MON_IMG) $@
 
 $(MON_IMG): $(DEPS)
-	$(MAKE) -C $(MON_DIR)
+	$(MAKE) -C $(MON_DIR) target=tos
 
 $(EMUTOS_IMG): $(DEPS)
 	$(MAKE) -C $(EMUTOS_DIR) raven COUNTRY=us
