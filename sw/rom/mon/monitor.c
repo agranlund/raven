@@ -11,23 +11,24 @@ extern int test_ym_write(int size);
 #define MONBUFFERSIZE 1024
 char monBuffer[MONBUFFERSIZE];
 
-void monHelp();
-void monRegs(regs_t* regs);
-void monDump(uint32_t addr, uint32_t size);
-void monRead(uint32_t bits, uint32_t addr);
-void monWrite(uint32_t bits, uint32_t addr, uint32_t val);
-void monRtcDump();
-void monRtcClear();
-void monCfgList();
-void monCfgRead(char* cfg);
-void monCfgWrite(char* cfg, uint32_t val);
-void monLoad(uint32_t addr, uint32_t size);
-void monRun(uint32_t addr);
-void monTest(char* cmd, uint32_t val);
+static void mon_Main(regs_t* regs);
+static void monHelp();
+static void monRegs(regs_t* regs);
+static void monDump(uint32_t addr, uint32_t size);
+static void monRead(uint32_t bits, uint32_t addr);
+static void monWrite(uint32_t bits, uint32_t addr, uint32_t val);
+static void monRtcDump();
+static void monRtcClear();
+static void monCfgList();
+static void monCfgRead(char* cfg);
+static void monCfgWrite(char* cfg, uint32_t val);
+static void monLoad(uint32_t addr, uint32_t size);
+static void monRun(uint32_t addr);
+static void monTest(char* cmd, uint32_t val);
+static void monSrec();
 
 bool mon_Init()
 {
-    void mon_Main(regs_t* regs);
     cpu_SetNMI(mon_Main);
     return true;
 }
@@ -114,6 +115,7 @@ void mon_Main(regs_t* regs)
             else if (strcmp(argc[0], "load") == 0)      { monLoad(strtoi(argc[1]), strtoi(argc[2])); }
             else if (strcmp(argc[0], "run") == 0)       { monRun(strtoi(argc[1])); }
             else if (strcmp(argc[0], "test") == 0)      { monTest((args > 1) ? argc[1] : 0, (args > 2) ? strtoi(argc[2]) : 0); }
+            else if (strncmp(argc[0], "S0", 2) == 0)    { monSrec(argc[0]); }
             else                                        { monHelp(); }
         }
     }
@@ -272,3 +274,159 @@ void monRun(uint32_t addr)
     cpu_Call(addr);
 }
 
+static uint8_t srec_get_nyb()
+{
+    for (;;)
+    {
+        int c = getc();
+        switch (c)
+        {
+        case -1:
+            break;
+        case '0'...'9':
+            return c - '0';
+        case 'a'...'f':
+            return c - 'a' + 10;
+        case 'A'...'F':
+            return c - 'A' + 10;
+        default:
+            puts("srec: bad digit");
+            return 0;
+        }
+    }
+}
+
+static int srec_sum;
+
+static uint8_t srec_get_byte()
+{
+    uint8_t tmp = srec_get_nyb() << 4;
+    tmp += srec_get_nyb();
+    srec_sum += tmp;
+    return tmp;
+}
+
+static uint32_t srec_get_long()
+{
+    uint32_t tmp = srec_get_byte() << 24;
+    tmp += srec_get_byte() << 16;
+    tmp += srec_get_byte() << 8;
+    return tmp + srec_get_byte();
+}
+
+static void srec_s7(uint32_t address_offset, uint32_t low_address, uint32_t high_address)
+{
+    // check S7 record length
+    if (srec_get_byte() != 5)
+    {
+        puts("srec: S7 bad length");
+        return;
+    }
+
+    // get S7 record address
+    uint32_t address = srec_get_long();
+
+    // if no offset, upload was to DRAM - run it
+    if (address_offset == 0)
+    {
+        if ((address < low_address) || (address >= (high_address - 2)))
+        {
+            puts("srec: S7 bad address");
+            return;
+        }
+        fmt("S-record upload complete, jumping to %p...\n", address);
+        cpu_Call(address);
+    }
+
+    // otherwise we just received something to be flashed...
+}
+
+void monSrec()
+{
+    uint32_t address_offset = 0;
+    uint32_t low_address = 0;
+    uint32_t high_address =0;
+
+    for (;;)
+    {
+        // wait for 'S'
+        for (;;)
+        {
+            int c = getc();
+            if (c == 'S') break;
+            switch (c)
+            {
+            case -1:
+            case '\r':
+            case '\n':
+                break;
+            default:
+                puts("srec: sync lost");
+                return;
+            }
+        }
+        srec_sum = 0;
+
+        // get record type
+        for (;;)
+        {
+            int c = getc();
+            if (c == '3') break;
+            if (c == '7')
+            {
+                srec_s7(address_offset, low_address, high_address);
+                return;
+            }
+            if (c != -1)
+            {
+                puts("srec: sync lost");
+                return;
+            }
+        }
+
+        // get S3 record length
+        int srec_len = srec_get_byte();
+        if (srec_len < 5) 
+        {
+            puts("srec: S3 bad length");
+            return;
+        }
+
+        // get S3 record address
+        uint32_t address = srec_get_long() - address_offset;
+        srec_len -= 4;
+        if (low_address == 0) {
+            if (address > BIOS_ROM)
+            {
+                address_offset = BIOS_ROM - 0x400;
+                address -= address_offset;
+            }
+            low_address = address;
+        }
+        if ((address < 0x400) || (address > (2 * 1024 * 1024)))
+        {
+            puts("srec: address out of range");
+            return;
+        }
+
+        // get data bytes
+        while (srec_len-- > 1)
+        {
+            uint8_t b = srec_get_byte();
+            *(uint8_t *)address++ = b;
+        }
+        if (address > high_address) {
+            high_address = address;
+        }
+
+        // get/discard sum byte
+        (void)srec_get_byte();
+
+        // validate checksum
+        if ((srec_sum & 0xff) != 0xff)
+        {
+            puts("srec: bad checksum");
+            return;
+        }
+    }
+}
