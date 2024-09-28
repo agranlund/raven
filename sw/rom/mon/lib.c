@@ -158,10 +158,6 @@ int
 getc()
 {
     return uart_recvChar();
-    do {
-        nop();
-    } while((IOB(PADDR_UART2, UART_LSR) & (1 << 0)) == 0);
-    return IOB(PADDR_UART2, UART_RHR);
 }
 
 int

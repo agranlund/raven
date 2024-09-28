@@ -11,7 +11,6 @@
 #define COPYBACK_TTRAM          0
 #define ACIA_EMULATION          0
 
-extern uint8_t kgfx;
 extern uint32_t ksimm[4];
 
 extern void vecRTE_MFP1I0();
@@ -27,6 +26,13 @@ extern void vecKBD_MFP1I4();    // acia emulation
 
 uint32_t vecKBD_Busy;
 
+const char * const gfxNames[] = {
+    "(none)",
+    "ET4000AX",
+    "ET4000/W32",
+    "ATI Mach32",
+    "ATI Mach64"
+};
 
 bool atari_InitEMU()
 {
@@ -86,6 +92,16 @@ bool atari_InitMMU(uint32_t* simms)
 
     // todo: get from battery backed config
     uint32_t stram_size = 0;
+
+    // identify gfx
+    uint8_t id_gfx = 1; // assume ET4000
+    if ((IOB(PADDR_GFX_RAM, 0xC0032)) == '6' && (IOB(PADDR_GFX_RAM, 0xC0034) == '2')) {
+        IOB(PADDR_GFX_IO, 0x56EE) = 0x55;
+        if (IOB(PADDR_GFX_IO, 0x56EE) == 0x55) {
+            id_gfx = 3; // todo: further detect Mach32 vs Mach64
+        }
+    }
+    fmt("GFX:  %s\n", gfxNames[id_gfx]);
 
     // auto select st-ram size based on total available ram
     if (stram_size == 0) {
@@ -192,7 +208,7 @@ bool atari_InitMMU(uint32_t* simms)
     mmu_Redirect(0xFFFFF000, 0xA1000000 + BIOS_EMU_MEM, 0x00001000);
 
     // special case graphics card access to satisfy existing Atari drivers
-	if (kgfx == 3) {
+	if (id_gfx == 3) {
 		// Mach32
 	    mmu_Redirect(0xFE900000, 0x83000000, 0x00100000);      // TT Nova Mach32 reg base : 1024 kb
 	    mmu_Redirect(0xFE800000, 0x82000000, 0x00100000);      // TT Nova Mach32 vga base :  128 kb
@@ -200,7 +216,7 @@ bool atari_InitMMU(uint32_t* simms)
 	    mmu_Redirect(0xFEB00000, 0x82300000, 0x00100000);      // TT Nova Mach32 mem base : 2048 kb ?? target addr ??
 
 	}
-	else if (kgfx == 4) {
+	else if (id_gfx == 4) {
 		// Mach64
 	    mmu_Redirect(0xFEC00000, 0x83000000, 0x00080000);      // TT Nova Mach32 reg base :  512 kb
 	    mmu_Redirect(0xFEC80000, 0x82000000, 0x00080000);      // TT Nova Mach32 vga base :  512 kb
@@ -243,7 +259,6 @@ bool atari_InitMMU(uint32_t* simms)
 }
 
 
-
 bool atari_Init()
 {
     puts("InitVbr");
@@ -260,12 +275,21 @@ bool atari_Init()
 		IOL(0, i) = 0;
 	}
 
+    puts("\nHit any key to cancel EmuTOS auto-boot...\n");
+    for (volatile int i = 0x100000; i; i--) {
+        if (uart_recvChar() != -1) {
+            return true;
+        }
+    }
     puts("Start");
-#ifdef LAUNCH_TOS
     cpu_Call(0xe00000);
-#else
-    mon_Start();
-#endif
+    return false;
+}
 
-    return true;
+
+bool atari_DetectTos()
+{
+    extern const uint32_t __etos_signature;
+
+    return __etos_signature == 0x45544f53;  // "ETOS"
 }

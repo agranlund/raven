@@ -21,7 +21,6 @@ bool mem_Init();
 uint8_t  kheap[KMEMSIZE];
 uint32_t kheapPtr;
 uint32_t ksimm[4];
-uint8_t  kgfx;
 
 extern uint8_t __text_end;
 extern uint8_t __data_start;
@@ -35,14 +34,6 @@ const char * const cpuNames[] = {
     "M68EC060",
     "M68LC060",
     "M68060"
-};
-
-const char * const gfxNames[] = {
-	"",
-	"ET4000AX",
-	"ET4000/W32",
-	"ATI Mach32",
-	"ATI Mach64"
 };
 
 //-----------------------------------------------------------------------
@@ -62,18 +53,6 @@ bool sys_Init()
     uint32_t id_simm[4];
     id_simm[3] = IOL(IOL(PADDR_SIMM3, 0), 4);
     fmt("ROM:  %l\n", id_simm[3]);
-
-	// identify gfx
-	uint8_t id_gfx = 1;	// assume ET4000
-#if defined(CONF_ATARI) && defined(LAUNCH_TOS)
-	if ((IOB(PADDR_GFX_RAM, 0xC0032)) == '6' && (IOB(PADDR_GFX_RAM, 0xC0034) == '2')) {
-		IOB(PADDR_GFX_IO, 0x56EE) = 0x55;
-		if (IOB(PADDR_GFX_IO, 0x56EE) == 0x55) {
-			id_gfx = 3;	// todo: further detect Mach32 vs Mach64
-		}
-	}
-    fmt("GFX:  %s\n", gfxNames[id_gfx]);
-#endif
 
 	// identify ram
     for (int i=0; i<3; i++) {
@@ -96,7 +75,6 @@ bool sys_Init()
     }
     putchar('\n');
 
-
     // clear bios bss area & copy data
     puts("InitBss");
     memset(&__bss_start, 0, &__bss_end - &__bss_start);
@@ -107,7 +85,6 @@ bool sys_Init()
     ksimm[1] = id_simm[1];
     ksimm[2] = id_simm[2];
     ksimm[3] = id_simm[3];
-    kgfx     = id_gfx;
 
     // init systems
     puts("InitHeap");
@@ -140,13 +117,13 @@ bool sys_Init()
     puts("InitMonitor");
     mon_Init();
 
-#ifdef CONF_ATARI
-    puts("InitAtari");
-    atari_Init();
-#else
+    if (atari_DetectTos()) {
+        puts("InitAtari");
+        atari_Init();
+    }
+
     puts("StartMonitor");
     mon_Start();
-#endif
 
     return 0;
 }

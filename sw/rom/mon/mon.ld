@@ -9,8 +9,11 @@ ENTRY(start)
 MEMORY
 {
 	ROM(RX) : ORIGIN = 0x40000000, LENGTH = 256k
-	RAM(RW) : ORIGIN = 0x00518000, LENGTH = 0x000e8000
+	RAM(RW) : ORIGIN = 0x00501000, LENGTH = 0x000ff000
 }
+
+__rom_end = ORIGIN(ROM) + LENGTH(ROM);
+__etos_signature = __rom_end + 0x2c;
 
 SECTIONS
 {
