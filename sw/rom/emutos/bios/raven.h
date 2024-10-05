@@ -65,6 +65,7 @@ struct IDE
 
 void raven_screen_init(void);
 void raven_kbd_init(void);
+void raven_init_keyboard_interrupt(void);
 
 LONG  raven_ikbd_bcostat(void);
 LONG  raven_ikbd_bconstat(void);

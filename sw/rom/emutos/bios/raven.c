@@ -60,7 +60,11 @@ const UBYTE *raven_physbase(void)
 
 void raven_kbd_init(void)
 {
-    *((ULONG*)0x74) = (ULONG)raven_int_ikbd;
+}
+
+void raven_init_keyboard_interrupt(void)
+{
+    *((volatile ULONG*)0x74) = (ULONG)raven_int_ikbd;
     volatile UBYTE* uart = (volatile UBYTE*)RAVEN_UART1_BASE;
     uart[0x08] |= 0x01;     // RX fifo enabled
     uart[0x04]  = 0x01;     // RHR interrupts enabled

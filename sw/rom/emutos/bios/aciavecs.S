@@ -74,6 +74,7 @@
         .extern _mfpint
         .extern _kbd_int
         .extern _amiga_init_keyboard_interrupt
+        .extern _raven_init_keyboard_interrupt
 
         .globl  _init_acia_vecs
 #if CONF_WITH_IKBD_ACIA || CONF_WITH_MIDI_ACIA
@@ -224,6 +225,8 @@ _init_acia_vecs:
 
 #ifdef MACHINE_AMIGA
         jsr     _amiga_init_keyboard_interrupt
+#elif defined(MACHINE_RAVEN)
+        jsr     _raven_init_keyboard_interrupt
 #endif
         rts
 

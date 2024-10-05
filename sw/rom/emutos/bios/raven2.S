@@ -60,14 +60,13 @@ _raven_int_ikbd:
     and.w   #0x0F00,d0                      /* get current ipl          */
     cmp.w   #0x0500,d0                      /* skip if >= 6             */
     bhi.b   1f
-;    move.w  #0x2600,sr                      /* set level 6              */
+    move.w  #0x2600,sr                      /* set level 6              */
     moveq.l #7,d2
 0:  btst.b  #0,RAVEN_UART1_BASE+0x14
     beq.b   1f
     moveq   #0,d0
     move.b  RAVEN_UART1_BASE+0x00,d0
     jsr     ikbdraw
-;    bra.b   0b
     dbra.w  d2,0b
 1:  movem.l (sp)+,d0-d2/a0-a1
     rte
