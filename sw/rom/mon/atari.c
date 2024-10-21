@@ -10,6 +10,8 @@
 #define COPYBACK_STRAM          0
 #define COPYBACK_TTRAM          0
 #define ACIA_EMULATION          0
+#define ENABLE_CART_TEST        0
+
 
 extern uint32_t ksimm[4];
 
@@ -33,6 +35,24 @@ const char * const gfxNames[] = {
     "ATI Mach32",
     "ATI Mach64"
 };
+
+
+static void mmu_Map24bit(uint32_t log, uint32_t phys, uint32_t size, uint32_t flags) {
+    mmu_Map(log & 0x00ffffff, phys, size, flags);
+    mmu_Map(log | 0xff000000, phys, size, flags);
+}
+static void mmu_Redirect24bit(uint32_t logsrc, uint32_t logdst, uint32_t size) {
+    mmu_Redirect(logsrc & 0x00ffffff, logdst, size);
+    mmu_Redirect(logsrc | 0xff000000, logdst, size);
+}
+static void mmu_Invalid24bit(uint32_t log, uint32_t size) {
+    mmu_Invalid(log & 0x00ffffff, size);
+    mmu_Invalid(log | 0xff000000, size);
+}
+static void mmu_Ignore24bit(uint32_t log, uint32_t size) {
+    mmu_Map24bit(log, 0x21000000, size, PMMU_READWRITE | PMMU_CM_PRECISE);
+}
+
 
 bool atari_InitEMU()
 {
@@ -83,7 +103,8 @@ bool atari_InitVBR()
 
 bool atari_InitMMU(uint32_t* simms)
 {
-    uint32_t* mmuTable = mmu_Init();
+    // direct unmapped pages to an ignored address and set up bus-errors manually
+    uint32_t* mmuTable = mmu_Init(0x21000000 | PMMU_READWRITE | PMMU_CM_PRECISE);
 
     // reserved area
     extern uint32_t __bss_start;
@@ -141,8 +162,8 @@ bool atari_InitMMU(uint32_t* simms)
 
 				if (lmem == 0) {
 					// system vectors + variables
-	                mmu_Map(0x00000000, 0x00000000, 0x00002000, PMMU_READWRITE | PMMU_CM_PRECISE);
-	                mmu_Map(0x00002000, 0x00002000, 0x000FE000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
+	                mmu_Map24bit(0x00000000, 0x00000000, 0x00002000, PMMU_READWRITE | PMMU_CM_PRECISE);
+	                mmu_Map24bit(0x00002000, 0x00002000, 0x000FE000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
 				}
 				else if (lmem >= 0x01000000) {
 					// tt-ram
@@ -156,9 +177,9 @@ bool atari_InitMMU(uint32_t* simms)
 				else {
 					// st-ram
                     #if COPYBACK_STRAM
-	                    mmu_Map(lmem, pmem, 0x00100000, PMMU_READWRITE | PMMU_CM_COPYBACK);
+	                    mmu_Map24bit(lmem, pmem, 0x00100000, PMMU_READWRITE | PMMU_CM_COPYBACK);
                     #else
-	                    mmu_Map(lmem, pmem, 0x00100000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
+	                    mmu_Map24bit(lmem, pmem, 0x00100000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
                     #endif
 				}
                 lmem += 0x00100000;
@@ -170,14 +191,16 @@ bool atari_InitMMU(uint32_t* simms)
         }
     }
 
-    // internally reserved ram
+    // bus error on MB block after tt-ram
+    mmu_Invalid(lmem, 0x00100000);
+
+    // bus error on MB block after st-ram
+    mmu_Invalid24bit(stram_size, 0x00100000);
+
+    // map internally reserved ram
 	for (uint32_t addr = reserved_start; addr < reserved_end; addr += 0x00100000) {
 	    mmu_Map(addr, addr, 0x00100000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
 	}
-
-    // bus error on MB block after st and tt-ram
-    mmu_Invalid(lmem,       0x00100000);
-    mmu_Invalid(stram_size, 0x00100000);
 
     // peripheral access flags
     mmu_Map(0x40000000, 0x40000000, 0x00100000, PMMU_READONLY  | PMMU_CM_WRITETHROUGH);    // ROM
@@ -186,26 +209,34 @@ bool atari_InitMMU(uint32_t* simms)
     mmu_Map(0xA1000000, 0xA1000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // EXTBUS  (ym, mfp1)
     mmu_Map(0xA2000000, 0xA2000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // EXTBUS  (unused)
     mmu_Map(0xA3000000, 0xA3000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // EXTBUS  (unused)
-    mmu_Map(0x80000000, 0x80000000, 0x01000000, PMMU_READWRITE | PMMU_CM_PRECISE);         // ISA-RAM (generic)
+    mmu_Map(0x80000000, 0x80000000, 0x00400000, PMMU_READWRITE | PMMU_CM_PRECISE);         // ISA-RAM (generic)
     mmu_Map(0x81000000, 0x81000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // ISA-IO  (generic)
-    mmu_Map(0x82000000, 0x82000000, 0x01000000, PMMU_READWRITE | PMMU_CM_PRECISE);         // ISA-RAM (gfxcard)
+    mmu_Map(0x82000000, 0x82000000, 0x00400000, PMMU_READWRITE | PMMU_CM_PRECISE);         // ISA-RAM (gfxcard)
     mmu_Map(0x83000000, 0x83000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // ISA-IO  (gfxcard)
 
     // peripheral memory map
-    mmu_Redirect(0xFF000000, 0x00000000, 0x01000000);  // 24bit space
-    mmu_Redirect(0x00E00000, 0x40040000, 0x00080000);  // ROM      ($e00000 -> $40040000) size 512Kb at offset 256Kb
-    mmu_Redirect(0xFFE00000, 0x03040000, 0x00080000);
-    mmu_Redirect(0x00F00000, 0xA0000000, 0x00001000);  // IDE      ($f00000 -> $a0000000)
-    mmu_Redirect(0xFFF00000, 0xA0000000, 0x00001000);
-    mmu_Redirect(0x00FF8000, 0xA1000000, 0x00001000);  // YM2149   ($ff8800 -> $a1000800)
-    mmu_Redirect(0xFFFF8000, 0xA1000000, 0x00001000);
 
-    // hardware MFP1 + emulated ACIA
-    // ACIA : ffffc00 goes to ram0 reserved area  (by help of cpld)
+    // 0xE00000 : 512k system rom : 512kb at physical rom offset 256kb. repeated to fill entire 1MB
+    mmu_Map24bit(0x00E00000, 0x40040000, 0x00080000, PMMU_READONLY  | PMMU_CM_WRITETHROUGH);
+    mmu_Map24bit(0x00E80000, 0x40040000, 0x00080000, PMMU_READONLY  | PMMU_CM_WRITETHROUGH);
+
+    // 0xF00000 : reserved io space
+    mmu_Map24bit(0x00F00000, 0xA0000000, 0x00001000, PMMU_READWRITE | PMMU_CM_PRECISE);  // IDE ($f00000 -> $a0000000)
+
+#if ENABLE_CART_TEST
+    // 0xFA0000 : cart : 128kb at physical rom offset 768kb
+    mmu_Map24bit(0x00FA0000, 0x400C0000, 0x00020000, PMMU_READONLY  | PMMU_CM_WRITETHROUGH);
+#endif
+    // 0xFC0000 : 192k system rom
+
+    // 0xFF0000 : reserved io space
+
+    // 0xFF8000 : standard io space, todo: add bus-errors
+    mmu_Map24bit(0x00FF8000, 0xA1000000, 0x00001000, PMMU_READWRITE | PMMU_CM_PRECISE);                 // YM2149   ($ff8800 -> $a1000800)
+    // ACIA : ffffc00 goes to ram0 reserved area  (by help of cpld)                                     // ACIA     ($fffc00 -> BIOS_EMU_MEM)
     // MFP1 : ffffx00 goes to 0xA1xxxxxx as usual (emu address bits ignored)
-    mmu_Map(0xA1000000 + BIOS_EMU_MEM, 0xA1000000 + BIOS_EMU_MEM, 0x00001000, PMMU_READWRITE | PMMU_CM_PRECISE);
-    mmu_Redirect(0x00FFF000, 0xA1000000 + BIOS_EMU_MEM, 0x00001000);  // MFP1     ($fffa00 -> $a1000a00)
-    mmu_Redirect(0xFFFFF000, 0xA1000000 + BIOS_EMU_MEM, 0x00001000);
+    mmu_Map24bit(0x00FFF000, 0xA1000000 + BIOS_EMU_MEM, 0x00001000, PMMU_READWRITE | PMMU_CM_PRECISE);  // MFP1     ($fffa00 -> $a1000a00)
+
 
     // special case graphics card access to satisfy existing Atari drivers
 	if (id_gfx == 3) {
@@ -230,10 +261,10 @@ bool atari_InitMMU(uint32_t* simms)
 		// ET4000
 	    mmu_Invalid(0xFE800000, 0x00100000);
 	    mmu_Invalid(0xFE900000, 0x00100000);
-	    mmu_Redirect(0xFED00000, 0x83000000, 0x00100000);      // TT Nova ET4k reg base    : 1024 kb
+	    mmu_Redirect(0xFED00000, 0x83000000, 0x00100000);      // TT Nova ET4k reg base : 1024 kb
 	    mmu_Redirect(0xFEC00000, 0x82000000, 0x00100000);      // TT Nova ET4k mem base	: 1024 kb
-	    mmu_Redirect(0x00D00000, 0x83000000, 0x00100000);      // ST Nova ET4k reg base    : 1024 kb
-	    mmu_Redirect(0x00C00000, 0x82000000, 0x00100000);      // ST Nova ET4k mem base    : 1024 kb
+	    mmu_Redirect(0x00D00000, 0x83000000, 0x00100000);      // ST Nova ET4k reg base : 1024 kb
+	    mmu_Redirect(0x00C00000, 0x82000000, 0x00100000);      // ST Nova ET4k mem base : 1024 kb
 	}
 
     // hades compatible ISA I/O to take advantage of existing drivers

@@ -63,7 +63,7 @@ NMIFunc_t cpu_SetNMI(NMIFunc_t func)
 }
 
 
-uint32_t* mmu_Init()
+uint32_t* mmu_Init(uint32_t unmapped_desc)
 {
     mmuRootTable        = (uint32_t*) mem_Alloc(128 * 4, 512);
     mmuInvalidPtrTable  = (uint32_t*) mem_Alloc(128 * 4, 512);
@@ -71,7 +71,7 @@ uint32_t* mmu_Init()
     mmuInvalidPageDesc  = (uint32_t*) mem_Alloc(4, 4);
     mmuInvalidPage      = (uint32_t*) mem_Alloc(PMMU_PAGESIZE, PMMU_PAGESIZE);
 
-    mmuInvalidPageDesc[0] = ((uint32_t)mmuInvalidPage) | (PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
+    mmuInvalidPageDesc[0] = unmapped_desc ? unmapped_desc : (((uint32_t)mmuInvalidPage) | (PMMU_READWRITE | PMMU_CM_WRITETHROUGH));
 
     for (int i=0; i<PMMU_PAGESIZE/4; i++)
         mmuInvalidPage[i] = 0;
@@ -154,7 +154,6 @@ void mmu_Redirect(uint32_t logsrc, uint32_t logdst, uint32_t size)
         dst += PMMU_PAGESIZE;
     }
 }
-
 
 void mmu_Invalid(uint32_t log, uint32_t size)
 {

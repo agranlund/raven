@@ -80,7 +80,7 @@ void        cpu_TriggerNMI();
 //-------------------------------------------------------
 // pmmu
 //-------------------------------------------------------
-uint32_t*   mmu_Init();
+uint32_t*   mmu_Init(uint32_t unmapped_desc);
 void        mmu_Map(uint32_t log, uint32_t phys, uint32_t size, uint32_t flags);
 void        mmu_Redirect(uint32_t logsrc, uint32_t logdst, uint32_t size);
 void        mmu_Invalid(uint32_t log, uint32_t size);
