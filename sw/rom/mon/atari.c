@@ -11,7 +11,7 @@
 #define COPYBACK_TTRAM          0
 #define ACIA_EMULATION          0
 #define ENABLE_CART_TEST        0
-
+#define DELAY_BOOT              0
 
 extern uint32_t ksimm[4];
 
@@ -306,12 +306,16 @@ bool atari_Init()
 		IOL(0, i) = 0;
 	}
 
-    puts("\nHit any key to cancel EmuTOS auto-boot...\n");
-    for (volatile int i = 0x100000; i; i--) {
-        if (uart_recvChar() != -1) {
-            return true;
+    if (DELAY_BOOT > 0)
+    {
+        puts("\nHit any key to cancel EmuTOS auto-boot...\n");
+        for (volatile int i = 0x100000; i; i--) {
+            if (uart_recvChar() != -1) {
+                return true;
+            }
         }
     }
+    
     puts("Start");
     cpu_Call(0xe00000);
     return false;
