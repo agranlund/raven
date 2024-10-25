@@ -17,6 +17,7 @@ hw/simm/programmer/firmware/build/*
 !hw/simm/programmer/firmware/build/ravenprog.uf2
 sw/rom/mon/mon.map
 sw/rom/mon/mon.bin
+sw/rom/mon/mon.ram
 sw/rom/boot.bin
 sw/rom/os.bin
 sw/rom/tos.bin
