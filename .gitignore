@@ -20,3 +20,4 @@ sw/rom/mon/mon.bin
 sw/rom/boot.bin
 sw/rom/os.bin
 sw/rom/tos.bin
+dist/*
