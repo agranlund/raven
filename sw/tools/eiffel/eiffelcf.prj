@@ -1,0 +1,12 @@
+eiffelcf.app
+.C[-E1 -2 -P]
+.C[-I..\..\purec\include]
+.C[-Ipure_c\include]
+.L[-v -S=8192]
+=
+..\..\purec\lib\cstart0.o
+eiffelcf.c	(eiffel_g.h,eiffel.h,update.h)	
+update.c	(eiffel.h)
+..\..\purec\lib\pctoslib.lib
+..\..\purec\lib\pcstdlib.lib
+pure_c\lib\staads.lib
