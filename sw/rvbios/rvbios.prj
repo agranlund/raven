@@ -1,0 +1,32 @@
+rvbios.prg
+.C[-I..\purec\include]
+.C[-DXBTIME=0]
+.C[-DXBNVM=0]
+.C[-E1 -2 -P]
+
+.S[-I..\purec\include]
+.S[-DXBTIME=0]
+.S[-DXBNVM=0]
+.S[-4 -8 -S]
+
+.L[-V -S=4096]
+=
+..\purec\lib\cstart0.o
+main.c
+xbios_c.c
+utils.s
+xbios.s
+eiffel.s
+sp060.s
+setup\setup.c
+setup\form_vt.c
+setup\misc.c
+setup\f_boot.c
+setup\f_cpu.c
+setup\f_nvram.c
+setup\f_nova.c
+setup\f_exit.c
+..\purec\lib\pctoslib.lib
+..\purec\lib\pcstdlib.lib
+..\purec\lib\pclnalib.lib
+
