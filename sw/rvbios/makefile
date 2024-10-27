@@ -1,6 +1,6 @@
 
 
-BINROOT	= c:/tools
+BINROOT	= c:/auto
 
 SRCROOT	= ..
 DSTROOT	= $(SRCROOT)/../dist/auto
