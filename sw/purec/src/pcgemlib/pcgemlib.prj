@@ -1,0 +1,71 @@
+..\..\lib\pcgemlib.lib
+
+; not yet useable; local arrays
+; are too large to be callable from USERDEF objects
+.C[-DNEW_MT=0]
+.S[-DNEW_MT=0]
+
+.C[-I..\..\include]
+
+.C [-A-]
+.C [-H-]
+.C [-K-]
+.C [-C-]
+.C [-M-]
+.C [-P-]
+.C [-Z-]
+.C [-R-]
+.C [-G-]
+.C [-L32]
+
+.L[-J]
+=
+appl.s
+evnt.s
+evntmult.s
+evmult.c
+form.s
+fsel.s
+graf.s
+menu.s
+objc.s
+rsrc.s
+scrp.s
+shel.s
+wind.s
+xgrf.s
+
+wdlg.s
+fnts.s
+fslx.s
+pdlg.s
+lbox.s
+edit.s
+
+vattrbut.s
+vcontrol.s
+vescape.s
+vinput.s
+vinquire.s
+voutput.s
+vraster.s
+vdifsm.s
+gemparb.s
+vdiparb.s
+vdictrl.s
+aesctrl.s
+
+vextname.c
+vopnprn.c
+bezier.c
+
+mtappl.c
+mtrsrc.c
+mtedit.c
+mtgraf.c
+autil.c
+vutil.c
+gem3.c
+speedo.c
+mtaes.c
+mtsys.c

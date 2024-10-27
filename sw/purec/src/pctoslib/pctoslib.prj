@@ -1,0 +1,24 @@
+../../lib/pctoslib.lib
+.L[-J]
+.L[-G]
+.C[-I../../include]
+; History:
+; 2.03 neue XBIOS-Funktionen fÅr TT:
+;      Bconmap, DMAread, DMAwrite, EsetShift, EgetShift, EsetBank, Esetcolor,
+;      EsetPalette, EgetPalette, EsetGray, EsetSmear
+=
+bios.s
+xbios.s
+gemdos.s
+mint.s
+assert.c
+ssystem.c
+nf_ops.c [-S-] ; asm code contained there will not work with stack frames, dont change this
+nf_debug.c
+nf_name.c
+nf_shutd.c
+nf_exit.c
+nf_stder.c
+nf_vers.c
+nf_exec.c
+cookie.c
