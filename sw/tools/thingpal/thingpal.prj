@@ -1,0 +1,9 @@
+thingpal.tos
+.C[-E1 -M -P -Z]
+.C[-I..\..\purec\include]
+.L[-V -S=16384]
+=
+..\..\purec\lib\cstart0.o
+main.c
+..\..\purec\lib\pctoslib.lib
+..\..\purec\lib\pcstdlib.lib
