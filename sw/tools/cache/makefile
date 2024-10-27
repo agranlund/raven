@@ -1,4 +1,6 @@
 
+BINROOT	= c:/tools
+
 SRCROOT	= ../..
 DSTROOT	= $(SRCROOT)/../dist/tools
 PCMAKE	= $(SRCROOT)/purec/pcmake.ttp
@@ -10,7 +12,11 @@ all:
 clean:
 	rm -f *.O *.prg *.tos
 
-dist: clean all
+dist: all
 	cp cacheoff.prg $(DSTROOT)/
 	cp cache_on.prg $(DSTROOT)/
 	
+install: all
+	cp cacheoff.prg $(BINROOT)/
+	cp cache_on.prg $(BINROOT)/
+

@@ -1,4 +1,6 @@
 
+BINROOT	= c:/tools
+
 SRCROOT	= ../..
 DSTROOT	= $(SRCROOT)/../dist/tools
 PCMAKE	= $(SRCROOT)/purec/pcmake.ttp
@@ -9,6 +11,8 @@ all:
 clean:
 	rm -f *.O *.prg *.tos
 
-dist: clean all
+dist: all
 	cp resetnvm.prg $(DSTROOT)/
 
+install: all
+	cp resetnvm.prg $(BINROOT)/
