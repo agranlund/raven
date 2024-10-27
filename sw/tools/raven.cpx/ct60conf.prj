@@ -1,0 +1,15 @@
+raven.cp
+.C[-I..\..\purec\include]
+.C[-E1 -2 -C]
+.S[-I..\..\purec\include]
+.S[-4 -S]
+.L[-V -S=16384]
+=
+cpxstart.s
+ct60conf.c
+temp.s
+..\..\purec\lib\pcfltlib.lib
+..\..\purec\lib\pcstdlib.lib
+;..\..\purec\lib\pcextlib.lib
+..\..\purec\lib\pctoslib.lib
+..\..\purec\lib\pcgemlib.lib
