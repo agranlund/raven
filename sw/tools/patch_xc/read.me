@@ -1,0 +1,59 @@
+XCONTROL patches
+================
+This archive contains programs and data related to updating XCONTROL modules
+for CT60 copyback-cache support.  It currently updates the following modules:
+    XCONTROL.ACC v1.31 (French, UK, and USA versions)
+    GENERAL.CPX v1.30 (French) & v1.40 (English)
+
+The updated XCONTROL is backward-compatible, and may be used on a standard
+Atari system as well as a CT60-accelerated Falcon.  However, the updated
+GENERAL is intended for the CT60 only and, unlike the original version,
+does not support cache control on 68030 systems.  For this reason, it may
+be desirable to rename it (to e.g. GENERAL6.CPX) so that both the old and
+new versions may be concurrently active in the CPX folder.
+
+
+Included files
+--------------
+    PATCH_XC.C           Source of program to patch XCONTROL & GENERAL.CPX for CT60
+    PATCH_XC.PRG         Executable
+    PATCH_XC.PRJ         Lattice C project file
+    READ.ME              This file
+    XCTL_PAT.S           Source of routine to be patched into XCONTROL
+    XCTL_PAT.LST         Assembly listing, to obtain patch data
+    FRANCE\GENERAL.CPX   Unmodified French-language version of GENERAL.CPX 1.30
+    FRANCE\XCONTROL.ACC  Unmodified French version of XCONTROL 1.31
+    UK\GENERAL.CPX       Unmodified English-language version of GENERAL.CPX 1.40
+    UK\XCONTROL.ACC      Unmodified UK version of XCONTROL 1.31
+    USA\XCONTROL.ACC     Unmodified US version of XCONTROL 1.31
+
+
+How to run PATCH_XC.PRG
+-----------------------
+1. Make a backup of the files you are going to update!
+2. Launch PATCH_XC.PRG and you will receive an introductory alert.
+3. After replying Continue, you will get a file selector to allow
+   you to choose a file to update.
+4. When you have chosen a file, PATCH_XC will tell you whether
+   it is the original version, a CT60-patched version, or an
+   unrecognised version/program.
+5. You may choose to Update an original version or to Restore
+   an already-updated version to the original.
+6. After the update has completed, you will be prompted to
+   repeat the above, starting at #3.
+
+
+Identifying a modified module
+-----------------------------
+XCONTROL.ACC
+------------
+ . the version number is 1.36
+
+GENERAL.CPX
+-----------
+ . the title is suffixed by "60"
+ . the CPX id is 'FGE6' (French) or 'GEN6' (English) [the change
+   of suffix allows it to be loaded concurrently with the original]
+
+
+Roger Burrows

@@ -1,0 +1,12 @@
+patch_xc.prg
+.C[-P -E1]
+.C[-I..\..\purec\include]
+.L[-V -S=4096]
+=
+..\..\purec\lib\cstart0.o
+patch_xc.c
+xctl_pat.s
+..\..\purec\lib\pctoslib.lib
+..\..\purec\lib\pcstdlib.lib
+..\..\purec\lib\pcgemlib.lib
+
