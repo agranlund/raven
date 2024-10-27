@@ -21,4 +21,6 @@ sw/rom/mon/mon.ram
 sw/rom/boot.bin
 sw/rom/os.bin
 sw/rom/tos.bin
-dist/*
+dist/drivers/*
+dist/rom/*
+
