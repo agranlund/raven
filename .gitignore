@@ -14,13 +14,13 @@ bak/*
 _autosave*
 #auto_saved_files#
 hw/simm/programmer/firmware/build/*
-!hw/simm/programmer/firmware/build/ravenprog.uf2
-sw/rom/mon/mon.map
-sw/rom/mon/mon.bin
-sw/rom/mon/mon.ram
-sw/rom/boot.bin
-sw/rom/os.bin
-sw/rom/tos.bin
-dist/drivers/*
-dist/rom/*
+sw/rom/mon/*.bin
+sw/rom/mon/*.ram
+sw/rom/*.bin
+dist/raven/*
+dist/*.zip
+get_atari.sh
+rvst.zip
+
+
 
