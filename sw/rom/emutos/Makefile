@@ -65,8 +65,6 @@ help:
 	@echo "m548x-bas  $(SREC_M548X_BAS), EmuTOS for BaS_gcc on ColdFire Evaluation Boards"
 	@echo "m548x-prg  emutos.prg, a RAM tos for ColdFire Evaluation Boards with BaS_gcc"
 	@echo "raven      $(ROM_RAVEN), EmuTOS for Raven"
-	@echo "raven-prg  emutos.prg, a RAM tos for Raven"
-	@echo "raven-con  $(ROM_RAVEN_CON), console mode EmuTOS over serial connection"
 
 	@echo "prg     emutos.prg, a RAM tos"
 	@echo "prg256  $(EMU256_PRG), a RAM tos for ST/STe systems"
@@ -921,11 +919,12 @@ obj/lisaboot.o: obj/ramtos.h
 
 ROM_RAVEN = emutos-raven.rom
 ROM_RAVEN_CON = emucon-raven.rom
+ROM_RAVEN_DBG = emudbg-raven.rom
 
 RAVEN_CPUFLAGS = -m68060
 RAVEN_OPTFLAGS = $(SMALL_OPTFLAGS)
 RAVEN_DEFS = -DMACHINE_RAVEN -DINITINFO_DURATION=0 -DSHOW_STARTUP_MESSAGE=0
-#RAVEN_DEFS = -DMACHINE_RAVEN -DINITINFO_DURATION=0 -DSHOW_STARTUP_MESSAGE=0 -DRS232_DEBUG_PRINT=1 -DENABLE_KDEBUG
+RAVEN_DEFS_DBG = -DMACHINE_RAVEN -DINITINFO_DURATION=5 -DSHOW_STARTUP_MESSAGE=1 -DRS232_DEBUG_PRINT=1 -DENABLE_KDEBUG -DDEBUG_REGISTER_WRITES
 RAVEN_DEFS_CON = -DMACHINE_RAVEN -DINITINFO_DURATION=1 -DSHOW_STARTUP_MESSAGE=1 -DCONF_SERIAL_CONSOLE=1 -DCONF_SERIAL_CONSOLE_POLLING_MODE=1 -DCONF_SERIAL_CONSOLE_ANSI=1
 
 .PHONY: raven
@@ -941,6 +940,19 @@ raven:
 	$(MAKE) CPUFLAGS='$(CPUFLAGS)' DEF='$(DEF)' OPTFLAGS='$(OPTFLAGS)' WITH_CLI=$(WITH_CLI) WITH_AES=$(WITH_AES) COUNTRY=$(COUNTRY) ROMSIZE=$(ROMSIZE) ROM_PADDED=$(ROM_PADDED) $(ROM_PADDED) REF_OS=TOS206
 	@printf "$(LOCALCONFINFO)"
 
+.PHONY: raven-dbg
+NODEP += raven-dbg
+raven-dbg: ROM_PADDED = $(ROM_RAVEN_DBG)
+raven-dbg: CPUFLAGS = $(RAVEN_CPUFLAGS)
+raven-dbg: OPTFLAGS = $(RAVEN_OPTFLAGS)
+raven-dbg: override DEF += $(RAVEN_DEFS_DBG)
+raven-dbg: WITH_CLI = 1
+raven-dbg: WITH_AES = 1
+raven-dbg: ROMSIZE = 512
+raven-dbg:
+	$(MAKE) CPUFLAGS='$(CPUFLAGS)' DEF='$(DEF)' OPTFLAGS='$(OPTFLAGS)' WITH_CLI=$(WITH_CLI) WITH_AES=$(WITH_AES) COUNTRY=$(COUNTRY) ROMSIZE=$(ROMSIZE) ROM_PADDED=$(ROM_PADDED) $(ROM_PADDED) REF_OS=TOS206
+	@printf "$(LOCALCONFINFO)"
+
 .PHONY: raven-con
 NODEP += raven-con
 raven-con: ROM_PADDED = $(ROM_RAVEN_CON)
@@ -953,7 +965,6 @@ raven-con: ROMSIZE = 512
 raven-con:
 	$(MAKE) CPUFLAGS='$(CPUFLAGS)' DEF='$(DEF)' OPTFLAGS='$(OPTFLAGS)' WITH_CLI=$(WITH_CLI) WITH_AES=$(WITH_AES) COUNTRY=$(COUNTRY) ROMSIZE=$(ROMSIZE) ROM_PADDED=$(ROM_PADDED) $(ROM_PADDED) REF_OS=TOS206
 	@printf "$(LOCALCONFINFO)"
-
 
 .PHONY: raven-prg
 NODEP += raven-prg
