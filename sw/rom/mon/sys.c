@@ -117,10 +117,8 @@ bool sys_Init()
     puts("InitMonitor");
     mon_Init();
 
-    if (atari_DetectTos()) {
-        puts("InitAtari");
-        atari_Init();
-    }
+    puts("InitAtari");
+    atari_Init();
 
     puts("StartMonitor");
     mon_Start();

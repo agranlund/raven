@@ -122,7 +122,7 @@ bool atari_InitMMU(uint32_t* simms)
             id_gfx = 3; // todo: further detect Mach32 vs Mach64
         }
     }
-    fmt("GFX:  %s\n", gfxNames[id_gfx]);
+    //fmt("GFX:  %s\n", gfxNames[id_gfx]);
 
     // auto select st-ram size based on total available ram
     if (stram_size == 0) {
@@ -305,6 +305,11 @@ bool atari_Init()
 	for (int i=0x400; i<0x700; i+=4) {
 		IOL(0, i) = 0;
 	}
+
+    if (!atari_DetectTos()) {
+        puts("No TOS detected");
+        return true;
+    }
 
     if (DELAY_BOOT > 0)
     {
