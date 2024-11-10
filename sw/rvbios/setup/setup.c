@@ -28,7 +28,6 @@
 #include "f_nvram.h"
 #include "f_nova.h"
 #include "f_cpu.h"
-#include "f_boot.h"
 #include "f_exit.h"
 #include "misc.h"
 #include "../rvbios.h"
@@ -65,7 +64,7 @@ static const menu_t menu[NUM_MENU_ENTRIES]={
 	{"",	        &form_menu_empty,       NULL},
 	{"SYSTEM",	    &form_menu_cpu,         &form_setting_cpu[0]},
 	{"",	        &form_menu_empty,       NULL},
-	{"NOVA  ",        &form_menu_nova,       	&form_setting_nova[0]},
+	{"NOVA  ",      &form_menu_nova,       	&form_setting_nova[0]},
 	{"",	        &form_menu_empty,       NULL},	
 	{"Exit  ",	    &form_menu_exit,        &form_setting_exit[0]},
 };
@@ -176,9 +175,11 @@ int setup_main(void)
 
 
     /* restore screen */
+/*
 	vt_setFgColor(COL_BLACK);
 	vt_setBgColor(COL_WHITE);
 	Cconws(CLEAR_HOME "\r\n");
+*/
 
 #if 0
 #ifdef SETUP_STANDALONE
@@ -316,10 +317,15 @@ static void setup_menu(unsigned long key_pressed)
                 menu_refresh = 1;
             }
 			break;
-		case SCANCODE_ENTER:	/* First parameter on first row */
+		case SCANCODE_SPACE:
+		case SCANCODE_ENTER:
+		case SCANCODE_KP_ENTER:
 			if (menu[menu_row].settings) {
 				setup_state = STATE_FORM_SELECT;
                 stat_refresh = 1;
+			}
+			if (menu[menu_row].form->enter) {
+				menu[menu_row].form->enter();
 			}
 			break;
 	}
@@ -332,15 +338,14 @@ static void setup_form_select(unsigned long key_pressed)
 
 	switch(scancode) {
 		case SCANCODE_F10:
-            vt_setting_clear();
-			setup_state = STATE_MENU;
 			exit_type = SETUP_EXIT;
-            stat_refresh = 1;
-            break;
 		case SCANCODE_ESCAPE:
             vt_setting_clear();
 			setup_state = STATE_MENU;
             stat_refresh = 1;
+			if (menu[menu_row].form->exit) {
+				menu[menu_row].form->exit();
+			}
 			break;
 		case SCANCODE_UP:	/* First parameter on previous row */
 			vt_setting_prevRow();
@@ -354,6 +359,7 @@ static void setup_form_select(unsigned long key_pressed)
 		case SCANCODE_RIGHT:	/* Next parameter on same row */
 			vt_setting_next();
 			break;
+		case SCANCODE_SPACE:
 		case SCANCODE_ENTER:
 		case SCANCODE_KP_ENTER:
 			switch(vt_setting_getType()) {
@@ -414,6 +420,7 @@ static void setup_list_select(unsigned long key_pressed)
 			vt_setting_listNext();
             stat_refresh = 1;
 			break;
+		case SCANCODE_SPACE:
 		case SCANCODE_ENTER:
 		case SCANCODE_KP_ENTER:
 			vt_setting_newValue(menu[menu_row].form, NULL);
@@ -443,6 +450,7 @@ static void setup_updown_select(unsigned long key_pressed)
 			vt_setting_updown(SETTING_DIR_DOWN);
             stat_refresh = 1;
 			break;
+		case SCANCODE_SPACE:
 		case SCANCODE_ENTER:
 		case SCANCODE_KP_ENTER:
 			vt_setting_newValue(menu[menu_row].form, NULL);

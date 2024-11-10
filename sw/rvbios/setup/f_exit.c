@@ -45,14 +45,18 @@ static void exitContinue(void);
 static void exitReset(void);
 
 static form_t form_exit[]={
+/*
 	{FORM_TEXT, "Exit and continue booting", 2,2},
 	{FORM_TEXT, "Exit and reset", 2,3},
+*/
 	{FORM_END, 0,0,0}
 };
 
 form_setting_t form_setting_exit[]={
+/*
 	{2,2, NULL, SETTING_FUNC, 0, exitContinue},
 	{2,3, NULL, SETTING_FUNC, 0, exitReset},
+*/
 	{0, 0, NULL, SETTING_END}
 };
 
@@ -64,15 +68,18 @@ const form_menu_t form_menu_exit={
 	displayFormExit,
 	NULL,
 	initFormExit,
-	NULL
+	NULL,
+	exitContinue, NULL
 };
 
 /*--- Functions ---*/
 
 static void initFormExit(void)
 {
+/*
 	form_setting_exit[FORM_SETTING_CONTINUE].text = &form_exit[FORM_CONTINUE].text[0];
 	form_setting_exit[FORM_SETTING_RESET].text = &form_exit[FORM_RESET].text[0];
+*/
 }
 
 void displayFormExit(void)

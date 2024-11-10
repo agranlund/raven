@@ -138,6 +138,7 @@ form_setting_t form_setting_cpu[]={
 
 /*--- Variables ---*/
 
+static void exitFormCpu(void);
 static void initFormCpu(void);
 static void confirmFormCpu(int num_setting, conf_setting_u confSetting);
 
@@ -146,7 +147,8 @@ const form_menu_t form_menu_cpu={
 	displayFormCpu,
 	updateFormCpu,
 	initFormCpu,
-	confirmFormCpu
+	confirmFormCpu,
+	NULL, exitFormCpu
 };
 
 static unsigned char ram_total = 0;
@@ -268,8 +270,15 @@ void refreshFormCpu(void)
 	form_cpu[FORM_PCR_FPU].text[FORM_TEXTPOS+1]  = ((nv_flags & (1<<5)) ? 'x' : ' ');
 }
 
+void exitFormCpu(void)
+{
+	/* todo: save settings */
+}
+
 void initFormCpu(void)
 {
+	/* todo: load settings */
+
 	unsigned long fpu_type, cpu_type, cpu_rev;
 	unsigned long rom;
 	unsigned short rev;

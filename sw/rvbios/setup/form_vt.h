@@ -98,6 +98,9 @@ typedef struct {
 
 	void (*init)(void);	/* Function to init setting pointer */
 	void (*confirm)(int numSetting, conf_setting_u confSetting);
+
+	void (*enter)(void);
+	void (*exit)(void);
 } form_menu_t;
 
 /* for SETTING_FUNC, param is this type */

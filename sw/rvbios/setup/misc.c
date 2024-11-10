@@ -86,12 +86,40 @@ int strLength(const char *str)
 	return i;
 }
 
-void strCopy(const char *src, char *dest)
+void strCopy(const char *src, char *dst)
+{
+	if (src) {
+		while (*src) {
+			*dst++ = *src++;
+		}
+	}
+	*dst = 0;
+}
+
+void strCopyUpper(const char *src, char *dst)
+{
+	if (src) {
+		while (*src) {
+			char c = *src++;
+			if (c >= 'a' && c <= 'z') {
+				c += ('A' - 'a');
+			}
+			*dst++ = c;
+		}
+	}
+	*dst = 0;
+}
+
+int strCompare(const char *src, const char *dst)
 {
 	while (*src) {
-		*dest++ = *src++;
+		if (*dst == 0)   return 1;
+		if (*src > *dst) return 1;
+		if (*src < *dst) return -1;
+		src++; dst++;
 	}
-	*dest = 0;
+	if (*dst) return -1;
+	return 0;
 }
 
 int strToInt(const char *src)

@@ -33,7 +33,11 @@ void format_number_hex(char *str, long value, int num_chars, int prefix);
 int strLength(const char *str);
 
 /* String copy */
-void strCopy(const char *src, char *dest);
+void strCopy(const char *src, char *dst);
+void strCopyUpper(const char *src, char *dst);
+
+/* String compare */
+int strCompare(const char* src, const char *dst);
 
 /* String to int */
 int strToInt(const char *src);

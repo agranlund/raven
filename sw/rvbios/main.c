@@ -41,8 +41,10 @@
 	Constants
 ----------------------------------------*/
 #define SETUP_ONLY		0
-#define ENABLE_SETUP	0
+#define ENABLE_SETUP	1
 
+#define COL_FG			COL_WHITE
+#define COL_BG			COL_BLACK
 
 /*----------------------------------------
 	Globals
@@ -159,11 +161,23 @@ void bootscreen(void)
 	uint32_t* vram = (uint32_t*)Physbase();
 	uint32_t* logo = (uint32_t*)&LogoPic;
 
+	vt_setFgColor(COL_FG);
+	vt_setBgColor(COL_BG);
+	Cconws(C_OFF);
+	Cconws(CLEAR_HOME);
+    vt_setCursorPos(0, 7);	
+
 	vram += (logo_x + (logo_y * vram_w));
 	for (i=0; i<logo_h; i++) {
+#if (COL_BG == COL_BLACK)
+		*vram++ = 0xffffffffUL ^ *logo++;
+		*vram++ = 0xffffffffUL ^ *logo++;
+		*vram++ = 0xffffffffUL ^ *logo++;
+#else
+		*vram++ = *logo++ ;
 		*vram++ = *logo++;
 		*vram++ = *logo++;
-		*vram++ = *logo++;
+#endif
 		vram += (vram_w - logo_w);
 	}
 }
@@ -183,8 +197,11 @@ int setup(void)
 	if (boot_delay > 0) {
 		unsigned long dot_tick, cur_tick, start_tick;
 		int start_setup = 0;
+
 #if ENABLE_SETUP
+/*
 		Cconws(" Press DEL to enter setup.");
+*/
 #else
 		Cconws(" ");
 #endif
@@ -205,7 +222,8 @@ int setup(void)
 
 			if (cur_tick-dot_tick>200) {
 				dot_tick = cur_tick;
-				Cconws(".");
+/*				Cconws(".");
+*/
 			}
 			cur_tick = ticks_get();
 		}
@@ -213,6 +231,8 @@ int setup(void)
     	Cconws(DEL_BOL "\r");
    		if (ENABLE_SETUP && start_setup) {
    			setup_main();
+			vt_setFgColor(COL_FG);
+			vt_setBgColor(COL_BG);
    			return 1;
    		}
 	}
@@ -231,36 +251,13 @@ long supermain()
 
 	linea_init();
 
-#if 1
-	vt_setFgColor(COL_BLACK);
-	vt_setBgColor(COL_WHITE);
-/*   
-	vt_setFgColor(COL_WHITE);
-	vt_setBgColor(COL_BLACK); 
-*/
-	Cconws(C_OFF);
-    Cconws("\33E");
-    vt_setCursorPos(0, 0);	
-#else
-	printf("\n");
-#endif
-
-	vt_setCursorPos(0,7);
-
-	printf(" Raven\n");
-	printf("\n");
-	printf(" xbios %08lx\n", RVBIOS_VERSION);
-	printf(" rom   ");
-	
 	/* fetch pointer rom bios */	
 	g_rv = *((const raven_t**)C_RAVN_PTR);
 	if (g_rv->magic != C_RAVN) {
-		printf("invalid\n\n");
 		return -1;
 	}
 
-	printf("%08lx\n\n", g_rv->version);
-
+	/* boot screen */
 	bootscreen();
 
 	/* install xbios extensions */
@@ -283,6 +280,9 @@ long supermain()
 
 #if ENABLE_SETUP
 	if (setup() != 0) {
+		vt_setFgColor(COL_FG);
+		vt_setBgColor(COL_BG);
+		Cconws(CLEAR_HOME "\r\n");
 		/* todo: reset */
 	}
 #endif

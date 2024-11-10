@@ -89,6 +89,8 @@ static const char *lang_kbd[NUM_LANG_KBD+1]={
 
 /*--- Functions prototypes ---*/
 
+static void exitFormNvram();
+
 static void reloadFromNvram(void);
 static void saveToNvram(void);
 static void confirmFormNvram(int num_setting, conf_setting_u confSetting);
@@ -137,7 +139,9 @@ const form_menu_t form_menu_nvram={
 	updateFormNvram,
 
 	initFormNvram,
-	confirmFormNvram
+	confirmFormNvram,
+
+	NULL, exitFormNvram
 };
 
 static unsigned long start_tick;
@@ -146,6 +150,11 @@ static unsigned long cur_tick;
 static unsigned char nvram[17];
 
 /*--- Functions ---*/
+
+static void exitFormNvram(void)
+{
+	saveToNvram();
+}
 
 void initFormNvram(void)
 {
