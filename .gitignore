@@ -21,6 +21,9 @@ dist/raven/*
 dist/*.zip
 get_atari.sh
 rvst.zip
-
+sw/tools/*/*.prg
+sw/tools/*/*.tos
+sw/rvbios/*.prg
+sw/rvnova/*.prg
 
 
