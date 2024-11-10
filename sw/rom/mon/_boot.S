@@ -1,7 +1,8 @@
     #include "sys.h"
     #include "hw/uart.h"
 
-    #define UART_BAUDR      750000
+    // #define UART_BAUDR      750000
+    #define UART_BAUDR      115200
     #define UART_BAUDD      (UART_CLK/(UART_BAUDR*16))
     #define UART_FLOWCTRL   0
 
