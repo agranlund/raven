@@ -26,6 +26,8 @@ tos-dbg: $(OUT_BIN_DBG)
 tos-con: $(OUT_BIN_CON)
 
 dist:
+#	make clean
+#	make tos-con
 	make clean
 	make tos-dbg
 	make clean
