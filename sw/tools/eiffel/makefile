@@ -3,7 +3,6 @@
 BINROOT	= c:/tools/eiffel
 
 SRCROOT	= ../..
-DSTROOT	= $(SRCROOT)/../dist/eiffel
 PCMAKE	= $(SRCROOT)/purec/pcmake.ttp
 
 all:
@@ -16,10 +15,4 @@ clean:
 install: all
 	cp eiffelcf.app $(BINROOT)/
 	cp eiffel_g.rsc $(BINROOT)/	
-
-dist: all
-	cp eiffelcf.app $(DSTROOT)/
-	cp eiffel_g.rsc $(DSTROOT)/
-
-
 

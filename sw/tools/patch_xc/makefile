@@ -2,7 +2,6 @@
 BINROOT	= c:/tools
 
 SRCROOT	= ../..
-DSTROOT	= $(SRCROOT)/../dist/tools
 PCMAKE	= $(SRCROOT)/purec/pcmake.ttp
 
 all:
@@ -10,9 +9,6 @@ all:
 
 clean:
 	rm -f *.o *.O *.prg *.PRG
-
-dist: all
-	cp patch_xc.prg $(DSTROOT)/
 
 install: all
 	cp patch_xc.prg $(BINROOT)/
