@@ -1,0 +1,14 @@
+rvnova.prg
+.C[-I..\purec\include]
+.C[-E1 -Y -G -M -Z -P]
+
+.S[-I..\purec\include]
+.S[-S]
+
+.L[-R -M -V -S=4096]
+=
+..\purec\lib\cstart0.o
+main.c
+rvnova.c
+..\purec\lib\pctoslib.lib
+..\purec\lib\pcstdlib.lib
