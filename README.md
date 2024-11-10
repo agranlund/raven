@@ -1,10 +1,15 @@
 # Raven
 ### A homemade Atari clone computer based on Motorola 68060
 This computer is primarily designed to be an Atari clone computer with
-the goal of being able to natively run clean GEM/TOS applications.
-The machine is fast enough to run hardware-hitting Atari ST games with help from software emulation.
+the goal of being able to natively run clean GEM/TOS applications, and backward compatibility with old ST games by help of software emulation.
+
+Youtube: https://www.youtube.com/@granlund23/videos
+
+Forum: https://www.exxosforum.co.uk/forum/viewtopic.php?f=18&t=6940
 
 ![Alt text](hw/raven/a0/images/raven_a0.jpg?raw=true "")
+
+![Alt text](hw/raven/a1/images/desktop.jpg?raw=true "")
 
 
 ## This is not a product.
@@ -12,7 +17,6 @@ It was designed as a one-off computer for myself for learning and as a platform 
 Thus, things like cost-reduction or other factors that might be important for a product was never high on the priority.
 
 Hardware and software sources are provided as-is and for free but I cannot make any guarantees or promise of support, it's all very much work in progress.
-This thread on the Exxos forums is the build log of my machine: https://www.exxosforum.co.uk/forum/viewtopic.php?f=18&t=6940
 
 The computer works and runs EmuTOS + FreeMiNT but if you decide to build or buy this board I very much recommend coming in with a DIY mindset.
 It's early days still and waiting on drivers or fixes made by others could very well have you waiting indefinitely.
