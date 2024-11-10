@@ -1,0 +1,25 @@
+; STA_VDI.INF Datei, durch entfernen des ';' wird Funktion aktiv
+;
+; Schlafecke, Maus in diese Ecke und der Bildschirm wird dunkel
+; im Beispiel R=right, B=bottom -> rechts unten
+; OFF bedeutet, daû es keine Schlafecke gibt
+SLEEP = OFF
+; Wachecke, Maus in diese Ecke und der Bildschirm bleib an
+; im Beispiel L=left, T=top -> links oben
+;NEVER-SLEEP = LT
+; Font-Cache kann bei FontverÑndernden Programmen Probleme machen
+;FONTCACHE = NO
+; Hier kann der Bildschirmfont ersetzt werden
+;s1:c:\gemsys\monaco08.fnt
+;s2:c:\gemsys\monaco09.fnt
+;s3:c:\gemsys\monaco10.fnt
+; Bei den mach32/64 Karten wird ein Hardwarecursor eingesetzt.
+; Dieser muû bei Bildschirmausgaben nicht, wie ein Softwarecursor
+; ausgeschaltet werden. OFF = Cusor lÑût sich nicht auschalten,
+; ON = ATARI Åblich
+;HW-MOUSE-OFF=OFF
+; Ab NOVA VDI 2.55 kann hier die Grîûe des sichtbaren Bildes in mm
+; eingetragen werden. Dies wird fÅr eine richtige Skalierung bei
+; Vektorfonts benîtigt.
+;SCREEN-X=319
+;SCREEN-Y=242
