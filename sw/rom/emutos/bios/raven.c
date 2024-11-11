@@ -200,4 +200,17 @@ void raven_nvram_detect(void)
 
 #endif /* CONF_WITH_NVRAM */
 
+
+#if RAVEN_DEBUG_PRINT
+
+void raven_com1_write_byte(UBYTE b)
+{
+    while (*((volatile unsigned char*)(RAVEN_UART2_BASE + 0x14)) == 0);
+    *((volatile unsigned char*)(RAVEN_UART2_BASE + 0x00)) = b;
+}
+
+#endif /* RAVEN_DEBUG_PRINT */
+
+
+
 #endif /* MACHINE_RAVEN */

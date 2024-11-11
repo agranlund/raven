@@ -33,6 +33,7 @@
 #include "ikbd.h"
 #include "midi.h"
 #include "amiga.h"
+#include "raven.h"
 
 #define DISPLAY_INSTRUCTION_AT_PC   0   /* set to 1 for extra info from dopanic() */
 #define DISPLAY_STACK               0   /* set to 1 for extra info from dopanic() */
@@ -141,6 +142,18 @@ static void kprintf_outc_coldfire_rs232(int c)
 }
 #endif
 
+#if RAVEN_DEBUG_PRINT
+static void kprintf_outc_raven_com1(int c)
+{
+    /* Raw terminals usually require CRLF */
+    if ( c == '\n')
+        raven_com1_write_byte('\r');
+
+    raven_com1_write_byte((char)c);
+}
+#endif
+
+
 static int vkprintf(const char *fmt, va_list ap)
 {
 #if CONSOLE_DEBUG_PRINT
@@ -190,6 +203,10 @@ static int vkprintf(const char *fmt, va_list ap)
 
 #if COLDFIRE_DEBUG_PRINT
     return doprintf(kprintf_outc_coldfire_rs232, fmt, ap);
+#endif
+
+#if RAVEN_DEBUG_PRINT
+    return doprintf(kprintf_outc_raven_com1, fmt, ap);
 #endif
 
 #if MIDI_DEBUG_PRINT
