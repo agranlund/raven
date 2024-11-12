@@ -24,12 +24,11 @@ SWDIR		= $(OUTDIR)/software
 COPY		= cp -p
 
 
-SWDIR_AUTO	= $(SWDIR)/AUTO
-SWDIR_NOVA	= $(SWDIR)/NOVA
-SWDIR_TOOLS	= $(SWDIR)/TOOLS
-SWDIR_ISA	= $(SWDIR)/RAVEN/DRIVERS
-
-
+SWDIR_AUTO	= $(SWDIR)/auto
+SWDIR_NOVA	= $(SWDIR)/nova
+SWDIR_TOOLS	= $(SWDIR)/tools
+SWDIR_RTOOLS	= $(SWDIR)/raven
+SWDIR_ISA	= $(SWDIR)/raven/drivers
 
 
 .phony: release release-test
@@ -39,7 +38,7 @@ SWDIR_ISA	= $(SWDIR)/RAVEN/DRIVERS
 
 release: setup build copy zipit upload
 
-release-test: setup copy zipit
+release-test: setup copy copysw zipit
 
 setup: clean
 	mkdir -p $(OUTDIR)
@@ -115,10 +114,38 @@ copysw:
 	# --------------------------------------------------
 	# RAVEN base tools
 	# --------------------------------------------------
-		mkdir -p $(SWDIR_TOOLS)/castaway
-		$(COPY) $(ROOTDIR)/../castaway/bin/* $(SWDIR_TOOLS)/castaway/
-		$(COPY) $(ROOTDIR)/../castaway/readme.txt $(SWDIR_TOOLS)/castaway/
-		$(COPY) $(ROOTDIR)/../castaway/license.txt $(SWDIR_TOOLS)/castaway/
+		mkdir -p $(SWDIR_AUTO)
+		$(COPY) $(ROOTDIR)/sw/rvbios/rvbios.prg $(SWDIR_AUTO)/
+		$(COPY) $(ROOTDIR)/sw/rvnova/rvnova.prg $(SWDIR_AUTO)/
+
+		mkdir -p $(SWDIR_TOOLS)
+		$(COPY) $(ROOTDIR)/sw/tools/thingpal/thingpal.tos $(SWDIR_TOOLS)/
+
+		mkdir -p $(SWDIR_RTOOLS)
+		$(COPY) $(ROOTDIR)/sw/tools/cache/cacheon.prg $(SWDIR_RTOOLS)/
+		$(COPY) $(ROOTDIR)/sw/tools/cache/cacheoff.prg $(SWDIR_RTOOLS)/
+		$(COPY) $(ROOTDIR)/sw/tools/resetnvm/resetnvm.prg $(SWDIR_RTOOLS)/
+		$(COPY) $(ROOTDIR)/sw/tools/patch_xc/patch_xc.prg $(SWDIR_RTOOLS)/
+
+		mkdir -p $(SWDIR_RTOOLS)/castaway
+		$(COPY) $(ROOTDIR)/../castaway/bin/* $(SWDIR_RTOOLS)/castaway/
+		$(COPY) $(ROOTDIR)/../castaway/readme.txt $(SWDIR_RTOOLS)/castaway/
+		$(COPY) $(ROOTDIR)/../castaway/license.txt $(SWDIR_RTOOLS)/castaway/
+
+	# --------------------------------------------------
+	# Eiffel
+	# --------------------------------------------------
+		mkdir -p $(SWDIR_RTOOLS)/eiffel
+		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/eiffelcf.app" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/copying" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/eiffel_g.rsc" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/doc/eiffel.hyp" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/doc/eiffel.ref" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/doc/authors.txt" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/doc/Technik.txt" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/french/*" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/german/*" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/tab_keyb/*" -d $(SWDIR_RTOOLS)
 
 
 	# --------------------------------------------------
@@ -143,31 +170,19 @@ copysw:
 		unzip -j $(SUPPDIR)/nova/NOVA_COL_171.zip "NOVA_COE.PRG" -d $(SWDIR_NOVA)
 		mv $(SWDIR_NOVA)/NOVA_COE.PRG $(SWDIR)/NOVA_COL.ACC
 		unzip -j $(SUPPDIR)/nova/vme8_0.zip "VME.8/CPX/*" -d $(SWDIR_NOVA)
-		unzip $(SUPPDIR)/nova/XMENU_ENG.zip -d $(SWDIR_NOVA)
-		unzip -j $(SUPPDIR)/nova/SAVEOFF.zip -d $(SWDIR_NOVA)
+		unzip -L $(SUPPDIR)/nova/XMENU_ENG.zip -d $(SWDIR_NOVA)
+		unzip -j $(SUPPDIR)/nova/SAVEOFF.zip -d $(SWDIR_NOVA)/
 
 		$(COPY) $(SUPPDIR)/nova/NOVA_COL.INF $(SWDIR)/
-		$(COPY) $(SUPPDIR)/nova/STA_VDI.INF $(SWDIR_AUTO)/
+		$(COPY) $(SUPPDIR)/nova/STA_VDI.INF $(SWDIR_AUTO)/sta_vdi.inf
 
 
-	# --------------------------------------------------
-	# Eiffel
-	# --------------------------------------------------
-		unzip $(SUPPDIR)/eiffel1110.zip "eiffel/eiffelcf.app" -d $(SWDIR_TOOLS)
-		unzip $(SUPPDIR)/eiffel1110.zip "eiffel/copying" -d $(SWDIR_TOOLS)
-		unzip $(SUPPDIR)/eiffel1110.zip "eiffel/eiffel_g.rsc" -d $(SWDIR_TOOLS)
-		unzip $(SUPPDIR)/eiffel1110.zip "eiffel/doc/eiffel.hyp" -d $(SWDIR_TOOLS)
-		unzip $(SUPPDIR)/eiffel1110.zip "eiffel/doc/eiffel.ref" -d $(SWDIR_TOOLS)
-		unzip $(SUPPDIR)/eiffel1110.zip "eiffel/doc/authors.txt" -d $(SWDIR_TOOLS)
-		unzip $(SUPPDIR)/eiffel1110.zip "eiffel/doc/Technik.txt" -d $(SWDIR_TOOLS)
-		unzip $(SUPPDIR)/eiffel1110.zip "eiffel/french/*" -d $(SWDIR_TOOLS)
-		unzip $(SUPPDIR)/eiffel1110.zip "eiffel/german/*" -d $(SWDIR_TOOLS)
-		unzip $(SUPPDIR)/eiffel1110.zip "eiffel/tab_keyb/*" -d $(SWDIR_TOOLS)
+
 
 	# --------------------------------------------------
 	# Additional support tools
 	# --------------------------------------------------
-		unzip -j $(SUPPDIR)/Autosort.zip "AUTOSORT/AUTOSORT.PRG" -d $(SWDIR_TOOLS)
+		unzip -j -L $(SUPPDIR)/Autosort.zip "autosort/autosort.prg" -d $(SWDIR_TOOLS)
 
 
 	# --------------------------------------------------
@@ -175,20 +190,20 @@ copysw:
 	# --------------------------------------------------
 
 	# NE2000
-		mkdir -p $(SWDIR_ISA)/NE2000
-		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/ENEH.MIF $(SWDIR_ISA)/NE2000/ENEH.XIF
-		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/ENEH.STX $(SWDIR_ISA)/NE2000/ENEH.STX
-		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/ETHERNE.TXT $(SWDIR_ISA)/NE2000/
-		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/COPYING.TXT $(SWDIR_ISA)/NE2000/
+		mkdir -p $(SWDIR_ISA)/ne2000
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/ENEH.MIF $(SWDIR_ISA)/ne2000/eneh.xif
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/ENEH.STX $(SWDIR_ISA)/ne2000/eneh.stx
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/ETHERNE.TXT $(SWDIR_ISA)/ne2000/etherne.txt
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/COPYING.TXT $(SWDIR_ISA)/ne2000/copying.txt
 
 	# PicoGUS driver
-		mkdir -p $(SWDIR_ISA)/PICOGUS
-		$(COPY) $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit/pgusinit.prg $(SWDIR_ISA)/PICOGUS/PGUSINIT.PRG
-		$(COPY) $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit/README.md $(SWDIR_ISA)/PICOGUS/README.TXT
+		mkdir -p $(SWDIR_ISA)/picogus
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit/pgusinit.prg $(SWDIR_ISA)/picogus/pgusinit.prg
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit/README.md $(SWDIR_ISA)/picogus/readme.txt
 
 	# GUS driver
-		mkdir -p $(SWDIR_ISA)/GUS
-		$(COPY) $(ROOTDIR)/sw/isa/drivers/gus/ultrinit.prg $(SWDIR_ISA)/GUS/ULTRINIT.PRG
+		mkdir -p $(SWDIR_ISA)/gus
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/gus/ultrinit.prg $(SWDIR_ISA)/gus/ultrinit.prg
 
 
 
