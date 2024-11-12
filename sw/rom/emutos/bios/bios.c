@@ -346,7 +346,9 @@ static void bios_init(void)
     KDEBUG(("after vt52_init()\n"));
 
     /* now we have output, let the user know we're alive */
+#if SHOW_STARTUP_MESSAGE
     display_startup_msg();
+#endif
 
 #if DETECT_NATIVE_FEATURES
     /*

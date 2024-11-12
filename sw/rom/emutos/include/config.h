@@ -1466,6 +1466,14 @@
 #endif
 
 /*
+ * Set SHOW_STARTUP_MESSAGE to 0 to suppress the initial alive message
+ * which is displayed before the welcome screen.
+ */
+#ifndef SHOW_STARTUP_MESSAGE
+# define SHOW_STARTUP_MESSAGE 1
+#endif
+
+/*
  * Set CONF_DETECT_FIRST_BOOT_WITHOUT_MEMCONF to 1 to detect a first boot
  * even when memconf is not called. This is useful when the RAM is
  * already initialized before EmuTOS boots. This is always the case on
