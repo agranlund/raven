@@ -5,7 +5,7 @@ the goal of being able to natively run clean GEM/TOS applications, and backward 
 
 Youtube: https://www.youtube.com/@granlund23/videos
 
-Forum: https://www.exxosforum.co.uk/forum/viewtopic.php?f=18&t=6940
+Forum: https://www.exxosforum.co.uk/forum/viewforum.php?f=119
 
 ![Alt text](hw/raven/a1/images/desktop.jpg?raw=true "")
 
