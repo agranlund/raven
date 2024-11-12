@@ -15,7 +15,7 @@ CC_INCLUDES	 = $(dir $(LIBGCC))include
 
 # Products
 MON_ELF		 = mon.elf
-MON_BIN		 = mon.bin
+ROM_MON		 = mon.bin
 MON_SREC	 = mon.s19
 
 # Sources
@@ -59,12 +59,12 @@ LDFLAGS_COMMON	 = -nolibc \
 LDFLAGS_MON	 = $(LDFLAGS_COMMON) -T mon.ld
 
 .PHONY: all
-all: $(MON_BIN) $(MON_SREC)
+all: $(ROM_MON) $(MON_SREC)
 
 $(MON_ELF): $(OFILES) $(DEPS)
 	$(CC) $(LDFLAGS_MON) $(OFILES) -o $@
 
-$(MON_BIN): $(MON_ELF)
+$(ROM_MON): $(MON_ELF)
 	$(OBJCOPY) -O binary --set-start $(BIOS_ROM) --pad-to $(BIOS_ROM_END) --gap-fill 0xff $(MON_ELF) $@
 
 $(MON_SREC): $(MON_ELF)
