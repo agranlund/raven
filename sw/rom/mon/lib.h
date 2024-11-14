@@ -27,6 +27,8 @@ typedef signed int      int32_t;
 #endif
 
 extern size_t strlen(const char *s);
+extern char* strchr(const char *s, char c);
+extern char* strcpy(char *to, const char *from);
 extern int strcmp(const char *s1, const char *s2);
 extern int strncmp(const char *s1, const char *s2, size_t n);
 extern int strncasecmp(const char *s1, const char *s2, size_t n);

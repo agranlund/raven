@@ -5,16 +5,22 @@
 #include "hw/rtc.h"
 #include "monitor.h"
 #include "config.h"
+#include "m68k_disasm.h"
 
 extern int test_ym_write(int size);
 
 #define MONBUFFERSIZE 1024
 char monBuffer[MONBUFFERSIZE];
 
+char oldcmd;
+int oldarg1;
+int oldarg2;
+
 static void mon_Main(regs_t* regs);
 static void monHelp();
 static void monRegs(regs_t* regs);
 static void monDump(uint32_t addr, uint32_t size);
+static void monDisasm(uint32_t addr, uint32_t size);
 static void monRead(uint32_t bits, uint32_t addr);
 static void monWrite(uint32_t bits, uint32_t addr, uint32_t val);
 static void monRtcDump();
@@ -40,6 +46,8 @@ void mon_Start()
 
 void mon_Main(regs_t* regs)
 {
+    oldcmd = oldarg1 = oldarg2 = 0;
+
     puts("");
     monRegs(regs);
 
@@ -49,11 +57,12 @@ void mon_Main(regs_t* regs)
         putchar('>');
         putchar(' ');
 
-        if (gets(monBuffer, sizeof(monBuffer)) == NULL)
+        if (gets(monBuffer, sizeof(monBuffer)) == NULL) {
             continue;
-        size_t monBufferSize = strlen(monBuffer);
+        }
 
         // convert whitespaces to 0 as argument delimiters
+        size_t monBufferSize = strlen(monBuffer);
         for (int i=0; i<monBufferSize; i++) {
             if (monBuffer[i] <= 32 || monBuffer[i] >= 127) {
                 monBuffer[i] = 0;
@@ -92,7 +101,8 @@ void mon_Main(regs_t* regs)
             if (strcmp(argc[0], "x") == 0)              { exit = 1; }
             else if (strcmp(argc[0], "reset") == 0)     { extern void start(); start(); }
             else if (strcmp(argc[0], "r") == 0)         { monRegs(regs); }
-            else if (strcmp(argc[0], "d") == 0)         { monDump(strtoi(argc[1]), strtoi(argc[2])); }
+            else if (strcmp(argc[0], "d") == 0)         { monDump(args > 1 ? strtoi(argc[1]) : 0xffffffff, args > 2 ? strtoi(argc[2]) : 0xffffffff); }
+            else if (strcmp(argc[0], "a") == 0)         { monDisasm(args > 1 ? strtoi(argc[1]) : 0xffffffff, args > 2 ? strtoi(argc[2]) : 0xffffffff); }
             else if (strcmp(argc[0], "pb") == 0)        { if (args>2) { monWrite( 8, strtoi(argc[1]), strtoi(argc[2])); } else { monRead( 8, strtoi(argc[1])); } }
             else if (strcmp(argc[0], "pw") == 0)        { if (args>2) { monWrite(16, strtoi(argc[1]), strtoi(argc[2])); } else { monRead(16, strtoi(argc[1])); } }
             else if (strcmp(argc[0], "pl") == 0)        { if (args>2) { monWrite(32, strtoi(argc[1]), strtoi(argc[2])); } else { monRead(32, strtoi(argc[1])); } }
@@ -143,6 +153,7 @@ void monHelp()
          "  pw [addr] {val}   : peek/poke word\n"
          "  pl [addr] {val}   : peek/poke long\n"
          "  d  [addr] {len}   : dump memory\n"
+         "  a  [addr] {len}   : disassemble\n"
          "  rtc {clear}       : dump/clear rtc\n"
          "  cfg {opt} {val}   : list/get/set option\n"
          "  reset             : reset computer\n"
@@ -163,15 +174,61 @@ void monRegs(regs_t* regs)
     fmt("\npcr: %l bcr: %l ccr: %l\n", regs->pcr, regs->buscr, regs->cacr);
 }
 
+void monDisasm(uint32_t addr, uint32_t size)
+{
+    int i, n;
+	struct DisasmPara_68k dp;
+	static char opcode[16];
+	static char operands[128];
+    static uint32_t old_size = 8;
+    static m68k_word* old_addr = (m68k_word*)0x40000400;
+	m68k_word* p = (addr == 0xffffffff) ? old_addr : (m68k_word*)addr;
+
+    if (size == 0xffffffff) { size = old_size; }
+    if (size == 0) { size = 8; }
+    old_size = size;
+
+    dp.get_areg = 0;
+    dp.find_symbol = 0;                                
+    dp.opcode = opcode;
+    dp.operands = operands;
+    for (i = 0; i<size; i++) {
+        dp.instr = dp.iaddr = p;
+        p = M68k_Disassemble(&dp);
+        if (opcode[0] == 0) {
+            strcpy(opcode, "???");
+            strcpy(operands, "???");
+        }
+        fmt("%l: ", (uint32_t)dp.iaddr);
+        for (n = 0; n < 12; n++) {
+            if (opcode[n] == 0)
+                break;
+            putchar(opcode[n]);
+        }
+        for (; n < 8; n++) {
+            putchar(' ');
+        }
+        puts(operands);
+    }
+    old_addr = p;
+}
+
 void monDump(uint32_t addr, uint32_t size)
 {
     const uint32_t sizeDefault = 256;
     const uint32_t sizeMin = 16;
     const uint32_t sizeMax = 16*256;
+    static uint32_t sizeOld = sizeDefault;
+    static uint32_t addrOld = 0;
+
+    if (addr == 0xffffffff)     addr = addrOld;
+    if (size == 0xffffffff)     size = sizeOld;
     if (size == 0)              size = sizeDefault;
     else if (size < sizeMin)    size = sizeMin;
     else if (size > sizeMax)    size = sizeMax;
 
+    addrOld = addr + size;
+    sizeOld = size;
     hexdump((uint8_t *)addr, addr, size, 'b');
 }
 

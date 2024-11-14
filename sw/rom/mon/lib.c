@@ -79,7 +79,8 @@ strncmp(const char *s1, const char *s2, size_t n)
     return 0;
 }
 
-int strncasecmp(const char *s1, const char *s2, size_t n)
+int
+strncasecmp(const char *s1, const char *s2, size_t n)
 {
     while (n--) {
         char c1 = toupper(*s1++);
@@ -99,6 +100,20 @@ int strncasecmp(const char *s1, const char *s2, size_t n)
         if (c1 == 0) {
             return 0;
         }
+    }
+
+    return 0;
+}
+
+char*
+strchr(const char *s, char c)
+{
+    while (*s != '\0')
+    {
+        if (*s == c) {
+            return (char*)s;
+        }
+        s++;
     }
 
     return 0;
