@@ -88,6 +88,13 @@ WORD argc, rc;
     if (current_res == ST_LOW)
         change_res(ST_MEDIUM);
 
+#if defined(MACHINE_RAVEN)
+    escape('b');    /* ESC b => set foreground colour */
+    conout(15);
+    escape('c');    /* ESC c => set background colour */
+    conout(0);    
+#endif
+
     clear_screen();
     enable_cursor();
     message(_("Welcome to EmuCON2 version ")); messagenl(version);
