@@ -57,6 +57,7 @@ buildroms:
 
 copydocs:
 	$(COPY) $(ROOTDIR)/doc/raven_a1.pdf $(OUTDIR)/manual.pdf
+	$(COPY) $(DISTDIR)/license.gpl $(OUTDIR)/license.gpl
 
 copyroms:
 	mkdir -p $(ROMDIR)
