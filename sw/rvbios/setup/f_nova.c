@@ -74,9 +74,9 @@ char* modelist_drv[MAX_MODES+1];
 char* modelist_vdi[MAX_MODES+1];
 
 int firstTimeSetup = 1;
-const char* path_nova 	= "c:\\drivers\\nova"; 
+const char* path_nova 	= "c:\\nova"; 
 const char* path_inf 	= "c:\\auto\\xmenu.inf";
-const char* path_bib	= "c:\\auto\\sta_vdi.bib";
+const char* path_bib	= "auto\\sta_vdi.bib";
 
 rvnova_menuinf_t inf;
 
@@ -153,6 +153,10 @@ static void initDrivers(void)
 		}
 	}
 
+	if ((inf.drvpath[0]==0) && (num_drivers > 0)) {
+		strCopy(driverlist[0], inf.drvpath);
+	}
+
 	Fsetdta(dtaold);
 }
 
@@ -176,7 +180,9 @@ static void initResolutions(void)
 {
 	bib_t bib;
 	int i, num_bwmodes;
-	rvnova_loadbib(&bib, path_bib);
+	char fname[128];
+	sprintf(fname, "%s\\%s\\%s", path_nova, inf.drvpath, path_bib); 
+	rvnova_loadbib(&bib, fname);
 	num_modes = 0; num_bwmodes = 0;
 	for (i=0; i<bib.num && i<MAX_MODES; i++) {
 		if (bib.res[i].planes == 16 && bib.res[i].colors < 64000U) {
@@ -288,6 +294,7 @@ static void confirmFormNova(int num_setting, conf_setting_u confSetting)
 			break;
 		case FORM_SETTING_DRIVER:
 			strCopy(driverlist[confSetting.num_list], inf.drvpath);
+			initResolutions();
 			break;
 		case FORM_SETTING_BOOTRES:
 			{
