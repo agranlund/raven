@@ -7,8 +7,6 @@
 #include "config.h"
 #include "m68k_disasm.h"
 
-extern int test_ym_write(int size);
-
 #define MONBUFFERSIZE 1024
 char monBuffer[MONBUFFERSIZE];
 
@@ -30,8 +28,9 @@ static void monCfgRead(char* cfg);
 static void monCfgWrite(char* cfg, uint32_t val);
 static void monLoad(uint32_t addr, uint32_t size);
 static void monRun(uint32_t addr);
-static void monTest(char* cmd, uint32_t val);
 static void monSrec();
+extern void monTest(char* cmd, uint32_t val);   // test.c
+
 
 bool mon_Init()
 {
@@ -128,18 +127,6 @@ void mon_Main(regs_t* regs)
             else if (strncmp(argc[0], "S0", 2) == 0)    { monSrec(argc[0]); }
             else                                        { monHelp(); }
         }
-    }
-}
-
-void monTest(char* test, uint32_t val)
-{
-    if (strcmp(test, "ym") == 0) {
-        test_ym_write(1);
-    }
-    else {
-        puts("\n"
-             "Test commands:\n"
-             "  ym\r\n");        
     }
 }
 

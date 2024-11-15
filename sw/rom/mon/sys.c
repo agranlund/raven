@@ -161,6 +161,12 @@ uint32_t mem_Alloc(uint32_t size, uint32_t alignment)
 // misc helpers
 //
 //-----------------------------------------------------------------------
+void sys_Delay(uint32_t c) {
+    for (uint32_t i = 0; i < (c * 1000); i++) {
+        nop();
+    }
+}
+
 uint32_t strtoi(char* s)
 {
     uint32_t v = 0;
