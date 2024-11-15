@@ -4793,6 +4793,20 @@
     (effects (font (size 1.27 1.27)) (justify left top))
     (uuid 04ea0257-7829-44bd-8b66-c1e9748e4ad9)
   )
+  (text_box "TODO:\nAbility to choose\nSMEMx vs MEMx\n\nThey are both the same\nat the moment."
+    (at 115.57 66.675 0) (size 31.115 17.78)
+    (stroke (width 0) (type default))
+    (fill (type color) (color 255 230 63 0.53))
+    (effects (font (size 1.27 1.27) (color 0 0 0 1)) (justify left top))
+    (uuid a2a86d44-2200-4c83-a1cc-a2cedcc2c8d0)
+  )
+  (text_box "TODO:\n\nConnect MEMCS16 to cpld"
+    (at 172.72 234.95 0) (size 31.115 14.605)
+    (stroke (width 0) (type default))
+    (fill (type color) (color 255 230 63 0.53))
+    (effects (font (size 1.27 1.27) (color 0 0 0 1)) (justify left top))
+    (uuid baedc592-e870-4ac2-9e28-7516124c399b)
+  )
 
   (text "IRQ14" (at 173.355 368.935 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))

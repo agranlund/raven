@@ -55,5 +55,8 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - route spare uart1 GPO to jumper?
   (RTSA)
 - uart1 interrupts, use RXRDYA instead of or in combination with /IRQ ?
-
+- pullups on 68150 databus
+- IDE connector:
+  - 40 instead of 44 pin?
+  - or female idc pinout on motherboard?
 

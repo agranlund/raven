@@ -10183,6 +10183,13 @@
     (uuid dc2f3ea1-2144-4c95-a8ec-4f556c034eac)
   )
 
+  (text_box "TODO:\n\nPullups on PD16:31"
+    (at 774.7 83.185 0) (size 31.115 38.1)
+    (stroke (width 0) (type default))
+    (fill (type color) (color 255 230 63 0.53))
+    (effects (font (size 1.27 1.27) (color 0 0 0 1)) (justify left top))
+    (uuid 192dfd72-5c2a-46ae-97a8-8fd1866e1d98)
+  )
   (text_box "These three-state outputs provide information for each transfer cycle type.\nTable 2-3 lists the encoding for normal (TTx = 00) and MOVE16 (TTx = 01) transfers\nTable 2-4 lists the encoding for alternate access transfers (TTx = 10).\nFor interrupt acknowledge transfers, the TMx signals carry the interrupt level.\nFor breakpoint and low-power stop broadcast cycles, the TMx signals are negated."
     (at 109.855 325.755 0) (size 69.215 11.43)
     (stroke (width 0) (type default))
@@ -10204,13 +10211,6 @@
     (effects (font (size 1 1)) (justify left top))
     (uuid 8113b341-92c0-4603-9cbd-a85bc9bd8599)
   )
-  (text_box "how does A0 behave on 16bit?"
-    (at 772.795 62.23 0) (size 33.655 6.35)
-    (stroke (width 0) (type default))
-    (fill (type none))
-    (effects (font (size 1.27 1.27)) (justify left top))
-    (uuid a4c0a503-316a-404d-ab01-98a43f6ef593)
-  )
   (text_box "Also used for system config during RSTI"
     (at 365.125 353.06 0) (size 33.655 3.81)
     (stroke (width 0) (type default))
@@ -10231,6 +10231,13 @@
     (fill (type none))
     (effects (font (size 1.27 1.27)) (justify left top))
     (uuid d186c224-1000-4dbf-903c-e3095a107e92)
+  )
+  (text_box "TODO:\n\nDedicated /CS\nfor transcievers"
+    (at 517.525 170.18 0) (size 21.59 17.145)
+    (stroke (width 0) (type default))
+    (fill (type color) (color 255 230 63 0.53))
+    (effects (font (size 1.27 1.27) (color 0 0 0 1)) (justify left top))
+    (uuid e88202d8-46f6-4db6-a34d-1fbefc45e394)
   )
   (text_box "TT1 TT0 Transfer Type\n0 0 Normal Access\n0 1 MOVE16 Access\n1 0 Alternate Logical Function Code Access, Debug Access\n1 1 Acknowledge Access (irq, bpoint, stop)"
     (at 109.855 311.785 0) (size 48.895 10.795)

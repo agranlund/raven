@@ -3703,6 +3703,20 @@
     (uuid f7d55910-835b-43e1-90a6-894a0974b606)
   )
 
+  (text_box "TODO:\nConnect one of TxO directly to IRQ4 (VBLANK)\n\n"
+    (at 511.81 66.04 0) (size 51.435 17.78)
+    (stroke (width 0) (type default))
+    (fill (type color) (color 255 230 63 0.53))
+    (effects (font (size 1.27 1.27) (color 0 0 0 1)) (justify left top))
+    (uuid 1986d8bd-91b1-4c49-93ec-356b6c2c8257)
+  )
+  (text_box "TODO:\n\nAdd MFP2:TxO pins\n"
+    (at 519.43 205.74 0) (size 27.94 11.43)
+    (stroke (width 0) (type default))
+    (fill (type color) (color 255 230 63 0.53))
+    (effects (font (size 1.27 1.27) (color 0 0 0 1)) (justify left top))
+    (uuid 217395a3-59f4-4ef3-8441-caa6159074f3)
+  )
   (text_box ""
     (at 382.27 231.14 0) (size 32.385 8.89)
     (stroke (width 0) (type dot))
@@ -4321,7 +4335,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid ff32be57-b16c-41f9-9112-feb57611565d)
   )
-  (label "A2" (at 46.355 169.545 0)
+  (label "A2" (at 46.355 169.545 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid ffa81be4-cc99-4289-a22a-a3557c7cc4c6)
   )

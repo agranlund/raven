@@ -6348,10 +6348,15 @@
     (uuid ffee7fdb-daa8-489f-a6fe-7a5e56003a59)
   )
 
-  (rectangle (start 376.555 294.005) (end 448.31 306.705)
+  (rectangle (start 330.2 166.37) (end 401.955 179.07)
     (stroke (width 0) (type dot))
     (fill (type none))
     (uuid 5d024348-156a-448f-8ecb-08c13bc415b6)
+  )
+  (arc (start 433.705 207.01) (mid 436.3352 213.36) (end 433.705 219.71)
+    (stroke (width 0) (type default))
+    (fill (type none))
+    (uuid 9431f5f6-17ba-42e8-b30b-0e651079cbda)
   )
   (rectangle (start 311.785 29.21) (end 560.07 158.115)
     (stroke (width 0) (type dash))
@@ -6367,6 +6372,11 @@
     (stroke (width 0) (type dash))
     (fill (type none))
     (uuid e35c8278-2411-4de2-b01d-b2bb6ca6c3c2)
+  )
+  (rectangle (start 436.88 213.36) (end 504.825 213.36)
+    (stroke (width 0) (type default))
+    (fill (type none))
+    (uuid f0d8c66f-9f81-4f44-83e8-e101ead1a2c1)
   )
 
   (text_box ""
@@ -6390,6 +6400,13 @@
     (effects (font (size 1.27 1.27)) (justify left top))
     (uuid 49965461-109c-4141-9b04-ca40fda86df1)
   )
+  (text_box "TODO:\nHook up RXRDx to interrupt?\nTo interrupt on each receive rather than only when fifo trigger level was reached."
+    (at 407.035 264.16 0) (size 45.72 20.955)
+    (stroke (width 0) (type default))
+    (fill (type color) (color 255 230 63 0.53))
+    (effects (font (size 1.27 1.27) (color 0 0 0 1)) (justify left top))
+    (uuid 8a159681-37e9-41fa-9837-de1b65c07a02)
+  )
   (text_box ""
     (at 535.305 261.62 0) (size 19.685 29.21)
     (stroke (width 0) (type dot))
@@ -6410,6 +6427,13 @@
     (fill (type none))
     (effects (font (size 1.27 1.27)) (justify left top))
     (uuid a8229e8e-5670-4bdf-99b8-e041cde54a7d)
+  )
+  (text_box "TODO:\nSpare GPI to header for cpu readable bios config etc\n(CTSA, DSRA, CDA, RIA)\n\nSpare GPO to header\n(TRSA)\n"
+    (at 504.825 198.12 0) (size 45.72 20.955)
+    (stroke (width 0) (type default))
+    (fill (type color) (color 255 230 63 0.53))
+    (effects (font (size 1.27 1.27) (color 0 0 0 1)) (justify left top))
+    (uuid d525d0c7-f3b9-45c8-b178-31099f3b5b56)
   )
 
   (text "do not use when irq enabled" (at 401.955 222.885 0)
@@ -6454,7 +6478,7 @@
     (uuid 4b36ff26-84c3-472d-aaa0-8913e8041227)
   )
   (text "Can be replaced with XR16L2751 with minimal changes.\nHW: pins 12,25,37,19,14 would need to be connected with resistors.\nSW: XR16L2751 does not have fractional divisor\n\n"
-    (at 379.095 305.435 0)
+    (at 332.74 177.8 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 4ce0953a-3429-4ead-92b4-830e4aa5013e)
   )

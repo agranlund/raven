@@ -2025,6 +2025,13 @@
     (effects (font (size 1.27 1.27)) (justify left top))
     (uuid 56c97c4a-6557-4e35-8bee-91b077315ea8)
   )
+  (text_box "TODO:\nSMD leds on motherboard?"
+    (at 147.32 27.305 0) (size 31.115 11.43)
+    (stroke (width 0) (type default))
+    (fill (type color) (color 255 230 63 0.53))
+    (effects (font (size 1.27 1.27) (color 0 0 0 1)) (justify left top))
+    (uuid 6579bd44-d800-46ac-b3e0-d8957ae099e2)
+  )
   (text_box "Reset circuit and switch"
     (at 23.495 82.55 0) (size 79.375 61.595)
     (stroke (width 0) (type dash_dot_dot))
