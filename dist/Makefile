@@ -38,7 +38,7 @@ SWDIR_ISA	= $(SWDIR)/raven/drivers
 
 release: setup build copy zipit upload
 
-release-test: setup copy copysw zipit
+release-test: setup copy zipit
 
 setup: clean
 	mkdir -p $(OUTDIR)
@@ -47,7 +47,7 @@ clean:
 	rm -r -f $(OUTDIR)
 	rm -f *.zip	
 
-copy: copydocs copyhw copyfw copyroms 
+copy: copydocs copyhw copyfw copyroms copysw
 
 build: buildroms
 
