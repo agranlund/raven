@@ -154,15 +154,15 @@ copysw:
 	# --------------------------------------------------
 		mkdir -p $(SWDIR_NOVA)
 		unzip $(SUPPDIR)/nova/TT_ET4000T0_V300.zip -d $(SWDIR_NOVA)
-		mv $(SWDIR_NOVA)/T0 $(SWDIR_NOVA)/ET4K-T0
+		mv $(SWDIR_NOVA)/T0 $(SWDIR_NOVA)/ET4000.T0
 		unzip $(SUPPDIR)/nova/TT_ET4000T3_V300.zip -d $(SWDIR_NOVA)
-		mv $(SWDIR_NOVA)/T3 $(SWDIR_NOVA)/ET4K-T3
+		mv $(SWDIR_NOVA)/T3 $(SWDIR_NOVA)/ET4000.T3
 		unzip $(SUPPDIR)/nova/TT_ET4000T4_V300.zip -d $(SWDIR_NOVA)
-		mv $(SWDIR_NOVA)/T4 $(SWDIR_NOVA)/ET4K-T4
+		mv $(SWDIR_NOVA)/T4 $(SWDIR_NOVA)/ET4000.T4
 		unzip $(SUPPDIR)/nova/TT_ET4000T8_V300.zip -d $(SWDIR_NOVA)
-		mv $(SWDIR_NOVA)/T8 $(SWDIR_NOVA)/ET4K-T8
+		mv $(SWDIR_NOVA)/T8 $(SWDIR_NOVA)/ET4000.T8
 		unzip $(SUPPDIR)/nova/TT_ET4000W32_V301.zip -d $(SWDIR_NOVA)
-		mv $(SWDIR_NOVA)/TT $(SWDIR_NOVA)/ET4KW32I
+		mv $(SWDIR_NOVA)/TT $(SWDIR_NOVA)/ET4000.W32
 		unzip $(SUPPDIR)/nova/TT_Mach32_V301.zip -d $(SWDIR_NOVA)
 		mv $(SWDIR_NOVA)/TT $(SWDIR_NOVA)/MACH32
 		unzip $(SUPPDIR)/nova/TT_Mach64_V303.zip -d $(SWDIR_NOVA)

@@ -1,5 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+20241115
+ software: first pass of software support package
+ monitor: COM1 default to 115200 baud
+ monitor: new command 'a' for disassembly
+ 
 20241110
-

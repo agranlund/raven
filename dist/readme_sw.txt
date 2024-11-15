@@ -2,8 +2,10 @@ Raven quickstart
 
 Resources:
 https://github.com/agranlund/raven/
-https://www.exxosforum.co.uk/forum/viewtopic.php?f=18&t=6940
+https://www.exxosforum.co.uk/forum/viewforum.php?f=119
 
+
+***   work in progress   ***
 
 
 - Installation:
@@ -35,20 +37,22 @@ Example file order:
 
 - NOVA setup:
 -------------
-Do not put the usual nova executables in the AUTO folder, you only need RVNOVA.PRG.
+Do not put the usual nova executables in the AUTO folder, you're only going
+to need RVBIOS.PRG and RVNOVA.PRG.
 The correct nova executables, and their settings, are automatically executed
 from "c:\nova" according to your settings in Raven BIOS.
 
-To configure NOVA press the DELETE key during boot to enter BIOS setup.
-The NOVA tab will lets you select your graphics card and settings.
+To configure NOVA press the DELETE when you see the Atari logo at boot to enter BIOS setup.
+Navigate to the NOVA tab to select graphics card and desired settings.
 
 Modifying resolutions:
- Use VMG.PRG in the driver folder for you particular videocard.
- ex: if using an ET4000-W32i you run "c:\nova\et4kw32i\vmg.prg"
+ Use VMG.PRG in the driver folder for you particular graphicscard.
+ ex: if you use the ET4000.W32 driver then you run "c:\nova\et4000.w32\vmg.prg"
 
- Only sta_vdi.bib is of importance, even for boot resolutions, and the file to modify
- is the one in the auto folder that is local to the driver (NOT in c:\auto)
- ex: "c:\drivers\nova\et4kw32i\auto\sta_vdi.bib"
+ Only sta_vdi.bib is of importance, even for boot resolutions.
+ You want to modify the file that lives in the auto subfolder of your driver
+ (NOT the one in c:\auto)
+ ex: "c:\nova\et4000.w32\auto\sta_vdi.bib"
 
  Refer to VMG documentation and/or Atari forums for help on how to modify or create
  new NOVA resolutions using the VMG tool.
