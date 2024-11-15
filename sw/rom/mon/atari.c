@@ -41,17 +41,19 @@ static void mmu_Map24bit(uint32_t log, uint32_t phys, uint32_t size, uint32_t fl
     mmu_Map(log & 0x00ffffff, phys, size, flags);
     mmu_Map(log | 0xff000000, phys, size, flags);
 }
-static void mmu_Redirect24bit(uint32_t logsrc, uint32_t logdst, uint32_t size) {
-    mmu_Redirect(logsrc & 0x00ffffff, logdst, size);
-    mmu_Redirect(logsrc | 0xff000000, logdst, size);
-}
 static void mmu_Invalid24bit(uint32_t log, uint32_t size) {
     mmu_Invalid(log & 0x00ffffff, size);
     mmu_Invalid(log | 0xff000000, size);
 }
+/*
+static void mmu_Redirect24bit(uint32_t logsrc, uint32_t logdst, uint32_t size) {
+    mmu_Redirect(logsrc & 0x00ffffff, logdst, size);
+    mmu_Redirect(logsrc | 0xff000000, logdst, size);
+}
 static void mmu_Ignore24bit(uint32_t log, uint32_t size) {
     mmu_Map24bit(log, 0x21000000, size, PMMU_READWRITE | PMMU_CM_PRECISE);
 }
+*/
 
 
 bool atari_InitEMU()
