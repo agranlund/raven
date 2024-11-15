@@ -19,8 +19,6 @@ ROM_EMUTOS_DBG	= rom_dbg.bin
 
 DEPS			= $(MAKEFILE_LIST)
 
-.PHONY: dist all tos tos-dbg tos-con tos-st mon clean
-
 all: tos mon
 mon: $(ROM_MON)
 tos: $(ROM_EMUTOS)
