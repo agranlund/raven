@@ -17,19 +17,33 @@ bool ikbd_Init()
     //  without DLD = 7825 = 0,16% error
     //-----------------------------------------------------------------------
     volatile uint8_t* uart1 = (volatile uint8_t*) PADDR_UART1;
-    uart1[UART_LCR] &= 0x7F;        // normal regs
+
+    uart1[UART_LCR] = 0x00;         // access normal regs
     uart1[UART_IER] = 0x00;         // disable interrupts
     uart1[UART_FCR] = 0x01;         // fifo enabled
     uart1[UART_FCR] = 0x07;         // clear fifo buffers
-    uart1[UART_LCR] = 0x03;         // 8 data bits, no parity, 1 stop bit
     uart1[UART_SPR] = 0x00;         // clear scratch register
     uart1[UART_MCR] = 0x00;         // modem control)
                                         // bit0 = #dtr -> powerled on/off
                                         // bit1 = #rts -> spare output TP301
-    uart1[UART_LCR] |= 0x80;        // baud regs
+
+    uart1[UART_LCR] = 0xBF;         // access efr
+    uart1[UART_EFR] = 0x10;         // enable access
+
+    uart1[UART_LCR] = 0x80;         // access baud regs
     uart1[UART_DLM] = 0;
     uart1[UART_DLL] = 201;          // 7825 baud
-    uart1[UART_LCR] &= 0x7F;        // normal regs
+    uart1[UART_DLD] = 0;
+
+    uart1[UART_MCR] |= (1 << 6);    // enable tcr/tlr access
+    uart1[UART_TCR] = 0x00;         // rx fifo halt/resume
+    uart1[UART_TLR] = 0x11;         // rx/tx fifo trigger level (4/4)
+    uart1[UART_MCR] &= ~(1 << 6);   // diable tcr/tlr access
+
+    uart1[UART_LCR] = 0xBF;         // access efr
+    uart1[UART_EFR] = 0x00;         // latch and disable access
+
+    uart1[UART_LCR] = 0x03;         // 8 data bits, no parity, 1 stop bit
     return true; 
 }
 
