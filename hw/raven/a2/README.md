@@ -50,3 +50,10 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
 ## Todo:
 
+- route spare uart1 GPI to jumpers for bios settings
+  (CTSA, DSRA, CDA, RIA)
+- route spare uart1 GPO to jumper?
+  (RTSA)
+- uart1 interrupts, use RXRDYA instead of or in combination with /IRQ ?
+
+
