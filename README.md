@@ -13,7 +13,7 @@ Forum: https://www.exxosforum.co.uk/forum/viewforum.php?f=119
 
 
 ## This is not a consumer product.
-It was designed as a one-off computer for myself, for learning and as a platform for low-level programming. 
+This computer was designed as a one-off creation for myself, for learning and as a platform for low-level tinkering. 
 Things like cost-reduction or other factors that might be important for a product was never high on the priority.
 
 Hardware and software sources are provided as-is and for free but comes with no guarantees or promise of support.
