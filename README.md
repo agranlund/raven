@@ -7,6 +7,9 @@ Youtube: https://www.youtube.com/@granlund23/videos
 
 Forum: https://www.exxosforum.co.uk/forum/viewforum.php?f=119
 
+Latest release: https://github.com/agranlund/raven/releases/tag/Raven.A1.latest
+
+
 ![Alt text](hw/raven/a1/images/desktop.jpg?raw=true "")
 
 ![Alt text](hw/raven/a0/images/raven_a0.jpg?raw=true "")
