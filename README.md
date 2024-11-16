@@ -61,7 +61,7 @@ It is easy to make misstakes during assembly and such skills can be vital for fi
 - ATX power supply
 - PS/2 Keyboard and mouse
 - Some kind of 44pin IDE->CF/SD adapter and cable
-- ISA graphics card supported by Atari drivers (ET4000AX / ATI Mach32)
+- ISA graphics card supported by Atari drivers (ET4000 / ATI Mach32)
 - RS232<->USB cable is highly recommended
 
 ## Additional tools
