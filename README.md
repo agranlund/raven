@@ -19,11 +19,12 @@ Things like cost-reduction or other factors that might be important for a produc
 Hardware and software sources are provided as-is and for free but comes with no guarantees or promise of support.
 
 
-The computer works and runs EmuTOS + FreeMiNT but if you decide to build or buy this board I very much recommend coming in with a DIY mindset.
+The computer works for me and runs EmuTOS + FreeMiNT but if you decide to build or buy this board I very much recommend coming in with a DIY mindset.
 It's early days still and waiting on drivers or fixes made by others could very well have you waiting indefinitely.
-If you are into that sort of programming then this board could potentially provide a bunch of fun.
+If you are into hardware tinkering or low-level programming then this board could potentially provide a bunch of fun.
 
 Knowledge and tools to perform hardware-level debugging and/or very low level software debugging is highly recommended.
+
 It is easy to make misstakes during assembly and such skills can be vital for finding those. There is also always the risk that something out-of-the-box isn't quite right for your particular set of components - this board happening to working for me doesn't necessarily guarantee being production ready and working for all.
 
 
