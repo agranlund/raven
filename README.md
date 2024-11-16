@@ -63,9 +63,9 @@ It is easy to make misstakes during assembly and such skills can be vital for fi
     - [2MB 55ns PLCC](hw/simm/rom_2M55_PLCC/)
 - ATX power supply
 - PS/2 Keyboard and mouse
-- Some kind of 44pin IDE->CF/SD adapter and cable
+- Some kind of suitable 44pin IDE->CF adapter
 - ISA graphics card supported by Atari drivers (ET4000 / ATI Mach32)
-- RS232<->USB cable is highly recommended
+- RS232<->USB cable capable of 1Mbps
 
 ## Additional tools
 - [ROM module programmer](hw/simm/programmer/)
