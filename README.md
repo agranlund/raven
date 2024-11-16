@@ -3,11 +3,11 @@
 This computer is primarily designed to be an Atari clone computer with
 the goal of being able to natively run clean GEM/TOS applications, and backward compatibility with old ST games by help of software emulation.
 
-Youtube: https://www.youtube.com/@granlund23/videos
+Latest release package: https://github.com/agranlund/raven/releases/tag/Raven.A1.latest
 
-Forum: https://www.exxosforum.co.uk/forum/viewforum.php?f=119
-
-Latest release: https://github.com/agranlund/raven/releases/tag/Raven.A1.latest
+Other resources:
+- Youtube: https://www.youtube.com/@granlund23/videos
+- Forum: https://www.exxosforum.co.uk/forum/viewforum.php?f=119
 
 
 ![Alt text](hw/raven/a1/images/desktop.jpg?raw=true "")
