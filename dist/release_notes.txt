@@ -1,6 +1,10 @@
 Raven.A1
 Hardware and software binary release
 
+20241120
+  nova: added 1280x720 resolutions where possible
+  nova: added  320x200 resolutions where possible
+
 20241115
  software: first pass of software support package
  monitor: COM1 default to 115200 baud
