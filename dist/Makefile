@@ -87,6 +87,7 @@ copyhw:
 	$(COPY) $(ROOTDIR)/hw/raven/$(BOARD)/production/raven-a1_brd.pdf $(HWDIR)/
 
 zipit:
+	find raven -name ".DS_Store" -delete
 	zip -r -o $(RELEASE_ZIP) raven/*
 
 upload: github_delete_release github_create_release
@@ -167,6 +168,8 @@ copysw:
 		mv $(SWDIR_NOVA)/TT $(SWDIR_NOVA)/MACH32
 		unzip $(SUPPDIR)/nova/TT_Mach64_V303.zip -d $(SWDIR_NOVA)
 		mv $(SWDIR_NOVA)/M64 $(SWDIR_NOVA)/MACH64
+
+		$(COPY) -r $(SUPPDIR)/nova.bib/* $(SWDIR_NOVA)/
 
 		unzip -j $(SUPPDIR)/nova/NOVA_COL_171.zip "NOVA_COE.PRG" -d $(SWDIR_NOVA)
 		mv $(SWDIR_NOVA)/NOVA_COE.PRG $(SWDIR)/NOVA_COL.ACC
