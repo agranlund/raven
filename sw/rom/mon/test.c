@@ -82,8 +82,7 @@ void monTest(char* test, uint32_t val)
         test_ikbd_gpo(val);
     }
     else {
-        puts("\n"
-             "Test commands:\n"
+        puts("Test commands:\n"
              "  echo {delay}\n"
              "  gpo\n"
              "  ym" );
