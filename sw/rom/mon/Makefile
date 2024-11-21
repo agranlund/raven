@@ -21,7 +21,7 @@ MON_SREC	 = mon.s19
 # Sources
 SFILES		:= $(wildcard *.S) $(wildcard hw/*.S)
 CFILES		:= $(wildcard *.c) $(wildcard hw/*.c)
-OFILES		 = $(SFILES:%.S=build/%.o) $(CFILES:%.c=build/%.o)
+OFILES		 = $(SFILES:%.S=%.o) $(CFILES:%.c=%.o)
 DEPS   		 = $(MAKEFILE_LIST) mon.ld
 
 BUILD_DATE_HEX	:= $(shell date +%Y%m%d)
@@ -58,6 +58,7 @@ LDFLAGS_COMMON	 = -nolibc \
 
 LDFLAGS_MON	 = $(LDFLAGS_COMMON) -T mon.ld
 
+
 .PHONY: all
 all: $(ROM_MON) $(MON_SREC)
 
@@ -70,16 +71,16 @@ $(ROM_MON): $(MON_ELF)
 $(MON_SREC): $(MON_ELF)
 	$(OBJCOPY) -O srec --srec-forceS3 $(MON_ELF) $@
 
-build/%.o : %.S $(DEPS)
+%.o : %.S $(DEPS)
 	@mkdir -p $(@D)
 	$(CC) $(SFLAGS) -c $< -o $@
 
-build/%.o : %.c $(DEPS)
+%.o : %.c $(DEPS)
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f -r build/*
-	rm -f *.elf *.bin *.map *.s19
+	rm -f *.elf *.bin *.map *.ram *.s19 $(OFILES) $(OFILES:%.o=%.d)
 
--include build/*.d
+-include *.d
+-include hw/*.d
