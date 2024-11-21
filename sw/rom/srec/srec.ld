@@ -1,5 +1,5 @@
 /*
- * Raven monitor upload.
+ * srec linker script for monitor upload
  */
 
 OUTPUT_ARCH(m68k)
@@ -8,7 +8,7 @@ ENTRY(start)
 
 MEMORY
 {
-	RAM(RW) : ORIGIN = 0x00000400, LENGTH = 0x001ffc00
+	RAM(RW) : ORIGIN = 0x00600000, LENGTH = 0x00100000
 }
 
 SECTIONS

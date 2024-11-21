@@ -26,11 +26,8 @@ static void monRtcClear();
 static void monCfgList();
 static void monCfgRead(char* cfg);
 static void monCfgWrite(char* cfg, uint32_t val);
-static void monLoad(uint32_t addr, uint32_t size);
-static void monRun(uint32_t addr);
 static void monSrec();
 extern void monTest(char* cmd, uint32_t val);   // test.c
-
 
 bool mon_Init()
 {
@@ -121,8 +118,7 @@ void mon_Main(regs_t* regs)
                     monCfgWrite(argc[1], strtoi(argc[2]));
                 }
             }
-            else if (strcmp(argc[0], "load") == 0)      { monLoad(strtoi(argc[1]), strtoi(argc[2])); }
-            else if (strcmp(argc[0], "run") == 0)       { monRun(strtoi(argc[1])); }
+            else if (strcmp(argc[0], "run") == 0)       { cpu_Call(strtoi(argc[1])); }
             else if (strcmp(argc[0], "test") == 0)      { monTest((args > 1) ? argc[1] : 0, (args > 2) ? strtoi(argc[2]) : 0); }
             else if (strncmp(argc[0], "S0", 2) == 0)    { monSrec(argc[0]); }
             else                                        { monHelp(); }
@@ -132,8 +128,7 @@ void mon_Main(regs_t* regs)
 
 void monHelp()
 {
-    puts("\n"
-         "Commands:\n"
+    puts("Commands:\n"
          "  x                 : exit monitor\n"
          "  r                 : show registers\n"
          "  pb [addr] {val}   : peek/poke byte\n"
@@ -143,8 +138,9 @@ void monHelp()
          "  a  [addr] {len}   : disassemble\n"
          "  rtc {clear}       : dump/clear rtc\n"
          "  cfg {opt} {val}   : list/get/set option\n"
-         "  reset             : reset computer\n"
-         "  test {cmd} {val}  : test hardware\n");
+         "  test {cmd} {val}  : test hardware\n"
+         "  run [addr]        : call program at address\n"
+         "  reset             : reset computer");
 }
 
 void monRegs(regs_t* regs)
@@ -299,25 +295,6 @@ void monCfgWrite(char* cfg, uint32_t val)
     cfg_SetValue(cfg_Find(cfg), val);
 }
 
-void monLoad(uint32_t addr, uint32_t size)
-{
-    uint8_t* dst = (uint8_t*)addr;
-    while (size > 0)
-    {
-        volatile uint8_t lsr = IOB(PADDR_UART2, UART_LSR);
-        if ((lsr & (1 << 0)) != 0)
-        {
-            *dst = IOB(PADDR_UART2, UART_RHR);
-            dst++; size--;
-        }
-    }
-}
-
-void monRun(uint32_t addr)
-{
-    cpu_Call(addr);
-}
-
 static uint8_t srec_get_nyb()
 {
     for (;;)
@@ -340,7 +317,10 @@ static uint8_t srec_get_nyb()
     }
 }
 
+
 static int srec_sum;
+#define srec_mem_start  0x00600000
+#define srec_mem_end    0x00800000
 
 static uint8_t srec_get_byte()
 {
@@ -357,7 +337,6 @@ static uint32_t srec_get_long()
     tmp += srec_get_byte() << 8;
     return tmp + srec_get_byte();
 }
-
 static void srec_s7(uint32_t address_offset, uint32_t low_address, uint32_t high_address)
 {
     // check S7 record length
@@ -370,6 +349,12 @@ static void srec_s7(uint32_t address_offset, uint32_t low_address, uint32_t high
     // get S7 record address
     uint32_t address = srec_get_long();
 
+    // get/discard sum byte
+    (void)srec_get_byte();
+
+    // discard any additional bytes
+    while (getc() >= 0);
+
     // if no offset, upload was to DRAM - run it
     if (address_offset == 0)
     {
@@ -378,7 +363,7 @@ static void srec_s7(uint32_t address_offset, uint32_t low_address, uint32_t high
             puts("srec: S7 bad address");
             return;
         }
-        fmt("S-record upload complete, jumping to %p...\n", address);
+        fmt("S-record upload complete, jumping to %p...\n\n", address);
         cpu_Call(address);
     }
 
@@ -440,14 +425,14 @@ void monSrec()
         uint32_t address = srec_get_long() - address_offset;
         srec_len -= 4;
         if (low_address == 0) {
-            if (address > BIOS_ROM)
+            if (address >= BIOS_ROM)
             {
-                address_offset = BIOS_ROM - 0x400;
+                address_offset = BIOS_ROM - srec_mem_start;
                 address -= address_offset;
             }
             low_address = address;
         }
-        if ((address < 0x400) || (address > (2 * 1024 * 1024)))
+        if ((address < srec_mem_start) || (address >= srec_mem_end))
         {
             puts("srec: address out of range");
             return;
