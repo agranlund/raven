@@ -218,13 +218,16 @@ mmu_Flush:
 
 
 cpu_Call:
-    move.l  4(%a7),%d0          // d0 = target address
-    movem.l %d2-%d7/%a2-%a6,-(%a7) // save C registers
-    move.l  #1f,-(%a7)          // return address
-    move.l  %d0,-(%a7)          // call address
-    sub.l   %d0,%d0             // clear return value
-    rts                         // jump
-1:  movem.l (%a7)+,%d2-%d7/%a2-%a6 // restore C registers
-    rts                         // d0 = return value
+    move.l  4(%a7),%d0              // d0 = target address
+    movem.l %d2-%d7/%a2-%a6,-(%a7)  // save C registers
+    move.l  #1f,-(%a7)              // return address
+    move.l  %d0,-(%a7)              // call address
+    sub.l   %d0,%d0                 // clear return value
+    nop
+    cpusha  %bc                     // invalidate cache
+    nop
+    rts                             // jump
+1:  movem.l (%a7)+,%d2-%d7/%a2-%a6  // restore C registers
+    rts                             // d0 = return value
 
 
