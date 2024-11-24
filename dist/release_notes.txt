@@ -1,6 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+20241124
+  monitor: selftest is now a loadable s19 program
+
 20241120
   nova: added 1280x720 resolutions where possible
   nova: added  320x200 resolutions where possible
