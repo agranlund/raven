@@ -26,15 +26,6 @@ tos-dbg: $(ROM_EMUTOS_DBG)
 tos-con: $(ROM_EMUTOS_CON)
 tos-st: $(EMUTOS_IMG_ST)
 
-dist:
-#	make clean
-#	make tos-con
-	make clean
-	make tos-dbg
-	make clean
-	make tos
-	make mon
-
 .PHONY: $(ROM_EMUTOS)
 $(ROM_EMUTOS): $(EMUTOS_IMG) $(ROM_MON) $(DEPS)
 	rm -f $@

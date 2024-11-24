@@ -119,7 +119,6 @@ void mon_Main(regs_t* regs)
                 }
             }
             else if (strcmp(argc[0], "run") == 0)       { cpu_Call(strtoi(argc[1])); }
-            else if (strcmp(argc[0], "test") == 0)      { monTest((args > 1) ? argc[1] : 0, (args > 2) ? strtoi(argc[2]) : 0); }
             else if (strncmp(argc[0], "S0", 2) == 0)    { monSrec(argc[0]); }
             else                                        { monHelp(); }
         }

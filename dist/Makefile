@@ -20,6 +20,7 @@ OUTDIR		= $(DISTDIR)/raven
 HWDIR		= $(OUTDIR)/hardware
 FWDIR		= $(OUTDIR)/firmware
 ROMDIR		= $(OUTDIR)/roms
+SRECDIR		= $(ROMDIR)/srec
 SWDIR		= $(OUTDIR)/software
 COPY		= cp -p
 
@@ -32,11 +33,10 @@ SWDIR_ISA	= $(SWDIR)/raven/drivers
 
 
 .phony: release release-test
-.phony: setup clean build copy upload
+.phony: setup clean copy upload
 .phony: copydocs copyroms copyfw
-.phony: buildroms
 
-release: setup build copy zipit upload
+release: setup copy zipit upload
 
 release-test: setup copy zipit
 
@@ -49,12 +49,6 @@ clean:
 
 copy: copydocs copyhw copyfw copyroms copysw
 
-build: buildroms
-
-
-buildroms:
-	make -C $(ROOTDIR)/sw/rom dist
-
 copydocs:
 	$(COPY) $(ROOTDIR)/doc/raven_a1.pdf $(OUTDIR)/manual.pdf
 	$(COPY) $(DISTDIR)/license.gpl $(OUTDIR)/license.gpl
@@ -62,10 +56,18 @@ copydocs:
 copyroms:
 	mkdir -p $(ROMDIR)
 	$(COPY) $(DISTDIR)/readme_rom.txt $(ROMDIR)/readme.txt
-	$(COPY) $(ROOTDIR)/sw/rom/rom_mon.bin $(ROMDIR)/
-	$(COPY) $(ROOTDIR)/sw/rom/rom_tos.bin $(ROMDIR)/
+	make -C $(ROOTDIR)/sw/rom clean
+	make -C $(ROOTDIR)/sw/rom tos-dbg
 	$(COPY) $(ROOTDIR)/sw/rom/rom_dbg.bin $(ROMDIR)/
-
+	make -C $(ROOTDIR)/sw/rom clean
+	make -C $(ROOTDIR)/sw/rom tos
+	$(COPY) $(ROOTDIR)/sw/rom/rom_tos.bin $(ROMDIR)/
+	make -C $(ROOTDIR)/sw/rom mon
+	$(COPY) $(ROOTDIR)/sw/rom/rom_mon.bin $(ROMDIR)/
+	mkdir -p $(SRECDIR)
+	make -C $(ROOTDIR)/sw/rom/srec clean
+	make -C $(ROOTDIR)/sw/rom/srec all
+	$(COPY) $(ROOTDIR)/sw/rom/srec/selftest/selftest.s19 $(SRECDIR)/
 
 copyfw:
 	mkdir -p $(FWDIR)

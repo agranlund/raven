@@ -4,20 +4,20 @@
 //------------------------------------------------
 // memory map
 //------------------------------------------------
-#define PADDR_SIMM0     0x00000000
-#define PADDR_SIMM1     0x01000000
-#define PADDR_SIMM2     0x02000000
-#define PADDR_SIMM3     0x40000000
-#define PADDR_UART1     0x20000000
-#define PADDR_UART2     0x20000020
-#define PADDR_IDE       0xA0000000
-#define PADDR_YM        0xA1000800
-#define PADDR_MFP1      0xA1000A00
-#define PADDR_MFP2      0xA0000A00
-#define PADDR_ISA_RAM   0x80000000
-#define PADDR_ISA_IO    0x81000000
-#define PADDR_GFX_RAM   0x82000000
-#define PADDR_GFX_IO    0x83000000
+#define PADDR_SIMM0     0x00000000UL
+#define PADDR_SIMM1     0x01000000UL
+#define PADDR_SIMM2     0x02000000UL
+#define PADDR_SIMM3     0x40000000UL
+#define PADDR_UART1     0x20000000UL
+#define PADDR_UART2     0x20000020UL
+#define PADDR_IDE       0xA0000000UL
+#define PADDR_YM        0xA1000800UL
+#define PADDR_MFP1      0xA1000A00UL
+#define PADDR_MFP2      0xA0000A00UL
+#define PADDR_ISA_RAM   0x80000000UL
+#define PADDR_ISA_IO    0x81000000UL
+#define PADDR_GFX_RAM   0x82000000UL
+#define PADDR_GFX_IO    0x83000000UL
 
 
 //------------------------------------------------
