@@ -27,4 +27,4 @@ sw/rvbios/*.prg
 sw/rvnova/*.prg
 sw/tools/setenv/*
 sw/tools/autoexec/*
-
+local/*
