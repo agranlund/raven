@@ -10,6 +10,7 @@ bool        rtc_Init();
 void        rtc_Clear();
 void        rtc_Read(uint8_t addr, uint8_t* buf, uint8_t siz);
 void        rtc_Write(uint8_t addr, uint8_t* buf, uint8_t siz);
+bool        rtc_Valid();
 
 #endif //!__ASM__
 #endif // _RTC_H_

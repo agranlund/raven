@@ -9,25 +9,38 @@
 
 static const cfg_entry_t* cfgs[CFG_MAX];
 static uint32_t cfgcnt = 0;
+static bool cfgvalid = false;
 
-const char * const strYesNo[] = {"No", "Yes"};
 
-const cfg_entry_t confs[2] = {
-    { "test1", strYesNo,    {{0x3B, 0x01, 0, 1}} },
-    { "test2", 0,           {{0x3B, 0x03, 1, 2}} },
+
+const cfg_entry_t confs[] = {
+    { "st_ram_size",    0,  0, 0x30, 3, 0, 0, 4, 0},
+    { "st_ram_cache",   0,  0, 0x31, 2, 0, 0, 3, 0},
+    { "tt_ram_cache",   0,  0, 0x31, 2, 2, 0, 3, 0},
+  
+    { "boot_disable",   0,  0, 0x3B, 1, 0, 0,  1, 0},
+    { "boot_delay",     0,  0, 0x3B, 4, 4, 0, 15, 0},
 };
-
 
 bool cfg_Init()
 {
-    cfg_Add(confs, 2);
-    return true;
+    cfg_Add(confs, sizeof(confs) / sizeof(confs[0]));
+    cfgvalid = rtc_Valid();
+    return cfgvalid;
 }
 
 static uint8_t cfg_GetRtcAddress(const cfg_entry_t* entry) {
     if (entry && (entry->addr >= CFG_ADDR_MIN) && (entry->addr <= CFG_ADDR_MAX))
         return entry->addr;
     return 0xff;
+}
+
+static uint32_t cfg_GetMask(const cfg_entry_t* entry) {
+    uint32_t mask = 0;
+    for (int i=0; i<entry->bits; i++) {
+        mask <<= 1; mask |= 1;
+    }
+    return mask;
 }
 
 void cfg_Add(const cfg_entry_t* cfg, int num)
@@ -75,35 +88,41 @@ const cfg_entry_t* cfg_Find(const char* name)
     return found;
 }
 
-int cfg_GetValue(const cfg_entry_t* entry)
+uint32_t cfg_GetValue(const cfg_entry_t* entry)
 {
-    uint8_t v = 0;
-    if (entry) {
-        rtc_Read(cfg_GetRtcAddress(entry), &v, 1);
-        v >>= entry->shift;
-        v &= entry->mask;
+    uint32_t v = 0;
+    if (cfgvalid && entry) {
+        uint8_t siz = (entry->bits + 7) >> 3;
+        if (siz > 0) {
+            rtc_Read(cfg_GetRtcAddress(entry), (uint8_t*)&v, siz);
+            v >>= (((4-siz) << 3) + entry->shift);
+            v &= cfg_GetMask(entry);
+        }
     }
     return (int)v;
 }
 
-void cfg_SetValue(const cfg_entry_t* entry, int val)
+void cfg_SetValue(const cfg_entry_t* entry, uint32_t val)
 {
-    if (entry) {
+    if (cfgvalid && entry) {
 
         if (val < 0)
             val = 0;
         if (val > entry->max)
             val = entry->max;
 
-        uint8_t v = 0;
         uint8_t a = cfg_GetRtcAddress(entry);
         if (a != 0xff) {
-            rtc_Read(a, &v, 1);
-            v &= ~(entry->mask << entry->shift);
-            v |= ((((uint8_t)val) & entry->mask) << entry->shift);
-            rtc_Write(a, &v, 1);
+            uint8_t siz = (entry->bits + 7) >> 3;
+            if (siz > 0) {
+                uint32_t v = 0;
+                rtc_Read(a, (uint8_t*)&v, siz);
+                uint32_t s = ((4-siz) << 3) + entry->shift;
+                uint32_t m = cfg_GetMask(entry);
+                v &= ~(m << s);
+                v |= ((val & m) << s);
+                rtc_Write(a, (uint8_t*)&v, siz);
+            }
         }
     }
 }
-
-

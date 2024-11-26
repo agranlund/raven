@@ -51,28 +51,36 @@ void rtc_Clear()
     rtc_Write(RTC_RAM_START, buf, (RTC_RAM_END - 0x04) - RTC_RAM_START);
 }
 
-bool rtc_Init()
+bool rtc_Valid()
+{
+    uint8_t buf[4];
+    rtc_Read(0x3C, buf, 4);
+    return (memcmp(buf, "RAVN", 4) == 0) ? true : false;
+}
+
+void rtc_Reset()
 {
     unsigned char buf[0x40];
     memset(buf, 0, 0x40);
+    buf[0x03] = 0x01;
+    buf[0x04] = 0x01;
+    buf[0x05] = 0x01;
+    buf[0x06] = 0x00;
+    buf[0x3C] = 'R';
+    buf[0x3D] = 'A';
+    buf[0x3E] = 'V';
+    buf[0x3F] = 'N';
+    rtc_Write(0x00, &buf[0x00], 0x40);
+}
 
-    rtc_Read(0x3C, &buf[0x3C], 4);
-    if (memcmp(&buf[0x3C], "RAVN", 4) == 0) {
-        return true;
-    }
-    else {
-        buf[0x03] = 0x01;
-        buf[0x04] = 0x01;
-        buf[0x05] = 0x01;
-        buf[0x06] = 0x00;
-        buf[0x3C] = 'R';
-        buf[0x3D] = 'A';
-        buf[0x3E] = 'V';
-        buf[0x3F] = 'N';
-        rtc_Write(0x00, &buf[0x00], 0x40);
+bool rtc_Init()
+{
+    if (!rtc_Valid()) {
+        rtc_Reset();
     }
 
-    // sanity check
+    // sanity check clock settings
+    unsigned char buf[0x40];
     rtc_Read(0x00, &buf[0x00], 0x07);
     if (buf[0x00] & 0x80) {
         buf[0x00] = 0x00;
@@ -80,5 +88,5 @@ bool rtc_Init()
     }
 
     // todo: reset to 24h format if it was changed?
-    return true;
+    return rtc_Valid();
 }

@@ -277,7 +277,8 @@ void monCfgList()
                 }
                 fmt("]\n");
             } else {
-                fmt(" %s : %d [%d-%d]\n", c->name, cfg_GetValue(c), 0, c->max);
+                uint32_t v = cfg_GetValue(c);
+                fmt(" %s : %d [%d-%d]\n", c->name, v, c->min, c->max);
             }
         }
     }
@@ -285,8 +286,18 @@ void monCfgList()
 
 void monCfgRead(char* cfg)
 {
-    int v = cfg_GetValue(cfg_Find(cfg));
-    fmt("$%b\n", v);
+    const cfg_entry_t* e = cfg_Find(cfg);
+    if (e) {
+        uint32_t v = cfg_GetValue(e);
+        uint32_t s = ((e->bits + 7) >> 3);
+        if (s <= 1) {
+            fmt("$%b\n", v);
+        } else if (s <= 2) {
+            fmt("$%w\n", v);
+        } else {
+            fmt("$%l\n", v);
+        }
+    }
 }
 
 void monCfgWrite(char* cfg, uint32_t val)

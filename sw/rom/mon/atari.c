@@ -4,11 +4,10 @@
 #include "hw/mfp.h"
 #include "atari.h"
 #include "monitor.h"
+#include "config.h"
 
 #define DEBUG_MMU               0
 #define RESERVED_SIZE			(3UL * (1024 * 1024))
-#define COPYBACK_STRAM          0
-#define COPYBACK_TTRAM          0
 #define ACIA_EMULATION          0
 #define ENABLE_CART_TEST        0
 #define DELAY_BOOT              0
@@ -114,7 +113,9 @@ bool atari_InitMMU(uint32_t* simms)
     uint32_t reserved_end = reserved_start + RESERVED_SIZE;
 
     // todo: get from battery backed config
-    uint32_t stram_size = 0;
+    uint32_t stram_size = cfg_GetValue(cfg_Find("st_ram_size")) * 1024 * 1024UL;
+    uint32_t stram_cache = (cfg_GetValue(cfg_Find("st_ram_cache")) & 0x03) << 5;
+    uint32_t ttram_cache = (cfg_GetValue(cfg_Find("tt_ram_cache")) & 0x03) << 5;
 
     // identify gfx
     uint8_t id_gfx = 1; // assume ET4000
@@ -165,24 +166,16 @@ bool atari_InitMMU(uint32_t* simms)
 				if (lmem == 0) {
 					// system vectors + variables
 	                mmu_Map24bit(0x00000000, 0x00000000, 0x00002000, PMMU_READWRITE | PMMU_CM_PRECISE);
-	                mmu_Map24bit(0x00002000, 0x00002000, 0x000FE000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
+                    // st-ram
+	                mmu_Map24bit(0x00002000, 0x00002000, 0x000FE000, PMMU_READWRITE | stram_cache);
 				}
 				else if (lmem >= 0x01000000) {
 					// tt-ram
-                    #if COPYBACK_TTRAM
-	            	    mmu_Map(lmem, pmem, 0x00100000, PMMU_READWRITE | PMMU_CM_COPYBACK);
-                    #else
-	            	    mmu_Map(lmem, pmem, 0x00100000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
-                    #endif
-
+                    mmu_Map(lmem, pmem, 0x00100000, PMMU_READWRITE | ttram_cache);
 				}
 				else {
 					// st-ram
-                    #if COPYBACK_STRAM
-	                    mmu_Map24bit(lmem, pmem, 0x00100000, PMMU_READWRITE | PMMU_CM_COPYBACK);
-                    #else
-	                    mmu_Map24bit(lmem, pmem, 0x00100000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
-                    #endif
+                    mmu_Map24bit(lmem, pmem, 0x00100000, PMMU_READWRITE | stram_cache);
 				}
                 lmem += 0x00100000;
             }
@@ -308,21 +301,26 @@ bool atari_Init()
 		IOL(0, i) = 0;
 	}
 
-    if (!atari_DetectTos()) {
+    if (!atari_DetectTos() || cfg_GetValue(cfg_Find("boot_disable"))) {
         puts("No TOS detected");
         return true;
     }
 
-    if (DELAY_BOOT > 0)
-    {
-        puts("\nHit any key to cancel EmuTOS auto-boot...\n");
-        for (volatile int i = 0x100000; i; i--) {
-            if (uart_recvChar() != -1) {
-                return true;
+    uint32_t bootdelay = cfg_GetValue(cfg_Find("boot_delay"));
+    if (bootdelay > 0) {
+        puts("\nHit any key to cancel EmuTOS auto-boot...");
+        while (bootdelay > 0)
+        {
+            fmt("%d...\n", bootdelay);
+            for (volatile int i = 0x80000; i; i--) {
+                if (uart_recvChar() != -1) {
+                    return true;
+                }
             }
+            bootdelay--;
         }
     }
-    
+
     puts("Start");
     cpu_Call(0xe00000);
     return false;
