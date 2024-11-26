@@ -301,8 +301,13 @@ bool atari_Init()
 		IOL(0, i) = 0;
 	}
 
-    if (!atari_DetectTos() || cfg_GetValue(cfg_Find("boot_disable"))) {
+    if (!atari_DetectTos()) {
         puts("No TOS detected");
+        return true;
+    }
+
+    if (cfg_GetValue(cfg_Find("boot_disable"))) {
+        puts("TOS boot disabled");
         return true;
     }
 
