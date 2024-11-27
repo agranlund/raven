@@ -49,18 +49,22 @@ bool ikbd_Init()
 
 
 //-----------------------------------------------------------------------
-void ikbd_GPO(uint8_t bit, uint8_t output)
+void ikbd_GPO(uint8_t bit, bool enable)
 {
     // 0 : powerled
     // 1 : TP301
     uint8_t mask = (1 << bit);
-    if (output) {
+    if (enable) {
         IOB(PADDR_UART1, UART_MCR) &= ~mask;
     } else {
         IOB(PADDR_UART1, UART_MCR) |= mask;
     }
 }
 
+bool ikbd_GPI(uint8_t bit)
+{
+    return 0;
+}
 
 //-----------------------------------------------------------------------
 bool ikbd_txrdy()

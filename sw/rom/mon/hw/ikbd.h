@@ -7,7 +7,8 @@
 #define IKBD_GPO_TP307      1
 
 bool        ikbd_Init();
-void        ikbd_GPO(uint8_t bit, uint8_t output);
+void        ikbd_GPO(uint8_t bit, bool enable);
+bool        ikbd_GPI(uint8_t bit);
 
 bool        ikbd_txrdy();
 bool        ikbd_rxrdy();
