@@ -23,6 +23,7 @@ static void monRead(uint32_t bits, uint32_t addr);
 static void monWrite(uint32_t bits, uint32_t addr, uint32_t val);
 static void monRtcDump();
 static void monRtcClear();
+static void monRtcReset();
 static void monCfgList();
 static void monCfgRead(char* cfg);
 static void monCfgWrite(char* cfg, uint32_t val);
@@ -103,11 +104,9 @@ void mon_Main(regs_t* regs)
             else if (strcmp(argc[0], "pw") == 0)        { if (args>2) { monWrite(16, strtoi(argc[1]), strtoi(argc[2])); } else { monRead(16, strtoi(argc[1])); } }
             else if (strcmp(argc[0], "pl") == 0)        { if (args>2) { monWrite(32, strtoi(argc[1]), strtoi(argc[2])); } else { monRead(32, strtoi(argc[1])); } }
             else if (strcmp(argc[0], "rtc") == 0) {
-                if ((args>1) && (strcmp(argc[1], "clear") == 0)) {
-                    monRtcClear();
-                } else {
-                    monRtcDump();
-                }
+                if ((args>1) && (strcmp(argc[1], "clear") == 0)) { monRtcClear(); }
+                else if ((args>1) && (strcmp(argc[1], "reset") == 0)) { monRtcReset(); }
+                monRtcDump();
             }
             else if (strcmp(argc[0], "cfg") == 0) {
                 if (args == 1) {
@@ -135,7 +134,7 @@ void monHelp()
          "  pl [addr] {val}   : peek/poke long\n"
          "  d  [addr] {len}   : dump memory\n"
          "  a  [addr] {len}   : disassemble\n"
-         "  rtc {clear}       : dump/clear rtc\n"
+         "  rtc {clear/reset} : dump/clear/reset rtc\n"
          "  cfg {opt} {val}   : list/get/set option\n"
          "  test {cmd} {val}  : test hardware\n"
          "  run [addr]        : call program at address\n"
@@ -259,9 +258,14 @@ void monRtcDump()
 
 void monRtcClear()
 {
-    uint8_t regs[0x40];
-    memset(regs, 0, 0x40);
-    rtc_Write(RTC_RAM_START, regs, RTC_RAM_END - RTC_RAM_START - 0x04);
+    rtc_ClearRam();
+    cfg_Reset();
+}
+
+void monRtcReset()
+{
+    rtc_Reset();
+    cfg_Reset();
 }
 
 void monCfgList()

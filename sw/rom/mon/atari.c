@@ -306,7 +306,7 @@ bool atari_Init()
         return true;
     }
 
-    if (cfg_GetValue(cfg_Find("boot_disable"))) {
+    if (cfg_GetValue(cfg_Find("boot_enable")) == 0) {
         puts("TOS boot disabled");
         return true;
     }

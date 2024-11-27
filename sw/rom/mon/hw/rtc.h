@@ -7,7 +7,8 @@
 #define RTC_RAM_END         0x40
 
 bool        rtc_Init();
-void        rtc_Clear();
+void        rtc_Reset();
+void        rtc_ClearRam();
 void        rtc_Read(uint8_t addr, uint8_t* buf, uint8_t siz);
 void        rtc_Write(uint8_t addr, uint8_t* buf, uint8_t siz);
 bool        rtc_Valid();

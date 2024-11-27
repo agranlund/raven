@@ -44,38 +44,39 @@ void rtc_Write(uint8_t addr, uint8_t* buf, uint8_t siz)
     }
 }
 
-void rtc_Clear()
+bool rtc_Valid()
+{
+    uint8_t buf[3];
+    rtc_Read(0x3C, buf, 3);
+    return (memcmp(buf, "RVN", 3) == 0) ? true : false;
+}
+
+void rtc_ClearRam()
 {
     unsigned char buf[0x40];
     memset(buf, 0, 0x40);
-    rtc_Write(RTC_RAM_START, buf, (RTC_RAM_END - 0x04) - RTC_RAM_START);
-}
-
-bool rtc_Valid()
-{
-    uint8_t buf[4];
-    rtc_Read(0x3C, buf, 4);
-    return (memcmp(buf, "RAVN", 4) == 0) ? true : false;
+    buf[0x3C] = 'R';
+    buf[0x3D] = 'V';
+    buf[0x3E] = 'N';
+    rtc_Write(RTC_RAM_START, &buf[RTC_RAM_START], RTC_RAM_END - RTC_RAM_START);
 }
 
 void rtc_Reset()
 {
-    unsigned char buf[0x40];
-    memset(buf, 0, 0x40);
-    buf[0x03] = 0x01;
-    buf[0x04] = 0x01;
-    buf[0x05] = 0x01;
-    buf[0x06] = 0x00;
-    buf[0x3C] = 'R';
-    buf[0x3D] = 'A';
-    buf[0x3E] = 'V';
-    buf[0x3F] = 'N';
-    rtc_Write(0x00, &buf[0x00], 0x40);
+    unsigned char buf[RTC_RAM_START];
+    memset(buf, 0, RTC_RAM_START);
+    // todo: put a sensible default date
+    buf[0x04] = 0x01;           // day
+    buf[0x05] = 0x01;           // month
+    buf[0x06] = 0x56;           // year
+    rtc_Write(0x00, buf, RTC_RAM_START);
+    rtc_ClearRam();
 }
 
 bool rtc_Init()
 {
     if (!rtc_Valid()) {
+        puts("ResetRtc");
         rtc_Reset();
     }
 

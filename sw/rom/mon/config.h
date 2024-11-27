@@ -1,6 +1,11 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
+typedef enum
+{
+    CFGFLAG_INVERT = (1 << 0),
+} cfg_flag_t;
+
 typedef struct
 {
     const char * name;
@@ -15,6 +20,8 @@ typedef struct
 } cfg_entry_t;
 
 extern bool cfg_Init();
+extern void cfg_Reset();
+
 extern void cfg_Add(const cfg_entry_t* cfg, int num);
 
 extern int  cfg_Num();
