@@ -164,12 +164,12 @@ void initFormNvram(void)
 	form_setting_nvram[FORM_SETTING_DELAY].text = &form_nvram[FORM_DELAY].text[FORM_TEXTPOS];
 
 	form_setting_nvram[FORM_SETTING_DATE].text = &form_nvram[FORM_DATE].text[FORM_TEXTPOS];
-	form_setting_nvram[FORM_SETTING_DATE+1].text = &form_nvram[FORM_DATE].text[FORM_TEXTPOS];
-	form_setting_nvram[FORM_SETTING_DATE+2].text = &form_nvram[FORM_DATE].text[FORM_TEXTPOS];
+	form_setting_nvram[FORM_SETTING_DATE+1].text = &form_nvram[FORM_DATE].text[FORM_TEXTPOS+3];
+	form_setting_nvram[FORM_SETTING_DATE+2].text = &form_nvram[FORM_DATE].text[FORM_TEXTPOS+6];
 
 	form_setting_nvram[FORM_SETTING_TIME].text = &form_nvram[FORM_TIME].text[FORM_TEXTPOS];
-	form_setting_nvram[FORM_SETTING_TIME+1].text = &form_nvram[FORM_TIME].text[FORM_TEXTPOS];
-/*	form_setting_nvram[FORM_SETTING_TIME+2].text = &form_nvram[FORM_TIME].text[FORM_TEXTPOS]; */
+	form_setting_nvram[FORM_SETTING_TIME+1].text = &form_nvram[FORM_TIME].text[FORM_TEXTPOS+3];
+/*	form_setting_nvram[FORM_SETTING_TIME+2].text = &form_nvram[FORM_TIME].text[FORM_TEXTPOS+6]; */
 
 	NVMaccess(NVM_READ, 0, 17, nvram);
 }
