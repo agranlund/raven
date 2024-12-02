@@ -85,7 +85,7 @@ _fpe_xbra_old:  .long 0
 //
 //------------------------------------------------------
 
-_fpe_SetIPL:
+_fpe_SetIPL:                // uint16_t fpe_SetIPL(uint16_t ipl)
     move.l  4(sp),d1
     and.w   #0x0F00,d1
     move.w  sr,d0
@@ -98,48 +98,50 @@ _fpe_SetIPL:
     move.w  (sp)+,d0
     rts
 
-_fpe_GetVBR_010_060:
+_fpe_GetVBR_010_060:        // uint16_t fpe_GetVBR_010_060(void)
     nop
     .dc.l 0x4e7a0801            // movec vbr,d0
 	rts
 
-_fpe_SetVBR_010_060:
-    bsr     _fpe_GetVBR_010_060
+_fpe_SetVBR_010_060:        // uint16_t fpe_GetVBR_010_060(uint16_t vbr)
+    nop
+    .dc.l 0x4e7a0801            // movec vbr,d0
 	move.l	4(sp),d1
     nop
     .dc.l   0x4e7b1801          // movec d1,vbr
     nop
 	rts
 
-_fpe_GetPCR_060:
+_fpe_GetPCR_060:            // uint32_t fpe_GetPCR_060(void)
     nop
     .dc.l   0x4e7a0808          // movec pcr,d0
 	rts
 
-_fpe_SetPCR_060:
-    bsr     _fpe_GetPCR_060
+_fpe_SetPCR_060:            // uint32_t fpe_SetPCR_060(uint32_t pcr)
+    nop
+    .dc.l   0x4e7a0808          // movec pcr,d0
 	move.l	4(sp),d1
     nop
     .dc.l   0x4e7b1808          // movec d1,pcr
     nop
 	rts
 
-_fpe_FlushCache_020_030:
+_fpe_FlushCache_020_030:    // void fpe_FlushCache_020_030(void)
 	nop
     .dc.l   0x4e7a0002          // movec cacr,d0
 	ori.w	#0x0808,d0			// flush
     nop
-    .dc.l   0x4e7b0002          // movec d0, cacr
+    .dc.l   0x4e7b0002          // movec d0,cacr
 	nop
 	rts
 
-_fpe_FlushCache_040_060:
+_fpe_FlushCache_040_060:    // void fpe_FlushCache_040_060(void)
 	nop
     .dc.w   0xf4f8              // cpusha bc
 	nop
 	rts
 
-_fpe_DetectFpu_020_060:
+_fpe_DetectFpu_020_060:    // uint32_t fpe_DetectFpu_020_060(void)
     move.l  a2,-(sp)
     move.l  sp,a0
     move.l  0x08.w,a2
@@ -152,9 +154,9 @@ _fpe_DetectFpu_020_060:
     move.l  d0,-(sp)
     move.l  d0,-(sp)
     move.l  d0,-(sp)
-    .dc.w 0xf35f            // frestore (sp)+
-    .dc.l 0xf2800000        // fnop
-    .dc.w 0xf35f            // fsave -(sp)
+    .dc.w 0xf35f                // frestore (sp)+
+    .dc.l 0xf2800000            // fnop
+    .dc.w 0xf35f                // fsave -(sp)
     moveq.l #1,d0
 2:  move.l  a2,0x08.w
     move.l  a1,0x2c.w
@@ -163,13 +165,17 @@ _fpe_DetectFpu_020_060:
     move.l  (sp)+,a2
     rts
 
-_fpe_DisableFpu_060:
-    .dc.l   0xf2800000        // fnop
-    bsr     _fpe_GetPCR_060
+_fpe_DisableFpu_060:        // void fpe_DisableFpu_060(void)
+    .dc.l   0x4e7a0808          // movec pcr,d0
+    // todo: check if already disabled
+    nop
+    .dc.l   0xf2800000          // fnop
     or.l    #2,d0
-    bsr     _fpe_SetPCR_060
+    nop
+    .dc.l   0x4e7b0808          // movec d0,pcr
+    nop
     rts
-    
+   
 
 
 
