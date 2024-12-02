@@ -6,12 +6,14 @@ LIBCMINI_DIR	= $(ROOTDIR)/ext/libcmini
 LIBCMINI_CRT	= $(LIBCMINI_DIR)/build/objs/crt0.o
 GCC_OBJS		= $(ROOTDIR)/ext/lgcc.o
 
+ifeq ($(CPUFLAGS),)
 CPUFLAGS 	    = -m68000
+endif
 OUTBIN          = $(BIN)
 
-SFLAGS = $(OPT) $(CPUFLAGS)
+SFLAGS = $(OPT)
 
-CFLAGS = $(OPTS) $(CPUFLAGS) \
+CFLAGS = $(OPTS) \
     -I$(LIBCMINI_DIR)/include \
     -std=c99 -fomit-frame-pointer -fno-exceptions -ffast-math \
 	-Wall -Wno-multichar -Wno-unused-but-set-variable -Wno-unused-variable
@@ -33,7 +35,7 @@ $(OUTBIN) : $(BIN)
 	cp $(BIN) $(OUTBIN)
 
 $(BIN): common Makefile $(LINKOBJS)
-	$(CC) $(CFLAGS) $(LINKOBJS) $(LFLAGS) -o $(BIN)
+	$(CC) $(CFLAGS) $(CPUFLAGS) $(LINKOBJS) $(LFLAGS) -o $(BIN)
 	$(STRIP) $(BIN)
 	$(FLAGS) $(BIN)
 
@@ -56,9 +58,9 @@ $(LIBCMINI_CRT):
 	cd $(LIBCMINI_DIR) && make
 
 %.o : %.S
-	$(CC) $(SFLAGS) -c $< -o $@
+	$(CC) $(SFLAGS) $(CPUFLAGS) -c $< -o $@
 
 %.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(CPUFLAGS) -c $< -o $@
 
 

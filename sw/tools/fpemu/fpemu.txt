@@ -1,0 +1,60 @@
+----------------------------------------------------------------
+FPEmu v.241201
+Software FPU emulator for 68000-68060
+----------------------------------------------------------------
+
+Limitations:
+
+ - An emulated FPU is very slow.
+   The purpose of the emulator is to be able to run programs that makes
+   light use of floating point, nor not at all but still requires one.
+   You need a real FPU to run FPU heavy applications.
+
+ - Some programs look at the PCR register to detect 68060 LC/EC
+   and there is nothing that can be done to trick these
+   programs into using the emulated FPU.
+
+   ! MiNT itself does this !
+
+   You _can_ use this under MiNT but multitasking programs which use
+   the virtual FPU can result in bad-things(tm) until MiNT has been taught
+   to recognise the concept of emulated FPUs.
+
+----------------------------------------------------------------
+
+This product uses a part of NetBSD kernel. 
+This product includes software developed by the NetBSD Foundation, Inc. and its contributors
+This product includes software developed by the University of California, Lawrence Berkeley Laboratory.
+This product includes software developed by Gordon Ross
+
+BSD License
+============
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the author nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+
+Copyright (c) 1992, 1993 The Regents of the University of California.  All rights reserved.
+Copyright (c) 1995 Ken Nakata. All rights reserved.
+Copyright (c) 1995 Gordon W. Ross. All rights reserved.
+Copyright (c) 2013 Tetsuya Isaki. All rights reserved.
+Copyright (c) 2022-2024 Anders Granlund. All rights reserved.
