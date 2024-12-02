@@ -18,20 +18,26 @@ Copy the folder structure to the root of Ravens boot drive.
 The files need to execute in a particular order.
 Use "tools/autosort.prg" to assign execution order.
 
-RVBIOS.PRG : raven xbios extension
+RVBIOS.PRG   : Raven core xbios extension
  Needs to be first, or very early in the boot process.
  Temporarily supplied as a PRG but will eventually become part of the ROM.
 
-RVNOVA.PRG : nova driver launcher
+RVNOVA.PRG   : NOVA driver launcher
  Early in the boot process, after RVBIOS.PRG but before NVDI or other external GDOS.
+
+ISA_BIOS.PRG : ISA PnP bios
+ Before any program that use ISA cards which is not the graphics card.
+ After RVNOVA.PRG is a good idea so that you can see its output messages.
 
 
 Example file order:
- rvbios.prg
- xboot.prg
- rvnova.prg
- nvdi.prg
- mint.prg
+
+rvbios.prg
+  (xboot.prg)
+rvnova.prg
+isa_bios.prg
+  (nvdi.prg)
+  (mint.prg)
 
 
 
@@ -63,9 +69,10 @@ Modifying resolutions:
 --------
 castaway      : Atari ST emulation
 eiffel        : Configuration software for keyboard/mouse/fan
-autosort.prg  : sort utility for auto folder
+fpemu.prg     : FPU emulator for 68LC060 user
 cacheon.prg   : enable cpu caches
 cacheoff.prg  : disable cpu caches
 resetnvm.prg  : reset NVRAM
 thingpal.tos  : convert nova_col palette to Photoshop and ThingImg
+autosort.prg  : utility to set file order in auto folder
 

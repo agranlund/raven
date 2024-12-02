@@ -106,7 +106,6 @@ github_create_release:
 	gh release upload $(RELEASE_TAG) $(RELEASE_ZIP) --clobber
 
 
-
 copysw:
 	mkdir -p $(SWDIR)
 	mkdir -p $(SWDIR_AUTO)
@@ -116,7 +115,7 @@ copysw:
 	$(COPY) $(DISTDIR)/readme_sw.txt $(SWDIR)/raven.txt
 
 	# --------------------------------------------------
-	# RAVEN base tools
+	# RAVEN tools : PureC compiled on Raven
 	# --------------------------------------------------
 		mkdir -p $(SWDIR_AUTO)
 		$(COPY) $(ROOTDIR)/sw/rvbios/rvbios.prg $(SWDIR_AUTO)/
@@ -131,10 +130,28 @@ copysw:
 		$(COPY) $(ROOTDIR)/sw/tools/resetnvm/resetnvm.prg $(SWDIR_RTOOLS)/
 		$(COPY) $(ROOTDIR)/sw/tools/patch_xc/patch_xc.prg $(SWDIR_RTOOLS)/
 
+	# --------------------------------------------------
+	# RAVEN tools - GCC cross compiled
+	# --------------------------------------------------
+		make -C $(ROOTDIR)/sw/isa/isa_bios clean
+		make -C $(ROOTDIR)/sw/isa/isa_bios	
+		$(COPY) $(ROOTDIR)/sw/isa/isa_bios/isa_bios.prg $(SWDIR_AUTO)/
+		$(COPY) $(ROOTDIR)/sw/isa/isa_bios/isa_bios.inf $(SWDIR)/
+
+		make -C $(ROOTDIR)/sw/tools/fpu_emu clean
+		make -C $(ROOTDIR)/sw/tools/fpu_emu
+		$(COPY) $(ROOTDIR)/sw/tools/fpu_emu/fpemu.prg $(SWDIR_RTOOLS)/
+		$(COPY) $(ROOTDIR)/sw/tools/fpu_emu/fpemu.txt $(SWDIR_RTOOLS)/
+
+	# --------------------------------------------------
+	# RAVEN tools - Other repos
+	# --------------------------------------------------
 		mkdir -p $(SWDIR_RTOOLS)/castaway
+		# todo: clean and recompile?
 		$(COPY) $(ROOTDIR)/../castaway/bin/* $(SWDIR_RTOOLS)/castaway/
 		$(COPY) $(ROOTDIR)/../castaway/readme.txt $(SWDIR_RTOOLS)/castaway/
 		$(COPY) $(ROOTDIR)/../castaway/license.txt $(SWDIR_RTOOLS)/castaway/
+
 
 	# --------------------------------------------------
 	# Eiffel
@@ -210,8 +227,6 @@ copysw:
 	# GUS driver
 		mkdir -p $(SWDIR_ISA)/gus
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/gus/ultrinit.prg $(SWDIR_ISA)/gus/ultrinit.prg
-
-
 
 
 
