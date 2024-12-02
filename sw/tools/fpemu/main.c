@@ -63,7 +63,7 @@ uint32_t* createVbrProxy(uint32_t* oldvbr) {
     const uint32_t size_header = sizeof(struct VBRProxy);
     const uint32_t size_vbr = 256 * 4 * 1;
     const uint32_t size_proxy = 256 * 2 * 4;
-    uint32_t size = size_header + size_vbr + size_proxy;	// header + vbr + proxy
+    uint32_t size = size_header + size_vbr + size_proxy;    // header + vbr + proxy
     uint32_t base = ((uint32_t) Malloc(size+255)) & 0xFFFFFF00UL;
     if (base == 0)
         return 0;
@@ -89,7 +89,7 @@ uint32_t* createVbrProxy(uint32_t* oldvbr) {
             p->proxy[j++] = 0x4E75;         // rts
             old += 4;
         }
-	} else {
+    } else {
         for(uint16_t i=0,j=0; i<256; i++)
         {
             p->vbr[i] = (uint32_t) &p->proxy[j];
@@ -106,40 +106,40 @@ uint32_t* createVbrProxy(uint32_t* oldvbr) {
 
 void Setcookie(uint32_t c, uint32_t d)
 {
-	int32_t cookies_size = 0;
-	int32_t cookies_used = 0;
-	int32_t cookies_avail = 0;
-	uint32_t* jar = (uint32_t*) *((uint32_t*)0x5A0);
-	uint32_t* ptr = jar;
-	
-	while (1){
-		cookies_used++;
-		if (ptr[0] == c){
-			ptr[1] = d;
-			return;
-		}
-		else if (ptr[0] == 0){
-			cookies_size = ptr[1];
-			break;
-		}
-		ptr+=2;
-	}
+    int32_t cookies_size = 0;
+    int32_t cookies_used = 0;
+    int32_t cookies_avail = 0;
+    uint32_t* jar = (uint32_t*) *((uint32_t*)0x5A0);
+    uint32_t* ptr = jar;
+    
+    while (1){
+        cookies_used++;
+        if (ptr[0] == c){
+            ptr[1] = d;
+            return;
+        }
+        else if (ptr[0] == 0){
+            cookies_size = ptr[1];
+            break;
+        }
+        ptr+=2;
+    }
 
-	cookies_avail = cookies_size - cookies_used;
-	if (cookies_avail <= 0) {
-		int32_t oldsize = (2*4*(cookies_size + 0));
-		int32_t newsize = (2*4*(cookies_size + 8));
-		uint32_t* newjar = (uint32_t*)Malloc(newsize);
-		memcpy(newjar, jar, oldsize);
-		*((uint32_t*)0x5A0) = (uint32_t)newjar;
-		jar = newjar;
-		cookies_size = cookies_size + 8;
-	}
-	
-	jar[(cookies_used<<1)-2] = c;
-	jar[(cookies_used<<1)-1] = d;
-	jar[(cookies_used<<1)+0] = 0;
-	jar[(cookies_used<<1)+1] = cookies_size;
+    cookies_avail = cookies_size - cookies_used;
+    if (cookies_avail <= 0) {
+        int32_t oldsize = (2*4*(cookies_size + 0));
+        int32_t newsize = (2*4*(cookies_size + 8));
+        uint32_t* newjar = (uint32_t*)Malloc(newsize);
+        memcpy(newjar, jar, oldsize);
+        *((uint32_t*)0x5A0) = (uint32_t)newjar;
+        jar = newjar;
+        cookies_size = cookies_size + 8;
+    }
+    
+    jar[(cookies_used<<1)-2] = c;
+    jar[(cookies_used<<1)-1] = d;
+    jar[(cookies_used<<1)+0] = 0;
+    jar[(cookies_used<<1)+1] = cookies_size;
 }
 
 
