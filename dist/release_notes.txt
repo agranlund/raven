@@ -1,6 +1,13 @@
 Raven.A1
 Hardware and software binary release
 
+20241202
+  software: added FPU emulator 'fpemu.prg'
+  software: added ISA_BIOS and example config file
+  rvbios:   fixed GUI glitches on nvram page
+  rvbios:   fixed SP060 issue
+  monitor:  config system and storing settings to nvram
+
 20241124
   monitor: selftest is now a loadable s19 program
 
