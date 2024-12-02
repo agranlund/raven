@@ -64,11 +64,12 @@ uint32_t* createVbrProxy(uint32_t* oldvbr) {
     const uint32_t size_vbr = 256 * 4 * 1;
     const uint32_t size_proxy = 256 * 2 * 4;
     uint32_t size = size_header + size_vbr + size_proxy;    // header + vbr + proxy
-    uint32_t base = ((uint32_t) Malloc(size+255)) & 0xFFFFFF00UL;
+    uint32_t base = (uint32_t) Malloc(size+256);
     if (base == 0)
         return 0;
 
     // build header
+    base = (base + 255) & 0xffffff00;
     memset((void*)base, 0, size);
     struct VBRProxy* p = (struct VBRProxy*) base;
     p->vbr = (uint32_t*) (base + size_header);
@@ -152,7 +153,6 @@ int supermain()
     if (!fpe_install(cpu)) {
         return 1;
     }
-
     // install to vbr proxy, create one if needed
     int hide_linef = 1;
     if (hide_linef && (cpu >= 10)) {
