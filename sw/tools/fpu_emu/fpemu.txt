@@ -3,22 +3,79 @@ FPEmu v.241201
 Software FPU emulator for 68000-68060
 ----------------------------------------------------------------
 
-Limitations:
+Known limitations:
 
  - An emulated FPU is very slow.
    The purpose of the emulator is to be able to run programs that makes
    light use of floating point, nor not at all but still requires one.
    You need a real FPU to run FPU heavy applications.
 
- - Some programs look at the PCR register to detect 68060 LC/EC
-   and there is nothing that can be done to trick these
-   programs into using the emulated FPU.
+ - 68060 only:
+   Some programs look at the PCR register to detect 68060 LC/EC and there is
+   nothing that can be done to trick these programs into using the emulated FPU.
 
    ! MiNT itself does this !
 
-   You _can_ use this under MiNT but multitasking programs which use
-   the virtual FPU can result in bad-things(tm) until MiNT has been taught
-   to recognise the concept of emulated FPUs.
+   You _can_ use this under MiNT, if you run it after the MiNT kernel has started
+   but if you are multitasking programs that both are using the virtual FPU
+   then bad things can happen.
+   Do so at your own risk by placing fpemu.prg _after_ mint.prg
+
+ - There can be bugs
+
+ - Some programs may be able to see through the facade even though it
+   tries to be invisible to the system.
+
+----------------------------------------------------------------
+
+Supported systems:
+
+68000 TOS1 and later (1)
+68010 TOS1 and later
+68020 TOS1 and later
+68030 TOS1 and later
+68040 TOS2 and later
+68060 TOS2 and later (2)
+
+(1) FPEmu cannot masquerade itself as hardware on 68000 systems
+    so programs that do low-level fpu detection will think there
+    is no fpu - and perhaps not run because of it.
+    Programs which only look at the system cookie will still be ok.
+
+(2) Some programs checks the CPU ID instead of looking for an FPU.
+    Nothing can be done to trick these programs into using the virtual FPU.
+    Most programs only look at the system cookie though.
+
+----------------------------------------------------------------
+
+Usage:
+
+ Put in AUTO folder.
+ You can now have a (slow) virtual 68881.
+
+If using MiNT:
+
+ You normally want to run it _before_ MiNT to ensure safe operation.
+ However, this is not possible on 68060 and there you don't have
+ any choice but to run it _after_ even if that is generally a bad idea.
+
+ Technical mumbojumbo:
+
+ Running it _before_ MINT ensures that MiNT does all the normally required
+ FPU stuff when context switching between multitasking applications.
+
+ * There is an additional performance penalty here since it will
+   call into the emulator on each context switch.
+
+ * However it also means that you can safely multitask programs
+   which are using the (virtual) FPU.
+
+ If you start it _after_ MiNT then MiNT itself thinks there is
+ no FPU, so it will not save/restore FPU registers on context switches.
+
+ * In this case, be careful about not multitasking programs that
+   are using the (virtual) FPU, or at least don't get surprised
+   if bad things happens in them if you do.
 
 ----------------------------------------------------------------
 
