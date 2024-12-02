@@ -28,7 +28,13 @@
 #include <stdint.h>
 #include <string.h>
 
-#define C_VFPU  0x56465055  // 'VFPU'
+#ifndef C_VFPU
+#define C_VFPU  0x56465055UL  // 'VFPU'
+#endif
+
+#ifndef C_XVBR
+#define C_XVBR  0x58425241UL  // 'XBRA'
+#endif
 
 extern uint32_t _PgmSize;
 extern int fpe_install(uint32_t cpu);
@@ -67,7 +73,7 @@ uint32_t* createVbrProxy(uint32_t* oldvbr) {
     struct VBRProxy* p = (struct VBRProxy*) base;
     p->vbr = (uint32_t*) (base + size_header);
     p->proxy = (uint16_t*) (base + size_header + size_vbr);
-    p->magic = 'XVBR';
+    p->magic = C_XVBR;
     p->ident = C_VFPU;
     p->old = oldvbr;
 

@@ -29,6 +29,15 @@
 #include <stdio.h>
 #include "fpu_emulate.h"
 
+#ifndef C_VFPU
+#define C_VFPU  0x56465055UL  // 'VFPU'
+#endif
+
+#ifndef C_XBRA
+#define C_XBRA  0x58425241UL  // 'XBRA'
+#endif
+
+
 //#define DEBUG_FPE
 
 // from fpu_subr.c
@@ -128,8 +137,8 @@ int fpe_install(uint32_t cpu)
     }
 
     fpe_vec[0] = vec_new;
-    fpe_vec[1] = 'XBRA';
-    fpe_vec[2] = 'VFPU';
+    fpe_vec[1] = C_XBRA;
+    fpe_vec[2] = C_VFPU;
     fpe_vec[3] = *((volatile uint32_t*)0x2C);
     *((volatile uint32_t*)0x2C) = (uint32_t)&fpe_vec[4];
 
