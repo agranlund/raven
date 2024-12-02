@@ -75,7 +75,10 @@ int fpe_install(uint32_t cpu)
             ((pcr & 0x00000002UL) != 0x00000000UL)) {       // FPU disabled
             shouldDetectFpu = 0;
         }
+    } else if ((cpu < 20) || (cpu > 60)) {
+        shouldDetectFpu = 0;
     }
+
     if (shouldDetectFpu && fpe_DetectFpu_020_060()) {
         return 0;
     }
