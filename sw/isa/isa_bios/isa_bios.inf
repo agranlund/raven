@@ -15,6 +15,7 @@
 #   leas : Little endian address swapped
 # ---------------------------------------------------------------------------
 
+#Example bus configuration overrides - you normally never have to touch these.
 #isa.endian      = leas
 #isa.iobase      = 0x81000000
 #isa.membase     = 0x82000000
@@ -25,7 +26,7 @@
 
 
 # ---------------------------------------------------------------------------
-# Cards
+# Card configs
 # ---------------------------------------------------------------------------
 # Command format "card.<id>{:idx}.<command>"
 #
@@ -37,11 +38,10 @@
 #   card.<id>{:idx} = <name of card>
 # ---------------------------------------------------------------------------
 
-#card.PNP80d6    = "NE2000 Ethernet"
 
 
 # ---------------------------------------------------------------------------
-# Devices
+# Device configs
 # These commands assume the referenced card exists, either as found by
 # plug-and-play or from being manually added in this config file.
 # When the card does not exist then these commands do nothing.
@@ -67,11 +67,46 @@
 #   dma : 0 - 1
 # ---------------------------------------------------------------------------
 
-#dev.PNP80d6.PNP80d6.io0    330
-#dev.PNP80d6.PNP80d6.irq0   7
+
+
 
 
 # ---------------------------------------------------------------------------
-# examples
+#
+# Examples
+#
 # ---------------------------------------------------------------------------
+
+#
+# Example of changing the human readable name for the card with
+# identifier KTC2000 (see 'isa_bios.log' for detected cards and devices)
+# Changing human readable names is purely cosmetic.
+#
+#card.KTC2000.name = "Kingston KNE20"
+
+#
+# Example of disabling the soundblaster emulation device on a Gravis Ultrasound
+#
+#dev.GRV0001.GRV0003.enable = 0
+
+#
+# Example of changing io-port 0 on device YMH0021 of card YMH0800
+# (a Yamaha based soundblaster clone)
+#
+#dev.YMH0800.YMH0021.io0 = 280
+
+#
+# Example of adding a non-pnp NE2000 based card to the PNP registry.
+# Note that the settings entered here will not actually change anything on
+# the non-pnp card and what you enter must match how your card is jumpered.
+#
+# Q: It is never required to register non-pnp cards so why would you want to?
+#
+# A: In case some theoretical piece of software is asking the ISA-BIOS for devices
+#    of a certain PNP type it could now find even your old non-pnp card.
+#
+#card.PNP80d6 = "NE2000 Ethernet card"
+#dev.PNP80d6.PNP80d6.io0 = 330
+#dev.PNP80d6.PNP80d6.irq0 = 7
+
 
