@@ -112,9 +112,12 @@ void Setcookie(uint32_t c, uint32_t d)
     int32_t cookies_avail = 0;
     uint32_t* jar = (uint32_t*) *((uint32_t*)0x5A0);
     uint32_t* ptr = jar;
-    
+
     while (1){
         cookies_used++;
+        if (ptr == 0) {
+            break;
+        }
         if (ptr[0] == c){
             ptr[1] = d;
             return;
@@ -131,7 +134,9 @@ void Setcookie(uint32_t c, uint32_t d)
         int32_t oldsize = (2*4*(cookies_size + 0));
         int32_t newsize = (2*4*(cookies_size + 8));
         uint32_t* newjar = (uint32_t*)Malloc(newsize);
-        memcpy(newjar, jar, oldsize);
+        if (oldsize > 0) {
+            memcpy(newjar, jar, oldsize);
+        }
         *((uint32_t*)0x5A0) = (uint32_t)newjar;
         jar = newjar;
         cookies_size = cookies_size + 8;
@@ -172,9 +177,9 @@ int supermain()
 
     // set cookie
     switch (cpu) {
-        case 60: fpu = 0x00100000; break;   // 68060
-        case 40: fpu = 0x00080000; break;   // 68040
-        default: fpu = 0x00040000; break;   // 68881
+        case 60: fpu = 0x00100000UL; break;   // 68060
+        case 40: fpu = 0x00080000UL; break;   // 68040
+        default: fpu = 0x00040000UL; break;   // 68881
     }
 
     Setcookie(C__FPU, fpu); // Atari _CPU cookie
