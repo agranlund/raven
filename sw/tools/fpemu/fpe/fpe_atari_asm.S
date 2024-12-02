@@ -160,7 +160,7 @@ _fpe_DetectFpu_020_060:
     move.l  a1,0x2c.w
     move.l  a0,sp
     nop
-    move.l  a2,(sp)+
+    move.l  (sp)+,a2
     rts
 
 _fpe_DisableFpu_060:
