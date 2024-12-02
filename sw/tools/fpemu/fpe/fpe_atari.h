@@ -26,9 +26,9 @@
 
 
 #ifndef _FPE_ATARI_H_
-#define	_FPE_ATARI_H_
+#define    _FPE_ATARI_H_
 
-extern int fpe_install();		// returns 0 on success, negative number on fail
+extern int fpe_install();        // returns 0 on success, negative number on fail
 
 
 #include "string.h"
@@ -41,59 +41,59 @@ extern int fpe_install();		// returns 0 on success, negative number on fail
 #include "stdio.h"
 #endif
 
-#define _BYTE_ORDER			_BIG_ENDIAN
-#define	_LITTLE_ENDIAN		1234	/* LSB first: i386, vax */
-#define	_BIG_ENDIAN			4321	/* MSB first: 68000, ibm, net */
-#define	_PDP_ENDIAN			3412	/* LSB first in word, MSW first in long */
+#define _BYTE_ORDER         _BIG_ENDIAN
+#define _LITTLE_ENDIAN      1234    /* LSB first: i386, vax */
+#define _BIG_ENDIAN         4321    /* MSB first: 68000, ibm, net */
+#define _PDP_ENDIAN         3412    /* LSB first in word, MSW first in long */
 
-#define	LITTLE_ENDIAN		_LITTLE_ENDIAN
-#define	BIG_ENDIAN			_BIG_ENDIAN
-#define	PDP_ENDIAN			_PDP_ENDIAN
-#define BYTE_ORDER			_BYTE_ORDER
+#define LITTLE_ENDIAN       _LITTLE_ENDIAN
+#define BIG_ENDIAN          _BIG_ENDIAN
+#define PDP_ENDIAN          _PDP_ENDIAN
+#define BYTE_ORDER          _BYTE_ORDER
 
 
-#define	__packed			__attribute__((__packed__))
-#define	__aligned(x)		__attribute__((__aligned__(x)))
-#define	__section(x)		__attribute__((__section__(x)))
+#define __packed            __attribute__((__packed__))
+#define __aligned(x)        __attribute__((__aligned__(x)))
+#define __section(x)        __attribute__((__section__(x)))
 
-typedef char				int8_t;
-typedef short				int16_t;
-typedef int					int32_t;
-typedef long long			int64_t;
-typedef unsigned char		uint8_t;
-typedef unsigned short		uint16_t;
-typedef unsigned int		uint32_t;
-typedef unsigned long long	uint64_t;
-typedef uint32_t			ksiginfo_t;		// dummy
+typedef char                int8_t;
+typedef short               int16_t;
+typedef int                 int32_t;
+typedef long long           int64_t;
+typedef unsigned char       uint8_t;
+typedef unsigned short      uint16_t;
+typedef unsigned int        uint32_t;
+typedef unsigned long long  uint64_t;
+typedef uint32_t            ksiginfo_t;        // dummy
 
-typedef unsigned char		u_char;
-typedef unsigned short		u_short;
-typedef unsigned int		u_int;
-typedef unsigned long		u_long;
-typedef unsigned long long	u_longlong;
+typedef unsigned char       u_char;
+typedef unsigned short      u_short;
+typedef unsigned int        u_int;
+typedef unsigned long       u_long;
+typedef unsigned long long  u_longlong;
 
-typedef unsigned int		uint_t;
+typedef unsigned int        uint_t;
 
-#define SIGILL				4
-#define SIGFPE				8
-#define SIGSEGV				11
+#define SIGILL              4
+#define SIGFPE              8
+#define SIGSEGV             11
 
-#define	ILL_ILLOPC			1
-#define SEGV_ACCERR			2
+#define ILL_ILLOPC          1
+#define SEGV_ACCERR         2
 
 
 /* user and super spaces are the same */
 inline int copyin(const void *src, void *dst, size_t len) {
-	memcpy(dst, src, len);
-	return len;
+    memcpy(dst, src, len);
+    return len;
 }
 inline int copyout(const void *src, void *dst, size_t len) {
-	memcpy(dst, src, len);
-	return len;
+    memcpy(dst, src, len);
+    return len;
 }
 inline int ufetch_short(const unsigned short *from, unsigned short *to) {
-	*to = *from;
-	return 0;
+    *to = *from;
+    return 0;
 }
 
 

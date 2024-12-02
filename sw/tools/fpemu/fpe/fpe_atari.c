@@ -95,7 +95,7 @@ int fpe_install(uint32_t cpu)
     // pick linef handler based on cpu and tos version
     uint32_t vec_new = 0;
 #if defined(FPE_SUPPORT_TOS1)
-	OSHEADER* oshdr = (OSHEADER*) *((volatile uint32_t*)0x4F2);
+    OSHEADER* oshdr = (OSHEADER*) *((volatile uint32_t*)0x4F2);
     if (oshdr && oshdr->os_version < 0x0200)
     {
         fpe_tos1bot = (uint32_t) oshdr->os_beg;
@@ -142,23 +142,23 @@ int fpe_install(uint32_t cpu)
     fpe_vec[3] = *((volatile uint32_t*)0x2C);
     *((volatile uint32_t*)0x2C) = (uint32_t)&fpe_vec[4];
 
-	return 1;
+    return 1;
 }
 
 void panic(const char* str) {
-	// todo
-#ifdef DIAGNOSTIC	
-	printf("FPE PANIC [%s]!\n\r", str);
+    // todo
+#ifdef DIAGNOSTIC    
+    printf("FPE PANIC [%s]!\n\r", str);
 #endif
 }
 
 int fpe_abort(struct frame *frame, int signo, int code)
 {
-	// todo
-#ifdef DIAGNOSTIC	
-	printf("FPE ABORT! pc = %08x\n\r", frame->f_pc);
+    // todo
+#ifdef DIAGNOSTIC    
+    printf("FPE ABORT! pc = %08x\n\r", frame->f_pc);
 #endif
-	return signo;
+    return signo;
 }
 
 
