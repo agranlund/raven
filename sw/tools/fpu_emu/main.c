@@ -36,6 +36,11 @@
 #define C_XVBR  0x58425241UL  // 'XBRA'
 #endif
 
+
+#define SPOOF_HARDWARE_DETECT   1
+#define SPOOF_COOKIE            1
+
+
 extern uint32_t _PgmSize;
 extern int fpe_install(uint32_t cpu);
 
@@ -159,7 +164,7 @@ int supermain()
         return 1;
     }
     // install to vbr proxy, create one if needed
-    int hide_linef = 1;
+    int hide_linef = SPOOF_HARDWARE_DETECT;
     if (hide_linef && (cpu >= 10)) {
         volatile uint32_t* vbr_default = 0;
         volatile uint32_t* vbr_proxy = (volatile uint32_t*) fpe_GetVBR_010_060();
@@ -180,6 +185,14 @@ int supermain()
         case 60: fpu = 0x00100000UL; break;   // 68060
         case 40: fpu = 0x00080000UL; break;   // 68040
         default: fpu = 0x00040000UL; break;   // 68881
+    }
+
+    // Put upper word fpu model in the lower word too.
+    // "The lower WORD is reserved for information about software support via the Line-F trap, and is at present not yet in use.
+    //  According to Atari, a non-zero value indicates that Line-F support is present."
+    int hide_cookie = SPOOF_COOKIE;
+    if (!hide_cookie) {
+        fpu |= (fpu >> 16);
     }
 
     Setcookie(C__FPU, fpu); // Atari _CPU cookie
