@@ -33,8 +33,16 @@ DEPS		= $(MAKEFILE_LIST) $(LDFILE)
 
 SFLAGS		= $(DEFS) -m68060 -D__ASM__
 
+ifeq ($(DOPT),)
+DOPT        = -Os
+endif
+
+ifeq ($(DCPU),)
+DCPU        = -m68060
+endif
+
 CFLAGS		= $(DEFS) \
-			-m68060 -Os -std=c17 -Wall -MMD -nostdinc \
+			$(DCPU) $(DOPT) -std=c17 -Wall -MMD -nostdinc \
 			-ffreestanding -fomit-frame-pointer -fno-common -fdata-sections -ffunction-sections \
 		   -I$(CC_INCLUDES) \
 		   -I$(MONDIR)
