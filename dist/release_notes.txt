@@ -1,6 +1,11 @@
 Raven.A1
 Hardware and software binary release
 
+20241210
+  Basic mono vga mode is now intiialized by
+  the Raven bios instead of EmuTOS.
+  Should work on all/most types of VGA cards.
+
 20241202
   software: added FPU emulator 'fpemu.prg'
   software: added ISA_BIOS and example config file
