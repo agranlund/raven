@@ -29,7 +29,8 @@ typedef struct
 /* 0x0000 */
     uint32_t    magic;
     uint32_t    version;
-    uint32_t    reserved0000[6];
+    uint32_t    reserved0000[5];
+    uint32_t    x86emu;
 
 /* 0x0020 */
     uint32_t    _RVAPI (*dbg_GPI)(uint32_t num);

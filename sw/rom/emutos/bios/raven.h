@@ -78,6 +78,7 @@ void  raven_midi_writeb(UBYTE b);
 UBYTE raven_midi_readb(void);
 
 const UBYTE* raven_physbase(void);
+void raven_get_current_mode_info(UWORD *planes, UWORD *hz_rez, UWORD *vt_rez);
 
 #if CONF_WITH_NVRAM
 UBYTE raven_nvram_readb(int index);

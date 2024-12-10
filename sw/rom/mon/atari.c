@@ -2,12 +2,13 @@
 #include "hw/cpu.h"
 #include "hw/uart.h"
 #include "hw/mfp.h"
+#include "vga/vga.h"
 #include "atari.h"
 #include "monitor.h"
 #include "config.h"
 
 #define DEBUG_MMU               0
-#define RESERVED_SIZE			(3UL * (1024 * 1024))
+#define RESERVED_SIZE			(4UL * (1024 * 1024))
 #define ACIA_EMULATION          0
 #define ENABLE_CART_TEST        0
 #define DELAY_BOOT              0
@@ -271,6 +272,14 @@ bool atari_InitMMU(uint32_t* simms)
     mmu_Redirect(0x41FC0000, reserved_start + 0x00200000, 0x00030000);      // tos   192kb
     mmu_Redirect(0x41FA0000, reserved_start + 0x00240000, 0x00020000);		// cart  128kb
     mmu_Redirect(0x41FF0000, reserved_start + 0x00260000, 0x00010000);		// io	  64kb
+    // x86 emulation space
+    mmu_Redirect(0x42000000, reserved_start + 0x00300000, 0x000a0000);		// 640kb ram    : 00000
+    //mmu_Redirect(0x420a0000, reserved_start + 0x003a0000, 0x00020000);		// 128kb video  : A0000
+    mmu_Redirect(0x420a0000, 0x80000000     + 0x000a0000, 0x00020000);		// 128kb video  : A0000
+    //mmu_Redirect(0x420c0000, reserved_start + 0x003c0000, 0x00030000);		// 160kb ebios  : C0000
+    mmu_Redirect(0x420c0000, 0x80000000     + 0x000c0000, 0x00030000);		// 160kb ebios  : C0000
+    mmu_Redirect(0x420e0000, reserved_start + 0x003e0000, 0x00010000);		// 160kb sbios  : F0000
+
 
     mmuregs_t mmu;
     mmu.urp = mmuTable;
@@ -284,6 +293,15 @@ bool atari_InitMMU(uint32_t* simms)
     return true;
 }
 
+
+bool atari_InitScreen()
+{
+    if (!vga_Init())
+        return 0;
+
+    vga_Atari();
+    return true;
+}
 
 bool atari_Init()
 {
@@ -325,6 +343,9 @@ bool atari_Init()
             bootdelay--;
         }
     }
+
+    puts("InitVga");
+    atari_InitScreen();
 
     puts("Start");
     cpu_Call(0xe00000);

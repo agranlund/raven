@@ -19,18 +19,20 @@ ROM_MON		 = mon.bin
 MON_SREC	 = mon.s19
 
 # Sources
-SFILES		:= $(wildcard *.S) $(wildcard hw/*.S)
-CFILES		:= $(wildcard *.c) $(wildcard hw/*.c)
+SFILES		:= $(wildcard *.S) $(wildcard hw/*.S) $(wildcard vga/*.S)
+CFILES		:= $(wildcard *.c) $(wildcard hw/*.c) $(wildcard vga/*.c)
 OFILES		 = $(SFILES:%.S=%.o) $(CFILES:%.c=%.o)
 DEPS   		 = $(MAKEFILE_LIST) mon.ld
 
 BUILD_DATE_HEX	:= $(shell date +%Y%m%d)
 BUILD_DATE_DEC	:= $(shell printf %d 0x$(BUILD_DATE_HEX))
 
-DEFS		 = -DVERSION=$(BUILD_DATE_DEC) \
-		   -DREV=$(BOARD_REV) \
-		   -DBIOS_ROM=$(BIOS_ROM) \
-		   -DBIOS_EMU_MEM=$(BIOS_EMU)
+DEFS		 = -DRAVEN_ROM \
+			-DVERSION=$(BUILD_DATE_DEC) \
+		   	-DREV=$(BOARD_REV) \
+		   	-DBIOS_ROM=$(BIOS_ROM) \
+		   	-DBIOS_EMU_MEM=$(BIOS_EMU)
+		   
 
 SFLAGS		 = $(DEFS) -m68060 -D__ASM__
 

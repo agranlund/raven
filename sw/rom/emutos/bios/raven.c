@@ -35,6 +35,7 @@
 #include "bootparams.h"
 #include "machine.h"
 #include "has.h"
+#include "lineavars.h"
 #include "../bdos/bdosstub.h"
 
 #include "raven.h"
@@ -42,20 +43,32 @@
 extern void raven_int_ikbd(void);
 extern void raven_int_vbl(void);
 
+#define BOOT_SCREEN_PLANES  1
+#define BOOT_SCREEN_WIDTH   640
+#define BOOT_SCREEN_HEIGHT  480
+#define BOOT_SCREEN_BPL     (BOOT_SCREEN_WIDTH / 8)
+
 void raven_screen_init(void)
 {
+    v_bas_ad = raven_physbase();
     sshiftmod = ST_HIGH;
+    v_planes = BOOT_SCREEN_PLANES;
+    V_REZ_HZ = BOOT_SCREEN_WIDTH;
+    V_REZ_VT = BOOT_SCREEN_HEIGHT;
+    BYTES_LIN = v_lin_wr = (BOOT_SCREEN_WIDTH / 8);
     VEC_VBL = raven_int_vbl;
 }
 
 const UBYTE *raven_physbase(void)
 {
-#if CONF_WITH_NOVA
-    const UBYTE* nova_addr = get_novamembase();
-    if (nova_addr)
-        return nova_addr;
-#endif
-    return logbase();
+    return (const UBYTE*)0x820A0000;
+}
+
+void raven_get_current_mode_info(UWORD *planes, UWORD *hz_rez, UWORD *vt_rez)
+{
+    *planes = BOOT_SCREEN_PLANES;
+    *hz_rez = BOOT_SCREEN_WIDTH;
+    *vt_rez = BOOT_SCREEN_HEIGHT;
 }
 
 void raven_kbd_init(void)

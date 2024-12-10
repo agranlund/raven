@@ -810,9 +810,10 @@ void screen_get_current_mode_info(UWORD *planes, UWORD *hz_rez, UWORD *vt_rez)
     *hz_rez = 720;
     *vt_rez = 364;
 #elif defined(MACHINE_RAVEN)
+    raven_get_current_mode_info(planes, hz_rez, vt_rez);
     *planes = 1;
     *hz_rez = 640;
-    *vt_rez = 400;
+    *vt_rez = 480;
 #else
     atari_get_current_mode_info(planes, hz_rez, vt_rez);
 #endif
@@ -889,7 +890,7 @@ static __inline__ void get_std_pixel_size(WORD *width,WORD *height)
  */
 void get_pixel_size(WORD *width,WORD *height)
 {
-#ifdef MACHINE_AMIGA
+#if defined(MACHINE_AMIGA) || defined(MACHINE_RAVEN)
     get_std_pixel_size(width,height);
 #else
     if (HAS_VIDEL || HAS_TT_SHIFTER)
@@ -1147,6 +1148,7 @@ WORD setscreen(UBYTE *logLoc, const UBYTE *physLoc, WORD rez, WORD videlmode)
 
 #ifdef MACHINE_AMIGA
     amiga_setrez(rez, videlmode);
+#elif defined(MACHINE_RAVEN)
 #elif CONF_WITH_ATARI_VIDEO
     atari_setrez(rez, videlmode);
 #endif

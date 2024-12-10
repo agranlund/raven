@@ -666,9 +666,18 @@
 # ifndef CONF_WITH_68040_PMMU
 #  define CONF_WITH_68040_PMMU 0
 # endif
-# ifndef CONF_WITH_NOVA
-#  define CONF_WITH_NOVA 1
-# endif
+#if 0
+    # ifndef CONF_WITH_NOVA
+    #  define CONF_WITH_NOVA 1
+    # endif
+#else
+    # ifndef CONF_WITH_NOVA
+    #  define CONF_WITH_NOVA 0
+    # endif
+    #ifndef CONF_VRAM_ADDRESS
+    # define CONF_VRAM_ADDRESS 0x820A0000UL
+    #endif
+#endif
 # ifndef CONF_WITH_ALT_DESKTOP_GRAPHICS
 #  define CONF_WITH_ALT_DESKTOP_GRAPHICS 0
 # endif

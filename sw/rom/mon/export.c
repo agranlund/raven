@@ -6,6 +6,9 @@
 #include "hw/midi.h"
 #include "hw/i2c.h"
 #include "hw/rtc.h"
+#include "vga/x86emu.h"
+
+extern struct X86EMU* x86emu;
 
 void b_dbg_GPO(uint32_t num, uint32_t enable) {
     switch (num)
@@ -39,7 +42,8 @@ const raven_t ravenBios =
 //0x0000
     C_RAVN,             // magic
     VERSION,            // rom version
-    {0,0,0,0,0,0},
+    {0,0,0,0,0},
+    (uint32_t)&x86emu,  // pointer to x86emu pointer
 //0x0020
     b_dbg_GPI,
     b_dbg_GPO,

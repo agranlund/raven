@@ -3,6 +3,7 @@
 #include "hw/cpu.h"
 #include "hw/uart.h"
 #include "hw/rtc.h"
+#include "vga/vga.h"
 #include "monitor.h"
 #include "config.h"
 #include "m68k_disasm.h"
@@ -117,6 +118,18 @@ void mon_Main(regs_t* regs)
                     monCfgWrite(argc[1], strtoi(argc[2]));
                 }
             }
+            else if (strcmp(argc[0], "vga") == 0)
+            {
+                if (args == 1) {
+                    puts(   "Commands:\n"
+                           "   vga init\n"
+                            "  vga test\n" );
+                } else if (strcmp(argc[1], "init") == 0) {
+                    vga_Init();
+                } else if (strcmp(argc[1], "test") == 0) {
+                    vga_Test();
+                }
+            }
             else if (strcmp(argc[0], "run") == 0)       { cpu_Call(strtoi(argc[1])); }
             else if (strncmp(argc[0], "S0", 2) == 0)    { monSrec(argc[0]); }
             else                                        { monHelp(); }
@@ -135,6 +148,7 @@ void monHelp()
          "  d  [addr] {len}   : dump memory\n"
          "  a  [addr] {len}   : disassemble\n"
          "  rtc {clear/reset} : dump/clear/reset rtc\n"
+         "  vga {cmd} {opt}   : screen commands\n"
          "  cfg {opt} {val}   : list/get/set option\n"
          "  test {cmd} {val}  : test hardware\n"
          "  run [addr]        : call program at address\n"
@@ -377,8 +391,12 @@ static void srec_s7(uint32_t address_offset, uint32_t low_address, uint32_t high
             puts("srec: S7 bad address");
             return;
         }
-        fmt("S-record upload complete, jumping to %p...\n\n", address);
-        cpu_Call(address);
+        if (1) {
+            fmt("S-record upload complete at address %p\n", address);
+        } else {
+            fmt("S-record upload complete, jumping to %p...\n\n", address);
+            cpu_Call(address);
+        }
     }
 
     // otherwise we just received something to be flashed...
