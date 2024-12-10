@@ -103,6 +103,9 @@ _kill_program:
  * Restart this OS
  */
 _warm_reset:
+#if defined(MACHINE_RAVEN)
+        bra     _cold_reset
+#endif
         jsr     _flush_data_cache
         jmp     _main
 
@@ -127,6 +130,10 @@ _cold_reset:
         // Do not invalidate memvalid, to keep the RAM settings
         jsr     _flush_data_cache
         move.l  0x00e00004,a0   // Get the entry adress from offset 4 in the ROM
+        jmp     (a0)
+#elif defined(MACHINE_RAVEN)
+        jsr     _flush_data_cache
+        move.l  0x40000004,a0   // Get the entry adress from offset 4 in the ROM
         jmp     (a0)
 #elif CONF_ATARI_HARDWARE
         clr.l   memvalid.w      // Invalidate memvalid
