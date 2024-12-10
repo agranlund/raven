@@ -85,10 +85,13 @@ General Public License for more details. */
 	.globl	SYM (__modsi3)
 	.globl	SYM (__umodsi3)
 	.globl	SYM (__main)
-
+	.globl	SYM (__atexit)
 
 SYM (__main):
 	rts
+
+SYM (__atexit):
+    rts
 
 //-------------------------------------------------------------------
 //
