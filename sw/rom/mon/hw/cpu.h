@@ -68,6 +68,8 @@ void        cpu_Call(uint32_t address);
 bool        cpu_Lock(bool* sema);
 void        cpu_Unlock(bool* sema);
 
+void        cpu_CacheOn();
+void        cpu_CacheOff();
 
 //-------------------------------------------------------
 // nmi

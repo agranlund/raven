@@ -21,6 +21,9 @@
     .global cpu_Lock
     .global cpu_Unlock
 
+    .global cpu_CacheOn
+    .global cpu_CacheOff
+
     .global vecNMI
     .global vecRTE
 
@@ -65,6 +68,9 @@
 
 // ----------------------------------------------------------
 cpu_TriggerNMI:
+
+    // todo: run in our own stack
+
     move.w  #0,-(%a7)           // fake frame
     move.l  2(%a7),-(%a7)
     move.w  %sr,-(%a7)
@@ -105,6 +111,23 @@ cpu_Unlock:
     bclr.b  #0,(%a0)
     rts
 
+cpu_CacheOn:
+    move.l  #0xa0c08000,%d0
+    nop
+    cinva   %bc
+    nop
+    movec.l %d0,%cacr
+    nop
+    rts
+
+cpu_CacheOff:
+    move.l  #0x00000000,%d0
+    nop
+    cpusha  %bc
+    nop
+    movec.l %d0,%cacr
+    nop
+    rts
 
 cpu_GetIPL:
     move.w  %sr,%d0
