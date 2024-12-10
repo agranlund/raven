@@ -21,6 +21,7 @@ dist/raven/*
 dist/*.zip
 get_atari.sh
 rvst.zip
+sw/rom/srec_test/*
 sw/tools/*/*.prg
 sw/tools/*/*.tos
 sw/rvbios/*.prg
@@ -28,3 +29,4 @@ sw/rvnova/*.prg
 sw/tools/setenv/*
 sw/tools/autoexec/*
 local/*
+
