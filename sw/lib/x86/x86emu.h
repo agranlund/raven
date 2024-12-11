@@ -30,7 +30,7 @@ static inline void      x86_PushWord(struct X86EMU *emu, uint16_t val)          
 
 static inline uint16_t  x86_Segment(uint32_t addr)                                      { return (uint16_t) ((addr >> 4) & 0xf000); }
 static inline uint16_t  x86_Offset(uint32_t addr)                                       { return (uint16_t) (addr & 0xffff); }
-static inline uint16_t  x86_Linear(uint16_t seg, uint16_t off)                          { return (uint32_t) ((((uint32_t) (seg & 0xf000)) << 4) | off); }
+static inline uint32_t  x86_Linear(uint16_t seg, uint16_t off)                          { return (uint32_t) ((((uint32_t) (seg & 0xf000)) << 4) | off); }
 
 
 extern void             x86_Create(struct X86EMU *emu, void* ram_ptr, uint32_t ram_size, uint32_t isa_io, uint32_t isa_ram);
