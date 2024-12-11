@@ -34,8 +34,8 @@ bool vga_RunBios()
 
     emu->x86.R_AX = 0xff;
     emu->x86.R_DX = 0x80;
-    emu->x86.R_IP = x86_Offset(VGABIOS_BASE + 3);       // (VGABIOS_BASE + 3) & 0xffff;;
-    emu->x86.R_CS = x86_Segment(VGABIOS_BASE + 3);      // (VGABIOS_BASE & 0xf0000) >> 4;;
+    emu->x86.R_IP = x86_Offset(VGABIOS_BASE + 3);
+    emu->x86.R_CS = x86_Segment(VGABIOS_BASE + 3);
     emu->x86.R_SS = 0x0000;
     emu->x86.R_SP = 0xfffe;
     emu->x86.R_DS = 0x0040;
