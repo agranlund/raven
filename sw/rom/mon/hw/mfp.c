@@ -1,4 +1,4 @@
-#include "mfp.h"
+#include "hw/mfp.h"
 
 
 bool mfp_Init()
@@ -8,7 +8,7 @@ bool mfp_Init()
     // mfp1
     //-----------------------------------------------------------------------------------------------
 
-    volatile uint8_t *mfp1 = (volatile uint8_t*) PADDR_MFP1;
+    volatile uint8_t *mfp1 = (volatile uint8_t*) RV_PADDR_MFP1;
     mfp1[MFP_GPDR]  = 0x00;      // gpip data register
     mfp1[MFP_AER]   = 0x00;      // interrupts on high->low transition
     mfp1[MFP_DDR]   = 0x00;      // gpip are inputs
@@ -36,7 +36,7 @@ bool mfp_Init()
     //-----------------------------------------------------------------------------------------------
     // mfp2
     //-----------------------------------------------------------------------------------------------
-    volatile uint8_t *mfp2 = (volatile uint8_t*) PADDR_MFP2;
+    volatile uint8_t *mfp2 = (volatile uint8_t*) RV_PADDR_MFP2;
     mfp2[MFP_GPDR]  = 0x00;      // gpip data register
     mfp2[MFP_AER]   = 0xFF;      // ISA interrupts on low->high transition
     mfp2[MFP_DDR]   = 0x00;      // gpip are inputs

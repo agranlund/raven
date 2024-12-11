@@ -1,28 +1,30 @@
 #
 # Raven ROM Monitor
 #
-BOARD_REV	 = 0xA1
-BIOS_ROM	 = 0x40000000
-BIOS_ROM_END	 = 0x40040000
-BIOS_EMU	 = 0x00500000
+BOARD_REV	 	= 0xA1
+BIOS_ROM	 	= 0x40000000
+BIOS_ROM_END	= 0x40040000
+BIOS_EMU	 	= 0x00500000
 
 # Tools
-TOOLCHAIN	 = m68k-atari-mintelf
-CC		 = $(TOOLCHAIN)-gcc
-OBJCOPY		 = $(TOOLCHAIN)-objcopy
+TOOLCHAIN	= m68k-atari-mintelf
+CC		 	= $(TOOLCHAIN)-gcc
+OBJCOPY		= $(TOOLCHAIN)-objcopy
 LIBGCC		:= $(shell $(CC) --print-file-name libgcc.a)
-CC_INCLUDES	 = $(dir $(LIBGCC))include
+CC_INCLUDES	= $(dir $(LIBGCC))include
 
 # Products
-MON_ELF		 = mon.elf
-ROM_MON		 = mon.bin
-MON_SREC	 = mon.s19
+MON_ELF		= mon.elf
+ROM_MON		= mon.bin
+MON_SREC	= mon.s19
+
+VPATH		= ../../lib
 
 # Sources
 SFILES		:= $(wildcard *.S) $(wildcard hw/*.S) $(wildcard vga/*.S)
-CFILES		:= $(wildcard *.c) $(wildcard hw/*.c) $(wildcard vga/*.c)
-OFILES		 = $(SFILES:%.S=%.o) $(CFILES:%.c=%.o)
-DEPS   		 = $(MAKEFILE_LIST) mon.ld
+CFILES		:= $(wildcard *.c) $(wildcard hw/*.c) $(wildcard vga/*.c) x86/x86core.c x86/x86emu.c
+OFILES		= $(SFILES:%.S=%.o) $(CFILES:%.c=%.o)
+DEPS		= $(MAKEFILE_LIST) mon.ld
 
 BUILD_DATE_HEX	:= $(shell date +%Y%m%d)
 BUILD_DATE_DEC	:= $(shell printf %d 0x$(BUILD_DATE_HEX))
@@ -33,10 +35,11 @@ DEFS		 = -DRAVEN_ROM \
 		   	-DBIOS_ROM=$(BIOS_ROM) \
 		   	-DBIOS_EMU_MEM=$(BIOS_EMU)
 		   
+INCLUDES	= -I. -I../../lib
 
-SFLAGS		 = $(DEFS) -m68060 -D__ASM__
+SFLAGS		= $(DEFS) $(INCLUDES) -m68060 -D__ASM__
 
-CFLAGS		 = $(DEFS) \
+CFLAGS		= $(DEFS) $(INCLUDES) \
 		   -m68060 \
 		   -Os \
 		   -std=c17 \

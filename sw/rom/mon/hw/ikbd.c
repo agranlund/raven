@@ -1,5 +1,5 @@
-#include "uart.h"
-#include "ikbd.h"
+#include "hw/uart.h"
+#include "hw/ikbd.h"
 
 bool ikbd_Init()
 {
@@ -16,7 +16,7 @@ bool ikbd_Init()
     //  DLD = round((rdiv-trunc(trdiv)) * 16)    = 5
     //  without DLD = 7825 = 0,16% error
     //-----------------------------------------------------------------------
-    volatile uint8_t* uart1 = (volatile uint8_t*) PADDR_UART1;
+    volatile uint8_t* uart1 = (volatile uint8_t*) RV_PADDR_UART1;
 
     uart1[UART_LCR] = 0x00;         // access normal regs
     uart1[UART_IER] = 0x00;         // disable interrupts
@@ -55,9 +55,9 @@ void ikbd_GPO(uint8_t bit, bool enable)
     // 1 : TP301
     uint8_t mask = (1 << bit);
     if (enable) {
-        IOB(PADDR_UART1, UART_MCR) &= ~mask;
+        IOB(RV_PADDR_UART1, UART_MCR) &= ~mask;
     } else {
-        IOB(PADDR_UART1, UART_MCR) |= mask;
+        IOB(RV_PADDR_UART1, UART_MCR) |= mask;
     }
 }
 
@@ -69,14 +69,14 @@ bool ikbd_GPI(uint8_t bit)
 //-----------------------------------------------------------------------
 bool ikbd_txrdy()
 {
-    return (IOB(PADDR_UART1, UART_LSR) & (1 << 5)) ? true : false;
+    return (IOB(RV_PADDR_UART1, UART_LSR) & (1 << 5)) ? true : false;
 }
 
 
 //-----------------------------------------------------------------------
 bool ikbd_rxrdy()
 {
-    return (IOB(PADDR_UART1, UART_LSR) & (1 << 0)) ? true : false;
+    return (IOB(RV_PADDR_UART1, UART_LSR) & (1 << 0)) ? true : false;
 }
 
 
@@ -98,7 +98,7 @@ bool ikbd_send(uint8_t data)
     // todo: timeout?
     while (!ikbd_txrdy()) {
     }
-    IOB(PADDR_UART1, UART_THR) = data;
+    IOB(RV_PADDR_UART1, UART_THR) = data;
     return true;
 }
 
@@ -109,6 +109,6 @@ uint8_t ikbd_recv()
     // todo: timeout?
     while (!ikbd_rxrdy()) {
     }
-    return IOB(PADDR_UART1, UART_RHR);
+    return IOB(RV_PADDR_UART1, UART_RHR);
 }
 

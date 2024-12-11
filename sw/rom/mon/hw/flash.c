@@ -1,4 +1,4 @@
-#include "../sys.h"
-#include "flash.h"
+#include "sys.h"
+#include "hw/flash.h"
 
 // todo

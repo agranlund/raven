@@ -1,28 +1,21 @@
 
 #include "x86emu.h"
 
-#define X86_VGA_RAM         0x0A0000
-#define X86_VGA_ROM         0x0C0000
-#define X86_SYS_BIOS        0x0F0000
-
-#define x86mem_swap16(x)    __builtin_bswap16((x))
-#define x86mem_swap32(x)    __builtin_bswap32((x))
-
-#define x86isa_swap16(x)    __builtin_bswap16((x))
-#define x86isa_swap32(x)    __builtin_bswap32((x))
-
-#define x86printf(...)      printf(__VA_ARGS__)
-
-struct X86EMU* x86emu = 0;
-
-// --------------------------------------------------------------------------------------------------------
-
-#if !defined(EXCLUDE_X86CORE)
-
 #define ENABLE_DIRECT_VGA_MEM_READ      0
 #define ENABLE_DIRECT_VGA_MEM_WRITE     1
 #define ENABLE_BLOCK_BIOS_WRITES        1
 #define ENABLE_WRAP_1MB_ADDRESS_SPACE   0
+
+#define X86_VGA_RAM         0x0A0000
+#define X86_VGA_ROM         0x0C0000
+#define X86_SYS_BIOS        0x0F0000
+
+
+
+#define x86isa_swap16(x)    x86_swap16(x)
+#define x86isa_swap32(x)    x86_swap32(x)
+
+#define x86printf(...)      printf(__VA_ARGS__)
 
 static inline uint8_t  isa_rdb(uint32_t addr) { return *((volatile uint8_t  *)(addr)); }
 static inline uint16_t isa_rdw(uint32_t addr) { return x86isa_swap16(*((volatile uint16_t *)(addr))); }
@@ -37,6 +30,11 @@ static uint32_t x86_inl(struct X86EMU *emu, uint16_t port) { return isa_rdl(emu-
 static void x86_outb(struct X86EMU *emu, uint16_t port, uint8_t  val) { isa_wrb(emu->isa_iobase + port, val); }
 static void x86_outw(struct X86EMU *emu, uint16_t port, uint16_t val) { isa_wrw(emu->isa_iobase + port, val); }
 static void x86_outl(struct X86EMU *emu, uint16_t port, uint32_t val) { isa_wrl(emu->isa_iobase + port, val); }
+
+extern void X86EMU_exec(struct X86EMU *emu);
+extern void X86EMU_exec_call(struct X86EMU *emu, uint16_t seg, uint16_t off);
+extern void X86EMU_exec_intr(struct X86EMU *emu, uint8_t intr);
+extern void X86EMU_halt_sys(struct X86EMU *);
 
 static void x86_halt(struct X86EMU* emu) {
     x86dbg("\n");
@@ -65,7 +63,7 @@ static uint16_t x86_rdw(struct X86EMU *emu, uint32_t addr) {
     } else if (ENABLE_DIRECT_VGA_MEM_READ && addr >= 0xa0000 && addr < 0xc0000) {
         return isa_rdw(emu->isa_membase + addr);
     } else {
-        return x86mem_swap16(*((uint16_t*)(emu->mem_base + addr)));
+        return x86_swap16(*((uint16_t*)(emu->mem_base + addr)));
     }
 }
 static uint32_t x86_rdl(struct X86EMU *emu, uint32_t addr) {
@@ -77,7 +75,7 @@ static uint32_t x86_rdl(struct X86EMU *emu, uint32_t addr) {
     } else if (ENABLE_DIRECT_VGA_MEM_READ && addr >= 0xa0000 && addr < 0xc0000) {
         return isa_rdl(emu->isa_membase + addr);
     } else {
-        return x86mem_swap32(*((uint32_t*)(emu->mem_base + addr)));
+        return x86_swap32(*((uint32_t*)(emu->mem_base + addr)));
     }
 }
 static void x86_wrb(struct X86EMU *emu, uint32_t addr, uint8_t val) {
@@ -100,7 +98,7 @@ static void x86_wrw(struct X86EMU *emu, uint32_t addr, uint16_t val) {
     } else if (ENABLE_DIRECT_VGA_MEM_WRITE && addr >= 0xa0000 && addr < 0xc0000) {
         isa_wrw(emu->isa_membase + addr, val);
     } else if (!ENABLE_BLOCK_BIOS_WRITES || addr < 0xa0000) {
-        *((uint16_t*)(emu->mem_base + addr)) = x86mem_swap16(val);
+        *((uint16_t*)(emu->mem_base + addr)) = x86_swap16(val);
     }
 }
 static void x86_wrl(struct X86EMU *emu, uint32_t addr, uint32_t val) {
@@ -112,7 +110,7 @@ static void x86_wrl(struct X86EMU *emu, uint32_t addr, uint32_t val) {
     } else if (ENABLE_DIRECT_VGA_MEM_WRITE && addr >= 0xa0000 && addr < 0xc0000) {
         isa_wrl(emu->isa_membase + addr, val);
     } else if (!ENABLE_BLOCK_BIOS_WRITES || addr < 0xa0000) {
-        *((uint32_t*)(emu->mem_base + addr)) = x86mem_swap32(val);
+        *((uint32_t*)(emu->mem_base + addr)) = x86_swap32(val);
     }
 }
 
@@ -182,7 +180,24 @@ static void x86_int(struct X86EMU *emu, int num)
     }
 }
 
-void x86_Setup(struct X86EMU* emu, void* ram_ptr, uint32_t ram_size, uint32_t isa_io, uint32_t isa_ram)
+static void x86emu_Run(struct X86EMU* emu) {
+    emu->x86.R_SS = 0x0000;
+    emu->x86.R_SP = 0xfffe;
+    X86EMU_exec(emu);
+}
+static void x86emu_Call(struct X86EMU* emu, uint16_t seg, uint16_t off) {
+    emu->x86.R_SS = 0x0000;
+    emu->x86.R_SP = 0xfffe;
+    X86EMU_exec_call(emu, seg, off);
+}
+
+static void x86emu_Int(struct X86EMU* emu, uint8_t num) {
+    emu->x86.R_SS = 0x0000;
+    emu->x86.R_SP = 0xfffe;
+    X86EMU_exec_intr(emu, num);
+}
+
+void x86_Create(struct X86EMU* emu, void* ram_ptr, uint32_t ram_size, uint32_t isa_io, uint32_t isa_ram)
 {
     emu->x86.R_AX = 0x00;
     emu->x86.R_DX = 0x00;
@@ -216,7 +231,10 @@ void x86_Setup(struct X86EMU* emu, void* ram_ptr, uint32_t ram_size, uint32_t is
     emu->isa_membase = isa_ram;
 
     memset(emu->mem_base, 0xf4, emu->mem_size);
-    emu->_X86EMU_run = X86EMU_exec;
+
+    emu->_X86EMU_run = x86emu_Run;
+    emu->_X86EMU_call = x86emu_Call;
+    emu->_X86EMU_int = x86emu_Int;
 
     for (int i = 0; i < 256; i++) {
         emu->_X86EMU_intrTab[i] = x86_int;
@@ -229,103 +247,5 @@ void x86_Setup(struct X86EMU* emu, void* ram_ptr, uint32_t ram_size, uint32_t is
     emu->emu_wrb(emu, 0xffff7, '/');
     emu->emu_wrb(emu, 0xffffa, '/');
 }
-
-static struct X86EMU static_x86emu;
-struct X86EMU* x86_Init(void* ram_ptr, uint32_t ram_size, uint32_t isa_io, uint32_t isa_ram)
-{
-    x86emu = &static_x86emu;
-    x86_Setup(x86emu, ram_ptr, ram_size, isa_io, isa_ram);
-    return x86emu;
-}
-
-#else
-
-struct X86EMU* x86_Init(struct X86EMU* emu) {
-    x86emu = emu;
-    return x86emu;
-}
-
-#endif /* !defined(EXCLUDE_X86CORE) */
-
-
-// --------------------------------------------------------------------------------------------------------
-
-
-struct X86EMU* x86_Get() {
-    return x86emu;
-}
-
-void x86_SetRegs(x86_regs_t* regs) {
-    x86emu->x86.register_a.I32_reg.e_reg = regs->e.eax;
-    x86emu->x86.register_b.I32_reg.e_reg = regs->e.ebx;
-    x86emu->x86.register_c.I32_reg.e_reg = regs->e.ecx;
-    x86emu->x86.register_d.I32_reg.e_reg = regs->e.edx;
-    x86emu->x86.register_si.I32_reg.e_reg = regs->e.esi;
-    x86emu->x86.register_di.I32_reg.e_reg = regs->e.edi;
-}
-
-void x86_GetRegs(x86_regs_t* regs) {
-    regs->e.eax = x86emu->x86.register_a.I32_reg.e_reg;
-    regs->e.ebx = x86emu->x86.register_b.I32_reg.e_reg;
-    regs->e.ecx = x86emu->x86.register_c.I32_reg.e_reg;
-    regs->e.edx = x86emu->x86.register_d.I32_reg.e_reg;
-    regs->e.esi = x86emu->x86.register_si.I32_reg.e_reg;
-    regs->e.edi = x86emu->x86.register_di.I32_reg.e_reg;
-}
-
-void x86_SetSRegs(x86_sregs_t* sregs) {
-    x86emu->x86.register_cs = sregs->cs;
-    x86emu->x86.register_ds = sregs->ds;
-    x86emu->x86.register_es = sregs->es;
-    x86emu->x86.register_fs = sregs->fs;
-    x86emu->x86.register_gs = sregs->gs;
-    x86emu->x86.register_ss = sregs->ss;
-}
-
-void x86_GetSRegs(x86_sregs_t* sregs) {
-    sregs->cs = x86emu->x86.register_cs;
-    sregs->ds = x86emu->x86.register_ds;
-    sregs->es = x86emu->x86.register_es;
-    sregs->fs = x86emu->x86.register_fs;
-    sregs->gs = x86emu->x86.register_gs;
-    sregs->ss = x86emu->x86.register_ss;
-}
-
-static inline void x86_Exec(struct X86EMU* emu) {
-    emu->_X86EMU_run(emu);
-}
-
-void x86_Int(uint8_t num, x86_regs_t* regs) {
-    x86_SetRegs(regs);
-    x86emu->x86.register_ss = 0x0000;
-    x86emu->x86.register_sp.I16_reg.x_reg = 0xfffe;
-    x86_PushWord(x86emu, x86emu->x86.register_flags);
-    x86_PushWord(x86emu, 0);
-    x86_PushWord(x86emu, 0);
-    x86emu->x86.register_flags &= ~0x0200UL;        // ie
-    x86emu->x86.register_flags &= ~0x0100UL;        // trap
-    x86emu->x86.register_cs = x86_ReadWord(x86emu, num * 4 + 2);
-    x86emu->x86.register_ip.I16_reg.x_reg = x86_ReadWord(x86emu, num * 4 + 0);
-    x86emu->x86.intr = 0;
-    x86_Exec(x86emu);
-}    
-
-void x86_Call(uint16_t seg, uint16_t off) {
-    x86emu->x86.register_ss = 0x0000;
-    x86emu->x86.register_sp.I16_reg.x_reg = 0xfffe;
-    x86_PushWord(x86emu, 0);
-    x86_PushWord(x86emu, 0);
-    x86emu->x86.register_cs = seg;
-    x86emu->x86.register_ip.I16_reg.x_reg = off;
-    x86_Exec(x86emu);
-}
-
-void x86_Run(uint16_t off, x86_regs_t* regs, x86_sregs_t* sregs) {
-    x86_SetRegs(regs);
-    x86_SetSRegs(sregs);
-    x86emu->x86.register_ip.I16_reg.x_reg = off;
-    x86_Exec(x86emu);
-}
-
 
 

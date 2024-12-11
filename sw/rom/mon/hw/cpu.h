@@ -1,7 +1,7 @@
 #ifndef _CPU_H_
 #define _CPU_H_
-#include "../sys.h"
 #ifndef __ASM__
+#include "sys.h"
 
 //-------------------------------------------------------
 #define CPU_UNKONWN             0
@@ -70,6 +70,7 @@ void        cpu_Unlock(bool* sema);
 
 void        cpu_CacheOn();
 void        cpu_CacheOff();
+void        cpu_CacheFlush();
 
 //-------------------------------------------------------
 // nmi
@@ -87,6 +88,7 @@ void        mmu_Map(uint32_t log, uint32_t phys, uint32_t size, uint32_t flags);
 void        mmu_Redirect(uint32_t logsrc, uint32_t logdst, uint32_t size);
 void        mmu_Invalid(uint32_t log, uint32_t size);
 void        mmu_Flush();
+uint32_t*   mmu_GetPageDescriptor(uint32_t log);
 
 //-------------------------------------------------------
 // vbr proxy

@@ -1,6 +1,6 @@
-#include "../sys.h"
-#include "i2c.h"
-#include "rtc.h"
+#include "sys.h"
+#include "hw/i2c.h"
+#include "hw/rtc.h"
 
 #define I2C_DS1307      0x68
 

@@ -4,6 +4,7 @@ STRIP	        = m68k-atari-mint-strip -s
 FLAGS	        = m68k-atari-mint-flags -S
 LIBCMINI_DIR	= $(ROOTDIR)/ext/libcmini
 LIBCMINI_CRT	= $(LIBCMINI_DIR)/build/objs/crt0.o
+#GCC_OBJS		= 
 GCC_OBJS		= $(ROOTDIR)/ext/lgcc.o
 
 ifeq ($(CPUFLAGS),)
@@ -11,16 +12,18 @@ CPUFLAGS 	    = -m68000
 endif
 OUTBIN          = $(BIN)
 
-SFLAGS = $(OPT)
+INCLUDE = -I $(ROOTDIR)/lib
 
-CFLAGS = $(OPTS) \
+SFLAGS = $(OPTS) $(INCLUDE) 
+
+CFLAGS = $(OPTS) $(INCLUDE) \
     -I$(LIBCMINI_DIR)/include \
     -std=c99 -fomit-frame-pointer -fno-exceptions -ffast-math \
 	-Wall -Wno-multichar -Wno-unused-but-set-variable -Wno-unused-variable
 
 LFLAGS = \
     -L$(LIBCMINI_DIR)/build \
-    -nodefaultlibs -nostdlib -nostartfiles -lcmini \
+    -nodefaultlibs -nostdlib -nostartfiles -lgcc -lcmini \
 	-Wl,-Map,mapfile
 
 LINKOBJS        = $(LIBCMINI_CRT) $(GCC_OBJS) $(OBJS)

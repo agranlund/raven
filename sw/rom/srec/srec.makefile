@@ -15,17 +15,20 @@ CC_INCLUDES	= $(dir $(LIBGCC))include
 OUT_ELF		= $(NAME).elf
 OUT_SREC	= $(NAME).s19
 
-MONDIR		:= ../../mon
-CRTDIR		:= ..
 
-LDFILE		:= $(CRTDIR)/srec.ld
-STARTFILE	:= $(CRTDIR)/start.o
+SWDIR       := ../../..
+
+VPATH       = $(SWDIR)
+
+LDFILE		:= $(SWDIR)/rom/srec/srec.ld
+STARTFILE	:= $(SWDIR)/rom/srec/start.o
 
 SFILES		:= $(wildcard *.S)
 			
+           
 CFILES		:= $(wildcard *.c) \
-			$(MONDIR)/lib.c \
-			$(MONDIR)/hw/uart.c
+			rom/mon/lib.c \
+			rom/mon/hw/uart.c
 
 OFILES		= $(SFILES:%.S=%.o) $(CFILES:%.c=%.o)
 
@@ -45,7 +48,7 @@ CFLAGS		= $(DEFS) \
 			$(DCPU) $(DOPT) -std=c17 -Wall -MMD -nostdinc \
 			-ffreestanding -fomit-frame-pointer -fno-common -fdata-sections -ffunction-sections \
 		   -I$(CC_INCLUDES) \
-		   -I$(MONDIR)
+		   -I$(SWDIR)/rom/mon -I$(SWDIR)/lib
 
 LDFLAGS		= -nolibc -nostartfiles -ffreestanding \
 		   -Wl,-Map,$@.map -T $(LDFILE)

@@ -51,7 +51,7 @@ bool sys_Init()
 
     // identify rom
     uint32_t id_simm[4];
-    id_simm[3] = IOL(IOL(PADDR_SIMM3, 0), 4);
+    id_simm[3] = IOL(IOL(RV_PADDR_SIMM3, 0), 4);
     fmt("ROM:  %l\n", id_simm[3]);
 
 	// identify ram

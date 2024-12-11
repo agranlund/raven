@@ -1,7 +1,7 @@
 #ifndef _IKBD_H_
 #define _IKBD_H_
-#include "../sys.h"
 #ifndef __ASM__
+#include "sys.h"
 
 #define IKBD_GPO_PWRLED     0
 #define IKBD_GPO_TP307      1

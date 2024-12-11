@@ -1,10 +1,11 @@
 #ifndef _RTC_H_
 #define _RTC_H_
-#ifndef __ASM__
-#include "../sys.h"
 
 #define RTC_RAM_START       0x08
 #define RTC_RAM_END         0x40
+
+#ifndef __ASM__
+#include "sys.h"
 
 bool        rtc_Init();
 void        rtc_Reset();

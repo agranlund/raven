@@ -2,7 +2,7 @@
 #include "hw/cpu.h"
 #include "hw/uart.h"
 #include "hw/mfp.h"
-#include "vga/vga.h"
+#include "hw/vga.h"
 #include "atari.h"
 #include "monitor.h"
 #include "config.h"
@@ -62,7 +62,7 @@ bool atari_InitEMU()
     // acia emulation
     //---------------------------------------------------------------------
     vecKBD_Busy = 0;
-    volatile uint8_t* acia = (volatile uint8_t*)PADDR_ACIA;
+    volatile uint8_t* acia = (volatile uint8_t*)RV_PADDR_ACIA;
     for (int i=0; i<8; i++) {
         acia[i] = 0;
     }
@@ -72,7 +72,7 @@ bool atari_InitEMU()
     //---------------------------------------------------------------------
     // vbl emulation - MFP2:TimerC @ 50hz
     //---------------------------------------------------------------------
-    volatile uint8_t* mfp2 = (volatile uint8_t*)PADDR_MFP2;
+    volatile uint8_t* mfp2 = (volatile uint8_t*)RV_PADDR_MFP2;
     mfp2[MFP_TCDR]   = 200;                         // count 200     => 10000hz
     mfp2[MFP_TCDCR] &= 0x07;
     mfp2[MFP_TCDCR] |= 0x70;                        // divide by 200 => 50hz
@@ -120,9 +120,9 @@ bool atari_InitMMU(uint32_t* simms)
 
     // identify gfx
     uint8_t id_gfx = 1; // assume ET4000
-    if ((IOB(PADDR_GFX_RAM, 0xC0032)) == '6' && (IOB(PADDR_GFX_RAM, 0xC0034) == '2')) {
-        IOB(PADDR_GFX_IO, 0x56EE) = 0x55;
-        if (IOB(PADDR_GFX_IO, 0x56EE) == 0x55) {
+    if ((IOB(RV_PADDR_ISA_RAM16, 0xC0032)) == '6' && (IOB(RV_PADDR_ISA_RAM16, 0xC0034) == '2')) {
+        IOB(RV_PADDR_ISA_IO16, 0x56EE) = 0x55;
+        if (IOB(RV_PADDR_ISA_IO16, 0x56EE) == 0x55) {
             id_gfx = 3; // todo: further detect Mach32 vs Mach64
         }
     }
@@ -231,7 +231,7 @@ bool atari_InitMMU(uint32_t* simms)
     mmu_Map24bit(0x00FF8000, 0xA1000000, 0x00001000, PMMU_READWRITE | PMMU_CM_PRECISE);                 // YM2149   ($ff8800 -> $a1000800)
     // ACIA : ffffc00 goes to ram0 reserved area  (by help of cpld)                                     // ACIA     ($fffc00 -> BIOS_EMU_MEM)
     // MFP1 : ffffx00 goes to 0xA1xxxxxx as usual (emu address bits ignored)
-    mmu_Map24bit(0x00FFF000, 0xA1000000 + BIOS_EMU_MEM, 0x00001000, PMMU_READWRITE | PMMU_CM_PRECISE);  // MFP1     ($fffa00 -> $a1000a00)
+    mmu_Map24bit(0x00FFF000, 0xA1000000 + RV_ACIAEMU_BASE, 0x00001000, PMMU_READWRITE | PMMU_CM_PRECISE);  // MFP1     ($fffa00 -> $a1000a00)
 
 
     // special case graphics card access to satisfy existing Atari drivers
@@ -274,12 +274,17 @@ bool atari_InitMMU(uint32_t* simms)
     mmu_Redirect(0x41FF0000, reserved_start + 0x00260000, 0x00010000);		// io	  64kb
     // x86 emulation space
     mmu_Redirect(0x42000000, reserved_start + 0x00300000, 0x000a0000);		// 640kb ram    : 00000
-    //mmu_Redirect(0x420a0000, reserved_start + 0x003a0000, 0x00020000);		// 128kb video  : A0000
-    mmu_Redirect(0x420a0000, 0x80000000     + 0x000a0000, 0x00020000);		// 128kb video  : A0000
-    //mmu_Redirect(0x420c0000, reserved_start + 0x003c0000, 0x00030000);		// 160kb ebios  : C0000
-    mmu_Redirect(0x420c0000, 0x80000000     + 0x000c0000, 0x00030000);		// 160kb ebios  : C0000
-    mmu_Redirect(0x420e0000, reserved_start + 0x003e0000, 0x00010000);		// 160kb sbios  : F0000
+    mmu_Redirect(0x420a0000, reserved_start + 0x003a0000, 0x00020000);		// 128kb video  : A0000
+    //mmu_Redirect(0x420a0000, 0x80000000     + 0x000a0000, 0x00020000);		// 128kb video  : A0000
+    mmu_Redirect(0x420c0000, reserved_start + 0x003c0000, 0x00030000);		// 160kb ebios  : C0000
+    //mmu_Redirect(0x420c0000, 0x80000000     + 0x000c0000, 0x00030000);		// 160kb ebios  : C0000
+    mmu_Redirect(0x420f0000, reserved_start + 0x003f0000, 0x00010000);		// 160kb sbios  : F0000
 
+/*
+    for (uint32_t i = 0; i < 4 * 1024 * 1024UL; i += 64 * 1024) {
+        mmu_Redirect(0x42400000UL + i, 0x820a0000 + i, 64 * 1024UL);
+    }
+*/
 
     mmuregs_t mmu;
     mmu.urp = mmuTable;

@@ -1,8 +1,6 @@
 #ifndef _UART_H_
 #define _UART_H_
 
-#include "../sys.h"
-
 #define UART_CLK            24000000
 
 #define UART_DLL            0x00
@@ -25,6 +23,8 @@
 
 
 #ifndef __ASM__
+
+#include "sys.h"
 
 bool        uart_Init();
 

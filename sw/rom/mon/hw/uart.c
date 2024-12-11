@@ -1,4 +1,4 @@
-#include "uart.h"
+#include "hw/uart.h"
 
 
 //-----------------------------------------------------------------------
@@ -11,14 +11,14 @@ bool uart_Init()
 //-----------------------------------------------------------------------
 bool uart_txrdy()
 {
-    return (IOB(PADDR_UART2, UART_LSR) & (1 << 5)) ? true : false;
+    return (IOB(RV_PADDR_UART2, UART_LSR) & (1 << 5)) ? true : false;
 }
 
 
 //-----------------------------------------------------------------------
 bool uart_rxrdy()
 {
-    return (IOB(PADDR_UART2, UART_LSR) & (1 << 0)) ? true : false;
+    return (IOB(RV_PADDR_UART2, UART_LSR) & (1 << 0)) ? true : false;
 }
 
 
@@ -39,7 +39,7 @@ bool uart_send(uint8_t data)
 {
     // todo: timeout?
     while (!uart_txrdy()) { nop(); }
-    IOB(PADDR_UART2, UART_THR) = data;
+    IOB(RV_PADDR_UART2, UART_THR) = data;
     return true;
 }
 
@@ -49,7 +49,7 @@ uint8_t uart_recv()
 {
     // todo: timeout?
     while (!uart_rxrdy()) { nop(); }
-    return IOB(PADDR_UART2, UART_RHR);
+    return IOB(RV_PADDR_UART2, UART_RHR);
 }
 
 
@@ -58,18 +58,18 @@ void uart_sendChar(const char d)
 {
     if (d == '\n')
         uart_sendChar('\r');
-    while ((IOB(PADDR_UART2, UART_LSR) & (1 << 5)) == 0)
+    while ((IOB(RV_PADDR_UART2, UART_LSR) & (1 << 5)) == 0)
         nop();
-    IOB(PADDR_UART2, UART_THR) = d;
+    IOB(RV_PADDR_UART2, UART_THR) = d;
 
     /* line-buffered */
-    while ((d == '\n') && (IOB(PADDR_UART2, UART_LSR) & (1 << 6)) == 0)
+    while ((d == '\n') && (IOB(RV_PADDR_UART2, UART_LSR) & (1 << 6)) == 0)
         nop();
 }
 
 int uart_recvChar()
 {
-    uint8_t lsr = IOB(PADDR_UART2, UART_LSR);
-    return ((lsr & (1 << 0)) == 0) ? -1 : IOB(PADDR_UART2, UART_RHR);
+    uint8_t lsr = IOB(RV_PADDR_UART2, UART_LSR);
+    return ((lsr & (1 << 0)) == 0) ? -1 : IOB(RV_PADDR_UART2, UART_RHR);
 }
 

@@ -1,7 +1,7 @@
 #ifndef _I2C_H_
 #define _I2C_H_
 #ifndef __ASM__
-#include "../sys.h"
+#include "sys.h"
 
 bool    i2c_Init();
 

@@ -1,4 +1,4 @@
-    #include "sys.h"
+    #include "raven.h"
     #include "hw/uart.h"
 
 //  #define UART_BAUDR      750000
@@ -69,7 +69,7 @@ start:
     move.l  #__stack_top,%sp
 
     // setup uart2
-    move.l  #PADDR_UART2,%a5
+    move.l  #RV_PADDR_UART2,%a5
     move.b  #0x00,UART_LCR(%a5)                     // access normal
     move.b  #0x00,UART_IER(%a5)                     // no interrupts
     move.b  #0x01,UART_FCR(%a5)                     // fifo on
@@ -138,7 +138,7 @@ start:
 // ----------------------------------------------------------
     .type vec_other,@function
 vec_other:
-    move.l  #PADDR_UART2,%a5
+    move.l  #RV_PADDR_UART2,%a5
     BPRINT  %a5,#msg_exception
 1:
     stop    #0x2700
@@ -146,7 +146,7 @@ vec_other:
 
     .type vec_berr,@function
 vec_berr:
-    move.l  #PADDR_UART2,%a5
+    move.l  #RV_PADDR_UART2,%a5
     BPRINT  %a5,#msg_berr
 1:
     stop    #0x2700

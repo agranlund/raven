@@ -1,4 +1,4 @@
-#include "cpu.h"
+#include "hw/cpu.h"
 
 #define PMMU_PAGESIZE           (4 * 1024UL)
 #define VBR_PROXY_IN_ROM        1

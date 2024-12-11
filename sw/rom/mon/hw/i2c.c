@@ -1,7 +1,7 @@
-#include "../sys.h"
-#include "i2c.h"
-#include "mfp.h"
-#include "cpu.h"
+#include "sys.h"
+#include "hw/i2c.h"
+#include "hw/mfp.h"
+#include "hw/cpu.h"
 
 #if (BOARD_REV == 0xA0)
 #define MFP_BIT_DTA     7
@@ -19,23 +19,23 @@ unsigned char i2cOldMfp07;
 unsigned char i2cOldMfp09;
 
 static inline void i2cDirClk(uint8_t v) {
-    if (v) { *((volatile uint8_t*)(PADDR_MFP1 + MFP_DDR)) |= (1 << MFP_BIT_CLK);
-    } else { *((volatile uint8_t*)(PADDR_MFP1 + MFP_DDR)) &= ~(1 << MFP_BIT_CLK); }
+    if (v) { *((volatile uint8_t*)(RV_PADDR_MFP1 + MFP_DDR)) |= (1 << MFP_BIT_CLK);
+    } else { *((volatile uint8_t*)(RV_PADDR_MFP1 + MFP_DDR)) &= ~(1 << MFP_BIT_CLK); }
 }
 static inline void i2cDirDta(uint8_t v) {
-    if (v) { *((volatile uint8_t*)(PADDR_MFP1 + MFP_DDR)) |= (1 << MFP_BIT_DTA);
-    } else { *((volatile uint8_t*)(PADDR_MFP1 + MFP_DDR)) &= ~(1 << MFP_BIT_DTA); }
+    if (v) { *((volatile uint8_t*)(RV_PADDR_MFP1 + MFP_DDR)) |= (1 << MFP_BIT_DTA);
+    } else { *((volatile uint8_t*)(RV_PADDR_MFP1 + MFP_DDR)) &= ~(1 << MFP_BIT_DTA); }
 }
 static inline uint8_t i2cGetDta() {
-    return (((*((volatile uint8_t*)(PADDR_MFP1 + MFP_GPDR))) >> MFP_BIT_DTA) & 1);
+    return (((*((volatile uint8_t*)(RV_PADDR_MFP1 + MFP_GPDR))) >> MFP_BIT_DTA) & 1);
 }
 static inline void i2cSetDta(uint8_t v) {
-    if (v) { *((volatile unsigned char*)(PADDR_MFP1 + MFP_GPDR)) |= (1 << MFP_BIT_DTA);
-    } else { *((volatile unsigned char*)(PADDR_MFP1 + MFP_GPDR)) &= ~(1 << MFP_BIT_DTA); }
+    if (v) { *((volatile unsigned char*)(RV_PADDR_MFP1 + MFP_GPDR)) |= (1 << MFP_BIT_DTA);
+    } else { *((volatile unsigned char*)(RV_PADDR_MFP1 + MFP_GPDR)) &= ~(1 << MFP_BIT_DTA); }
 }
 static inline void i2cSetClk(uint8_t v) {
-    if (v) { *((volatile uint8_t*)(PADDR_MFP1 + MFP_GPDR)) |= (1 << MFP_BIT_CLK);
-    } else   { *((volatile uint8_t*)(PADDR_MFP1 + MFP_GPDR)) &= ~(1 << MFP_BIT_CLK); }
+    if (v) { *((volatile uint8_t*)(RV_PADDR_MFP1 + MFP_GPDR)) |= (1 << MFP_BIT_CLK);
+    } else   { *((volatile uint8_t*)(RV_PADDR_MFP1 + MFP_GPDR)) &= ~(1 << MFP_BIT_CLK); }
 }
 static inline void i2cDelay(int num) {
    for (int i=0; i<(num * I2C_DELAY); i++) {
@@ -56,10 +56,10 @@ bool i2c_Aquire()
     if (!cpu_Lock(&i2cLocked))
         return false;
 
-    i2cOldMfp09 = *((volatile unsigned char*)(PADDR_MFP1 + MFP_IERB));
-    i2cOldMfp07 = *((volatile unsigned char*)(PADDR_MFP1 + MFP_IERA));
-    *((volatile unsigned char*)(PADDR_MFP1 + MFP_IERB)) &= ~(1<<3);
-    *((volatile unsigned char*)(PADDR_MFP1 + MFP_IERA)) &= ~(1<<7);
+    i2cOldMfp09 = *((volatile unsigned char*)(RV_PADDR_MFP1 + MFP_IERB));
+    i2cOldMfp07 = *((volatile unsigned char*)(RV_PADDR_MFP1 + MFP_IERA));
+    *((volatile unsigned char*)(RV_PADDR_MFP1 + MFP_IERB)) &= ~(1<<3);
+    *((volatile unsigned char*)(RV_PADDR_MFP1 + MFP_IERA)) &= ~(1<<7);
     i2cSetClk(1); i2cDirClk(1);
     i2cSetDta(1); i2cDirDta(1);
     return true;
@@ -67,11 +67,11 @@ bool i2c_Aquire()
 
 void i2c_Release()
 {
-    *((volatile unsigned char*)(PADDR_MFP1 + MFP_IERB)) &= ~(1<<3);
-    *((volatile unsigned char*)(PADDR_MFP1 + MFP_IERA)) &= ~(1<<7);
-    *((volatile unsigned char*)(PADDR_MFP1 + MFP_DDR))  &= ~(MFP_BITMASK);
-    *((volatile unsigned char*)(PADDR_MFP1 + MFP_IERB)) = i2cOldMfp09;
-    *((volatile unsigned char*)(PADDR_MFP1 + MFP_IERA)) = i2cOldMfp07;
+    *((volatile unsigned char*)(RV_PADDR_MFP1 + MFP_IERB)) &= ~(1<<3);
+    *((volatile unsigned char*)(RV_PADDR_MFP1 + MFP_IERA)) &= ~(1<<7);
+    *((volatile unsigned char*)(RV_PADDR_MFP1 + MFP_DDR))  &= ~(MFP_BITMASK);
+    *((volatile unsigned char*)(RV_PADDR_MFP1 + MFP_IERB)) = i2cOldMfp09;
+    *((volatile unsigned char*)(RV_PADDR_MFP1 + MFP_IERA)) = i2cOldMfp07;
     cpu_Unlock(&i2cLocked);
 }
 

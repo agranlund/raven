@@ -1,4 +1,3 @@
-    //#include "../sys.h"
 
     .section .note.GNU-stack,"",%progbits
 
@@ -23,6 +22,7 @@
 
     .global cpu_CacheOn
     .global cpu_CacheOff
+    .global cpu_CacheFlush
 
     .global vecNMI
     .global vecRTE
@@ -111,23 +111,70 @@ cpu_Unlock:
     bclr.b  #0,(%a0)
     rts
 
-cpu_CacheOn:
-    move.l  #0xa0c08000,%d0
+cpu_CacheFlush:
+    move.w %sr,%d1         // disable interrupts
+    or.w    #0x0700,%sr
+    movec.l %cacr,%d0
+    btst.l  #31,%d0         // data cache enabled?
+    beq.b   1f
     nop
-    cinva   %bc
+    cpusha  %dc             // push data cache
+1:  nop
+    btst.l  #15,%d0         // instruction cache enabled?
+    beq.b   2f
+    nop
+    cpusha  %ic             // push instruction cache
+2:  nop
+    bset.l  #22,%d0         // clear branch cache
     nop
     movec.l %d0,%cacr
     nop
+    move.w  %d1,%sr         // restore interrupts
+    rts
+
+cpu_CacheOn:
+    move.w  %sr,%d1         // disable interrupts
+    or.w    #0x0700,%sr
+    movec.l %cacr,%d0
+    btst.l  #31,%d0         // data cache enabled?
+    beq.b   1f
+    nop
+    cpusha  %dc             // push data cache
+1:  nop
+    btst.l  #15,%d0         // instruction cache enabled?
+    beq.b   2f
+    nop
+    cpusha  %ic             // push instruction cache
+2:  nop
+    move.l  #0xa0c08000,%d0
+    nop
+    cinva   %bc             // invalidate caches
+    nop
+    movec.l %d0,%cacr       // enable caches
+    nop
+    move.w  %d1,%sr         // restore interrupts
     rts
 
 cpu_CacheOff:
+    move.w  %sr,%d1         // disable interrupts
+    or.w    #0x0700,%sr
+    movec.l %cacr,%d0
+    btst.l  #31,%d0         // data cache enabled?
+    beq.b   1f
+    nop
+    cpusha  %dc             // push data cache
+1:  nop
+    btst.l  #15,%d0         // instruction cache enabled?
+    beq.b   2f
+    nop
+    cpusha  %ic             // push instruction cache
+2:  nop
     move.l  #0x00000000,%d0
+    movec.l %d0,%cacr       // disable caches
     nop
-    cpusha  %bc
-    nop
-    movec.l %d0,%cacr
-    nop
+    move.w  %d1,%sr
     rts
+
 
 cpu_GetIPL:
     move.w  %sr,%d0

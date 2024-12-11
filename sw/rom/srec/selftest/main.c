@@ -43,7 +43,7 @@ void puts_bitresult(int bits, uint32_t expect, uint32_t result) {
  */
 int test_mfp_rw(int verbose, int mfpnum) {
     int result = 0;
-    uint32_t mfp = (mfpnum == 0) ? PADDR_MFP1 : PADDR_MFP2;
+    uint32_t mfp = (mfpnum == 0) ? RV_PADDR_MFP1 : RV_PADDR_MFP2;
     uint8_t offs[2] = { 0x13, 0x15 };
 
     for (int i=0; i<1; i++) {
@@ -81,8 +81,8 @@ int test_ym(int verbose) {
         8, 0x10, 9, 0, 10, 0, 11, 0, 12, 16, 13, 9,
     };
 
-    volatile uint8_t* ym2149b = (volatile uint8_t*)PADDR_YM;
-    volatile uint32_t* ym2149l = (volatile uint32_t*)PADDR_YM;
+    volatile uint8_t* ym2149b = (volatile uint8_t*)RV_PADDR_YM;
+    volatile uint32_t* ym2149l = (volatile uint32_t*)RV_PADDR_YM;
 
     // write + readback test
     ym2149b[0] = 0;         // cha freq low
@@ -91,7 +91,7 @@ int test_ym(int verbose) {
     ym2149b[2] = 0xaa; volatile uint8_t rb1 = ym2149b[0];
     ym2149b[2] = rold;
     if (rb0 != 0x55 || rb1 != 0xaa) {
-        fmt("  R/W Error on $%l/2\n", PADDR_YM);
+        fmt("  R/W Error on $%l/2\n", RV_PADDR_YM);
         puts_bitresult(8, 0x55, rb0);
         puts_bitresult(8, 0xaa, rb1);
         puts("  Hint: U405[31:24], U402, U106[D31:24], U103[D15:8]");

@@ -1,8 +1,6 @@
 #ifndef _MFP_H_
 #define _MFP_H_
 
-#include "../sys.h"
-
 #define MFP1_CLK        2457600
 #define MFP2_CLK        2000000
 
@@ -34,6 +32,7 @@
 
 #ifndef __ASM__
 
+#include "sys.h"
 bool mfp_Init();
 
 #endif //!__ASM__

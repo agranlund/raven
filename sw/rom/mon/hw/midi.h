@@ -1,7 +1,7 @@
 #ifndef _MIDI_H_
 #define _MIDI_H_
 #ifndef __ASM__
-#include "../sys.h"
+#include "sys.h"
 
 bool        midi_Init();
 bool        midi_txrdy();

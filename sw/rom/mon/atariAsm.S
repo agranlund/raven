@@ -1,4 +1,4 @@
-    #include "sys.h"
+    #include "raven.h"
     #include "atari.h"
     #include "hw/mfp.h"
     #include "hw/uart.h"
@@ -58,34 +58,34 @@ vecRTE_MFP1I7:  // 0x13C
 vecVBL_MPF2TC:
     move.w   #0x2700,%sr
     move.l  %d0,-(%sp)
-    move.w  4(%sp),%d0              // get current ipl
+    move.w  4(%sp),%d0                  // get current ipl
     and.w   #0x0F00,%d0
-    cmp.w   #0x0300,%d0             // skip if >= 4
+    cmp.w   #0x0300,%d0                 // skip if >= 4
     bhi.b   0f
     move.l  (%sp)+,%d0
-	move.l	0x70,-(%sp)             // target vector
-    move.b  #0xDF,PADDR_MFP2+0x11   // clear timerC in-service
-    move.w  #0x2400,%sr             // pretend ipl level 4
-	rts                             // go IRQ4
+	move.l	0x70,-(%sp)                 // target vector
+    move.b  #0xDF,RV_PADDR_MFP2+0x11    // clear timerC in-service
+    move.w  #0x2400,%sr                 // pretend ipl level 4
+	rts                                 // go IRQ4
 0:  move.l  (%sp)+,%d0
-    move.b  #0xDF,PADDR_MFP2+0x11   // clear timerC in-service
+    move.b  #0xDF,RV_PADDR_MFP2+0x11    // clear timerC in-service
     rte
 
 
 vecVBL_MFP2I0:
     move.w   #0x2700,%sr
     move.l  %d0,-(%sp)
-    move.w  4(%sp),%d0              // get current ipl
+    move.w  4(%sp),%d0                  // get current ipl
     and.w   #0x0F00,%d0
-    cmp.w   #0x0300,%d0             // skip if >= 4
+    cmp.w   #0x0300,%d0                 // skip if >= 4
     bhi.b   0f
     move.l  (%sp)+,%d0
-	move.l	0x70,-(%sp)             // target vector
-    move.b  #0xFE,PADDR_MFP2+0x11   // clear ISA9 in-service
-    move.w  #0x2400,%sr             // pretend ipl level 4
-	rts                             // go IRQ4
+	move.l	0x70,-(%sp)                 // target vector
+    move.b  #0xFE,RV_PADDR_MFP2+0x11    // clear ISA9 in-service
+    move.w  #0x2400,%sr                 // pretend ipl level 4
+	rts                                 // go IRQ4
 0:  move.l  (%sp)+,%d0
-    move.b  #0xFE,PADDR_MFP2+0x11   // clear ISA9 in-service
+    move.b  #0xFE,RV_PADDR_MFP2+0x11    // clear ISA9 in-service
     rte
 
 
@@ -100,17 +100,17 @@ vecKBD_MFP1I4:
 
 0:  movem.l %d0-%d1,-(%sp)                      // save regs
     moveq.l #7,%d1                              // max number of bytes to get from fifo
-1:  btst.b  #0,PADDR_UART1+UART_LSR             // rx fifo empty?
+1:  btst.b  #0,RV_PADDR_UART1+UART_LSR          // rx fifo empty?
     bne.b   3f
 
 2:  movem.l (%sp)+,%d0-%d1                      // restore regs
-    move.b  #0xbf,PADDR_MFP1+MFP_ISRB           // clear in-service
+    move.b  #0xbf,RV_PADDR_MFP1+MFP_ISRB        // clear in-service
     bclr.b  #0,vecKBD_Busy
     rte                                         // and return
 
-3:  move.b  PADDR_UART1+UART_RHR,%d0            // get rx byte from uart
-    move.b  %d0,PADDR_ACIA+ACIA_KEYB_DATA       // acia data
-    move.b  #0x83,PADDR_ACIA+ACIA_KEYB_CTRL     // acia ctrl : interrupt, tx empty, rx full
+3:  move.b  RV_PADDR_UART1+UART_RHR,%d0         // get rx byte from uart
+    move.b  %d0,RV_PADDR_ACIA+ACIA_KEYB_DATA    // acia data
+    move.b  #0x83,RV_PADDR_ACIA+ACIA_KEYB_CTRL  // acia ctrl : interrupt, tx empty, rx full
 
     move.l  %d1,-(%sp)                          // save regs
     clr.w   -(%sp)                              // fake stackframe
@@ -118,7 +118,7 @@ vecKBD_MFP1I4:
     move.w  %sr,-(%sp)
     jmp     ([0x118.w])                         // call acia interrupt handler, may clear in-service flag
 
-4:  move.b  #0x02,PADDR_ACIA+ACIA_KEYB_CTRL     // acia ctrl: no interrupt, tx empty, rx empty
+4:  move.b  #0x02,RV_PADDR_ACIA+ACIA_KEYB_CTRL  // acia ctrl: no interrupt, tx empty, rx empty
     move.l  (%sp)+,%d1                          // restore regs
     dbra.w  %d1,1b                              // next byte from fifo
 

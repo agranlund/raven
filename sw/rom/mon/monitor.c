@@ -3,7 +3,7 @@
 #include "hw/cpu.h"
 #include "hw/uart.h"
 #include "hw/rtc.h"
-#include "vga/vga.h"
+#include "hw/vga.h"
 #include "monitor.h"
 #include "config.h"
 #include "m68k_disasm.h"
