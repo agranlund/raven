@@ -1,6 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+20241215
+  Improved x86 bios emulation, S3 86C801 card now works.
+
 20241210
   Basic mono vga mode is now intiialized by
   the Raven bios instead of EmuTOS.
