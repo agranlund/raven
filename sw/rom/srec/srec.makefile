@@ -16,9 +16,10 @@ OUT_ELF		= $(NAME).elf
 OUT_SREC	= $(NAME).s19
 
 
-SWDIR       = ../../..
+SWDIR       := ../../..
 
-VPATH       = $(SWDIR)
+vpath %.c $(SWDIR)
+vpath %.S $(SWDIR)
 
 LDFILE		:= $(SWDIR)/rom/srec/srec.ld
 STARTFILE	:= $(SWDIR)/rom/srec/start.o
@@ -54,7 +55,7 @@ LDFLAGS		= -nolibc -nostartfiles -ffreestanding \
 		   -Wl,-Map,$@.map -T $(LDFILE)
 
 .PHONY: all
-all: $(OUT_SREC)
+all: clean $(OUT_SREC)
 
 $(OUT_ELF): $(STARTFILE) $(OFILES) $(DEPS)
 	$(CC) $(LDFLAGS) $(STARTFILE) $(OFILES) -o $@

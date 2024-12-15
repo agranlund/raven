@@ -18,7 +18,10 @@ MON_ELF		= mon.elf
 ROM_MON		= mon.bin
 MON_SREC	= mon.s19
 
-VPATH		= ../../lib
+LIBDIR	:= ../../lib
+
+vpath %.c $(LIBDIR)
+vpath %.S $(LIBDIR)
 
 # Sources
 SFILES		:= $(wildcard *.S) $(wildcard hw/*.S) $(wildcard vga/*.S)
