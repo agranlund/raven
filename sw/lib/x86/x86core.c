@@ -412,8 +412,6 @@ fetch_byte_imm(struct X86EMU *emu)
     uint8_t fetched;
 
     fetched = fetch_byte(emu, emu->x86.R_CS, emu->x86.R_IP);
-    //x86dbg("x86: %04x %04x : %02x", emu->x86.R_CS, emu->x86.R_IP, fetched);
-
     emu->x86.R_IP++;
     return fetched;
 }

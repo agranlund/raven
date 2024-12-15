@@ -39,14 +39,18 @@
 #else
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 #include <setjmp.h>
 #endif
 
-
+#ifndef DEBUG_X86CORE
+#define DEBUG_X86CORE 0
+#endif
 
 /*---------------------- Macros and type definitions ----------------------*/
 
-#ifdef DEBUG_X86CORE
+#if DEBUG_X86CORE
 #ifndef RAVEN_ROM
 #include <stdio.h>
 #endif

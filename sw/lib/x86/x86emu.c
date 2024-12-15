@@ -1,4 +1,20 @@
 
+#define DEBUG_X86EMU                        0
+
+#if (DEBUG_X86EMU == 0)
+    #define DEBUG_X86CORE                   0
+    #define DEBUG_X86ISA                    0
+    #define DEBUG_X86PORTS                  0
+    #define DEBUG_X86INTS                   0
+    #define DEBUG_X86MEM                    0
+#else
+    #define DEBUG_X86CORE                   1
+    #define DEBUG_X86ISA                    0
+    #define DEBUG_X86PORTS                  1
+    #define DEBUG_X86INTS                   1
+    #define DEBUG_X86MEM                    1
+#endif
+
 #include "x86emu.h"
 
 #define ENABLE_DIRECT_VGA_MEM_READ      0
@@ -11,40 +27,213 @@
 #define X86_SYS_BIOS        0x0F0000
 
 
-
 #define x86isa_swap16(x)    x86_swap16(x)
 #define x86isa_swap32(x)    x86_swap32(x)
-
 #define x86printf(...)      printf(__VA_ARGS__)
 
-static inline uint8_t  isa_rdb(uint32_t addr) { return *((volatile uint8_t  *)(addr)); }
-static inline uint16_t isa_rdw(uint32_t addr) { return x86isa_swap16(*((volatile uint16_t *)(addr))); }
-static inline uint32_t isa_rdl(uint32_t addr) { return x86isa_swap32(*((volatile uint32_t *)(addr))); }
-static inline void isa_wrb(uint32_t addr, uint8_t data)  { *((volatile uint8_t  *)(addr)) = data; }
-static inline void isa_wrw(uint32_t addr, uint16_t data) { *((volatile uint16_t *)(addr)) = x86isa_swap16(data); }
-static inline void isa_wrl(uint32_t addr, uint32_t data) { *((volatile uint32_t *)(addr)) = x86isa_swap32(data); }
 
-static uint8_t  x86_inb(struct X86EMU *emu, uint16_t port) { return isa_rdb(emu->isa_iobase + port); }
-static uint16_t x86_inw(struct X86EMU *emu, uint16_t port) { return isa_rdw(emu->isa_iobase + port); }
-static uint32_t x86_inl(struct X86EMU *emu, uint16_t port) { return isa_rdl(emu->isa_iobase + port); }
-static void x86_outb(struct X86EMU *emu, uint16_t port, uint8_t  val) { isa_wrb(emu->isa_iobase + port, val); }
-static void x86_outw(struct X86EMU *emu, uint16_t port, uint16_t val) { isa_wrw(emu->isa_iobase + port, val); }
-static void x86_outl(struct X86EMU *emu, uint16_t port, uint32_t val) { isa_wrl(emu->isa_iobase + port, val); }
+
+#if DEBUG_X86PORTS
+uint32_t iodbg[256];
+#define dbgport(...)  { \
+    if (port < 0x100 && iodbg[port] == 0) { \
+        iodbg[port]++; \
+        x86printf(__VA_ARGS__); \
+    } \
+}
+#else
+#define dbgport(...)
+#endif
+#if DEBUG_X86ISA
+#define dbgisa(...)  x86dbg(__VA_ARGS__)
+#else
+#define dbgisa(...)
+#endif
+#if DEBUG_X86INTS
+#define dbgint(...)  x86dbg(__VA_ARGS__)
+#else
+#define dbgint(...)
+#endif
+#if DEBUG_X86MEM
+#define dbgmem(...)  x86dbg(__VA_ARGS__)
+#else
+#define dbgmem(...)
+#endif
+
 
 extern void X86EMU_exec(struct X86EMU *emu);
 extern void X86EMU_exec_call(struct X86EMU *emu, uint16_t seg, uint16_t off);
 extern void X86EMU_exec_intr(struct X86EMU *emu, uint8_t intr);
 extern void X86EMU_halt_sys(struct X86EMU *);
 
-static void x86_halt(struct X86EMU* emu) {
-    x86dbg("\n");
-    longjmp(emu->exec_state, 1);
+static inline void x86_halt(struct X86EMU* emu) {
+    x86dbg("\n"); longjmp(emu->exec_state, 1);
 }
 
+static inline uint8_t isa_rdb(uint32_t addr) {
+    uint8_t be = *((volatile uint8_t*)(addr));
+#if DEBUG_X86ISA 
+    dbgisa("isa_rdb %08x %02x %02x\n", addr, be, be);
+#endif
+    return be;
+}
+
+//--------------------------------------------------------------------------------------------------
+// Real ISA access
+//--------------------------------------------------------------------------------------------------
+
+static inline uint32_t isa_rdw(uint32_t addr) {
+    uint16_t le = *((volatile uint16_t*)addr); uint16_t be = x86isa_swap16(le);
+    dbgisa("isa_rdw %08x %04x %04x\n", addr, le, be);
+    return be;
+}
+
+static inline uint32_t isa_rdl(uint32_t addr) {
+    uint32_t le = *((volatile uint32_t*)addr); uint32_t be = x86isa_swap32(le);
+    dbgisa("isa_rdl %08x %08x %08x\n", addr, le, be);
+    return be;
+}
+
+static inline void isa_wrb(uint32_t addr, uint8_t data)  {
+    dbgisa("isa_wrb %08x %02x %02x\n", addr, data, data);
+    *((volatile uint8_t*)(addr)) = data;
+}
+
+static inline void isa_wrw(uint32_t addr, uint16_t data) {
+    uint16_t le = x86isa_swap16(data);
+    dbgisa("isa_wrw %08x %04x %04x\n", addr, data, le);
+    *((volatile uint16_t*)(addr)) = le;
+}
+
+static inline void isa_wrl(uint32_t addr, uint32_t data) {
+    uint32_t le = x86isa_swap32(data);
+    dbgisa("isa_wrl %08x %08x %08x\n", addr, data, le);
+    *((volatile uint32_t*)(addr)) = le;
+}
+
+//--------------------------------------------------------------------------------------------------
+// IO ports
+//--------------------------------------------------------------------------------------------------
+static uint32_t iobuf[256];
+static uint8_t pit_bc = 0;
+
+static bool x86_inp_emu(struct X86EMU* emu, uint16_t port, uint32_t* val) {
+    if (port < 0x100) {
+        switch (port) {
+            case 0x42:  // pit data
+                //iobuf[0x42] = (iobuf[0x42] - 0xff) & 0xffff;
+                *val = (pit_bc++ & 1) ? ((iobuf[0x42] >> 8) & 0xff) : ((iobuf[0x42] >> 0) & 0xff);
+                return true;
+
+            case 0x61:  // commonly used as time delay
+                // d4 changes state, indefinitely, every 15.085 microseconds
+                uint8_t d4 = 0x10 & ~iobuf[port];
+                iobuf[port] = (iobuf[port] & ~0x10) | d4;
+                *val = iobuf[port];
+                return true;
+
+            default:
+                *val = iobuf[port];
+                return true;
+        }
+    }
+    return false;
+}
+
+static bool x86_outp_emu(struct X86EMU* emu, uint16_t port, uint32_t val) {
+    if (port < 0x100) {
+        switch(port)
+        {
+            case 0x42:  // pit data
+                if (pit_bc++ & 1) {
+                    iobuf[0x42] = (iobuf[0x42] & 0x00ff) | ((val << 8) & 0xff00);
+                } else {
+                    iobuf[0x42] = (iobuf[0x42] & 0xff00) | ((val << 0) & 0x00ff);
+                }
+                return true;
+
+            case 0x43:  // pit command
+                pit_bc = 0;
+                iobuf[port] = val;
+                return true;
+
+            case 0x80:  // post
+                return false;
+
+            default:
+                iobuf[port] = val;
+                return true;
+        }
+        return true;
+    }  
+    return false;
+}
+
+static uint8_t x86_inb(struct X86EMU *emu, uint16_t port) {
+    uint32_t val;
+    if (!x86_inp_emu(emu, port, &val)) {
+        val = (uint8_t)isa_rdb(emu->isa_iobase + port);
+    }
+    dbgport("port_inb %04x : %02x\n", port, (uint8_t)val);
+    return (uint8_t)val;
+}
+
+static uint16_t x86_inw(struct X86EMU *emu, uint16_t port) {
+    uint32_t val;
+    if (!x86_inp_emu(emu, port, &val)) {
+        val = (uint16_t)isa_rdw(emu->isa_iobase + port);
+    }
+    dbgport("port_inw %04x : %04x\n", port, (uint16_t)val);
+    return (uint16_t)val;
+}
+
+static uint32_t x86_inl(struct X86EMU *emu, uint16_t port) {
+    uint32_t val;
+    if (!x86_inp_emu(emu, port, &val)) {
+        val = (uint32_t)isa_rdl(emu->isa_iobase + port);
+    }
+    dbgport("port_inl %04x : %08x\n", port, (uint32_t)val);
+    return (uint32_t)val;
+}
+
+static void x86_outb(struct X86EMU *emu, uint16_t port, uint8_t  val)
+{
+    dbgport("port_outb %04x : %02x\n", port, val);
+    if (!x86_outp_emu(emu, port, (uint32_t)val)) {
+        isa_wrb(emu->isa_iobase + port, val);
+    }
+}
+
+static void x86_outw(struct X86EMU *emu, uint16_t port, uint16_t val) {
+    dbgport("port_outw %04x : %04x\n", port, val);
+    if (!x86_outp_emu(emu, port, (uint32_t)val)) {
+        isa_wrw(emu->isa_iobase + port, val);
+    }
+}
+
+static void x86_outl(struct X86EMU *emu, uint16_t port, uint32_t val) {
+    dbgport("port_outl %04x : %08x\n", port, val);
+    if (!x86_outp_emu(emu, port, (uint32_t)val)) {
+        isa_wrw(emu->isa_iobase + port, val);
+    }
+}
+
+
+
+
+//--------------------------------------------------------------------------------------------------
+// MEMORY ACCESS
+//--------------------------------------------------------------------------------------------------
+
 static uint8_t x86_rdb(struct X86EMU *emu, uint32_t addr) {
+#if 0
+    if (addr < 0x500) {
+        x86dbg("x86_rdb %08x\n", addr);
+    }
+#endif
     addr = ENABLE_WRAP_1MB_ADDRESS_SPACE ? (addr & 0xfffff) : addr;
     if (addr >= emu->mem_size) {
-        x86dbg("rdb %08x\n", addr);
+        x86err("x86_rdb %08x\n", addr);
         x86_halt(emu);
         return 0;
     }
@@ -55,9 +244,14 @@ static uint8_t x86_rdb(struct X86EMU *emu, uint32_t addr) {
     }
 }
 static uint16_t x86_rdw(struct X86EMU *emu, uint32_t addr) {
+#if 0
+    if (addr < 0x500) {
+        x86dbg("x86_rdw %08x\n", addr);
+    }
+#endif
     addr = ENABLE_WRAP_1MB_ADDRESS_SPACE ? (addr & 0xfffff) : addr;
     if (addr >= emu->mem_size) {
-        x86dbg("rdw %08x\n", addr);
+        x86err("x86_rdw %08x\n", addr);
         x86_halt(emu);
         return 0;
     } else if (ENABLE_DIRECT_VGA_MEM_READ && addr >= 0xa0000 && addr < 0xc0000) {
@@ -69,7 +263,7 @@ static uint16_t x86_rdw(struct X86EMU *emu, uint32_t addr) {
 static uint32_t x86_rdl(struct X86EMU *emu, uint32_t addr) {
     addr = ENABLE_WRAP_1MB_ADDRESS_SPACE ? (addr & 0xfffff) : addr;
     if (addr >= emu->mem_size) {
-        x86dbg("rdl %08x\n", addr);
+        x86err("x86_rdl %08x\n", addr);
         x86_halt(emu);
         return 0;
     } else if (ENABLE_DIRECT_VGA_MEM_READ && addr >= 0xa0000 && addr < 0xc0000) {
@@ -80,8 +274,13 @@ static uint32_t x86_rdl(struct X86EMU *emu, uint32_t addr) {
 }
 static void x86_wrb(struct X86EMU *emu, uint32_t addr, uint8_t val) {
     addr = ENABLE_WRAP_1MB_ADDRESS_SPACE ? (addr & 0xfffff) : addr;
+#if 0
+    if (addr < 0x500) {
+        x86dbg("x86_wrb %08x\n", addr);
+    }
+#endif
     if (addr >= emu->mem_size) {
-        x86dbg("wrb %08x\n", addr);
+        x86err("x86_wrb %08x\n", addr);
         x86_halt(emu);
     } else if (ENABLE_DIRECT_VGA_MEM_WRITE && addr >= 0xa0000 && addr < 0xc0000) {
         isa_wrb(emu->isa_membase + addr, val);
@@ -91,8 +290,13 @@ static void x86_wrb(struct X86EMU *emu, uint32_t addr, uint8_t val) {
 }
 static void x86_wrw(struct X86EMU *emu, uint32_t addr, uint16_t val) {
     addr = ENABLE_WRAP_1MB_ADDRESS_SPACE ? (addr & 0xfffff) : addr;
+#if 0
+    if (addr < 0x500) {
+        x86dbg("x86_wrw %08x\n", addr);
+    }
+#endif
     if (addr >= emu->mem_size) {
-        x86dbg("wrw %08x\n", addr);
+        x86err("x86_wrw %08x\n", addr);
         x86_halt(emu);
         return;
     } else if (ENABLE_DIRECT_VGA_MEM_WRITE && addr >= 0xa0000 && addr < 0xc0000) {
@@ -104,7 +308,7 @@ static void x86_wrw(struct X86EMU *emu, uint32_t addr, uint16_t val) {
 static void x86_wrl(struct X86EMU *emu, uint32_t addr, uint32_t val) {
     addr = ENABLE_WRAP_1MB_ADDRESS_SPACE ? (addr & 0xfffff) : addr;
     if (addr >= emu->mem_size) {
-        x86dbg("wrl %08x\n", addr);
+        x86err("x86_wrl %08x\n", addr);
         x86_halt(emu);
         return;
     } else if (ENABLE_DIRECT_VGA_MEM_WRITE && addr >= 0xa0000 && addr < 0xc0000) {
@@ -114,17 +318,35 @@ static void x86_wrl(struct X86EMU *emu, uint32_t addr, uint32_t val) {
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+// INT Vectors
+//--------------------------------------------------------------------------------------------------
+
 static void x86_int(struct X86EMU *emu, int num)
 {
-    int bios_int = 1;
+    uint32_t seg = x86_ReadWord(emu, (num << 2) + 2);
+    uint32_t off = x86_ReadWord(emu, (num << 2) + 0);
+    uint32_t vec = (seg == 0xffff) ? 0 : (off + (seg << 4));
+    dbgint("int:%02x : %08x : ah_%02x, al_%02x, bl_%02x\n", num, vec, emu->x86.R_AH, emu->x86.R_AL, emu->x86.R_BL);
+
     switch (num)
     {
         case 0x10:  // video interrupt
         case 0x42:  // video interrupt
         case 0x6d:  // vga internal interrupt
         {
+            if ((vec == 0) && (emu->x86.R_AH == 0x12) && (emu->x86.R_BL == 0x32)) {
+                if (emu->x86.R_AL == 0x00) {
+                    // enable cpu access to video memory
+                    x86_outb(emu, 0x3c2, x86_inb(emu, 0x3cc) | 0x02);
+                } else if (emu->x86.R_AL == 1) {
+                    // disable cpu access to video memory
+                    x86_outb(emu, 0x3c2, x86_inb(emu, 0x3cc) & ~0x02);
+                }
+            }
+
             // vga write string
-            if (emu->x86.register_a.I8_reg.h_reg == 0x13)
+            if (emu->x86.R_AH == 0x13)
             {
                 int num_chars = emu->x86.register_c.I16_reg.x_reg;
                 int seg = emu->x86.register_es;
@@ -134,42 +356,40 @@ static void x86_int(struct X86EMU *emu, int num)
                     x86printf("%c", * (char *)(emu->mem_base + str + i));
                 }
             }
-            uint32_t vec = (uint32_t) (x86_ReadWord(emu, num << 2) + (x86_ReadWord(emu, (num << 2) + 2) << 4));
-            //x86dbg("int %02x : %08x\n", num, vec);
+
             if (vec == 0) {
-                x86err("uninitialised int vector\n");
+                dbgint("uninitialised int vector\n");
             } else if (vec == 0xff065) {
-                bios_int = 0;
-            } else if (vec >= 0x00100000) {
-                // done by cirrus logic GD5426
-                bios_int = 0;
-            }
+                vec = 0;
+            } /*else if (vec == 0xC56E2) { 
+                vec = 0;
+            }*/
         } break;
 
-        case 0x15:
-            bios_int = 0;
+        case 0x15:  // memory
+            //dbgint("int15: AH:%02x AL:%02x\n", emu->x86.R_AH, emu->x86.R_AL);
+            vec = 0;
             break;
 
-        case 0x16:
-            bios_int = 1;
+        case 0x16: // keyboard services
             break;
 
-        case 0x1a:
-            //ret = x86_pcibios_handler(emu);
-            bios_int = 0;
+        case 0x1a:  // rtc & pci
+            vec = 0;
             break;
 
         case 0xe6:
-            bios_int = 1;
             break;
 
         default:
-            x86dbg("unhandled interrupt 0x%x\n", num);
+            x86err("unhandled interrupt 0x%x\n", num);
             break;
     }
 
-    if (bios_int)
+    if (vec)
     {
+        //dbgint(": CS %04x IP %04x\n", emu->x86.R_CS, emu->x86.R_IP);
+        //dbgint(": SS %04x SP %04x\n", emu->x86.R_SS, emu->x86.R_SP);
         uint32_t eflags;
         eflags = emu->x86.R_EFLG;
         x86_PushWord(emu, eflags);
@@ -177,21 +397,30 @@ static void x86_int(struct X86EMU *emu, int num)
         x86_PushWord(emu, emu->x86.R_IP);
         emu->x86.R_CS = x86_ReadWord(emu, (num << 2) + 2);
         emu->x86.R_IP = x86_ReadWord(emu, num << 2);
+        //dbgint(": CS %04x IP %04x\n", emu->x86.R_CS, emu->x86.R_IP);
     }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+// Emulator
+//--------------------------------------------------------------------------------------------------
+
 static void x86emu_Run(struct X86EMU* emu) {
+    x86dbg("x86_run: %04x %04x\n", emu->x86.R_CS, emu->x86.R_IP);
     emu->x86.R_SS = 0x0000;
     emu->x86.R_SP = 0xfffe;
     X86EMU_exec(emu);
 }
 static void x86emu_Call(struct X86EMU* emu, uint16_t seg, uint16_t off) {
+    x86dbg("x86_call: %04x %04x\n", seg, off);
     emu->x86.R_SS = 0x0000;
     emu->x86.R_SP = 0xfffe;
     X86EMU_exec_call(emu, seg, off);
 }
 
 static void x86emu_Int(struct X86EMU* emu, uint8_t num) {
+    x86dbg("x86_int: %02x\n", num);
     emu->x86.R_SS = 0x0000;
     emu->x86.R_SP = 0xfffe;
     X86EMU_exec_intr(emu, num);
@@ -230,14 +459,22 @@ void x86_Create(struct X86EMU* emu, void* ram_ptr, uint32_t ram_size, uint32_t i
     emu->isa_iobase = isa_io;
     emu->isa_membase = isa_ram;
 
-    memset(emu->mem_base, 0xf4, emu->mem_size);
-
     emu->_X86EMU_run = x86emu_Run;
     emu->_X86EMU_call = x86emu_Call;
     emu->_X86EMU_int = x86emu_Int;
 
+
+    memset(emu->mem_base, 0xf4, emu->mem_size); // fill everthing with hlt instructions
+    memset(emu->mem_base, 0x00, 0x600);         // clear bios area
+    emu->emu_wrw(emu, 0x410, 0x0010);           // equipment flag
+    emu->emu_wrw(emu, 0x413, 0x0280);           // 640kb conventional memory
+
     for (int i = 0; i < 256; i++) {
         emu->_X86EMU_intrTab[i] = x86_int;
+        iobuf[i] = 0;
+#if DEBUG_X86PORTS
+        iodbg[i] = 0;
+#endif        
     }
 
     char *date = "01/01/99";
@@ -246,6 +483,8 @@ void x86_Create(struct X86EMU* emu, void* ram_ptr, uint32_t ram_size, uint32_t i
     }
     emu->emu_wrb(emu, 0xffff7, '/');
     emu->emu_wrb(emu, 0xffffa, '/');
-}
+    emu->emu_wrb(emu, 0xffffe, 0xFC);   // model:    AT
+    emu->emu_wrb(emu, 0xfffff, 0x00);   // submodel: ??
 
+}
 
