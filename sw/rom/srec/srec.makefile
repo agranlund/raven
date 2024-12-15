@@ -16,7 +16,7 @@ OUT_ELF		= $(NAME).elf
 OUT_SREC	= $(NAME).s19
 
 
-SWDIR       := ../../..
+SWDIR       = ../../..
 
 VPATH       = $(SWDIR)
 
