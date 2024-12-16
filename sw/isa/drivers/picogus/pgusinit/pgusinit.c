@@ -10,10 +10,10 @@
     #include "../../../isa.h"
 
     isa_t* isa;
-    static inline unsigned char inp(unsigned short a)                       { return isa->inp(a);   }
-    static inline unsigned short inpw(unsigned short a)                     { return isa->inpw(a);  }
-    static inline unsigned short outp(unsigned short a, unsigned char b)    { isa->outp(a,b);       }
-    static inline unsigned short outpw(unsigned short a, unsigned short b)  { isa->outpw(a, b);     }
+    static inline unsigned char     inp(unsigned short a)                      { return isa->inp(a);   }
+    static inline unsigned short    inpw(unsigned short a)                     { return isa->inpw(a);  }
+    static inline void              outp(unsigned short a, unsigned char b)    { isa->outp(a,b);       }
+    static inline void              outpw(unsigned short a, unsigned short b)  { isa->outpw(a, b);     }
 
 #else
 
