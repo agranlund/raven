@@ -1,8 +1,6 @@
-ROOTDIR 	= ../../..
-BIN  		= ultrinit.prg
-OPTS 		= -Os
+ROOTDIR 	=	../../..
+BIN  		=	ultrinit.prg
+OBJS 		=	ultrinit.o
 
-OBJS =  ultrinit.o
-
-include $(ROOTDIR)/Makefile.common
+include $(ROOTDIR)/Makefile.gcc
 

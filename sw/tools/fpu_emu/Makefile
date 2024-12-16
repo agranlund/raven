@@ -41,7 +41,7 @@ OBJS = 	main.o \
 		fpe/fpu_subr.o \
 		fpe/fpu_trig.o \
 
-include $(ROOTDIR)/Makefile.common
+include $(ROOTDIR)/Makefile.gcc
 
 fpe/fpu_68020.o : fpe/fpu_68020.c
 	$(CC) $(CFLAGS) -m68020-60 -c $< -o $@
