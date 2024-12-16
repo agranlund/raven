@@ -2,6 +2,7 @@
  *  Copyright (C) 2002-2013  The DOSBox Team
  *  Copyright (C) 2013-2014  bjt, elianda
  *  Copyright (C) 2015       ab0tj
+ *  Copyright (C) 2023-2024  Ian Scott
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -54,8 +55,8 @@ typedef int32_t Bits;
 #define RAWBUF  65536
 #define RAWBUF_BITS  65535
 #else
-#define RAWBUF  8192
-#define RAWBUF_BITS  8191
+#define RAWBUF  16384
+#define RAWBUF_BITS  16383
 #endif // MPU_ONLY
 
 typedef struct ring_buffer {
