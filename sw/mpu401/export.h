@@ -2,6 +2,7 @@
  *  Copyright (C) 2002-2012  The DOSBox Team
  *  Copyright (C) 2013-2014  bjt, elianda
  *  Copyright (C) 2015		 ab0tj
+ *  Copyright (C) 2023-2024  Ian Scott
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -42,7 +43,7 @@ Bit8u MPU401_ReadData(void);
 Bit8u MPU401_ReadStatus(void);
 void MPU401_WriteData(Bit8u val, bool crit);
 Bit8u QueueUsed();
-void send_midi_byte();
+void send_midi_bytes(int maxbytes);
 
 #ifdef __cplusplus
 }

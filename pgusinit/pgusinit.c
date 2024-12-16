@@ -1,3 +1,20 @@
+/*
+ *  Copyright (C) 2022-2024  Ian Scott
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
 #include <conio.h>
 #include <dos.h>
 #include <stdio.h>
@@ -9,24 +26,28 @@
 
 #include "../common/picogus.h"
 
-void banner(void) {
-    printf("PicoGUSinit v3.0.0 (c) 2024 Ian Scott - licensed under the GNU GPL v2\n\n");
+static void banner(void) {
+    printf("PicoGUSinit v3.3.0 (c) 2024 Ian Scott - licensed under the GNU GPL v2\n");
 }
 
 
-void usage(char *argv0, card_mode_t mode, bool print_all) {
+static void usage(char *argv0, card_mode_t mode, bool print_all) {
     // Max line length @ 80 chars:
     //     "................................................................................\n"
     printf("Usage:\n");
     printf("   /?            - show this message (/?? to show options for all modes)\n");
     printf("   /flash fw.uf2 - program the PicoGUS with the firmware file fw.uf2\n");
+    printf("   /mode x       - change card mode to x (gus, sb, mpu, tandy, cms, adlib, usb)\n");
+    printf("   /save         - save settings to the card to persist on system boot\n");
+    printf("   /defaults     - set all settings for all modes to defaults\n");
     printf("   /wtvol x      - set volume of wavetable header. Scale 0-100, Default: 100\n");
     printf("                   (for PicoGUS v2.0 boards only)\n");
-    printf("   /mode x       - change card mode to x (gus, sb, mpu, tandy, cms, adlib, usb)\n");
-    printf("   /defaults     - set all settings for all modes to defaults\n");
-    printf("   /save         - save settings to the card to persist on system boot\n");
     printf("   /joy 1|0      - enable/disable USB joystick support, Default: 0\n");
-    printf("\n");
+    //     "................................................................................\n"
+    printf("MPU-401 settings:\n");
+    printf("   /mpuport x    - set the base port of the MPU-401. Default: 330, 0 to disable\n");
+    printf("   /mpudelay 1|0 - delay SYSEX (for rev.0 Roland MT-32)\n");
+    printf("   /mpufake 1|0  - fake all notes off (for Roland RA-50)\n");
     if (mode == GUS_MODE || print_all) {
         //     "................................................................................\n"
         printf("GUS settings:\n");
@@ -37,7 +58,6 @@ void usage(char *argv0, card_mode_t mode, bool print_all) {
         printf("                 Specifying 0 restores the GUS default behavior.\n");
         printf("                 (increase to fix games with streaming audio like Doom)\n");
         printf("   /gus44k 1|0 - Fixed 44.1kHz output for all active voice #s [EXPERIMENTAL]\n");
-        printf("\n");
     }
     if (mode == SB_MODE || print_all) {
         //     "................................................................................\n"
@@ -46,29 +66,18 @@ void usage(char *argv0, card_mode_t mode, bool print_all) {
     }
     if (mode == SB_MODE || mode == ADLIB_MODE || print_all) {
         printf("AdLib settings:\n");
-        printf("   /oplport x   - set the base port of the OPL2/AdLib on the SB. Default: 388\n");
+        printf("   /oplport x   - set the base port of the OPL2. Default: 388, 0 to disable\n");
         printf("   /oplwait 1|0 - wait on OPL2 write. Can fix speed-sensitive early AdLib games\n");
-        printf("\n");
-    }
-    if (mode == MPU_MODE || print_all) {
-        //     "................................................................................\n"
-        printf("MPU-401 settings:\n");
-        printf("   /mpuport x    - set the base port of the MPU-401. Default: 330\n");
-        printf("   /mpudelay 1|0 - delay SYSEX (for rev.0 Roland MT-32)\n");
-        printf("   /mpufake 1|0  - fake all notes off (for Roland RA-50)\n");
-        printf("\n");
     }
     if (mode == TANDY_MODE || print_all) {
         //     "................................................................................\n"
         printf("Tandy settings:\n");
         printf("   /tandyport x - set the base port of the Tandy 3-voice. Default: 2C0\n");
-        printf("\n");
     }
     if (mode == CMS_MODE || print_all) {
         //     "................................................................................\n"
         printf("CMS settings:\n");
         printf("   /cmsport x - set the base port of the CMS. Default: 220\n");
-        printf("\n");
     }
     if (mode == USB_MODE || mode == CMS_MODE || mode == TANDY_MODE || mode == ADLIB_MODE || print_all) {
         //     "................................................................................\n"
@@ -81,48 +90,57 @@ void usage(char *argv0, card_mode_t mode, bool print_all) {
         printf("          (increase for smoother cursor movement, decrease for lower CPU load)\n");
         printf("   /mousesen n   - set mouse sensitivity (256 - 100%, 128 - 50%, 512 - 200%)\n");
     }
-    /*
-    if (mode == GUS_MODE) {
-        fprintf(stderr, "The ULTRASND environment variable must be set in the following format:\n");
-        fprintf(stderr, "\tset ULTRASND=xxx,y,n,z,n\n");
-        fprintf(stderr, "Where xxx = port, y = DMA, z = IRQ. n is ignored.\n");
-        fprintf(stderr, "Port is set on the card according to ULTRASND; DMA and IRQ configued via jumper.");
+    if (mode == NE2000_MODE || print_all) {
+        //     "................................................................................\n"
+        printf("NE2000/WiFi settings:\n");
+        printf("   /ne2kport x   - set the base port of the NE2000. Default: 300\n");
+        printf("   /wifissid abc - set the WiFi SSID to abc\n");
+        printf("   /wifipass xyz - set the WiFi WPA/WPA2 password/key to xyz\n");
+        printf("   /wifinopass   - unset the WiFi password to connect to an open access point\n");
+        printf("   /wifistatus   - print current WiFi status\n");
     }
-    */
 }
 
-const char* mouse_protocol_str[] = {
+static const char* mouse_protocol_str[] = {
     "Microsoft", "Logitech", "IntelliMouse", "Mouse Systems"
 };
 
 
-void err_ultrasnd(char *argv0) {
-    fprintf(stderr, "ERROR: no ULTRASND variable set or is malformed!\n");
-    usage(argv0, GUS_MODE, false);
+static void err_ultrasnd(void) {
+    //              "................................................................................\n"
+    fprintf(stderr, "ERROR: In GUS mode but no ULTRASND variable set or is malformed!\n");
+    fprintf(stderr, "The ULTRASND environment variable must be set in the following format:\n");
+    fprintf(stderr, "\tset ULTRASND=xxx,y,n,z,n\n");
+    fprintf(stderr, "Where xxx = port, y = DMA, z = IRQ. n is ignored.\n");
+    fprintf(stderr, "Port is set via /gusport xxx option; DMA and IRQ configued via jumper.\n");
 }
 
 
-void err_blaster(char *argv0) {
-    fprintf(stderr, "ERROR: no BLASTER variable set or is malformed!\n");
-    usage(argv0, SB_MODE, false);
+static void err_blaster(void) {
+    //              "................................................................................\n"
+    fprintf(stderr, "ERROR: In SB mode but no BLASTER variable set or is malformed!\n");
+    fprintf(stderr, "The BLASTER environment variable must be set in the following format:\n");
+    fprintf(stderr, "\tset BLASTER=Axxx Iy Dz T3\n");
+    fprintf(stderr, "Where xxx = port, y = IRQ, z = DMA. T3 indicates an SB 2.0 compatible card.\n");
+    fprintf(stderr, "Port is set via /sbport xxx option; DMA and IRQ configued via jumper.\n");
 }
 
 
-void err_pigus(void) {
+static void err_pigus(void) {
     fprintf(stderr, "ERROR: no PicoGUS detected!\n");
 }
 
 
-void err_protocol(uint8_t expected, uint8_t got) {
+static void err_protocol(uint8_t expected, uint8_t got) {
     fprintf(stderr, "ERROR: PicoGUS card using protocol %u, needs %u\n", got, expected);
     fprintf(stderr, "Please run the latest PicoGUS firmware and pgusinit.exe versions together!\n");
 }
 
 
-int init_gus(char *argv0) {
+static int init_gus(void) {
     char* ultrasnd = getenv("ULTRASND");
     if (ultrasnd == NULL) {
-        err_ultrasnd(argv0);
+        err_ultrasnd();
         return 1;
     }
 
@@ -131,14 +149,14 @@ int init_gus(char *argv0) {
     int e;
     e = sscanf(ultrasnd, "%hx,%*hhu,%*hhu,%*hhu,%*hhu", &port);
     if (e != 1) {
-        err_ultrasnd(argv0);
+        err_ultrasnd();
         return 2;
     }
 
     outp(CONTROL_PORT, MODE_GUSPORT); // Select port register
     uint16_t tmp_port = inpw(DATA_PORT_LOW);
     if (port != tmp_port) {
-        err_ultrasnd(argv0);
+        err_ultrasnd();
         return 2;
     }
 
@@ -167,10 +185,10 @@ int init_gus(char *argv0) {
 }
 
 
-int init_sb(char *argv0) {
+static int init_sb(void) {
     char* blaster = getenv("BLASTER");
     if (blaster == NULL) {
-        err_blaster(argv0);
+        err_blaster();
         return 1;
     }
 
@@ -179,20 +197,21 @@ int init_sb(char *argv0) {
     int e;
     e = sscanf(blaster, "A%hx I%*hhu D%*hhu T3", &port);
     if (e != 1) {
-        err_blaster(argv0);
+        err_blaster();
         return 2;
     }
 
     outp(CONTROL_PORT, MODE_SBPORT); // Select port register
     uint16_t tmp_port = inpw(DATA_PORT_LOW);
     if (port != tmp_port) {
-        err_blaster(argv0);
+        err_blaster();
         return 2;
     }
+    return 0;
 }
 
 
-void print_firmware_string(void) {
+static void print_firmware_string(void) {
     outp(CONTROL_PORT, 0xCC); // Knock on the door...
     outp(CONTROL_PORT, MODE_FWSTRING); // Select firmware string register
 
@@ -207,7 +226,7 @@ void print_firmware_string(void) {
 }
 
 
-bool wait_for_read(const uint8_t value) {
+static bool wait_for_read(const uint8_t value) {
     for (uint32_t i = 0; i < 6000000; ++i) {    // Up to 6000000, for bigger fws like pg-multi.uf2, waiting for flash erase. If not, timeout and error.
         if (inp(DATA_PORT_HIGH) == value) {
             return true;
@@ -216,7 +235,7 @@ bool wait_for_read(const uint8_t value) {
     return false;
 }
 
-void write_settings(void) {
+static void write_settings(void) {
     outp(CONTROL_PORT, MODE_SAVE); // Select save settings register
     outp(DATA_PORT_HIGH, 0xff);
     printf("Settings saved to flash.\n");
@@ -224,7 +243,7 @@ void write_settings(void) {
 }
 
 // For multifw
-int reboot_to_firmware(const uint8_t value, const bool permanent) {
+static int reboot_to_firmware(const uint8_t value, const bool permanent) {
     outp(CONTROL_PORT, 0xCC); // Knock on the door...
 
     outp(CONTROL_PORT, MODE_BOOTMODE); // Select firmware selection register
@@ -250,7 +269,7 @@ int reboot_to_firmware(const uint8_t value, const bool permanent) {
     return 0;
 }
 
-int write_firmware(const char* fw_filename) {
+static int write_firmware(const char* fw_filename) {
     union {
         uint8_t buf[512];
         struct UF2_Block {
@@ -356,6 +375,43 @@ int write_firmware(const char* fw_filename) {
     return 0;
 }
 
+static void wifi_printStatus(void)
+{
+    outp(CONTROL_PORT, 0xCC); // Knock on the door...
+    outp(CONTROL_PORT, MODE_WIFISTAT); // Select WiFi status mode
+    outp(DATA_PORT_HIGH, 0); // Write to start getting the status
+   
+    printf("WiFi status: ");
+    uint16_t try = 0;
+    char c;
+    while (c = inp(DATA_PORT_HIGH)) {
+        if (c == 255) {
+            if (++try == 10000) {
+                printf("Error getting WiFI status\n");
+                break;
+            } else {
+                continue;
+            }
+        }
+        putchar(c);
+    }
+    putchar('\n');
+}
+
+static void send_string(uint8_t mode, char* str, int16_t max_len)
+{
+    outp(CONTROL_PORT, 0xCC); // Knock on the door...
+    outp(CONTROL_PORT, mode);
+    char chr;
+    for (int i = 0; i < max_len; ++i) {
+        if (str[i] == 0) { // End of string
+            break;
+        }
+        outp(DATA_PORT_HIGH, str[i]);
+    }
+    outp(DATA_PORT_HIGH, 0);
+}
+
 #define process_bool_opt(option) \
 if (i + 1 >= argc) { \
     usage(argv[0], mode, false); \
@@ -385,6 +441,9 @@ int main(int argc, char* argv[]) {
     uint8_t enable_joystick = 0;
     uint8_t wtvol;
     char fw_filename[256] = {0};
+    char wifi_ssid[33] = {0};
+    char wifi_pass[64] = {0};
+    bool nopass = false;
     card_mode_t mode;
     char mode_name[8] = {0};
     int fw_num = 8;
@@ -396,7 +455,7 @@ int main(int argc, char* argv[]) {
     outp(CONTROL_PORT, MODE_MAGIC); // Select magic string register
     if (inp(DATA_PORT_HIGH) != 0xDD) {
         err_pigus();
-        return 99;
+        //return 99;
     };
     printf("PicoGUS detected: ");
     print_firmware_string();
@@ -610,6 +669,38 @@ int main(int argc, char* argv[]) {
             }
             outp(CONTROL_PORT, MODE_MOUSERATE);
             outp(DATA_PORT_HIGH, tmp_uint8);
+        // NE2000/WiFi options /////////////////////////////////////////////////////////////////
+        } else if (stricmp(argv[i], "/ne2kport") == 0) {
+            process_port_opt(tmp_uint16);
+            outp(CONTROL_PORT, MODE_NE2KPORT); // Select NE2000 port register
+            outpw(DATA_PORT_LOW, tmp_uint16); // Write port
+        } else if (stricmp(argv[i], "/wifistatus") == 0) {
+            wifi_printStatus();
+        } else if (stricmp(argv[i], "/wifissid") == 0) {
+            if (i + 1 >= argc) {
+                usage(argv[0], mode, false);
+                return 255;
+            }
+            e = sscanf(argv[++i], "%32s", wifi_ssid);
+            if (e != 1) {
+                usage(argv[0], mode, false);
+                return 4;
+            }
+            send_string(MODE_WIFISSID, wifi_ssid, 32);
+        } else if (stricmp(argv[i], "/wifipass") == 0) {
+            if (i + 1 >= argc) {
+                usage(argv[0], mode, false);
+                return 255;
+            }
+            e = sscanf(argv[++i], "%63s", wifi_pass);
+            if (e != 1) {
+                usage(argv[0], mode, false);
+                return 4;
+            }
+            send_string(MODE_WIFIPASS, wifi_pass, 63);
+        } else if (stricmp(argv[i], "/wifinopass") == 0) {
+            nopass = true;
+            send_string(MODE_WIFIPASS, "", 1);
         } else {
             printf("Unknown option: %s\n", argv[i]);
             usage(argv[0], mode, false);
@@ -634,6 +725,11 @@ int main(int argc, char* argv[]) {
         return reboot_to_firmware(fw_num, permanent);
     }
 
+    if (wifi_ssid[0] || wifi_pass[0] || nopass) {
+        outp(CONTROL_PORT, MODE_WIFIAPPLY);
+        outp(DATA_PORT_HIGH, 0);
+    }
+
     outp(CONTROL_PORT, MODE_HWTYPE); // Select hardware type register
     board_type_t board_type = inp(DATA_PORT_HIGH);
     if (board_type == PICO_BASED) {
@@ -655,9 +751,22 @@ int main(int argc, char* argv[]) {
         printf("Wavetable volume set to %u\n", wtvol);
     }
 
+    outp(CONTROL_PORT, MODE_MPUPORT); // Select MPU port register
+    tmp_uint16 = inpw(DATA_PORT_LOW); // Get port
+    if (tmp_uint16) {
+        outp(CONTROL_PORT, MODE_MPUDELAY); // Select MPU-401 delay register
+        tmp_uint8 = inp(DATA_PORT_HIGH);
+        printf("MPU-401: port %x; sysex delay: %s, ", tmp_uint16, tmp_uint8 ? "on" : "off");
+        outp(CONTROL_PORT, MODE_MPUFAKE); // Select MPU-401 fake all notes off
+        tmp_uint8 = inp(DATA_PORT_HIGH);
+        printf("fake all notes off: %s\n", tmp_uint8 ? "on" : "off");
+    } else {
+        printf("MPU-401 disabled\n");
+    }
+
     switch(mode) {
     case GUS_MODE:
-        if (init_gus(argv[0])) {
+        if (init_gus()) {
             return 1;
         }
         printf("GUS mode: ");
@@ -694,15 +803,10 @@ int main(int argc, char* argv[]) {
         printf("%s\n", tmp_uint8 ? ", wait on" : "");
         break;
     case MPU_MODE:
-        outp(CONTROL_PORT, MODE_MPUDELAY); // Select force 44k buffer
-        tmp_uint8 = inp(DATA_PORT_HIGH);
-        printf("MPU-401 sysex delay: %s; ", tmp_uint8 ? "on" : "off");
-        outp(CONTROL_PORT, MODE_MPUFAKE); // Select force 44k buffer
-        tmp_uint8 = inp(DATA_PORT_HIGH);
-        printf("fake all notes off: %s\n", tmp_uint8 ? "on" : "off");
-        outp(CONTROL_PORT, MODE_MPUPORT); // Select port register
-        tmp_uint16 = inpw(DATA_PORT_LOW); // Get port
-        printf("Running in MPU-401 mode on port %x\n", tmp_uint16);
+        printf("Running in MPU-401 only mode (with IRQ)\n", tmp_uint16);
+        break;
+    case USB_MODE:
+        printf("Running in USB mode\n", tmp_uint16);
         break;
     case TANDY_MODE:
         outp(CONTROL_PORT, MODE_TANDYPORT); // Select port register
@@ -715,7 +819,7 @@ int main(int argc, char* argv[]) {
         printf("Running in CMS/Game Blaster mode on port %x\n", tmp_uint16);
         break;
     case SB_MODE:
-        if (init_sb(argv[0])) {
+        if (init_sb()) {
             return 1;
         }
         outp(CONTROL_PORT, MODE_SBPORT); // Select port register
@@ -723,10 +827,20 @@ int main(int argc, char* argv[]) {
         printf("Running in Sound Blaster 2.0 mode on port %x ", tmp_uint16);
         outp(CONTROL_PORT, MODE_OPLPORT); // Select port register
         tmp_uint16 = inpw(DATA_PORT_LOW); // Get port
-        printf("(AdLib port %x", tmp_uint16);
-        outp(CONTROL_PORT, MODE_OPLWAIT); // Select Adlib wait register
-        tmp_uint8 = inp(DATA_PORT_HIGH);
-        printf("%s)\n", tmp_uint8 ? ", wait on" : "");
+        if (tmp_uint16) {
+            printf("(AdLib port %x", tmp_uint16);
+            outp(CONTROL_PORT, MODE_OPLWAIT); // Select Adlib wait register
+            tmp_uint8 = inp(DATA_PORT_HIGH);
+            printf("%s)\n", tmp_uint8 ? ", wait on" : "");
+        } else {
+            printf("(AdLib port disabled)\n");
+        }
+        break;
+    case NE2000_MODE:
+        outp(CONTROL_PORT, MODE_NE2KPORT); // Select port register
+        tmp_uint16 = inpw(DATA_PORT_LOW); // Get port
+        printf("Running in NE2000 mode on port %x\n", tmp_uint16);
+        wifi_printStatus();
         break;
     default:
         printf("Running in unknown mode (maybe upgrade pgusinit?)\n");

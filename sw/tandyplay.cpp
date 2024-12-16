@@ -1,7 +1,19 @@
-/**
- * Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
+/*
+ *  Copyright (C) 2022-2024  Ian Scott
  *
- * SPDX-License-Identifier: BSD-3-Clause
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
 #include <stdio.h>
@@ -16,7 +28,6 @@
 
 #include "pico/stdlib.h"
 #include "pico/audio_i2s.h"
-#include "pico/flash.h"
 
 #include "square/square.h"
 
@@ -28,10 +39,11 @@ extern uint LED_PIN;
 #ifdef USB_STACK
 #include "tusb.h"
 #endif
-#ifdef USB_MOUSE
-#ifdef USE_ALARM
+#if defined(USB_MOUSE) || defined(SOUND_MPU)
 #include "pico_pic.h"
 #endif
+
+#ifdef USB_MOUSE
 #include "mouse/8250uart.h"
 #include "mouse/sermouse.h"
 #endif
@@ -41,6 +53,12 @@ extern uint LED_PIN;
 #if PICO_ON_DEVICE
 #include "pico/binary_info.h"
 bi_decl(bi_3pins_with_names(PICO_AUDIO_I2S_DATA_PIN, "I2S DIN", PICO_AUDIO_I2S_CLOCK_PIN_BASE, "I2S BCK", PICO_AUDIO_I2S_CLOCK_PIN_BASE+1, "I2S LRCK"));
+#endif
+
+#ifdef SOUND_MPU
+#include "flash_settings.h"
+extern Settings settings;
+#include "mpu401/export.h"
 #endif
 
 #define SAMPLES_PER_BUFFER 8
@@ -82,18 +100,20 @@ struct audio_buffer_pool *init_audio() {
 
 void play_tandy() {
     puts("starting core 1 tandy");
-    flash_safe_execute_core_init();
+    // flash_safe_execute_core_init();
 
-#ifdef USB_MOUSE
-#ifdef USE_ALARM
+#if defined(USB_MOUSE) || defined(SOUND_MPU)
     // Init PIC on this core so it handles timers
     PIC_Init();
     puts("pic inited on core 1");
 #endif
-#endif
 #ifdef USB_STACK
     // Init TinyUSB for joystick support
     tuh_init(BOARD_TUH_RHPORT);
+#endif
+
+#ifdef SOUND_MPU
+    MPU401_Init(settings.MPU.delaySysex, settings.MPU.fakeAllNotesOff);
 #endif
 
     tandysound_t tandysound;
@@ -144,6 +164,9 @@ void play_tandy() {
 
         // uart emulation task
         uartemu_core1_task();
+#endif
+#ifdef SOUND_MPU
+        send_midi_bytes(8);
 #endif
     }
 }

@@ -1,7 +1,19 @@
-/**
- * Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
+/*
+ *  Copyright (C) 2022-2024  Ian Scott
  *
- * SPDX-License-Identifier: BSD-3-Clause
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
 #include <stdio.h>
@@ -15,11 +27,8 @@
 
 #include "pico/stdlib.h"
 #include "pico/audio_i2s.h"
-#include "pico/flash.h"
 
-#ifdef USE_ALARM
 #include "pico_pic.h"
-#endif
 
 #ifdef USB_STACK
 #include "tusb.h"
@@ -33,6 +42,12 @@ extern psram_spi_inst_t psram_spi;
 #if PICO_ON_DEVICE
 #include "pico/binary_info.h"
 bi_decl(bi_3pins_with_names(PICO_AUDIO_I2S_DATA_PIN, "I2S DIN", PICO_AUDIO_I2S_CLOCK_PIN_BASE, "I2S BCK", PICO_AUDIO_I2S_CLOCK_PIN_BASE+1, "I2S LRCK"));
+#endif
+
+#ifdef SOUND_MPU
+#include "flash_settings.h"
+extern Settings settings;
+#include "mpu401/export.h"
 #endif
 
 #include "isa_dma.h"
@@ -83,13 +98,11 @@ struct audio_buffer_pool *init_audio() {
 // void __xip_cache("my_sub_section") (play_gus)(void) {
 void play_gus() {
     puts("starting core 1");
-    flash_safe_execute_core_init();
+    // flash_safe_execute_core_init();
     uint32_t start, end;
 
-#ifdef USE_ALARM
     // Init PIC on this core so it handles timers
     PIC_Init();
-#endif
 
     // Init ISA DMA on this core so it handles the ISR
     puts("Initing ISA DMA PIO...");
@@ -126,6 +139,10 @@ void play_gus() {
     tuh_init(BOARD_TUH_RHPORT);
 #endif
 
+#ifdef SOUND_MPU
+    MPU401_Init(settings.MPU.delaySysex, settings.MPU.fakeAllNotesOff);
+#endif
+
     struct audio_buffer_pool *ap = init_audio();
     for (;;) {
         // uint8_t active_voices = GUS_activeChannels();
@@ -137,12 +154,11 @@ void play_gus() {
             ((struct audio_format *) ap->format)->sample_freq = playback_rate;
         }
         struct audio_buffer *buffer = take_audio_buffer(ap, true);
-        /* gus->dothangs; */
         int16_t *samples = (int16_t *) buffer->buffer->bytes;
 
         // uint32_t gus_audio_begin = time_us_32();
-        // __dsb();
-        buffer->sample_count = GUS_CallBack(buffer->max_sample_count, samples);
+        uint32_t sample_count = GUS_CallBack(buffer->max_sample_count, samples);
+        buffer->sample_count = sample_count;
         /*
         uint32_t gus_audio_elapsed = time_us_32() - gus_audio_begin;
         if (active_voices) {
@@ -159,6 +175,10 @@ void play_gus() {
 #ifdef USB_STACK
         // Service TinyUSB events
         tuh_task();
+#endif
+#ifdef SOUND_MPU
+        // Calculate number of midi bytes to send at current sample rate and number of samples generated
+        send_midi_bytes(MAX(31250 * sample_count / playback_rate + 1, 8));
 #endif
     }
 }

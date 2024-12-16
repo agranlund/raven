@@ -2,6 +2,12 @@
 
 cmake_minimum_required(VERSION 3.13)
 
+set(PICO_BOARD_HEADER_DIRS ${CMAKE_CURRENT_LIST_DIR})
+if(NOT PICO_BOARD)
+    set(PICO_BOARD "picogus2")
+    message("PICO_BOARD not set, defaulting to ${PROJECT_TYPE}")
+endif()
+set(PICO_COPY_TO_RAM 1)
 
 # Initialise pico_sdk from installed location
 # (note this can come from environment, CMake cache etc)
@@ -13,7 +19,7 @@ cmake_minimum_required(VERSION 3.13)
 include(pico_sdk_import.cmake)
 
 project(picogus
-    VERSION "2.0.0"
+    VERSION "2.2.0"
     LANGUAGES C CXX ASM
 )
 
@@ -21,10 +27,6 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
 include(pico_extras_import.cmake)
-
-set(PICO_BOARD_HEADER_DIRS ${CMAKE_CURRENT_LIST_DIR})
-set(PICO_BOARD picogus2)
-set(PICO_COPY_TO_RAM 1)
 
 # Tell the Pico SDK to use our local tinyusb instead of the one included in the SDK
 # This is needed to support tusb_xinput
@@ -76,7 +78,6 @@ function(config_target TARGET_NAME MULTIFW)
         PICO_AUDIO_I2S_DATA_PIN=16
         PICO_AUDIO_I2S_CLOCK_PIN_BASE=17
         PICO_AUDIO_I2S_PIO=1
-        USE_ALARM=1
         M62429_PIO=1
     )
 
@@ -116,13 +117,35 @@ function(config_target TARGET_NAME MULTIFW)
         target_sources(${TARGET_NAME} PRIVATE
             mouse/8250uart.cpp
             mouse/sermouse.cpp
-            pico_pic.c
         )
     endif()
 
-    target_sources(${TARGET_NAME} PRIVATE M62429/M62429.cpp)
+    target_sources(${TARGET_NAME} PRIVATE
+        M62429/M62429.cpp
+        pico_pic.c
+    )
     pico_generate_pio_header(${TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/M62429/M62429.pio)
     pico_generate_pio_header(${TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/isa_io.pio)
+
+    if(SOUND_MPU)
+        target_sources(${TARGET_NAME} PRIVATE mpu401/mpu401.c mpu401/midi.c)
+        target_compile_definitions(${TARGET_NAME} PRIVATE SOUND_MPU=1)
+    endif()
+
+    if(SOUND_OPL)
+        target_compile_definitions(${TARGET_NAME} PRIVATE
+            SOUND_OPL=1
+            USE_EMU8950_OPL=1        
+            EMU8950_ASM=1
+            EMU8950_NO_TLL=1 # don't use lookup table for total level
+            EMU8950_NO_FLOAT=1 # double check there is no float
+            EMU8950_NO_TIMER=1 # disable timer which isn't used
+            EMU8950_NO_TEST_FLAG=1 # disable test flags (which aren't used)
+            EMU8950_SIMPLER_NOISE=1 # only generate noise bit when needed
+            EMU8950_SHORT_NOISE_UPDATE_CHECK=1 # only update short noise if it is used
+        )
+        target_link_libraries(${TARGET_NAME} opl)
+    endif()
 
     target_link_libraries(
         ${TARGET_NAME}
@@ -137,20 +160,36 @@ function(config_target TARGET_NAME MULTIFW)
         hardware_exception
     )
     pico_add_extra_outputs(${TARGET_NAME})
+    
+    if (SOUND_MPU)
+        pico_enable_stdio_uart(${TARGET_NAME} 0)
+    else()
+        pico_enable_stdio_uart(${TARGET_NAME} 1)
+    endif()
+    if (USB_STACK)
+        pico_enable_stdio_usb(${TARGET_NAME} 0)
+    else()
+        pico_enable_stdio_usb(${TARGET_NAME} 1)
+    endif()
+    pico_enable_stdio_semihosting(${TARGET_NAME} 0)
 endfunction()
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tusb_xinput)
 add_subdirectory(rp2040-psram)
 add_subdirectory(opl)
-
+add_subdirectory(ne2000)
 
 ################################################################################
 # Build GUS firmware
 function(build_gus TARGET_NAME MULTIFW)
     set(USB_JOYSTICK TRUE)
+    set(SOUND_MPU TRUE)
     config_target(${TARGET_NAME} ${MULTIFW})
     pico_set_program_name(${TARGET_NAME} "picogus-gus")
-    target_sources(${TARGET_NAME} PRIVATE gusplay.cpp pico_pic.c isa_dma.c)
+    target_sources(${TARGET_NAME} PRIVATE
+        gusplay.cpp
+        isa_dma.c
+    )
     target_compile_definitions(${TARGET_NAME} PRIVATE
         SOUND_GUS=1
         PSRAM=1
@@ -173,32 +212,26 @@ function(build_gus TARGET_NAME MULTIFW)
     )
     pico_generate_pio_header(${TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/isa_dma.pio)
     target_link_libraries(${TARGET_NAME} rp2040-psram hardware_interp)
-    pico_enable_stdio_uart(${TARGET_NAME} 1)
-    pico_enable_stdio_usb(${TARGET_NAME} 0)
-    pico_enable_stdio_semihosting(${TARGET_NAME} 0)
 endfunction()
 
 ################################################################################
 # Build SB firmware
 function(build_sb TARGET_NAME MULTIFW)
     set(USB_JOYSTICK TRUE)
+    set(SOUND_MPU TRUE)
+    set(SOUND_OPL TRUE)
     config_target(${TARGET_NAME} ${MULTIFW})
     pico_set_program_name(${TARGET_NAME} "picogus-sb")
-    target_sources(${TARGET_NAME} PRIVATE sbdsp.cpp sbplay.cpp pico_pic.c isa_dma.c)    
-    target_link_libraries(${TARGET_NAME} opl)
+    target_sources(${TARGET_NAME} PRIVATE
+        sbdsp.cpp
+        sbplay.cpp
+        isa_dma.c
+    )
     target_compile_definitions(${TARGET_NAME} PRIVATE
         SOUND_SB=1
-        SOUND_OPL=1
         SOUND_DSP=1
-        USE_ALARM=1
-        USE_EMU8950_OPL=1        
-        EMU8950_ASM=1
-        # PICOW=1
     )
     pico_generate_pio_header(${TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/isa_dma.pio)
-    pico_enable_stdio_uart(${TARGET_NAME} 1)
-    pico_enable_stdio_usb(${TARGET_NAME} 0)
-    pico_enable_stdio_semihosting(${TARGET_NAME} 0)
 endfunction()
 
 ################################################################################
@@ -206,45 +239,27 @@ endfunction()
 function(build_adlib TARGET_NAME MULTIFW)
     set(USB_JOYSTICK TRUE)
     set(USB_MOUSE TRUE)
+    set(SOUND_MPU TRUE)
+    set(SOUND_OPL TRUE)
     config_target(${TARGET_NAME} ${MULTIFW})
     pico_set_program_name(${TARGET_NAME} "picogus-adlib")
     target_sources(${TARGET_NAME} PRIVATE sbplay.cpp)    
-    target_link_libraries(${TARGET_NAME} opl)
-    target_compile_definitions(${TARGET_NAME} PRIVATE
-        SOUND_OPL=1
-        USE_ALARM=1
-        USE_EMU8950_OPL=1        
-        EMU8950_ASM=1
-        # PICOW=1
-    )
-    pico_enable_stdio_uart(${TARGET_NAME} 1)
-    pico_enable_stdio_usb(${TARGET_NAME} 0)
-    pico_enable_stdio_semihosting(${TARGET_NAME} 0)
 endfunction()
 
 ################################################################################
-# Build MPU firmware
+# Build MPU-only firmware
 function(build_mpu TARGET_NAME MULTIFW)
     set(USB_JOYSTICK TRUE)
+    set(SOUND_MPU TRUE)
     config_target(${TARGET_NAME} ${MULTIFW})
     pico_set_program_name(${TARGET_NAME} "picogus-mpu401")
     target_compile_definitions(${TARGET_NAME} PRIVATE
-        SOUND_MPU=1
-    )
-    target_sources(${TARGET_NAME} PRIVATE
-        pico_pic.c
-        mpu401/mpu401.c
-        mpu401/midi.c
+        # Enable MPU-401 IRQ support only in this firmware
+        MPU_IRQ=1
+        # Larger buffer for sysex delay
+        MPU_ONLY=1
     )
     target_sources(${TARGET_NAME} PRIVATE mpuplay.cpp)
-    # Use USB stdio because UART is used by MIDI, but only if USB joysick is disabled
-    pico_enable_stdio_uart(${TARGET_NAME} 0)
-    if(USB_JOYSTICK)
-        pico_enable_stdio_usb(${TARGET_NAME} 0)
-    else()
-        pico_enable_stdio_usb(${TARGET_NAME} 1)
-    endif()
-    pico_enable_stdio_semihosting(${TARGET_NAME} 0)
 endfunction()
 
 ################################################################################
@@ -252,6 +267,7 @@ endfunction()
 function(build_tandy TARGET_NAME MULTIFW)
     set(USB_JOYSTICK TRUE)
     set(USB_MOUSE TRUE)
+    set(SOUND_MPU TRUE)
     config_target(${TARGET_NAME} ${MULTIFW})
     pico_set_program_name(${TARGET_NAME} "picogus-tandy")
     target_compile_definitions(${TARGET_NAME} PRIVATE
@@ -259,13 +275,9 @@ function(build_tandy TARGET_NAME MULTIFW)
         # SQUARE_FLOAT_OUTPUT=1
     )
     target_sources(${TARGET_NAME} PRIVATE
-        pico_pic.c
         square/square.cpp
     )
     target_sources(${TARGET_NAME} PRIVATE tandyplay.cpp)
-    pico_enable_stdio_uart(${TARGET_NAME} 1)
-    pico_enable_stdio_usb(${TARGET_NAME} 0)
-    pico_enable_stdio_semihosting(${TARGET_NAME} 0)
 endfunction()
 
 ################################################################################
@@ -273,19 +285,16 @@ endfunction()
 function(build_cms TARGET_NAME MULTIFW)
     set(USB_JOYSTICK TRUE)
     set(USB_MOUSE TRUE)
+    set(SOUND_MPU TRUE)
     config_target(${TARGET_NAME} ${MULTIFW})
     pico_set_program_name(${TARGET_NAME} "picogus-cms")
     target_compile_definitions(${TARGET_NAME} PRIVATE
         SOUND_CMS=1
     )
     target_sources(${TARGET_NAME} PRIVATE
-        pico_pic.c
         square/square.cpp
     )
     target_sources(${TARGET_NAME} PRIVATE cmsplay.cpp)
-    pico_enable_stdio_uart(${TARGET_NAME} 1)
-    pico_enable_stdio_usb(${TARGET_NAME} 0)
-    pico_enable_stdio_semihosting(${TARGET_NAME} 0)
 endfunction()
 
 ################################################################################
@@ -293,18 +302,32 @@ endfunction()
 function(build_usb TARGET_NAME MULTIFW)
     set(USB_JOYSTICK TRUE)
     set(USB_MOUSE TRUE)
+    set(SOUND_MPU TRUE)
     config_target(${TARGET_NAME} ${MULTIFW})
     pico_set_program_name(${TARGET_NAME} "picogus-usb")
     target_compile_definitions(${TARGET_NAME} PRIVATE
         USB_ONLY=1
     )
-    target_sources(${TARGET_NAME} PRIVATE
-        usbplay.cpp
-        pico_pic.c
+    target_sources(${TARGET_NAME} PRIVATE usbplay.cpp)
+endfunction()
+
+
+function(build_ne2k TARGET_NAME MULTIFW)
+    config_target(${TARGET_NAME} ${MULTIFW})
+    pico_set_program_name(${TARGET_NAME} "picogus-ne2k")
+    target_compile_definitions(${TARGET_NAME} PRIVATE
+       NE2000=1
+       PICOW=1
+       CYW43_CONFIG_FILE="cyw43_firmware.h"
+       CYW43_PIO_CLOCK_DIV_INT=3
     )
-    pico_enable_stdio_uart(${TARGET_NAME} 1)
-    pico_enable_stdio_usb(${TARGET_NAME} 0)
-    pico_enable_stdio_semihosting(${TARGET_NAME} 0)
+    target_sources(${TARGET_NAME} PRIVATE
+        ne2000play.cpp
+    )
+    target_link_libraries(
+        ${TARGET_NAME}
+        ne2000        
+    )
 endfunction()
 
 
@@ -391,7 +414,7 @@ if(PROJECT_TYPE STREQUAL "MULTIFW")
     pico_add_extra_outputs(bootloader)
     # set_linker_script(bootloader ${CMAKE_SOURCE_DIR}/multifw/bootloader.ld)
     target_include_directories(bootloader PRIVATE ${CMAKE_BINARY_DIR}/generated/multifw)
-    pico_enable_stdio_uart(bootloader 1)
+    pico_enable_stdio_uart(bootloader 0)
     pico_enable_stdio_usb(bootloader 0)
     pico_enable_stdio_semihosting(bootloader 0)
     add_dependencies(bootloader generate_flash_firmware_h)
@@ -433,6 +456,9 @@ elseif(PROJECT_TYPE STREQUAL "CMS")
 elseif(PROJECT_TYPE STREQUAL "USB")
     set(FW_TARGET pg-usb)
     build_usb(pg-usb FALSE)
+elseif(PROJECT_TYPE STREQUAL "NE2K")
+    set(FW_TARGET pg-ne2k)
+    build_ne2k(pg-ne2k FALSE)
 endif()
 
 ################################################################################

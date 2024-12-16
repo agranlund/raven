@@ -1,7 +1,19 @@
-/**
- * Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
+/*
+ *  Copyright (C) 2022-2024  Ian Scott
  *
- * SPDX-License-Identifier: BSD-3-Clause
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
 #include <stdio.h>
@@ -16,7 +28,6 @@
 
 #include "pico/stdlib.h"
 #include "pico/audio_i2s.h"
-#include "pico/flash.h"
 
 #include "opl.h"
 extern "C" void OPL_Pico_simple(int16_t *buffer, uint32_t nsamples);
@@ -25,10 +36,8 @@ extern "C" void OPL_Pico_PortWrite(opl_port_t, unsigned int);
 #ifdef SOUND_SB
 extern int16_t sbdsp_sample();
 #endif
-#if defined(SOUND_SB) || defined(USB_MOUSE)
-#ifdef USE_ALARM
+#if defined(SOUND_SB) || defined(USB_MOUSE) || defined(SOUND_MPU)
 #include "pico_pic.h"
-#endif
 #endif
 
 #include "clamp.h"
@@ -42,6 +51,12 @@ extern cms_buffer_t opl_buffer;
 #ifdef USB_MOUSE
 #include "mouse/8250uart.h"
 #include "mouse/sermouse.h"
+#endif
+
+#ifdef SOUND_MPU
+#include "flash_settings.h"
+extern Settings settings;
+#include "mpu401/export.h"
 #endif
 
 extern uint LED_PIN;
@@ -98,14 +113,12 @@ struct audio_buffer_pool *init_audio() {
 
 void play_adlib() {
     puts("starting core 1");
-    flash_safe_execute_core_init();
+    // flash_safe_execute_core_init();
     uint32_t start, end;
 
-#if defined(SOUND_SB) || defined(USB_MOUSE)
-#ifdef USE_ALARM
+#if defined(SOUND_SB) || defined(USB_MOUSE) || defined(SOUND_MPU)
     // Init PIC on this core so it handles timers
     PIC_Init();
-#endif
 #endif
 
 #ifdef USB_STACK
@@ -114,6 +127,10 @@ void play_adlib() {
 #endif
 
     clamp_setup();
+
+#ifdef SOUND_MPU
+    MPU401_Init(settings.MPU.delaySysex, settings.MPU.fakeAllNotesOff);
+#endif
 
     struct audio_buffer_pool *ap = init_audio();
 
@@ -153,6 +170,9 @@ void play_adlib() {
 
         // uart emulation task
         uartemu_core1_task();
+#endif
+#ifdef SOUND_MPU
+        send_midi_bytes(1);
 #endif
     }
 }

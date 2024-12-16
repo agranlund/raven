@@ -2,6 +2,7 @@
  *  Copyright (C) 2002-2013  The DOSBox Team
  *  Copyright (C) 2013-2014  bjt, elianda
  *  Copyright (C) 2015       ab0tj
+ *  Copyright (C) 2023-2024  Ian Scott
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -50,8 +51,13 @@ typedef int32_t Bits;
     the less likely it is to overrun when SysEx delay is enabled and large SysEx
     transfers are occurring. */
 //#define RAWBUF  14336
+#ifdef MPU_ONLY
 #define RAWBUF  65536
 #define RAWBUF_BITS  65535
+#else
+#define RAWBUF  16384
+#define RAWBUF_BITS  16383
+#endif // MPU_ONLY
 
 typedef struct ring_buffer {
     uint8_t buffer[RAWBUF];
@@ -126,19 +132,19 @@ static struct {
 //volatile Bitu MIDI_sysex_delaytime;
 
 /* HardMPU: Output a byte to the physical UART */
-void __force_inline static output_to_uart(Bit8u val)
+__force_inline static void output_to_uart(Bit8u val)
 {
     uart_write_blocking(uart0, &val, 1);
 }
 
 /* HardMPU: Wait for UART TX buffer to be empty */
-void __force_inline static wait_for_uart()
+__force_inline static void wait_for_uart()
 {
     uart_tx_wait_blocking(uart0);
 }
 
 /* HardMPU: Check UART TX status, returns 0 for ready */
-Bit8u __force_inline static uart_tx_status()
+__force_inline static Bit8u uart_tx_status()
 {
     return uart_is_writable(uart0) ? 0 : 1;
 }
@@ -246,19 +252,19 @@ void MIDI_RawOutByte(Bit8u data) {
     }
 }
 
-void send_midi_byte() { 
-    if (uart_tx_status()) return;   // can't send yet
+__force_inline static bool send_midi_byte() { 
+    if (uart_tx_status()) return false;   // can't send yet
     /* putchar('s'); */
     critical_section_enter_blocking(&midi_crit);
     if (midi_out_buff.head == midi_out_buff.tail) {
         critical_section_exit(&midi_crit);
-        return;   // nothing to send
+        return false;   // nothing to send
     }
     if (midi.sysex.start) {
         Bit32u passed_ticks = time_us_32() - midi.sysex.start;
         if (passed_ticks < midi.sysex.delay) { // still waiting for sysex delay
             critical_section_exit(&midi_crit);
-            return; // Don't send data yet
+            return false; // Don't send data yet
         }
     }
     Bit8u data = midi_out_buff.buffer[midi_out_buff.tail];
@@ -278,7 +284,7 @@ void send_midi_byte() {
             output_to_uart(data);
             if (midi.sysex.used<(SYSEX_SIZE-1)) midi.sysex.buf[midi.sysex.used++] = data;
             /* midi.sysex.buf[midi.sysex.used++] = data; */
-            return;
+            return true;
         } else {
             output_to_uart(0xf7);
             midi.sysex.buf[midi.sysex.used++] = 0xf7;
@@ -308,7 +314,7 @@ void send_midi_byte() {
                 }
                 midi.sysex.start = time_us_32();  // PicoGUS
             }
-            return;
+            return true;
             /*LOG(LOG_ALL,LOG_NORMAL)("Sysex message size %d",midi.sysex.used);*/ /* SOFTMPU */
             /*if (CaptureState & CAPTURE_MIDI) {
                 CAPTURE_AddMidi( true, midi.sysex.used-1, &midi.sysex.buf[1]);
@@ -322,12 +328,22 @@ void send_midi_byte() {
             midi.sysex.used=1;
             midi.sysex.buf[0]=0xf0;
             /* midi.sysex.usedbufs=0; */
-            return;
+            return true;
         }
     }
     
     output_to_uart(data);   // not sysex
+    return true;
 }
+
+void send_midi_bytes(int maxbytes) {
+    for(int i = 0; i < maxbytes; ++i) {
+        if (!send_midi_byte()) {
+            break;
+        }
+    }
+}
+
 
 bool MIDI_Available(void)  {
     return midi.available;
