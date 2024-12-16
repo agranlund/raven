@@ -1,8 +1,31 @@
-## Support software:
-
-
-
 
 ## Subtrees:
-sw/rom/emutos		: https://github.com/emutos/emutos
-sw/isa/drivers/picogus	: https://github.com/polpo/picogus
+sw/rom/emutos           : https://github.com/emutos/emutos master
+sw/isa/drivers/picogus  : https://github.com/polpo/picogus main
+
+
+## Compilers:
+rom/mon                     : m68k-atari-mintelf-gcc
+rom/srec                    : m68k-atari-mintelf-gcc
+rom/emutos                  : m68k-atari-mint-gcc
+
+rvbios                      : pureC
+rvnova                      : pureC
+tools/cache                 : pureC
+tools/eiffel                : pureC
+tools/fpu_emu               : m68k-atari-mint-gcc
+tools/fpu_off               : pureC
+tools/patch_xc              : pureC
+tools/raven.cpx             : pureC
+tools/resetnvm              : pureC
+tools/thingpal              : pureC
+
+isa/isa_bios                : m68k-atari-mint-gcc (1)
+isa/drivers/gus             : m68k-atari-mint-gcc (1)
+isa/drivers/picogus         : m68k-atari-mint-gcc
+isa/drivers/ne2000/ethernec : turboC (2)
+
+
+(1) todo: make pureC + GCC compatible
+(2) using existing binaries, not compiling from source.
+    to be replaced by own driver at some point.
