@@ -1,6 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+20241216
+  Updated pgusinit from latest v2.2.0 sources
+
 20241215
   Improved x86 bios emulation, S3 86C801 card now works.
 
