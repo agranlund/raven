@@ -1,4 +1,23 @@
+/*
+ *  Copyright (C) 2022-2024  Ian Scott
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+
 #include <stdio.h>
+#include <string.h>
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
 #include "hardware/adc.h"
@@ -88,6 +107,15 @@ static uint8_t cms_detect = 0xFF;
 cms_buffer_t cms_buffer = { {0}, 0, 0 };
 #endif
 
+
+#ifdef NE2000
+extern "C" {
+#include "ne2000/ne2000.h"
+}
+void play_ne2000(void);
+#endif
+
+
 #ifdef USB_JOYSTICK
 #include "usb_hid/joy.h"
 extern "C" joystate_struct_t joystate_struct;
@@ -102,11 +130,12 @@ uint8_t joystate_bin;
 void play_usb(void);
 #endif
 
+
 // PicoGUS control and data ports
 static bool control_active = false;
 static uint8_t sel_reg = 0;
-static uint16_t cur_data = 0;
 static uint32_t cur_read = 0;
+static uint32_t cur_write = 0;
 static bool queueSaveSettings = false;
 static bool queueReboot = false;
 
@@ -161,6 +190,20 @@ __force_inline void select_picogus(uint8_t value) {
     case MODE_MOUSERATE:
     case MODE_MOUSESEN:
         break;
+    case MODE_NE2KPORT:
+        basePort_low = 0;
+        break;
+    case MODE_WIFISSID:
+        memset(settings.WiFi.ssid, 0, sizeof(settings.WiFi.ssid));
+        cur_write = 0;
+        break;
+    case MODE_WIFIPASS:
+        memset(settings.WiFi.password, 0, sizeof(settings.WiFi.password));
+        cur_write = 0;
+        break;
+    case MODE_WIFIAPPLY:
+    case MODE_WIFISTAT:
+        break;
     case MODE_SAVE: // Select save settings register
     case MODE_REBOOT: // Select reboot register
     case MODE_DEFAULTS: // Select reset to defaults register
@@ -196,28 +239,28 @@ __force_inline void write_picogus_low(uint8_t value) {
 __force_inline void write_picogus_high(uint8_t value) {
     switch (sel_reg) {
     case MODE_GUSPORT: // GUS Base port
-        settings.GUS.basePort = (value && basePort_low) ? ((value << 8) | (basePort_low & 0xFF)) : 0xFFFF;
+        settings.GUS.basePort = (value || basePort_low) ? ((value << 8) | basePort_low) : 0xFFFF;
 #ifdef SOUND_GUS
         gus_port_test = settings.GUS.basePort >> 4 | 0x10;
 #endif
         break;
     case MODE_OPLPORT: // Adlib Base port
-        settings.SB.oplBasePort = (value && basePort_low) ? ((value << 8) | (basePort_low & 0xFF)) : 0xFFFF;
+        settings.SB.oplBasePort = (value || basePort_low) ? ((value << 8) | basePort_low) : 0xFFFF;
         break;
     case MODE_SBPORT: // SB Base port
-        settings.SB.basePort = (value && basePort_low) ? ((value << 8) | (basePort_low & 0xFF)) : 0xFFFF;
+        settings.SB.basePort = (value || basePort_low) ? ((value << 8) | basePort_low) : 0xFFFF;
 #ifdef SOUND_SB
         sb_port_test = settings.SB.basePort >> 4;
 #endif
         break;
     case MODE_MPUPORT: // MPU Base port
-        settings.MPU.basePort = (value && basePort_low) ? ((value << 8) | (basePort_low & 0xFF)) : 0xFFFF;
+        settings.MPU.basePort = (value || basePort_low) ? ((value << 8) | basePort_low) : 0xFFFF;
         break;
     case MODE_TANDYPORT: // Tandy Base port
-        settings.Tandy.basePort = (value && basePort_low) ? ((value << 8) | (basePort_low & 0xFF)) : 0xFFFF;
+        settings.Tandy.basePort = (value || basePort_low) ? ((value << 8) | basePort_low) : 0xFFFF;
         break;
     case MODE_CMSPORT: // CMS Base port
-        settings.CMS.basePort = (value && basePort_low) ? ((value << 8) | (basePort_low & 0xFF)) : 0xFFFF;
+        settings.CMS.basePort = (value || basePort_low) ? ((value << 8) | basePort_low) : 0xFFFF;
         break;
     case MODE_JOYEN: // enable joystick
         settings.Joy.basePort = value ? 0x201u : 0xffff;
@@ -263,7 +306,7 @@ __force_inline void write_picogus_high(uint8_t value) {
         settings.SB.oplSpeedSensitive = value;
         break;
     case MODE_MOUSEPORT:  // USB Mouse port (0 - disabled)
-        settings.Mouse.basePort = (value && basePort_low) ? ((value << 8) | (basePort_low & 0xFF)) : 0xFFFF;
+        settings.Mouse.basePort = (value || basePort_low) ? ((value << 8) | basePort_low) : 0xFFFF;
         break;
     case MODE_MOUSEPROTO:  // USB Mouse protocol
         settings.Mouse.protocol = value;
@@ -281,6 +324,27 @@ __force_inline void write_picogus_high(uint8_t value) {
         settings.Mouse.sensitivity = (value << 8) | (mouseSensitivity_low & 0xFF);
 #ifdef USB_MOUSE
         sermouse_set_sensitivity(settings.Mouse.sensitivity);
+#endif
+        break;
+    case MODE_NE2KPORT: // NE2000 Base port
+        settings.NE2K.basePort = (value || basePort_low) ? ((value << 8) | basePort_low) : 0xFFFF;
+        break;
+    case MODE_WIFISSID:
+        settings.WiFi.ssid[cur_write++] = value;
+        break;
+    case MODE_WIFIPASS:
+        settings.WiFi.password[cur_write++] = value;
+        /* printf("%s\n", settings.WiFi.password); */
+        break;
+    case MODE_WIFIAPPLY:
+        printf("Applying wifi settings: %s %s\n", settings.WiFi.ssid, settings.WiFi.password);
+#ifdef PICOW
+        PG_Wifi_Connect(settings.WiFi.ssid, settings.WiFi.password);
+#endif
+        break;
+    case MODE_WIFISTAT:
+#ifdef PICOW
+        multicore_fifo_push_blocking(FIFO_WIFI_STATUS);
 #endif
         break;
     // For multifw
@@ -324,6 +388,8 @@ __force_inline uint8_t read_picogus_low(void) {
         return settings.Mouse.basePort == 0xFFFF ? 0 : (settings.Mouse.basePort & 0xFF);
     case MODE_MOUSESEN:  // USB Mouse Sensitivity (8.8 fixedpoint)
         return settings.Mouse.sensitivity & 0xFF;
+    case MODE_NE2KPORT:  // NE2000 Base port (0 - disabled)
+        return settings.NE2K.basePort == 0xFFFF ? 0 : (settings.NE2K.basePort & 0xFF);
     default:
         return 0x0;
     }
@@ -380,6 +446,21 @@ __force_inline uint8_t read_picogus_high(void) {
         return settings.Mouse.reportRate;
     case MODE_MOUSESEN:  // USB Mouse Sensitivity (8.8 fixedpoint)
         return settings.Mouse.sensitivity >> 8;
+    case MODE_NE2KPORT: // NE2000 Base port
+        return settings.NE2K.basePort == 0xFFFF ? 0 : (settings.NE2K.basePort >> 8);
+    /*
+    case MODE_WIFISSID:
+        break;
+    case MODE_WIFIPASS:
+        break;
+    */
+    case MODE_WIFISTAT:
+#ifdef PICOW
+        return PG_Wifi_ReadStatusStr();
+#else
+        return 0;
+#endif
+        break;
     case MODE_HWTYPE: // Hardware version
         return BOARD_TYPE;
     case MODE_FLASH:
@@ -406,6 +487,8 @@ void processSettings(void) {
     settings.startupMode = MPU_MODE;
 #elif defined(USB_ONLY)
     settings.startupMode = USB_MODE;
+#elif defined(NE2000)
+    settings.startupMode = NE2000_MODE;
 #else
     settings.startupMode = INVALID_MODE;
 #endif
@@ -557,6 +640,12 @@ __force_inline void handle_iow(void) {
         uartemu_write(port & 7, iow_read & 0xFF);
     } else // if follows down below
 #endif // USB_MOUSE
+#ifdef NE2000
+    if((port & ~0x1F) == settings.NE2K.basePort) {
+        pio_sm_put(pio0, IOW_PIO_SM, IO_WAIT);
+        PG_NE2000_Write(port & 0x1f, iow_read & 0xFF);        
+    } else // if follows down below
+#endif
     // PicoGUS control
     if (port == CONTROL_PORT) {
         pio_sm_put(pio0, IOW_PIO_SM, IO_WAIT);
@@ -680,6 +769,13 @@ __force_inline void handle_ior(void) {
         pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | MPU401_ReadStatus());
     } else // if follows down below
 #endif
+#ifdef NE2000
+    if((port & ~0x1F) == settings.NE2K.basePort) {
+        pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
+        pio_sm_put(pio0, IOR_PIO_SM, IOR_SET_VALUE | PG_NE2000_Read(port & 0x1f));
+        return;
+    }
+#endif
 #ifdef USB_JOYSTICK
     if (port == settings.Joy.basePort) {
         pio_sm_put(pio0, IOR_PIO_SM, IO_WAIT);
@@ -747,14 +843,10 @@ void ior_isr(void) {
 
 void err_blink(void) {
     for (;;) {
-        gpio_xor_mask(LED_PIN);
+        //gpio_xor_mask(LED_PIN);//need to abscrat  led functions out to handle chipdown vs  picow
         busy_wait_ms(100);
     }
 }
-
-#ifndef USE_ALARM
-#include "pico_pic.h"
-#endif
 
 constexpr uint32_t rp2_clock = RP2_CLOCK_SPEED;
 constexpr float psram_clkdiv = (float)rp2_clock / 200000.0;
@@ -949,6 +1041,14 @@ int main()
     multicore_launch_core1(&play_cms);
 #endif // SOUND_CMS
 
+#ifdef NE2000
+extern void PIC_ActivateIRQ(void);
+extern void PIC_DeActivateIRQ(void);
+
+    puts("Creating NE2000");    
+    multicore_launch_core1(&play_ne2000);
+#endif
+
 #ifdef USB_JOYSTICK
     // Init joystick as centered with no buttons pressed
     joystate_struct = {127, 127, 127, 127, 0xf};
@@ -1022,10 +1122,6 @@ int main()
 
     gpio_xor_mask(LED_PIN);
 
-#ifndef USE_ALARM
-    PIC_Init();
-#endif
-
     processSettings();
 
     for (;;) {
@@ -1037,9 +1133,6 @@ int main()
         if (ior_has_data()) {
             handle_ior();
         }
-#endif
-#ifndef USE_ALARM
-        PIC_HandleEvents();
 #endif
 #ifdef POLLING_DMA
         process_dma();

@@ -2,6 +2,12 @@
 
 cmake_minimum_required(VERSION 3.13)
 
+set(PICO_BOARD_HEADER_DIRS ${CMAKE_CURRENT_LIST_DIR})
+if(NOT PICO_BOARD)
+    set(PICO_BOARD "picogus2")
+    message("PICO_BOARD not set, defaulting to ${PROJECT_TYPE}")
+endif()
+set(PICO_COPY_TO_RAM 1)
 
 # Initialise pico_sdk from installed location
 # (note this can come from environment, CMake cache etc)
@@ -13,7 +19,7 @@ cmake_minimum_required(VERSION 3.13)
 include(pico_sdk_import.cmake)
 
 project(picogus
-    VERSION "2.1.0"
+    VERSION "2.2.0"
     LANGUAGES C CXX ASM
 )
 
@@ -21,10 +27,6 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
 include(pico_extras_import.cmake)
-
-set(PICO_BOARD_HEADER_DIRS ${CMAKE_CURRENT_LIST_DIR})
-set(PICO_BOARD picogus2)
-set(PICO_COPY_TO_RAM 1)
 
 # Tell the Pico SDK to use our local tinyusb instead of the one included in the SDK
 # This is needed to support tusb_xinput
@@ -76,7 +78,6 @@ function(config_target TARGET_NAME MULTIFW)
         PICO_AUDIO_I2S_DATA_PIN=16
         PICO_AUDIO_I2S_CLOCK_PIN_BASE=17
         PICO_AUDIO_I2S_PIO=1
-        USE_ALARM=1
         M62429_PIO=1
     )
 
@@ -176,7 +177,7 @@ endfunction()
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tusb_xinput)
 add_subdirectory(rp2040-psram)
 add_subdirectory(opl)
-
+add_subdirectory(ne2000)
 
 ################################################################################
 # Build GUS firmware
@@ -311,6 +312,25 @@ function(build_usb TARGET_NAME MULTIFW)
 endfunction()
 
 
+function(build_ne2k TARGET_NAME MULTIFW)
+    config_target(${TARGET_NAME} ${MULTIFW})
+    pico_set_program_name(${TARGET_NAME} "picogus-ne2k")
+    target_compile_definitions(${TARGET_NAME} PRIVATE
+       NE2000=1
+       PICOW=1
+       CYW43_CONFIG_FILE="cyw43_firmware.h"
+       CYW43_PIO_CLOCK_DIV_INT=3
+    )
+    target_sources(${TARGET_NAME} PRIVATE
+        ne2000play.cpp
+    )
+    target_link_libraries(
+        ${TARGET_NAME}
+        ne2000        
+    )
+endfunction()
+
+
 ################################################################################
 # Build "multifw" - all firmwares in one UF2
 if(PROJECT_TYPE STREQUAL "MULTIFW")
@@ -394,7 +414,7 @@ if(PROJECT_TYPE STREQUAL "MULTIFW")
     pico_add_extra_outputs(bootloader)
     # set_linker_script(bootloader ${CMAKE_SOURCE_DIR}/multifw/bootloader.ld)
     target_include_directories(bootloader PRIVATE ${CMAKE_BINARY_DIR}/generated/multifw)
-    pico_enable_stdio_uart(bootloader 1)
+    pico_enable_stdio_uart(bootloader 0)
     pico_enable_stdio_usb(bootloader 0)
     pico_enable_stdio_semihosting(bootloader 0)
     add_dependencies(bootloader generate_flash_firmware_h)
@@ -436,6 +456,9 @@ elseif(PROJECT_TYPE STREQUAL "CMS")
 elseif(PROJECT_TYPE STREQUAL "USB")
     set(FW_TARGET pg-usb)
     build_usb(pg-usb FALSE)
+elseif(PROJECT_TYPE STREQUAL "NE2K")
+    set(FW_TARGET pg-ne2k)
+    build_ne2k(pg-ne2k FALSE)
 endif()
 
 ################################################################################
