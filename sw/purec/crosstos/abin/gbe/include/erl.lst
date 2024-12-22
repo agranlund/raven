@@ -1,6 +1,0 @@
-' last line an error occured at (compiled only)
-' this is used with the advanced debugging options ($Tx)
-> FUNCTION erl !v1.00
-  $F%
-  RETURN LONG{HIMEM+80}
-ENDFUNC

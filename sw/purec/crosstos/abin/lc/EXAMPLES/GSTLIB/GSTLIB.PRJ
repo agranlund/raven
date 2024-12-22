@@ -1,7 +1,0 @@
-GSTLIB.TTP
-.C	[-b4 -r6 -v -w -d0 -m0 -rs -cw -fm -j135i -Oloop]
-.S	[-m0]
-=
-CS.O
-GSTLIB.C
-LCS.LIB

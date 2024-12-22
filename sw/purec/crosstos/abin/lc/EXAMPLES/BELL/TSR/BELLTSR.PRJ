@@ -1,6 +1,0 @@
-BELL.PRG
-.C	[-v -w -ci -cs -cm -d2 -m0 -rr -fm -i..\H\ -Oloop]
-.S	[-m0]
-=
-BELL.C	(..\H\TSR.H)
-LCSR.LIB

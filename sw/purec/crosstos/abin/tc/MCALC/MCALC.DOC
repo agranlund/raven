@@ -1,9 +1,0 @@
-Anmerkungen zu MicroCalc:
-
-MCALC wurde von Turbo C unter MSDOS auf den Atari ST portiert.
-Es ist als Beispiel fr eigene Programmentwicklungen bzw. fr
-das Portieren unter MSDOS vorhandener Programme gedacht.
-Optimierungen wurden nicht vorgenommen, die Bildschirmausgabe
-ist mit Sicherheit verbesserungswrdig.
-
-

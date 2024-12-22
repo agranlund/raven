@@ -1,7 +1,0 @@
-' this will flush the cpu and data cache on all 68K CPUs and the coldfire
-' it first tries ssystem(), if that don't work it does it the hard way
-> PROCEDURE flush_cache !v1.00
-  LOCAL asm%
-  asm%=LONG{HIMEM+28}
-  ~C:asm%()
-RETURN
