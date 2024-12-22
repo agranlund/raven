@@ -1,0 +1,26 @@
+;************************************************************************
+;*                                                                      *
+;*       Projektdatei fÅr 'fehlerhaftes' GEM-Beispielprogramm zur       *
+;*       Demonstration von Turbo Debugger.                              *
+;*                                                                      *
+;*       Copyright (c) 1989 Borland International.                      *
+;*       All rights reserved.                                           *
+;*                                                                      *
+;************************************************************************
+
+pdgemdb.prg
+
+.C [ -Y ]
+.L [ -Y -L ]
+
+=
+
+pcstart.o
+
+pdgemdb.c
+
+pcframe.c
+
+pcstdlib.lib
+pcgemlib.lib
+pctoslib.lib

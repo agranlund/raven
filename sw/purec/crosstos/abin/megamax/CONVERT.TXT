@@ -1,0 +1,39 @@
+
+**** Information for converting between previous Megamax C versions and
+****   the new Laser C
+
+
+The C compiler used by Megamax C versions 1.0 and 1.1 (pre-Laser C) produced
+code that used PC relative addressing. Globals, data and static variables were
+referenced using the address register A4.  The Laser C compiler now produces
+code using Absolute addressing for all function calls and global, data and
+static references. 
+
+The Object file formats used by Megamax C and Laser C are therefore not
+compatible.  All code will have to be recompiled with the new compiler 
+before being linked with code produced by the new compiler. Previous versions
+of the compiler and linker should work under the new Laser Shell.
+
+Because variables are accessed absolutely there is no need for register A4 and
+A5. Thus Laser C allows two more registers for pointer register variables.
+
+All "overlay" statements in the source code will have to be removed. This
+is because overlays are not needed in Laser C.
+
+The parameters to the function objc_edit() have changed.  See page 256 of the
+Laser C manual for the correct usage.
+
+Various routines in osbind.h have casts that return values of types
+other than long. The cast can be removed from osbind.h if your code
+depends on long's being returned.
+
+abs() is no longer a macro.  Three new functions have been created:
+abs(), labs() and dabs() (for int, long and double parameters respectively).
+
+A change in a variable's storage class specifier is now considered to
+be an error. e.g.:
+	extern int i;   <-- error: Redeclaration of i
+	static int i;
+This means that implicit declarations won't work for functions later 
+declared to be static.  Declare static functions before using them in
+this case.

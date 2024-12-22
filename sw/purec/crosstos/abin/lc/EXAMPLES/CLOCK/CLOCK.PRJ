@@ -1,0 +1,9 @@
+CLOCK.ACC
+.C	[-b4 -r6 -w -d2 -m0 -rr -fm]
+.S	[-m0]
+.L	[ADDSYM]
+=
+CSRACC.O
+CLOCK.C	(RCLOCK.C,RCLOCK.H)
+LCGSR.LIB
+LCSR.LIB

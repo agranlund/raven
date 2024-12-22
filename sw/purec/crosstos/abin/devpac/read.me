@@ -1,0 +1,77 @@
+Devpac 3.10 - 24 June  1993
+===========================
+
+This file contains information on improvements to
+Devpac since the manuals were printed.
+
+New features of version 3.10
+============================
+Devpac - the editor
+-------------------
+
+Shift-Alt-A is now a keyboard short cut for the Control...
+item on the options menu.
+
+Gen - the assembler
+-------------------
+	OPT LIST
+and 
+	OPT NOLIST
+are new options that are equivalent to the corresponding
+directives and may be used on the command line.
+
+Finishing the definition of a label with :: will now cause
+that label to be exported as well as defined. Thus
+
+fred::
+
+is equivalent to
+
+fred:
+	xdef	fred
+
+
+
+Features added in version 3.00
+==============================
+
+Gen - the assembler
+-------------------
+
+The assembler now accepts directory names in the 
+"Output to" and -O options. The same name as the
+main source file is used with an appropriate
+extension.
+
+
+Clink - the Lattice linker
+--------------------------
+The following outpt directives have been added for
+use with MultiTOS: SUPER, GLOBAL, SHARED and SUPERVISOR.
+These set the appropriate bit in the progam header.
+
+Mistakes in the first edition manual
+------------------------------------
+
+p115 last word on the page should be "increment" not
+     "decrement"
+
+p141 Clr-Home key should be used rather than Alt-X
+     to clear Mon's dialog buffer.
+
+p147 last sentence should say "odd" not "even"
+
+p253 the m_xalloc is $44 not $48
+
+p262 kbshift stack adjustment should be 4 not 44
+
+
+HiSoft,
+The Old School
+Greenfield
+Bedford
+MK45 5DE
+ENGLAND.
+
+Phone:	+44 525 718181
+Fax:	+44 525 713716

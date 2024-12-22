@@ -1,0 +1,154 @@
+
+**** Corrections to the Manual
+Changes as of 3/11/88
+
+1. SHELL
+--------
+    The shell searches \MEGAMAX, A:\, and A:\MEGAMAX in that order for 
+    both the .RSC and .CFG files.
+
+    ^C while output is occuring terminates to the desktop as 
+    opposed to the shell. Use ^delete to return to the shell.
+        
+    $HOME environment variable - sets the inital default directory for 
+    shell. 
+
+    Screen location of opened windows are saved when the config file is
+    written.  Windows revert to their original location when they are
+    closed (except for stdio). 
+
+    ^S and ^Q are now functional in the stdio window.
+
+    Windows may be topped from the WINDOW menu bar now.
+
+    Executing commands in the stdio window does not need an extension to be
+    specified.  For example, "cat hello.c" is the same as "cat.ttp hello.c".
+
+    Pg 32. "Read configuration" is documented as only displaying .CFG files, 
+    but instead it displays all files.
+            
+    Pg 45, 47. The pictures have wrong file names for initialization code
+    and the C system library.  Use "INIT.O" and "LIBC.A" as documented in
+    the text.
+
+    Pg 52. Menu Summary - "Flush Resident Programs" should be described as 
+    flushing programs that have been made RAM resident in the shell.
+
+2. LIBRARY
+----------
+    Pg 497. Function Pexec().  The line in the middle of the page which
+    reads:
+
+        "4    just go      pathname = address of the base page."
+
+    should instead read:
+
+        "4    just go      commandline = address of the base page."
+
+    Pg 110, 134. abs() is no longer a macro.  You should now use labs() for
+    longs, dabs() for floats, and abs() for ints.
+
+    pg 157. #include <string.h> should be <strings.h>
+
+3. SYMBOLIC DEBUGGER LIBRARY
+----------------------------
+    There is a Symbolic debugger library included with this version of the
+    Laser Shell. The debugger is described in DEBUGGER.TXT
+
+4. COMPILER
+-----------
+    There is a new option -X which outputs information used by the debugger.
+    This information is  in the form of a call to "_dbugin" at the beginning of
+    each function and a call to "_dbugout" at the end of each function.
+    The $XLIB environment variable is the path to the debugger lib for the -X 
+    option to cc.
+
+    A new option -W has been added to the compiler which will supress all
+    warning messages.
+
+    sizeof() returns an unsigned or an unsigned long if the size of the array 
+    is too great to fit in an unsigned. The compiler will generate a warn-
+    ing when sizeof returns an unsigned long.
+    
+
+5. LINKER
+---------
+    There is a new option -X which sets the -M and -G flags to true.  This
+    is the debugger.  The -M option now writes a Map file to a file called
+    "MAPFILE" on the current drive and directory. It used to write the Map
+    information to stdout.
+
+6. CC
+-----
+    There is a new option -X which is passed to the compiler and the linker.
+    The -X option to cc will also pass the pathname given in the environment
+    variable $XLIB to the linker.  $XLIB should contain the pathname to the
+    Symbolic Debugger Library (see the text file DEBUGGER.TXT included on this
+    disk).  It is passed to the linker after all user supplied file names
+    and before the C System Library.  For example:
+
+    Given the environment variable settings:
+
+        $CINCLUDE=\megamax\headers
+        $CINIT=\megamax\init.o
+        $CLIB=\megamax\libc.a
+        $XLIB=\megamax\libx.a
+
+    The command line:
+
+        cc -x a.c b.c
+
+    is equivalent to the command lines:
+
+        ccom -x -I\megamax\headers a.c
+        ccom -x -I\megamax\headers b.c
+        ld -x \megamax\init.o a.o b.o \megamax\libx.a \megamax\libc.a
+
+7. RCP
+------
+    The Resource Construction Program can now create resources up to 64k 
+    instead of 32k.
+
+    There is now a maximum of 2000 objects in a tree.
+
+8. AR
+-----
+    A ranlib is done automatically upon creation of an archive.  The L key
+    is still supported.  The LV combination will now print the name of each
+    archive component as it is examined for global names.  Any component
+    which is not either a Laser object or a DRI object is ignored.
+
+    The T key (table of contents) now allows file names to be supplied
+    such that only matching file names in the archive are printed.
+
+9. MISCELLANEOUS DOCUMENTATION CHANGES
+---------------------------------------
+    Pg 94.  All forward slashes (/) in the examples should be backslashes (\).
+
+    Pg 443. The example program for Fdatime() contains an incorrect
+    version of the function fatal().  The code should read:
+
+    fatal(args)
+        char    *args;
+    {
+        _fprintf(stdout, args, &args+1);
+        printf("\n");
+        puts("Press RETURN to exit...");
+        getchar();
+        exit(1);
+    }
+
+
+10. GENERAL
+-----------
+    All programs will now print version information when given a -V
+    option with no other options. e.g.
+
+        ccom -v
+
+    prints:
+
+        Laser C: Compiler, version 1.01
+        Copyright (c) 1988 by Megamax, Inc.  All rights reserved.
+
+

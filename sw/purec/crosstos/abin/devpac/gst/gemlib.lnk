@@ -1,0 +1,8 @@
+* control file to use GEMLIB
+* to link file test.bin use command line of
+* test -wgemlib
+input *
+section text
+section data
+bss bss
+library gemlib

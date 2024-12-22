@@ -1,0 +1,29 @@
+' built in cookie routine
+> FUNCTION get_cookie(id%,VAR result%) !v1.00
+  $F%  !return: false=not found/true=found
+  LOCAL asm%
+  asm%=LONG{HIMEM+24}
+  RETURN C:asm%(L:id%,L:V:result%)
+ENDFUNC
+' the library start-up code has already fetched these cookies
+' these can be used to access the stored information
+> FUNCTION cpu_cookie !v1.00
+  $F%
+  RETURN LONG{HIMEM+32}
+ENDFUNC
+> FUNCTION fpu_cookie !v1.00
+  $F%
+  RETURN LONG{HIMEM+36}
+ENDFUNC
+> FUNCTION mch_cookie !v1.00
+  $F%
+  RETURN LONG{HIMEM+40}
+ENDFUNC
+> FUNCTION snd_cookie !v1.00
+  $F%
+  RETURN LONG{HIMEM+44}
+ENDFUNC
+> FUNCTION cf_cookie !v1.00
+  $F%
+  RETURN LONG{HIMEM+48}
+ENDFUNC

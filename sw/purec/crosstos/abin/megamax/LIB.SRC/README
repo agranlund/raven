@@ -1,0 +1,18 @@
+This disk contains the source code for libc.a in the following
+directories:
+	EXTRA, AES, UNIX, VDI, VDI2, ALINE
+init.c is the source for the initialization code.
+
+When compiling, pass the two flags:
+	-DATARI -DNOVOID 
+to the compiler.
+
+Files under GEMDOS are limited to 8 characters.  Some files in libc.a
+are longer.  To replace one of theses files you will have to remove
+it then add it (rather than using the more direct replace ('r') meth-
+od).  For instance:
+	ar d initargcv.a libc.a
+	ar r initargc.o libc.a
+Also note that the original files in libc.a all end with '.a' rather
+than '.o'.  These anomolies are a result of the method used to create
+libc.a.

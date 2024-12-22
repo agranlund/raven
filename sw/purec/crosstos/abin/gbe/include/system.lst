@@ -1,0 +1,19 @@
+' the library start-up code already called these OS functions
+' these functions can be used to fetch the information stored by the library
+> FUNCTION getrez !v1.00
+  $F%
+  RETURN WORD{HIMEM+84}
+ENDFUNC
+' the library start-up creates a DTA for you, this returns its address
+> FUNCTION fgetdta !v1.00
+  $F%
+  RETURN LONG{HIMEM+20}
+ENDFUNC
+> FUNCTION graf_handle(VAR cw&,ch&,bw&,bh&) !v1.00
+  $F%
+  cw&=WORD{HIMEM+88}
+  ch&=WORD{HIMEM+90}
+  bw&=WORD{HIMEM+92}
+  bh&=WORD{HIMEM+94}
+  RETURN WORD{HIMEM+86}
+ENDFUNC

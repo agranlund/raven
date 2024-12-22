@@ -1,0 +1,577 @@
+
+
+The Laser Symbolic Debugger Library
+Copyright (c) 1988 by Megamax, Inc.
+
+
+The Laser Symbolic Debugger is a library that is linked with your program.
+With the debugger breakpoints can be set, functions can be traced and global
+variables can be printed.
+
+
+- Using the Debugger
+
+To use the debugger:
+
+ 1. Compile those files you want to debug with the -X option.
+ 2. Link your program with the -X option.
+ 3. Run your program.
+
+The debugger is a part of your program.  It will read the MAPFILE produced
+by the linker.  If a file named CMDFILE is present the debugger will load
+and execute the commands in that file.  If it could not read the MAPFILE
+file the debugger will say so.  The debugger will then display the caret.
+This allows the user to type commands to the debugger.  At this level the
+user can print variables, dump memory, set trace and break points and perform
+other useful commands.  The debugger uses an alternate screen (this can be
+turned off if there is not enough memory) for interaction with the user.
+Output from the debugger can be sent to a file for later examination.
+
+
+- Sample Session
+
+This is the program we will be using:
+
+int i;
+unsigned int j;
+char *p;
+
+func1(param1, param2)
+int param1, param2;
+{
+}
+
+main()
+{
+    p = "hello world\n";
+    i = -10;
+    j = 0xffff;
+    func1(1,3);
+}
+
+After compiling and linking the sample program, execute the program. 
+The debugger will be entered.  After loading the MAPFILE you will see:
+
+Laser Debug v2.0 Copyright 1988 by Megamax, Inc.
+Loading MAPFILE
+>
+
+Type in "list var" and hit the return key.  The debugger will list all 
+the global and static variables and their addresses that are in your 
+program.  It will list only those variables that were declared in your
+source code and not in the system library.  To stop and start the debugger
+from printing to the screen hit any key.  ^C will return to the > prompt.
+The tab key will switch the screen back and forth between the programs main 
+screen and the debugger's screen.
+
+>list var
+    i  : 0x030040
+    j  : 0x030042
+    p  : 0x030044
+>
+
+Now type in "break func1" (only the first 7 characters are checked) and
+hit the return key.  This has set a breakpoint at the entry and exit of
+the function "func1".  Then type "go" and hit return.  The debugger will
+set the screen back to your program and continue execution of your program.
+When the function "func1" is entered the debugger will be called, the screen
+will revert back to the debuggers screen and you will see this:
+
+HELLO.C:func1(param1 = 1, param2 = 3)
+Break at function: func1
+>
+
+"param1" and "param2" are the parameters passed from "main".  You can now
+print out global and static variables in your program.  Below the value of
+"i" is printed:
+
+>mprint i int
+-10
+
+"mprint" printed the variable "i" as an "int".  All variables have a default
+of unsigned. 
+
+Since the debugger has no type information available there is a command to
+set the type of a variable so you don't have to type it in every time.  The
+command is called "type" and it takes a variable name and the name of the
+type.  After a "type" command you can use the "print" command which will use
+whatever type has been set for the variable.
+
+>type j unsigned
+>print j
+0xffff
+>type p string
+>print p
+hello world
+
+"j"'s type was set to "unsigned".  "p"'s type was set to "string" which is
+the same as a pointer to "char".
+
+The command "mprint" differs from "print" in that "mprint" can print any
+part of memory as any type.  "print" uses the type information that was
+set using the "type" command.
+
+>go
+Break at end of function: func1()
+>go
+Program Terminated
+>exit
+
+After "func1" is finished the debugger is called again. After "go" is typed
+in the program finishes and the debugger is called once again. Typing "exit"
+will leave the program and the debugger.
+
+
+- Command Description
+
+This section describes the built in commands of the debugger. But first a
+definition of terms:
+
+<symbol>    A name of a variable or function defined in the 
+             MAPFILE that was loaded at the start up of the debugger.
+<type>      A name of a type.
+<file>      A pathname for a file.
+<expr>      An expression.  An expression must not contain any spaces.
+<address>   An expression.
+
+The syntax of an expression is:
+<expr> -> <expr> <operator> <expr>
+<expr> -> & <symbol>
+<expr> -> decimal integer
+<expr> -> $ hex integer
+<operator> -> +, -, /, *, %, &, |, <, >, ^
+
+The & returns the address of a symbol. The operators perform the same as
+in C, with the exception of > and < which perform shift right and left 
+respectively.
+
+
+- The Alternate Screen and File
+
+The debugger will send, by default, all its output to an alternate screen
+which it initializes when it starts up.  This screen will take up 32,000 bytes 
+of RAM.  The "screenoff" command turns off the alternate screen if you are 
+short on memory.  "screenoff" can only be executed from the first command
+file that is loaded on startup.
+
+The "altfile" command will send the output to a file that is written to disk. 
+
+
+- Command Files
+
+Command files can contain any number of commands that will be executed 
+`batch' style.  All commands are available, although "go" and "g" have
+no effect.  Lines beginning with a # in the first column are ignored and
+can be used as comments.  Command files can be loaded at any time in the
+debugger with the "exec" command.
+
+
+- Printing Variables
+
+The "print" and "mprint" commands will print the value of global  and static
+variables. It is also possible to print local variables, although that can not
+be done symbolically. 
+
+Each variable has a type associated with it.  This type defaults to
+"unsigned".  To change the type of a variable use the "type" command.
+The debugger has the following built-in types that can be used:
+
+byte        char displayed as int   
+ubyte       unsigned char displayed as hex  
+chari       char    
+uchar       unsigned char   
+short       short   
+ushort      unsigned short  
+int         int 
+unsigned    unsigned    
+long        long    
+ulong       unsigned long   
+float       float   
+double      double  
+string      A NULL terminated array of char
+
+Using the example program above the variable "p" can be printed as
+a "ulong" instead of a string:
+
+>type p ulong
+>print p
+0x304402
+>
+
+The "mprint" command will print any part of memory as a specified type.
+Local variables and dynamic variables can be printed this way.  Local
+variables are accessed using a frame pointer.  The frame pointer on the
+Atari is register "A6".  The parameters to a function are referenced with
+positive offsets from "A6", the local variables are referenced using negative
+offsets.  The figure below shows a stack frame for the code segment below.
+
+                    ______________________________
+                    |_____________i______________| <----- 10(A6) 
+                    |_____________j______________| <------ 8(A6)
+                    |       Return Address       |
+                    |____________________________| <----- 4(A6)
+A6(Frame Pointer)   |       Old Frame Pointer    |
+    0(A6)---------> |____________________________|
+                    |_____________k______________| <----- -2(A6)
+                    |_____________l______________| <----- -4(A6)
+
+
+a_func(j,i)
+int j,i;
+{
+    int k,l;
+
+    i = 4;
+    k = 5;
+}
+
+The current frame pointer can be accessed using "*".  To print out the 
+variable "i" set a breakpoint in function "a_func".  When the debugger
+stops at the exit of "a_func" (At entry of "a_func" "i"'s value is
+undefined) "i"'s value can be printed. "k"'s value is printed after "i".
+
+Break at end of function:    a_func()
+>mprint *+10 int
+4
+>mprint *-2 int
+5
+
+Printing a linked list of structures can be done using "mprint". The 
+code fragment below shows a structure and a global pointer to a linked
+list of those structures.
+
+struct symbol {
+    int i; /* value */
+    struct symbol *next;
+} *head_ptr;
+
+The list consists of three structures linked together.  The last one points
+to NULL.  First the value of "head_ptr" is printed. This points to the first 
+structure in the list. Since the field "i" takes up two bytes the field 
+"next" is at offset 2 from the start of the structure. The "next" field 
+is printed out and we continue to print out the fields until a NULL pointer 
+is found.
+
+>type head_ptr ulong
+>print head_ptr
+0x34002
+>mprint 0x34002+2 ulong
+0x34010
+>mprint 0x34010+2 ulong
+0x0
+>
+
+The "set" and "mset" commands change the value of global variables and 
+memory locations.  Use these commands with caution.  "set" takes a symbol 
+name and sets the value to the expression given.  The type of the symbol 
+is whatever has been defined using the "type" command.  If no type has 
+been specified previously the default will be "unsigned long" which could 
+overwrite other symbols if the symbol is smaller than four bytes.  "mset" 
+performs the same as "set" but needs an address and type information.
+
+
+- Setting Breakpoints and Tracepoints
+
+Breakpoints force the debugger to stop program execution when a function
+is entered and exited or when a call to "dbreak" is made.  Tracepoints
+do not stop execution but inform the user when a function is entered and 
+exited.  Breakpoints and Tracepoints can be set with the "break" and "trace"
+commands respectively.  They can be removed with the "unbreak" and "untrace"
+commands.  To put a breakpoint in your code the macro "BREAKPT" can be used.
+
+#define BREAKPT dbreak();
+...
+a_func()
+{
+    ...
+    BREAKPT
+    ...
+}
+
+The debugger will then stop at execution like this:
+
+Break at function: a_func+0x3a
+>
+
+When you want to remove the breakpoints you have set using "BREAKPT" just
+recompile with:
+
+#define BREAKPT
+
+This will remove the call to "dbreak". 
+
+
+- Setting Watchpoints
+
+Watchpoints allow the program to break into the debugger when a variable
+or section of memory changes.  There are two forms to the watch command:
+
+watch <symbol>      Will break into the debugger when the value <symbol>
+                    changes.
+
+watch <addr> <expr> Will break into the debugger when ever any memory
+                    in the range addr, addr + expr changes.
+
+
+The function "dprintf" is an easy way to print out information to the
+debugger's screen or file.  "dprintf" works exactly like "printf".  The
+function "_dprintf()" is similar to "_fprintf()" except no stream is
+specified.  This allows you to create you own function like dprintf().
+
+
+- Command Summary
+
+Command                         Description
+-------                         -----------
+sniffer                         check for stack overflow.
+screenoff                       turn off the alternate screen.
+altfile <file>                  have debug output print to a file.
+
+list                            list all variables and function symbols.
+list [t]race                    list all trace points.
+list [b]reak                    list all break points.
+list [v]ar                      list all non-system or static variables.
+list [f]unc                     list all non-system or static functions.
+list [w]atch                    list all memory watch's (see watch below)
+
+find <symbol>                   print out information about symbol.
+show <symbol>                   same as find.
+
+trace                           set trace point for all symbols.
+trace <symbol>...               set trace point for specified symbol(s).
+
+untrace                         unset trace point for all symbols.
+untrace <symbol>...             unset trace point for specified symbol(s).
+
+break                           set break point for all symbols.
+break <symbol>...               set break point for specified symbol(s).
+
+unbreak                         unset break point for all symbols.
+unbreak <symbol>...             unset break point for specified symbol(s).
+
+watch <symbol>                  break when symbol changes value.
+watch <addr> <expr>             break when value in the range 
+                                [addr,addr+expr] changes.
+
+unwatch <expr>                  stops watching watch no. expr.
+unwatch                         stops all watch's.
+
+exec <file>                     execute commands from file specified.
+
+help                            display list of commands.
+?                               same as help.
+
+dump <address1> [<address2>]    memory dump in hex and ascii.
+                                (does 100 bytes if address2 not specified)
+
+type <symbol> <type>            define a symbol's type.
+
+eval <expr>                     print the result of the expression.
+
+mprint <address> <type>         print value at {address} as 
+                                "type".
+print <symbol>                  print symbols value.
+
+set <symbol> <expr>             set the symbol to expr.
+mset <address> <type> <expr>    set the type at address to expr.
+
+where                           prints a stack trace of functions executed.
+
+go                              continue execution.
+g                               continue execution.
+
+exit                            exit to shell.
+quit                            exit to shell.
+
+
+- Extending the Debugger
+
+The debugger can be  extended in two ways.  The first is extending the types
+that the debugger knows about.  The second is extending the command set of 
+the debugger. 
+
+There are two arrays that the debugger accesses that can be extended.  The
+arrays are found in the file "DEBUG.C" on the utilities disk.  To install
+new commands and new types modify the arrays as shown below and then compile
+the file "DEBUG.C".  Make sure that the "-X" is off when you compile the file.
+If it is not off the debugger will go into an infinite loop when one of the
+debugger extensions is executed.  After compiling "DEBUG.C" replace the version
+that is in the library "libx.a" with the new "DEBUG.O".  This is done with the
+Archiver:
+
+ar r libx.a debug.o
+
+The file "DEBUG.H" contains external functions and definitions of structures 
+used by the debugger.
+
+User Types
+You can add in other types that you have defined in your program. e.g.
+
+typedef struct {
+        int field1;
+        long field2;
+    } mystruct;
+
+The debugger prints out variables by passing an address to a function that
+prints that type. The types are stored in an array that can be added to too.
+
+struct _typelist {
+    char *name;
+    int size;
+    int (*func)();
+} _types[] = {
+    {"mystruct", 6, print_mystruct}
+};
+
+The field "name" is a pointer to the name of the type. The field "func" is a
+pointer to the function that can print that type. The field "size" is the size
+of the variable for the "watch" command.  By adding "my_struct" to the
+"typelist" you can print out your structures. e.g.
+
+print_mystruct(m_ptr)
+struct mystruct *m_ptr;
+{
+    if (_checkptr(m_ptr, TEST_ODD);
+        dprintf("field1 = %d, next = %lx\n",
+                 m_ptr->field1, m_ptr->next);
+}
+
+"dprintf" is the same as "printf" but sends the output to the debugger's
+screen.  "_checkptr" checks that a pointer is within a valid range and
+"TEST_ODD" also tests for an odd pointer.  To print out the variable
+"a_var", which was defined as:
+
+mystruct b_var, a_var = { 10, &b_var };
+
+In the debugger type this:
+
+>type a_var mystruct
+>print a_var
+field1 = 10, next = 0x0348920
+>
+
+User Commands
+The array "_cmds" contains all the commands that the debugger can execute.
+You can add to this array and implement your own commands.  All commands
+return a 0 or 1.  If a 1 is returned to the debugger the debugger will
+continue execution of the program.  To create a command that converts a
+decimal expression into hex:
+
+tohex()
+{
+   char *exp;
+   long l;
+   
+   if (exp = _getparm()) {    /* pointer to the expression */
+       l = _getconst(exp);    /* evaluate the expression   */
+       dprintf("0x%lx\n",l); /* print the value in hex    */
+   }
+   return 0;  /* returning 1 leaves the debugger */
+}
+
+To use this function in the debugger:
+
+>tohex (5+28)*2
+0x40
+
+The debugger has a command array that is similar to the type array. The 
+format of the array is:
+
+struct _cmdlist{
+    char *name;
+    int (*func)();
+} _cmds[] = {
+    {"tohex", tohex }
+}
+
+To install your own commands just add it to the array.  "_cmds" is found
+in the file "DEBUG.C".  Then follow the procedure given above for compiling,
+linking and using the Archiver to change "libx.a".
+
+
+- Utility Routines
+
+Here are a number of routines that are useful when extending the debugger:
+
+_setuserscreen              sets the screen to your program's screen
+_setdbugscreen              sets the screen to the debugger's screen
+_getfname                   returns the name of the current function
+_getcmd(prompt)             prompts the user for a string
+_getparm                    gets a pointer to the next parameter
+_getconst(expr)             evaluates an expression returning the value
+_checkptr(ptr, check)       checks for a valid pointer
+
+"_checkptr" uses two parameters.  The first is the pointer.  The second
+is a pre-defined constant "TEST_ODD" or "NOTEST_ODD".  1 is returned
+if the pointer is in range and not odd (if "TEST_ODD" was passed).
+
+"_getconst" has one parameter which is a pointer to a character string.   
+A long is returned which is the result of evaluating the expression in 
+the string.
+
+The command line is parsed using the function "_getparm" which breaks up 
+the line into seperate strings; returning the next parameter with each call.  
+NULL is returned when no more parameters exist.
+
+Command Table
+
+struct _cmdlist {
+    char *name;
+    int (*func)();
+} _cmds[] = {
+    {"?",            _help},
+    {"altfile",      _setaltfile},
+    {"break",        _breakpt},
+    {"dump",         _mdump},
+    {"eval",         _eval},
+    {"exec",         _exec},
+    {"exit",         _doexit},
+    {"find",         _find},
+    {"g",            _go},
+    {"go",           _go},
+    {"help",         _help},
+    {"list",         _list},
+    {"mprint",       _mprint},
+    {"mset",         _mset},
+    {"print",        _print},
+    {"quit",         _doexit},
+    {"screenoff",    _screenoff},
+    {"set",          _set},
+    {"show",         _find},
+    {"sniffer",      _setsniffer},
+    {"trace",        _trace},
+    {"type",         _settype},
+    {"unbreak",      _unbreak},
+    {"untrace",      _untrace},
+    {"where",        _where}
+};
+
+
+Type Table
+
+struct _typelist {
+    char *name;
+    int  size;
+    int  (*func)();
+} _types[] = {
+    { "char",     1,    _pchar},
+    { "uchar",    1,    _puchar},
+    { "byte",     1,    _pbyte},
+    { "ubyte",    1,    _pubyte},
+    { "short",    2,    _pint},
+    { "ushort",   2,    _pword},
+    { "int",      2,    _pint},
+    { "unsigned", 2,    _pword},
+    { "enum",     2,    _pword},
+    { "long",     4,    _plong},
+    { "ulong",    4,    _pulong},
+    { "ptr",      4,    _pulong},
+    { "array",    4,    _pulong},
+    { "string",   0,    _pstring},
+    { "float",    0,    _pfloat},
+    { "double",   0,    _pdouble},
+    { "struct",   0,    _pulong},
+    { "union",    0,    _pulong}
+};
+
+

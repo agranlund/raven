@@ -1,0 +1,15 @@
+' needs to be called at the very top of your program, very first thing!
+> PROCEDURE check_fatal !v1.00
+  IF FATAL !wrong binary for this cpu?
+    ~FORM_ALERT(1,"[3][ |Wrong CPU type detected! ][ Abort ]")
+    EDIT
+  ENDIF
+RETURN
+' only do this check if your program uses the $Mx compiler option
+' needs to be checked right away before any arrays are dimensioned
+> PROCEDURE check_err !v1.00
+  IF ERR=8 !$mx failed?
+    ~FORM_ALERT(1,"[3][ |Not enough memory! ][ Abort ]")
+    EDIT
+  ENDIF
+RETURN

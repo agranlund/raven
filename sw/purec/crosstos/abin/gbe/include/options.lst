@@ -1,0 +1,13 @@
+' these options can be turned on
+' enable licomlib/runlib compatibility
+> PROCEDURE enable_gem !v1.00
+  BYTE{HIMEM+168}=TRUE
+RETURN
+' enable VDI bezier curves
+> PROCEDURE enable_curve !v1.00
+  BYTE{HIMEM+167}=TRUE
+RETURN
+' enable expanded rgb range (0-1000)
+> PROCEDURE enable_vsetcolor !v1.00
+  BYTE{HIMEM+166}=TRUE
+RETURN

@@ -1,0 +1,49 @@
+Pure C fÅr den Atari ST                                      18.06.91
+----------------------------------------------------------------------
+
+Ω 1990 by Borland International Inc.
+
+PC_FSEL.ACC  Erweiterung:  Im  Gegensatz  zur PC-Dateiauswahlbox, kann
+diese  Version  auch   durch  die  Tastenkombination  Control-<Return>
+verlassen  werden.  In  diesem  Falle  wird  KEIN  Dateiname Åbergeben
+sondern  nur ein  Pfad und   die Extension,  welche sich  im untersten
+Extensionbutton  befindet.  Auf  Wunsch  eines  Anwenders,  sucht  die
+Auswahlbox  jetzt nach  dem vorgegebenen  Datei- namen  und selektiert
+diese  Datei, falls  sie existiert.  Sie wird  auf jeden  Fall, in den
+NameDialog   (New   File/NewFolder)   aufgenommen.   Mit  einer  Buch-
+stabentaste (a..z) kann  man nach Dateien suchen lassen.  Neu ist, daû
+man  mit   den  Groûbuchstaben  (A..Z)  die   Suche  auf  die  Dateien
+beschrÑnken  kann.  Die  Dateiauswahlbox  vervollstÑndigt  ggfls. auch
+selbststÑndig den gesuchten Namen.
+
+Hier noch einmal alle Short-cuts:
+--------------------------------
+
+Alternate-<Laufwerksbuchstabe>                    Laufwerk selektieren
+Control-Return                                    kein Dateiname
+Return                                            Open
+Control-U                                         Cancel
+Insert                                            New File
+Shift-Insert                                      New Folder
+Delete                                            Delete
+Control-T                                         Touch
+Control-O                                         Copy
+Control-I                                         Info
+Control-A                                         *.*
+Control-C                                         *.C
+Control-H                                         *.H
+Control-S                                         *.S
+Control-P                                         *.PRJ
+Control-F                                         *.CFG
+Control-R                                         *.PRG
+Control-D                                         *.??? (user defined)
+Shift-Control-D                                   Doppelklick auf *.???
+
+Technischer Hinweis:
+-------------------
+
+Es  wird der  TRAP #2   Vektor nach  dem XBRA-Protokoll  verbogen, die
+XBRA-ID, welche  verwendet wird ist  "TCFS". Speicherbedarf liegt  bei
+23306 Bytes
+
+Ihr Pure C Team

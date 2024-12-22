@@ -1,0 +1,272 @@
+----------------------------------------------------------------------
+Turbo C 2.0 fÅr Atari ST                                  Borland GmbH
+README                                                    2. MÑrz 1990
+----------------------------------------------------------------------
+
+Sehr geehrte Turbo-C-Benutzer/innen,
+
+bis zur letzten Minute haben  wir  uns  bemÅht, Turbo  C  weiterzuent-
+wickeln und zu verbessern. Nach  Drucklegung  der  HandbÅcher  ergaben
+sich noch einige énderungen, die wir in  dieser  Datei  zusammengefa·t
+haben.
+
+Sollten Sie nach dem Studium des  Handbuchs  und  dieser  README-Datei
+dennoch  Fragen  haben, so wenden Sie sich bitte  an  Ihren  Software-
+hÑndler oder die Hotline der BORLAND GmbH von  Montag  bis  Donnerstag
+zwischen 14.00 und 17.00 Uhr und  Freitags  von  14.00  bis  16.00 Uhr
+unter der Telefonnummer 089/7258001.
+
+Mit freundlichen GrÅûen
+
+Borland GmbH
+
+----------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Inhaltsverzeichnis
+----------------------------------------------------------------------
+
+      ˘ Inhaltsverzeichnis der Turbo-C-Disketten
+      ˘ 68020- & 68881-Codeerzeugung
+      ˘ Linker
+      ˘ DISPOBJ - der Objekt-Dateien-Betrachter
+      ˘ Sonstiges
+
+----------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Inhaltsverzeichnis der Turbo-C-Disketten
+----------------------------------------------------------------------
+
+Auf  den  drei  gelieferten  Turbo-C-Disketten  sollten  Sie  folgende
+Dateien vorfinden:
+
+DISKETTE 1:
+
+       DEMO_ATC\
+                  .\BGIDEMO.C
+                  .\CLOCKACC.C
+                  .\HELLO.C
+                  .\LNATEST.C
+                  .\TCFRAME.C
+                  .\TCGEM1.C
+                  .\TCGEM2.C
+                  .\TCGEM3.C
+                  .\TCGEM4.C
+                  .\TCGEM5.C
+                  .\SCANCODE.H
+                  .\BGIDEMO.PRJ
+                  .\TCFRAME.PRJ
+                  .\TCTEST.RSC
+
+       INCLUDE\
+                  .\AES.H
+                  .\ASSERT.H
+                  .\CTYPE.H
+                  .\ERRNO.H
+                  .\EXT.H
+                  .\FLOAT.H
+                  .\GRAPHICS.H
+                  .\LIMITS.H
+                  .\LINEA.H
+                  .\MATH.H
+                  .\PORTAB.H
+                  .\PROCESS.H
+                  .\SETJMP.H
+                  .\SIGNAL.H
+                  .\STDARG.H
+                  .\STDDEF.H
+                  .\STDIO.H
+                  .\STDLIB.H
+                  .\STRING.H
+                  .\TIME.H
+                  .\TOS.H
+                  .\VDI.H
+
+       LIB\
+                  .\TCBGILIB.LIB
+                  .\TCEXTLIB.LIB
+                  .\TCFLTLIB.LIB
+                  .\TCGEMLIB.LIB
+                  .\TCLNALIB.LIB
+                  .\TCSTDLIB.LIB
+                  .\TCTOSLIB.LIB
+                  .\TCSTART.O
+                  .\TCXSTART.O
+                  .\TCSTART.S
+                  .\TCXSTART.S
+
+       RCS\
+                  .\README
+                  .\RCS.INF
+                  .\RCS.PRG
+                  .\RCS.RSC
+                  .\DEF2DFN.TTP
+
+       TC.CFG
+       TC.PRG
+       DEFAULT.PRJ
+
+DISKETTE 2:
+
+       MCALC\
+                  .\CONIO.C
+                  .\IO.C
+                  .\MCALC.C
+                  .\MCDISPLY.C
+                  .\MCINPUT.C
+                  .\MCCOMMAND.C
+                  .\MCPARSER.C
+                  .\MCUTIL.C
+                  .\CONIO.DOC
+                  .\FEHLER.DOC
+                  .\MCALC.DOC
+                  .\CONIO.H
+                  .\IO.H
+                  .\MCALC.H
+                  .\MCALC.PRJ
+                  .\TEST.WKS
+
+       BGIOBJ.TTP
+       CPP.TTP
+       DISPOBJ.TTP
+       TCC.TTP
+       TLINK.TTP
+
+DISKETTE 3:
+
+       FONTS\
+                  .\BOLD.CHR
+                  .\EURO.CHR
+                  .\GOTH.CHR
+                  .\LCOM.CHR
+                  .\LITT.CHR
+                  .\SANS.CHR
+                  .\SCRI.CHR
+                  .\SIMP.CHR
+                  .\TRIP.CHR
+                  .\TSCR.CHR
+
+       C.HLP
+       LIB.HLP
+       TC.HLP
+
+Sollte sich der Inhalt  Ihrer  Disketten  von  der  obigen  Auflistung
+unterscheiden,  zîgern  Sie  nicht,  uns  sofort  zu verstÑndigen. Wir
+werden dann umgehend fÅr Ersatz sorgen.
+
+----------------------------------------------------------------------
+
+----------------------------------------------------------------------
+68020- & 68881-Codeerzeugung
+----------------------------------------------------------------------
+
+Turbo C kann auch Code  fÅr  die  CPU  MC 68020  und  den  Coprozessor
+MC 68881 erzeugen.
+
+Um dem Compiler bezÅglich der Codegenerierung zu konfigurieren,   gibt
+es die beiden Optionen -2 (fÅr 68020-Code) und -8 (fÅr 68881-Code).
+
+Eine wichtige Anmerkung zur CoprozessorunterstÅtzung:
+-----------------------------------------------------
+Der Code, der bei gesetztem Schalter -8  durch  den  Compiler  erzeugt
+wird, unterstÅtzt eine Coprozessorerweiterung wie sie auf der  PAK-68k
+Karte oder im Atari TT installiert werden  kann.  Programme,  die  mit
+diesem Schalter Åbersetzt wurden, laufen NUR auf  einem  Rechner,  der
+eine solche Erweiterung besitzt!
+
+----------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Linker
+----------------------------------------------------------------------
+
+˘ Absolute Codeerzeugung
+  ----------------------
+  Mit dem Linker von Turbo C kînnen Sie relozierten Code zur  Program-
+  mierung von ROM's erzeugen. Beachten Sie, da· relozierter Code NICHT
+  von Diskette oder Festplatte gestartet werden kann.
+  Wenn Sie einen der Schalter -T (Text segment address),-D (Data  seg-
+  ment address) oder -B (BSS address) setzen, wird eine Datei erzeugt,
+  die bereits reloziert ist.
+  Der Header einer solchen Datei lÑût sich durch folgende Struktur be-
+  schreiben:
+
+      typedef  struct
+      {
+         int      magic;                          /* enthÑlt 0x6024 */
+         size_t   TextSize, DataSize, BssSize, SymbolSize;
+         long     reserved1, reserverd2;
+         void     *TextBase, *DataBase, *BssBase;
+      }
+      ROMHEADER;
+
+
+˘ Fastload-Bit (nur ab TOS 1.4)
+  -----------------------------
+  Ab TOS-Version 1.4 wird im  Programm-Header  das  sog.  Fastload-Bit
+  unterstÅtzt.  Ist  dieses  gesetzt,  lîscht  das  Betriebssystem den
+  freien Heap nicht. Dadurch ist der  Programmstart  bei  sehr  gro·em
+  Speicher wesentlich schneller. Der Linker setzt standardmÑûig dieses
+  Bit.
+  Wenn Sie das Fastload-Bit lîschen wollen, mÅssen Sie die  Option  -F
+  des Linkers aktivieren.
+
+----------------------------------------------------------------------
+
+----------------------------------------------------------------------
+DISPOBJ - der Objekt-Datei-Betrachter
+----------------------------------------------------------------------
+
+Mit dem Programm DISPOBJ.TTP kînnen Sie sich den Inhalt einer Objekt-
+datei oder Bibliothek im Borland-Format ansehen.
+
+Der Aufruf ist
+
+      DISPOBJ <object filename> [-v]
+
+Der Parameter <object filename> gibt den Namen  der  zu  betrachtenden
+Objektdatei  an. DISPOBJ gibt dann Informationen Åber die Struktur der
+Objektdatei aus. Im Einzelnen sind dies Angaben Åber  den  Header  der
+Objektdatei, sowie Informationen zu den in ihr enthaltenen Symbolen.
+Optional ist der Schalter -v, der bewirkt, daû  die  Objektdatei  dis-
+assembliert wird.
+
+----------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Sonstiges
+----------------------------------------------------------------------
+
+˘ printf und TCFLTLIB.LIB
+  -----------------------
+  Falls Sie in Ihren Programmen sowohl Flieûkommazahlen als  auch  die
+  printf-Funktion verwenden, jedoch mit dieser keine  Flieûkommazahlen
+  ausgeben, so kînnen Sie die Grîûe Ihres Programms verringern,  indem
+  Sie in Ihrer Projektdatei TCSTDLIB.LIB vor TCFLTLIB.LIB angeben.
+
+˘ Aufruf von Turbo Debugger
+  -------------------------
+  Sie  kînnen  Turbo  Debugger  aus  der  Turbo-C-Entwicklungsumgebung
+  mittels ALTERNATE-D starten. Turbo Debugger wird dann zusÑtzlich  zu
+  Turbo C in den Speicher geladen.
+  Um Anwendern mit wenig Arbeitsspeicher trotzdem die Mîglichkeit  zum
+  bequemen Aufruf von Turbo Debugger  zu  geben,  existiert  auch  der
+  Startbefehl SHIFT-ALTERNATE-D. Hierbei wird Turbo C zunÑchst aus dem
+  Speicher entfernt und dann Turbo Debugger gestartet. Nach dem   Ver-
+  lassen  von  Turbo  Debugger wird dann dieser zugunsten von  Turbo C
+  entfernt. Statt SHIFT-ALTERNATE-D kînnen  Sie  auch  mit  gedrÅckter
+  Shift-Taste den MenÅeintrag ØProject/Debug "..."Æ anklicken.
+
+˘ Erzeugung von Objektdateien im DRI-Format
+  -----------------------------------------
+  Wenn Sie in den Compileroptionen den Schalter -B setzen, so  erzeugt
+  Turbo C  Objektdateien  im  DRI-Format. Somit haben Sie die Mîglich-
+  keit, Objektdateien von Turbo C mit Linkern anderer Compiler zu ver-
+  arbeiten.
+  Beachten Sie dabei, daû im DRI-Format  Quelltext-Debug-Informationen
+  nicht  vorgesehen sind. Quelltexte, die Sie mit Turbo Debugger bear-
+  beiten wollen, mÅssen also im Borland-Objektformat vorliegen.
+
+----------------------------------------------------------------------
+

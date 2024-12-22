@@ -1,0 +1,17 @@
+mcalc.prg .C[-p+] ; wegen neuer Option-Einstellungen
+= 
+tcstart.o
+conio.c
+io.c
+mcalc.c
+mcdisply.c
+mcparser.c
+mcinput.c
+mcommand.c
+mcutil.c
+tcfltlib.lib
+tcextlib.lib
+tcstdlib.lib
+tctoslib.lib
+tcgemlib.lib
+

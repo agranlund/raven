@@ -1,0 +1,18 @@
+#
+# Environment variable CC should be set to path to cc.ttp
+#
+# 	sts.prg 	Larger AES example.
+#	gmouse.prg	Example of using graf_mouse().
+#	fsel.prg	Example of using fsel_input().
+#
+
+OFILES= main.o init.o events.o wind.o menu.o dialog.o update.o
+
+sts.prg : $(OFILES)
+	$(CC) $(OFILES) -o sts.prg
+
+gmouse.prg	: graf_mouse.o
+	$(CC) graf_mouse.o -o gmouse.prg
+
+fsel.prg	: fsel.o
+	$(CC) fsel.o -o fsel.prg

@@ -1,0 +1,9 @@
+*
+=
+tcstart.o
+*
+tcframe.c
+tcstdlib.lib
+tcextlib.lib
+tcgemlib.lib
+tctoslib.lib

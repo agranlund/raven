@@ -1,0 +1,237 @@
+
+
+
+	Relase notes for LaserC v2.1 for the Atari ST
+
+
+	Instalation -
+
+	To install this release, copy the files on this disk onto
+	your working disk or hard disk.  This is not a complete
+	system, but only the files needed to bring you up to 2.1.
+
+
+	Files -
+
+	The list of files for each disk (Chapter 1, page 1 in the manual)
+	has changed for version 2.1 due to the addition of floating-
+	point coprocessor support routines.  The EXAMPLES folder is now
+	spread across all three disks, not just the WORK disk as is
+	indicated in the manual.
+
+	The two files FSEL_EXI.C and WIND_NEW.C are the source for new
+	TOS 1.4 bindings (to update your library source code).
+
+
+	Shell file printing -
+
+	The shell now has a print facility.  When invoked "Print" will 
+	print the contents of the top window to the printer port.  Some
+	print options are available in the "Printer Setup..." dialog box.
+	Both "Print" and "Printer Setup..." are available from the "File"
+	menu.
+
+
+	New LASER.CFG -
+
+	The version 2 LASER.CFG file has changed.  Be sure to copy the
+	file from your distribution disk to your working disk or partition
+	along with all th other files.  Use the "Tool Locate..." dialog
+	under "Options" to locate the compiler and linker and then
+	select "Save Configuration..." so that the configuration will
+	be remembered the next time you start the shell.  NOTE: See
+	page 28 of your Laser Manual for information on "Tool Locate...".
+
+
+	No LASER.RSC -
+
+	Version 2 of the shell is linked with the resources.  You no
+	longer need the file LASER.RSC, so just throw your old one away.
+
+
+	Making LaserDB a tool under the shell -
+
+	LaserDB can be made a tool under v2.x of the
+	Laser Shell.  To install LaserDB under the shell,
+	do the following:
+
+	1. Copy LDB.PRG to your owrking disk or hard drive.
+
+	2. Start the shell, LASER.PRG.
+
+	3. Open the "Tool Locate..." dialog from the "Options" menu.
+
+	4. In the left-hand file selector box, locate the file
+	   LDB.PRG on your WORKING DISK or HARD DRIVE.
+
+	5. Select LDB.PRG in the left-hand box and then click on
+	   the " >> ADD >>" button.
+
+	6. Using the Attribute buttons at the bottom of the dialog,
+	   Click on "D-LaserDB".  You may also wisk to click on
+	   "W-Write-Thru" to make the program write thorugh the cache
+	   to disk.  This will apply to any disk i/o done by the
+	   program being debugged.  NOTE: LaserDB cannot be made
+	   RAM-resident.
+
+	7. Click on the "OK" button to close the dislog and load any
+	   RAM-resident programs.
+
+	8. Under "Options" select "Save Configuration...".  This will
+	   assure that LaserDB will be a tool the next time the shell
+	   is started.
+
+
+	Debugging from the shell -
+
+	When LaserDB is located as a tool, the "Execute" menu will
+	hilight the "Debug..." menu option.  This item will run 
+	LaserDB.
+
+	If the tow window contains a ".C" file or if the link dialog
+	contains ".O" files, the "Run/Debug" item will be hilighted.
+	Selecting this will compile, link the executable (like the "Run"
+	command, except the -Z option will be passed.)  Then LaserDB
+	will be executed passing it the name of the program just created
+	by the linker.
+
+
+	Linkable resources -
+
+	RCP now will produce a ".C" source file in addition to the stand-
+	alone resource file if desired.  To utilize this feature select the
+	".C" source output option in the RCP.  When the resource file is
+	saved, the ".C" file will be written out.  Compile the ".C" file and
+	link the resulting ".O" file with the other ".O" files.  To load the
+	resource in your code, use "mrsrc_load()" as opposed to "rsrc_load()."
+	"mrsrc_load()" takes one parameter - the name of the array created by
+	the RCP. To find this array name edit the "C" resource source file.
+
+	mrsrc_load( name )
+		char	*name;
+
+	See the example program in the EXAMPLES\AES folder.
+
+	NOTE: Be sure NOT TO CALL rsrc_free() when mrsrc_load() is used.
+
+
+	MEGA 68881 floating-point support -
+
+		A new library called LIB881.A which supports the MEGA ST's
+		MC68881 coprocessor is now included.  To use it Just link
+		with this library (must be the last item in the link dialog).  The library looks for the
+		The library contains both software and hardware floating-
+		point support with automatic detection for the presence of
+		the 68881 hardware.  If no hardware is installed, the software
+		routines will be used instead.
+
+
+
+	Changes from LaserC v1.x and 2.1-
+
+	CCOM.TTP (from 1.x)
+		- dc.b is no longer automatically aligned.
+		- There is a new directive "align".
+		- There are new directives "ds.b", "ds.w", and "ds.l".
+		- There is a new instruction "illegal".
+	CCOM.TTP (from 2.0)
+		- Unsigned char comparisons fixed.
+		- All extern names are added to debug information.
+
+	LD.TTP: (from 1.x)
+		- ld, the linker, and dis now handle objects with text
+			segment sizes of greater than 64k.
+		- Supports the compiler change involving extern names in
+			debugger information.
+
+	LASER.PRG: (from 1.x)
+		- "cd" with no parameters does a cd to $HOME.
+		- I/O redirection is possible in the stdio window.  An
+			example of a redirection to the printer port would be:
+			"a.prg > PRT:"
+		- Fread and Fwrite routines are documented as returning a
+			short count however they actually return an error code.
+		- sprintf is documented as returning an int but actually
+			returns a char*.
+		- A "Select all" menu option has been added to the shell.
+		- File selector box filter *.prg also shows .ttp extended
+			files.
+	LASER.PRG: (from 2.0)
+		- TOS 1.4 support.
+		- Fixed problems with print feature (>32K files).
+		- Dragging window below bottom of screen crashed
+			on a MEGA 4.
+		- ^L now hilights the Cut, Copy menus.
+		- Cache extended to support 155 files (was 55).
+		- Support for TOS 1.4 - now ROM version independent.
+		- Fixed AUTOSAVE of UNTITLED window.
+		- Can now dismiss Help, C Operators, and About
+			dialogs with the return key.
+		- If a READ MAKE fails followed by a SAVE CONFIG,
+			the makefile name will be removed from the CONFIG
+			file.
+		- Error if file name expansion fails in STDIO window.
+		- ^C from user program disabled under Laser shell.
+
+	Laser Manual:
+		-Pexec() is documented incorrectly:
+			Currently is...
+			4  - just go - pathname = address of the base page.
+				...should be...
+			4  - just go - commandline = address of the base page.
+		-Section 16.3:
+			AC_OPEN should be 40.
+			AC_CLOSE should be 41.
+			ev_mgpbuff[3] should be ev_mgpbuff[4].
+		-Appendix A A.3 has a doc mistake the next to last sentence
+		 should read:
+			"If a relocation byte is equal to 1, the last offset is
+			incremented by 254, but no relocation is done."
+		-The library function creat does not allow oflag to be set
+		 to O_BINARY.
+		-Using cc from the make utility must include the .ttp 
+		 extension (ie. cc.ttp) or $(cc). make examples showing 
+		 otherwise are incorrect.
+		-The egrep utility matches the (, ), and \ characters as \(,  
+		 \), and \\ respectfully.
+
+	(from 2.0):
+		- Bindings for scrp_read(), scrp_write() were not
+			included in LIBC.A.
+		- TOS 1.4 support
+			NAME
+				fsel_exinput -- same function as fsel_input
+				except that it has an extra parameter called
+				fs_label to display a string of 30 characters
+				at the top of the selector box.
+			SYNOPSIS
+				int fsel_exinput(fs_inpath,fs_innsel
+			
+			NAME
+				wind_new -- Closes and deletes all windows, resets
+				the wind_update() function, flushes all the window's
+				buffers and restores mouse ownership back to the
+				system.
+			SYNOPSYS
+				wind_new()
+
+		Special MEGAMAX function:
+
+			NAME
+				vq_gdos -- Returns non-zero if GDOS is installed.
+
+
+	RCP.PRG: (from 2.0)
+		- The DEF file format read by the RCP supports large trees.
+		- The RCP can read DEF, old DEF, and DFN formats.
+		- Large drop down menus created by the RCP are no longer
+			allowed to wrap.
+
+	MV.TTP: (from 1.x)
+		- Was erasing the destination when the rename failed.
+
+	LIBC.A: (from 2.0)
+		- "qsort" was failing if "nelms" * "width" was greater than
+			32K.
+		- mrsrc_load was failing on >32K resource files.
+

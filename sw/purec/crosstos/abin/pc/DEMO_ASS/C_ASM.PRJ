@@ -1,0 +1,16 @@
+; Das Projekt C_ASM zeigt, wie eine Assemblerroutine aus einem C-Programm
+; aufgerufen werden kann. Die Assemblerroutine ruft wiederum eine
+; C-Funktion sowie eine Pure C - Bibliotheksfunktion auf.
+
+c_asm.tos
+
+=
+
+pcstart.o                       ; pure c startup
+
+c_asm_c.c                       ; main module ( includes main-funktion )
+c_asm_s.s                       ; assembler module
+
+pcfltlib.lib
+pcstdlib.lib
+

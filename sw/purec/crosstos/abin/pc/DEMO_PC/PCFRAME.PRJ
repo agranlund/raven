@@ -1,0 +1,9 @@
+*
+=
+pcstart.o
+*
+pcframe.c
+pcstdlib.lib
+pcextlib.lib
+pcgemlib.lib
+pctoslib.lib

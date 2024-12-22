@@ -1,0 +1,14 @@
+* control file for linking Lattice C 5 GST modules.
+INPUT cnb.bin
+INPUT *
+* Real maths library - uncomment if required
+*LIBRARY lcmnb.bin
+* GEM graphics library - uncomment if required
+*LIBRARY lcgnb.bin
+LIBRARY lcnb.bin
+* order the sections and specify the BSS area
+SECTION TEXT
+SECTION DATA
+SECTION MERGED_DATA
+SECTION MERGED_BSS
+BSS UDATA

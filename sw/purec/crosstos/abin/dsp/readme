@@ -1,0 +1,24 @@
+
+The following DSP tools should be found on this disk:
+
+asm56000.ttp   assembler
+          usage:    asm56000 -b ssilpbk.asm
+             (Use asm56000 -b ssilpbk.asm > foo) to redirect output
+               since scrolling text takes most of the assembly
+               time.  Check foo for errors reported at end of file)
+dsplnk.ttp     linker
+          usage:    dsplnk -b ssilpbk.cln
+cldlod.ttp     converts .cld files to .lod files
+          usage:    cldlod ssilpbk.cld > ssilpbk.lod
+
+Since .TTP programs won't support I/O redirection we included 
+COMMAND.TOS which is a small shell with I/O redirection support. You 
+could use commands like: cldlod.ttp ssilpbk.cld > ssilpbk.lod. It IS 
+necesarry to type cldlod.ttp insteat of chllog since the shell needs 
+that. If you rename cldlod.ttp to cldlod.prg than typing chllod is 
+fine. This shell supports also batch files (.BAT) and even a file 
+called AUTOEXEC.BAT.
+
+
+Include in your 'C' files "dspbind.h" which is the DSP extension of
+"osbind.h".

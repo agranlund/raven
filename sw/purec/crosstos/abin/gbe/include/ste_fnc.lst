@@ -1,0 +1,13 @@
+' define some handy flags
+ejoy!=BTST(STE?,0)     !machine has enhanced joysticks
+dma_snd!=BTST(STE?,1)  !machine has stereo 8-bit playback
+cpu!=BTST(STE?,2)      !cpu is =>68020
+fpu!=BTST(STE?,3)      !fpu detected
+coldfire!=BTST(STE?,4) !coldfire detected
+gbe3!=BTST(STE?,5)     !safe to access himem
+compiled!=BTST(STE?,6) !code is compiled
+cpu_on!=BTST(STE?,7)   !cpu options are active
+fpu_on!=BTST(STE?,8)   !fpu options are active
+auto!=BTST(STE?,9)     !started from \auto or no aes init
+acc!=BTST(STE?,10)     !program is a desk accessory
+mint!=BTST(STE?,11)    !mint detected via ssystem()

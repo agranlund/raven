@@ -1,0 +1,62 @@
+# diskette profile for msh.prg 3.0 release (ss floppy)
+# Most comments and many commands have been stripped to conserve space.
+# Please look at the other profiles (profile.fd and profile.hd)
+# for more information.
+set drive1=$cwdisk:
+setenv PATH=.cmd,,$drive1\bin,$drive1\lib
+setenv SUFF=,.prg,.ttp,.tos
+setenv LIBPATH=$drive1\lib,$drive1\bin,
+setenv INCDIR=$drive1\include
+setenv TMPDIR=$drive1\tmp
+setenv HOME=$drive1\tmp
+setenv TIMEZONE=CST:0:CDT	# Central Time
+
+# single sided operation...
+setenv SSDISK=$cwdisk
+setenv BINDRV=$cwdisk
+
+# Set the screen to a TOS style display.
+hidemouse
+setenv ESC=''
+echo -n ${ESC}E${ESC}e${ESC}v
+setenv DEFREZ=`getrez`
+setenv DEFPAL="`getpal`"
+setenv MSHREZ=$DEFREZ
+setenv MSHPAL="$DEFPAL"
+
+if (equal $DEFREZ 0) (		# if in low res.
+	setenv MSHREZ=1
+	setrez $MSHREZ			# go to med res.
+	setenv MSHPAL="0 0 0 0x777"
+	setpal $MSHPAL			# and reverse video
+)
+if (equal $DEFREZ 2) (		# if in high res.
+	setenv MSHPAL=0
+	setpal $MSHPAL			# just reverse video
+)
+cursconf 1			# make sure cursor is on
+set prompt='% '
+set history=8
+
+# note, pwd is once again a built-in command
+
+# used in gem command
+set in .cmd gemset=( 
+    echo -n ${ESC}f ; setrez $DEFREZ ; setpal $DEFPAL ; showmouse
+)
+set in .cmd mshset=(
+	hidemouse ; setrez $MSHREZ ; setpal $MSHPAL ;
+	echo -n ${ESC}E${ESC}e${ESC}v
+)
+set in .cmd gem=(
+	gemset ; $* 2>aux: >con: <con: ; set t=$status ; mshset ; exit $t
+)
+set in .cmd tos=( $* 2>aux: >con: <con: )
+
+# put the postfile into .cmd for less trouble
+set in .cmd postfile=(
+	echo -n ${ESC}f		# text cursor off
+	setrez $DEFREZ		# reset the resolution
+	setpal $DEFPAL		# reset the palette
+	showmouse		# mouse cursor on, but the desktop forces it
+)

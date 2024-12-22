@@ -1,0 +1,29 @@
+#
+# Makefile for bell.cpx
+#
+
+HDR =		..\h
+OBJ =		bell.o rbell.o
+CFL =		-i${HDR}\ -w -v -rr -cim -d2 -Oloop
+CFLAGS =	${CFL} -cs
+ASFLAGS =	-w
+DFLAGS =	-xICON
+LDFLAGS =	-tx -lg
+
+bell.cpx: ${OBJ} bell.hdr
+	${CC} ${CFLAGS} ${LDFLAGS} ${OBJ}
+#	cp bell.cpx c:\cpx
+
+bell.o: bell.c rbell.c ${HDR}\tsr.h
+
+rbell.o: rbell.c
+	${CC} -c ${CFL} -o$@ rbell.c	# we must disable string merging
+
+bell.hdr: rbell.c
+	cpxbuild -b -irbell.icn -nBELL '-tHiSoft Bell' "-d'BELL'" -v1.05 $@
+
+all: bell.cpx
+
+clean:
+	-rcsclean *.c
+	rm -f *.o *~* *.lnk rbell.icn rbell.c rbell.h bell.hdr bell.icn bell.cpx

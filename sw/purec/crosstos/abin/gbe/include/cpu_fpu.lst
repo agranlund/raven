@@ -1,0 +1,9 @@
+' these are special routines that only activate options when compiled
+' allows activation of cpu and fpu enhanced options seperately
+' as opposed to the TT? function which always activates both
+> PROCEDURE cpu_on !v1.00
+  $X PATIFP  !ignored by the edtior
+RETURN
+> PROCEDURE fpu_on !v1.00
+  $X PATCHXX  !ignored by the edtior
+RETURN

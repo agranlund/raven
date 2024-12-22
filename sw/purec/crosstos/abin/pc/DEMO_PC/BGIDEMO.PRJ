@@ -1,0 +1,32 @@
+; ************************************************************************
+; *                                                                      *
+; *         > > > > > > > >   B O R L A N D   < < < < < < < <            *
+; *                                                                      *
+; *       All rights reserved                        Copyright (89)      *
+; *                                                                      *
+; * -------------------------------------------------------------------- *
+; *                                                                      *
+; *       project              BGI DEMO                                  *
+; *                                                                      *
+; *       module               bgiobj.prj                                *
+; *                                                                      *
+; ************************************************************************
+
+BGIDEMO.PRG
+
+=
+
+PCSTART.O
+
+BGIDEMO.C
+
+PCFLTLIB.LIB         ; note: the order of the librarys is significant !!
+PCBGILIB.LIB
+PCSTDLIB.LIB
+PCEXTLIB.LIB
+PCTOSLIB.LIB
+PCGEMLIB.LIB
+
+; * -------------------------------------------------------------------- *
+; *       end of bgidemo.prj                                             *
+; * -------------------------------------------------------------------- *

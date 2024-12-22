@@ -1,0 +1,10 @@
+BELL.CPX
+.C	[-v -w -ci -cs -cu -cm -d2 -m0 -rr -fm -i..\H\ -Oloop]
+.S	[-m0]
+.L	[TTMALLOC TTLOAD PREFIX BELL.HDR]
+=
+CSRCPX.O
+BELL.C	(RBELL.H,..\H\AVR.H,..\H\TSR.H)
+RBELL.C	[-v -w -ci -cu -cm -d2 -m0 -rr -fm -i..\H\ -Oloop]
+LCGSR.LIB
+LCSR.LIB

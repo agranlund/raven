@@ -1,0 +1,172 @@
+#!/usr/bin/python
+
+import os, subprocess
+import sys, getopt, string
+import collections
+import tempfile
+
+
+def inbrackets(line, open, close):
+
+	opt = line[line.find(open)+1:line.find(close)]
+
+	return opt
+
+def project(fname, makeargs):
+
+	try:
+		out = tempfile.NamedTemporaryFile(delete=False)
+	except:
+		print "Error - unable to create temporary file."
+		sys.exit(2)
+
+	libpath  = "./LIB/"
+	includes = "-I./INCLUDE"
+	name     = ""
+
+	pobjs  = list()
+	objs   = list()
+	libs   = list()
+
+	modules = 0
+	deps   = ""
+	parms  = ""
+
+	items = collections.OrderedDict()
+	item  = ""
+
+	items['.C'] = dict({ 'Dependencies': "", 'Parameters': ""})
+	items['.S'] = dict({ 'Dependencies': "", 'Parameters': ""})
+	items['.L'] = dict({ 'Dependencies': "", 'Parameters': ""})
+
+	mode = 0
+
+	with open(fname) as f:
+
+		content = f.readlines()
+
+		for line in content:
+
+			# Strip whitespaces, convert to upper case, and remove comments
+			line = line.strip().upper().split(";", 1)[0]
+
+			if(line.startswith("*")):
+				if(modules == 0):
+					line = "output.tos"
+				else:
+					line = "default.c"
+			elif(line.startswith("=")):
+				name = item
+				modules = 1
+
+			if(line != ""):
+				if(mode == 0):
+					items[item] = dict({ 'Dependencies': map(str.strip, deps.replace('\\', '/').split(",")),
+										 'Parameters': map(str.strip, parms.split()) } )
+
+					item  = line.upper().split()[0].replace('\\', '/')
+					deps  = ""
+					parms = ""
+
+				if("(" in line):
+					if(")" in line):
+						deps = inbrackets(line, "(", ")")
+					else:
+						deps = line.split("(", 1)[1]
+						mode = 1
+				elif(")" in line):
+					deps = deps + line.split(")", 1)[0]
+					mode = 0
+				elif(mode == 1):
+					deps = deps + line
+
+				if("[" in line):
+					if("]" in line):
+						parms = inbrackets(line, "[", "]")
+					else:
+						parms = line.split("[", 1)[1]
+						mode = 2
+				elif("]" in line):
+					parms = parms + line.split("]", 1)[0]
+					mode = 0
+				elif(mode == 2):
+					parms = parms + line
+
+
+		if(mode == 0):
+			items[item] = dict({ 'Dependencies': map(str.strip, deps.split(",")),
+								 'Parameters': map(str.strip, parms.split()) } )
+
+
+		cflags = ' '.join(items['.C']['Parameters'])
+		lflags = ' '.join(items['.L']['Parameters'])
+		aflags = ' '.join(items['.S']['Parameters'])
+
+		del items['.C']
+		del items['.L']
+		del items['.S']
+
+		for key, value in items.iteritems():
+
+			if(key.endswith(".O")):
+				pobjs.append("$(LIBPATH)" + key)
+			elif(key.endswith(".C") or key.endswith(".S")):
+				objs.append(key[:-1] + "O")
+			elif(key.endswith(".LIB")):
+				libs.append("$(LIBPATH)" + key)
+
+		out.writelines("NAME     = " + name + os.linesep)
+		out.writelines("TMP      = __tmpXYZ.txt" + os.linesep)
+		out.writelines("INCLUDES = " + includes + os.linesep)
+		out.writelines("CC       = ./m68k-atari-tos-tc-tcc" + os.linesep)
+		out.writelines("PP       = ./m68k-atari-tos-tc-cpp" + os.linesep)
+		out.writelines("AS       = ./m68k-atari-tos-tc-tasm" + os.linesep)
+		out.writelines("LD       = ./m68k-atari-tos-tc-tlink" + os.linesep)
+		out.writelines("CFLAGS   = " + cflags + " $(INCLUDES)" + os.linesep)
+		out.writelines("AFLAGS   = " + aflags + os.linesep)
+		out.writelines("LFLAGS   = " + lflags + os.linesep)
+		out.writelines("LIBPATH  = " + libpath + os.linesep)
+		out.writelines("PREBUILT = " + ' '.join(pobjs) + os.linesep)
+		out.writelines("OBJECTS  = " + ' '.join(objs) + os.linesep)
+		out.writelines("LIBS     = " + ' '.join(libs) + os.linesep)
+		out.writelines("" + os.linesep)
+		out.writelines("all: $(NAME)" + os.linesep)
+		out.writelines("" + os.linesep)
+		out.writelines("$(NAME): $(PREBUILT) $(OBJECTS)" + os.linesep)
+		out.writelines("\t@echo $(PREBUILT) $(OBJECTS) $(LIBS) >$(TMP)" + os.linesep)
+		out.writelines("\t$(LD) $(LDFLAGS) -C=$(TMP) -O=$@" + os.linesep)
+		out.writelines("\t@rm -f $(TMP)" + os.linesep)
+		out.writelines("\t@echo Done." + os.linesep)
+		out.writelines("" + os.linesep)
+
+		for key, value in items.iteritems():
+			if(key.endswith(".C")):
+				out.writelines(key[:-1] + "O" + ": " + key + " " + ' '.join(value['Dependencies']) + os.linesep)
+				out.writelines("\t$(CC) $(CFLAGS) " + ' '.join(value['Parameters'])+ " -O$@ " + key + os.linesep)
+
+			elif(key.endswith(".S")):
+				out.writelines(key[:-1] + "O" + ": " + key + " " + ' '.join(value['Dependencies']) + os.linesep)
+				out.writelines("\t$(AS) $(AFLAGS) " + ' '.join(value['Parameters'])+ " -O$@ " + key + os.linesep)
+
+			out.writelines("" + os.linesep)
+
+
+		out.writelines("clean:" + os.linesep)
+		out.writelines("\t rm -f $(OBJECTS) $(NAME) $(TMPOBJ)" + os.linesep)
+		out.writelines("" + os.linesep)
+
+		out.close()
+
+		make_process = subprocess.call("make -f " + out.name + " " + makeargs, shell=True)
+
+		os.remove(out.name) 
+
+def main(argv):
+  
+	if(len(argv) > 0):
+		project(argv[0], ' '.join(argv[1:]))
+	else:
+		print "Usage: pmake [options] [target] ..."
+
+if __name__== "__main__":
+	main(sys.argv[1:])

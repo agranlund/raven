@@ -1,0 +1,8 @@
+WTEST.PRG
+.C	[-b4 -r6 -v -d2 -m0 -rs -fm]
+.S	[-m0]
+=
+C.O
+WTEST.C	(WRSC.H)
+LCG.LIB
+LC.LIB

@@ -1,0 +1,93 @@
+
+
+	LaserDB v1.0 Release Notes
+
+
+	Making LaserDB a tool under the shell -
+
+	LaserDB can be made a tool under v2.x of the
+	Laser Shell.  To install LaserDB under the shell,
+	do the following:
+
+	1. Copy LDB.PRG to your owrking disk or hard drive.
+
+	2. Start the shell, LASER.PRG.
+
+	3. Open the "Tool Locate..." dialog from the "Options" menu.
+
+	4. In the left-hand file selector box, locate the file
+	   LDB.PRG on your WORKING DISK or HARD DRIVE.
+
+	5. Select LDB.PRG in the left-hand box and then click on
+	   the ">> ADD >>" button.
+
+	6. Using the Attribute buttons at the bottom of the dialog,
+	   Click on "D-LaserDB".  You may also wisk to click on
+	   "W-Write-Thru" to make the program write thorugh the cache
+	   to disk.  This will apply to any disk i/o done by the
+	   program being debugged.  NOTE: LaserDB cannot be made
+	   RAM-resident.
+
+	7. Click on the "OK" button to close the dislog and load any
+	   RAM-resident programs.
+
+	8. Under "Options" select "Save Configuration...".  This will
+	   assure that LaserDB will be a tool the next time the shell
+	   is started.
+
+
+	Debugging from the shell -
+
+	When LaserDB is located as a tool, the "Execute" menu will
+	hilight the "Debug..." menu option.  This item will run 
+	LaserDB.
+
+	If the tow window contains a ".C" file or if the link dialog
+	contains ".O" files, the "Run/Debug" item will be hilighted.
+	Selecting this will compile, link (like the "Run" command)
+	except the -Z option will be passed.  Then LaserDB will be
+	executed passing it the name of the program just created by
+	the linker.
+
+
+	New features for LaserDB v1.1 -
+
+	- You can now quit without saving the config file.
+
+	- The expression evaluator now supports label names in
+	  expressions.
+
+	  The syntax is:
+			$<label>.
+	  For example:
+			$_main
+	  The type (reguardless of the label's SEGMENT, is "function".
+
+	- There is a new command under the Options menu.  The Memory
+	  command displays a dialog that can disassemble and dump any
+	  memory.  To use the dialog, simply enter any debugger ex-
+	  pression into the typing entry line and then click on either
+	  "Dump" or "Disassemble".  The results will be displayed in
+	  the scrollable window.
+
+	- The contents of the watch window are now saved into the
+	  configuration file.
+
+
+	The wind_update() problem -
+
+	A problem can arise when your application calls the wind_update()
+	AES routine.  When "wind_update( BEGIN_UPDATE )" is called, GEM
+	stops responding to mouse events, such as dropping the menu bar.
+	A "wind_update( END_UPDATE )" tells GEM to once again respond
+	to mouse events.  The problem arises when "wind_update( BEGIN_UPDATE )"
+	is called and then LaserDB is exited or the target is reloaded.
+	This problem is not unique to LaserDB -- any program which does not
+	correctly balance "wind_updates()" will mess up AES.
+
+	TOS 1.4 has a new function which solves this problem.  The
+	"wind_new()" function resets all "wind_update()'s".  Versions
+	2.1 or greater of the Laser Shell call wind_new() each time
+	a program terminates back to the shell (if run under TOS 1.4).
+
+
