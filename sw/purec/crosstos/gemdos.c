@@ -53,7 +53,7 @@ int getch(void)
 }
 #endif
 
-static file_t handles[16];
+static file_t handles[256];
 
 uint8_t ta_base[0x1000*16];
 

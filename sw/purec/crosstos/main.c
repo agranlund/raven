@@ -10,7 +10,7 @@ int main(int argc, char **argv, char **envp)
 {
     bool done = false;
 
-    char cmd[126] = "";
+    char cmd[1024] = "";
 /*
     for (char **env = envp; *env != 0; env++)
     {
