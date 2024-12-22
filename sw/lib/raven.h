@@ -35,7 +35,11 @@ Important:
 #if !defined(__ASM__)
 #if defined(__GNUC__)
 #define _RVAPI
+#if (__STDC_VERSION__ > 199409L) 
 #define _RVINL static inline
+#else
+#define _RVINL static
+#endif
 #else
 #define _RVAPI cdecl
 #define _RVINL static
