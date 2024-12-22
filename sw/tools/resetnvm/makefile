@@ -1,13 +1,15 @@
-
 BINROOT	= c:/tools
 SRCROOT	= ../..
-PCMAKE	= $(SRCROOT)/purec/pcmake.ttp
+include $(SRCROOT)/purec/Makefile.pc
+.PHONY: all clean install
 
 all:
-	$(PCMAKE) -B resetnvm.prj
+	$(SRCROOT)/purec/$(PCMAKE) -B resetnvm.prj
 
 clean:
 	rm -f *.O *.prg *.tos
 
 install: all
+ifneq ($(cross),y)
 	cp resetnvm.prg $(BINROOT)/
+endif

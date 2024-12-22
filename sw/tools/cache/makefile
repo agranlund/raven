@@ -1,17 +1,17 @@
-
 BINROOT	= c:/tools
-
 SRCROOT	= ../..
-PCMAKE	= $(SRCROOT)/purec/pcmake.ttp
+include $(SRCROOT)/purec/Makefile.pc
+.PHONY: all clean install
 
 all:
-	$(PCMAKE) -B cacheoff.prj
-	$(PCMAKE) -B cacheon.prj
+	$(SRCROOT)/purec/$(PCMAKE) -B cacheoff.prj
+	$(SRCROOT)/purec/$(PCMAKE) -B cacheon.prj
 
 clean:
 	rm -f *.O *.prg *.tos
 	
 install: all
+ifneq ($(cross),y)
 	cp cacheoff.prg $(BINROOT)/
 	cp cacheon.prg $(BINROOT)/
-
+endif

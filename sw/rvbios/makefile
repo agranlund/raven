@@ -1,13 +1,11 @@
-
 BINROOT	= c:/auto
-
 SRCROOT	= ..
-PCROOT = $(SRCROOT)/purec
-include $(PCROOT)/Makefile.pc
+include $(SRCROOT)/purec/Makefile.pc
+.PHONY: all clean install
 
 all:
-	$(PCROOT)/$(PCMAKE) rvbios.prj
-#	$(PCROOT)/$(PRGFLG) 0xff 0x31 rvbios.prg
+	$(SRCROOT)/purec/$(PCMAKE) rvbios.prj
+#	$(SRCROOT)/purec/$(PRGFLG) 0xff 0x31 rvbios.prg
 
 clean:
 	rm -f *.prg *.lst *.pdb *.o setup/*.o

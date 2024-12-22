@@ -1,15 +1,16 @@
-
 BINROOT	= c:/tools
-
 SRCROOT	= ../..
-PCMAKE	= $(SRCROOT)/purec/pcmake.ttp
+include $(SRCROOT)/purec/Makefile.pc
+.PHONY: all clean install
 
 all:
-	$(PCMAKE) -B thingpal.prj
+	$(SRCROOT)/purec/$(PCMAKE) -B thingpal.prj
 
 clean:
 	rm -f *.o *.tos *.prg *.lst *.pdb *.pal *.act
 	rm -f *.O *.TOS *.PRG *.LST *.PDB *.PAL *.ACT
 
 install: all
+ifneq ($(cross),y)
 	cp thingpal.tos $(BINROOT)/
+endif
