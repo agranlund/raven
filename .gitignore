@@ -30,3 +30,10 @@ sw/tools/setenv/*
 sw/tools/autoexec/*
 local/*
 sw/rvga/*
+sw/purec/m68k-atari-tos-pc-*
+sw/purec/pcmake
+sw/purec/src/crosstos/dist/*
+sw/purec/src/crosstos/bin-pc-*.c
+sw/purec/src/crosstos/incbin
+sw/purec/src/pcmake/pcmake
+sw/purec/lib/*
