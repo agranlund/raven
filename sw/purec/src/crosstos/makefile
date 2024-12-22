@@ -92,6 +92,7 @@ endef
 # Target definition (final binaries)
 define target_binary
 $(call fullname, $f) : $(call bobject,$f) $(OBJECTS)
+				mkdir -p $(BUILDDIR)/$(call targname,$f)
 				$(LD) $(LDFLAGS) $(OBJECTS) $(call bobject,$f) $(LIBS) -o $(call fullname, $f)
 endef
 

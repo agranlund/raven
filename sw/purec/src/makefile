@@ -1,44 +1,55 @@
 
-INSTALL_BIN	= /usr/bin
-INSTALL_INC	= /usr/include/purec
-INSTALL_LIB	= /usr/lib/purec
+PUREC		= crosstos/abin/pc
 
-all:
-	mkdir -p ../lib
-ifneq ($(PUREC),)
+#cross		= y
+
+.PHONY: purec pcmake libs clean distclean
+all: purec pcmake libs
+
+purec:
+ifeq ($(cross),y)
+	make -C crosstos
+	cp crosstos/dist/pc/m68k-atari-tos-pc-pcc ../
+	cp crosstos/dist/pc/m68k-atari-tos-pc-pasm ../
+	cp crosstos/dist/pc/m68k-atari-tos-pc-plink ../
+else
 	cp -f $(PUREC)/pcc.ttp ../
 	cp -f $(PUREC)/pasm.ttp ../
 	cp -f $(PUREC)/plink.ttp ../
+endif
+
+pcmake:
+ifeq ($(cross),y)
+	make -C pcmake CROSS_PREFIX=
+	cp pcmake/pcmake ../
+endif
+
+libs:
+	mkdir -p ../lib
 	cp -f -r $(PUREC)/lib/pcstdlib.lib ../lib/
 	cp -f -r $(PUREC)/lib/pcfltlib.lib ../lib/
-endif
-	make -C pctoslib
-	make -C pcgemlib
-	make -C pclnalib
-	make -C pcstart
+	make -C pctoslib cross=$(cross)
+	make -C pcgemlib cross=$(cross)
+	make -C pclnalib cross=$(cross)
+	make -C pcstart cross=$(cross)
 
-	
 clean:
+ifeq ($(cross),y)
+	make -C crosstos clean
+	make -C pcmake clean
+endif
 	make -C pctoslib clean
 	make -C pcgemlib clean
 	make -C pclnalib clean
 	make -C pcstart clean
 
 distclean: clean
-	rm -f ../pc.prg ../pcc.ttp ../pasm.ttp ../plink.ttp
+	rm -f ../pc.prg
+	rm -f ../pcc.ttp
+	rm -f ../pasm.ttp
+	rm -f ../plink.ttp
+	rm -f ../m68k-atari-tos-pc-pcc
+	rm -f ../m68k-atari-tos-pc-pasm
+	rm -f ../m68k-atari-tos-pc-plink
+	rm -f ../pcmake
 	rm -f ../lib/*
-
-
-install: all
-	mkdir -p $(INSTALL_BIN)
-	
-	mkdir -p $(INSTALL_INC)
-	mkdir -p $(INSTALL_LIB)
-	
-	cp -f ../pcc.ttp $(INSTALL_BIN)/pcc
-	cp -f ../pasm.ttp $(INSTALL_BIN)/pasm
-	cp -f ../plink.ttp $(INSTALL_BIN)/plink
-	
-	cp -f -r ../lib/* $(INSTALL_LIB)/
-	cp -f -r ../include/* $(INSTALL_INC)/
-	

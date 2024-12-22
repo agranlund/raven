@@ -1,18 +1,16 @@
 
-1. copy the following files from your
-   standard Pure-C installation:
+Installing the pure-c environment
 
-   pc.prg
-   pcc.ttp
-   pasm.ttp
-   plink.ttp
-   lib/pcstdlib.lib
-   lib/pcfltlib.lib
+Atari:
+make -C src
 
-2. build the following projects
-   src/pcstart
-   src/pctoslib
-   src/pclnalib
-   src/pcgemlib
+Cross compilation on Mac/Linux:
+make -C src cross=y
 
+
+crosstos (c) Peter Persson:
+https://bitbucket.org/pep-entral/crosstos/src/master/
+
+pcmake (c) Thorsten Otto:
+https://github.com/th-otto/pcmake
 

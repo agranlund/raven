@@ -1,0 +1,17 @@
+
+    cross       := y
+
+ifeq ($(cross),y)
+    PCC         := m68k-atari-tos-pc-pcc
+    PASM        := m68k-atari-tos-pc-pasm
+    PLINK       := m68k-atari-tos-pc-plink
+    PCMAKE      := pcmake
+    PRGFLAGS    := prgflags
+else
+    PCC         := pcc.ttp
+    PASM        := pasm.ttp
+    PLINK       := plink.ttp
+    PCMAKE      := pcmake.prg
+    PRGFLAGS    := prgflags.prg
+endif
+

@@ -43,7 +43,7 @@ int main(int argc, char **argv, char **envp)
 
     cmd[i] = '\0';
 
-    printf("Command line %s\n", cmd);
+    //printf("Command line %s\n", cmd);
 
     uint32_t sys_pd = cpu_init(argc, argv, envp);
 

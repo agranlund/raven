@@ -1,0 +1,14 @@
+test.ttp
+
+.C [-A- -H- -K-]
+.C [-C- -M- -P- -G]
+.S[-2]
+.L [-S=32768]
+=
+cstartv.o
+
+test.c
+test1.s
+
+pcstdlib.lib		; standard library
+pctoslib.lib		; TOS library

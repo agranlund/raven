@@ -1,11 +1,13 @@
 PCROOT = ../..
+include $(PCROOT)/Makefile.pc
+
 SFILES = $(wildcard *.s)
 OFILES = $(SFILES:%.s=%.o)
 
 all: $(OFILES)
 
 %.o: %.s
-	$(PCROOT)/pasm.ttp -S -U $<
+	$(PCROOT)/$(PASM) -S -U $<
 	cp $@ $(PCROOT)/lib/$@
 
 clean:

@@ -1,24 +1,9 @@
 PCROOT = ../..
-CFILES = $(wildcard *.c)
-SFILES = $(wildcard *.s)
-OFILES = $(CFILES:%.c=%.o) $(SFILES:%.s=%.o)
+include $(PCROOT)/Makefile.pc
 
-
-$(PCROOT)/lib/pclnalib.lib: $(OFILES)
-	$(PCROOT)/plink.ttp -J -G -O=$@ $(OFILES)
-
-
-%.o: %.s
-	$(PCROOT)/pasm.ttp -I$(PCROOT)/include/ -S $<
-
-
-%.o: %.c
-	$(PCROOT)/pcc.ttp -I$(PCROOT)/include/ -E1 -L99 -M $< 
-
-
-nf_ops.o : nf_ops.c
-	$(PCROOT)/pcc.ttp -I$(PCROOT)/include/ -E1 $<
+.PHONY: all clean
+all:
+	./$(PCROOT)/$(PCMAKE)
 
 clean:
 	rm -f *.o *.lib *.pdb *.O *.LIB *.PDB $(PCROOT)/lib/pclnalib.lib
-
