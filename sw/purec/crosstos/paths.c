@@ -84,6 +84,11 @@ static bool path_find_item(char* path, char* item, int count)
                     }
                 }
             }
+
+            if (match && c1 && de->d_name[i])
+            {
+                match = false;
+            }
         }
 
         if(match)

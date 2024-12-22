@@ -54,24 +54,12 @@ uint32_t cpu_init(int argc, char **argv, char **envp)
     uint32_t p_resrvd0 = 0;                     /* Reserved                            */
     uint32_t p_env     = p_hitpa;               /* Address of the environment string   */
 
-    int arg;
+    strcpy((char*)&ram[p_hitpa], "PATH="); p_hitpa += 6;
+    strcpy((char*)&ram[p_hitpa], "."); p_hitpa += 2;
+    ram[p_hitpa++] = 0;
+    ram[p_hitpa++] = 0;
 
-    for(arg = 0; arg < argc; arg++)
-    {
-        char* chr = arg ? argv[arg] : "ARGV=binary";
-
-        while(*chr)
-        {
-            ram[p_hitpa++] = *chr++;
-        }
-
-        ram[p_hitpa++] = ' ';
-    }
-
-    ram[p_hitpa++] = '\0';
-    ram[p_hitpa++] = '\0';
-
-   // printf("ENV: %s\r\n", &ram[p_env]);
+    memset(&ram[pd + OFF_P_CMDLIN], 0, 128);
 
     WRITE_LONG(ram, pd + OFF_P_LOWTPA,  p_lowtpa);
     WRITE_LONG(ram, pd + OFF_P_HITPA,   p_hitpa);
@@ -86,7 +74,7 @@ uint32_t cpu_init(int argc, char **argv, char **envp)
     WRITE_LONG(ram, pd + OFF_P_RESRVD0, p_resrvd0);
     WRITE_LONG(ram, pd + OFF_P_ENV,     p_env);
 
-    return 0;
+    return pd;
 }
 
 bool cpu_load(uint8_t* bin, uint32_t tpasize, const char * p_cmdlin, uint32_t parent_pd)
@@ -129,7 +117,7 @@ bool cpu_load(uint8_t* bin, uint32_t tpasize, const char * p_cmdlin, uint32_t pa
 
     uint32_t p_lowtpa  = pd;                    /* Start address of the TPA            */
     uint32_t p_hitpa   = p_lowtpa + tpasize;    /* First byte after the end of the TPA */
-    uint32_t p_tbase   = p_lowtpa + 256;        /* Start address of the program code   */
+    uint32_t p_tbase   = p_lowtpa + 256 + 2048;        /* Start address of the program code   */
     uint32_t p_tlen    = ph_tlen;               /* Length of the program code          */
     uint32_t p_dbase   = p_tbase + p_tlen;      /* Start address of the DATA segment   */
     uint32_t p_dlen    = ph_dlen;               /* Length of the DATA section          */
@@ -142,7 +130,8 @@ bool cpu_load(uint8_t* bin, uint32_t tpasize, const char * p_cmdlin, uint32_t pa
                                                 /* calling processes                   */
     uint32_t p_resrvd0 = 0;                     /* Reserved                            */
 
-    uint32_t p_env     = READ_LONG(ram, parent_pd + OFF_P_ENV); /* Address of the environment string   */
+    uint32_t p_env_p   = READ_LONG(ram, parent_pd + OFF_P_ENV); /* Address of the environment string   */
+    uint32_t p_env     = p_lowtpa + 256; 
 
     WRITE_LONG(ram, pd + OFF_P_LOWTPA,  p_lowtpa);
     WRITE_LONG(ram, pd + OFF_P_HITPA,   p_hitpa);
@@ -158,8 +147,56 @@ bool cpu_load(uint8_t* bin, uint32_t tpasize, const char * p_cmdlin, uint32_t pa
     WRITE_LONG(ram, pd + OFF_P_ENV,     p_env);
 
     memset(&ram[pd + OFF_P_RESRVD1 ], 0, 80);
-    ram[pd + OFF_P_CMDLIN] = strlen(p_cmdlin);
-    strcpy((char *)&ram[pd + OFF_P_CMDLIN + 1], p_cmdlin);
+    memset(&ram[pd + OFF_P_CMDLIN], 0, 128);
+    ram[pd + OFF_P_CMDLIN+0] = 127;
+
+    char* envp = (char*)&ram[p_env_p];
+    char* env = (char*)&ram[p_env];
+    while (1)
+    {
+        *env++ = *envp++;
+        if ((*(envp-1) == 0) && (*(envp+0) == 0))
+        {
+            break;
+        }
+    }
+
+    if (p_cmdlin)
+    {
+        strcpy(env, "ARGV="); env += 6;
+        strcpy(env, "binary.prg"); env += 11;   // todo: real application name
+        const char* pin = p_cmdlin;
+        while (*pin)
+        {
+            char c = *pin++;
+            *env++ = (c == ' ') ? 0 : c;
+        }
+
+        int l_cmdlin = strlen(p_cmdlin);
+        if (l_cmdlin < 126)
+        {
+            ram[pd + OFF_P_CMDLIN] = l_cmdlin;
+            strcpy((char*)&ram[pd + OFF_P_CMDLIN + 1], p_cmdlin);
+        }
+    }
+    *env++ = 0;
+
+
+#if 0
+    env = (char*)&ram[p_env];
+    while (*env)
+    {
+        char* s = env;
+        int   l = env ? strlen(env) : 0;
+        if (s) {
+            printf("env = [%s]\n", env);
+        }
+        env += (l + 1);
+    }
+#endif
+    
+
+
 
     memcpy(&ram[p_tbase], bin + 28, p_tlen + p_dlen);
 
