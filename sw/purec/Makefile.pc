@@ -4,12 +4,11 @@ ifeq ($(cross),y)
     PASM        := m68k-atari-tos-pc-pasm
     PLINK       := m68k-atari-tos-pc-plink
     PCMAKE      := pcmake
-    PRGFLG      := prgflags
+    PRGFLG      := m68k-atari-mint-flags
 else
     PCC         := pcc.ttp
     PASM        := pasm.ttp
     PLINK       := plink.ttp
     PCMAKE      := pcmake.ttp
-    PRGFLG      := prgflags.prg
+    PRGFLG      := flags.ttp
 endif
-
