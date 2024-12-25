@@ -1,6 +1,16 @@
 Raven.A1
 Hardware and software binary release
 
+20241225
+  rvbios:   use standard Atari colors
+  rvbios:   reset after certain changes
+  rvbios:   cpu page memory settings
+  rvbios:   check rom version on startup
+  rom:      faster vga init
+  rvnova:   fixed memory overwrite
+  isa_bios: built with purec
+  ultrinit: built with purec
+
 20241216
   Updated pgusinit from latest v2.2.0 sources
 
