@@ -31,6 +31,8 @@
 #include "f_cpu.h"
 #include "f_exit.h"
 
+#include "raven.h"
+
 /*--- Defines ---*/
 
 typedef enum
@@ -213,39 +215,34 @@ void loadSettings(void)
 {
 	unsigned long cacr = cacr_get();
 	unsigned long pcr  = pcr_get();
-
+    /*
+    unsigned long flags;
+    */
 	nv_flags = 0;
 	nv_flags |= (cacr & (1L<<15)) >> 15;
 	nv_flags |= (cacr & (1L<<31)) >> 30;
 	nv_flags |= (cacr & (1L<<23)) >> 21;
 	nv_flags |= (cacr & (1L<<29)) >> 26;
-
 	nv_flags |= (pcr & (1<<0)) << 4;
 	nv_flags |= (pcr & (1<<1)) << 4;
 
-/*
-	nv_flags = g_rv->conf(RV_CONF_CPU, -1);
-*/
+    /*
+    flags = raven()->cfg_Read("cpuflags");
+    */
+    stram_cm = raven()->cfg_Read("st_ram_cache");
+    ttram_cm = raven()->cfg_Read("tt_ram_cache");
 }
 
 void saveSettings(void)
 {
+    raven()->cfg_Write("st_ram_size", stram_size);
+    raven()->cfg_Write("st_ram_cache", stram_cm);
+    raven()->cfg_Write("tt_ram_cache", ttram_cm);
+
 /*
-	unsigned char nv_ram_new = 0;
-
-	nv_flags_new = (nv_flags & 0x3f) |
-					
-
-	nv_ram_new = (nvram & 0x3f) |
-				((ttram_cache & 3) << 0) |
-				((stram_cache & 3) << 2) |
-				((stram_size  & 3) << 4);
-
-
-
-	unsigned int changed = 0;
-	changed |= g_rv->conf(RV_CONF_CPU, nv_flags);
-	changed |= g_rv->conf(RV_CONF_RAM, nv_ram);
+    { "cpuflags",       0,  0, 0x3A, 6, 0, 0, 0x3F, 0x3F },
+    { "boot_enable",    0,  0, 0x3B, 1, 0, 0, 1,    1 },
+    { "boot_delay",     0,  0, 0x3B, 4, 4, 0, 15,   0 },
 */
 }
 
@@ -263,12 +260,11 @@ void refreshFormCpu(void)
 	form_cpu[FORM_CACR_EBC].text[FORM_TEXTPOS+1] = ((nv_flags & (1<<2)) ? 'x' : ' ');
 	form_cpu[FORM_CACR_ESB].text[FORM_TEXTPOS+1] = ((nv_flags & (1<<3)) ? 'x' : ' ');
 	form_cpu[FORM_PCR_SS].text[FORM_TEXTPOS+1]   = ((nv_flags & (1<<4)) ? 'x' : ' ');
-	form_cpu[FORM_PCR_FPU].text[FORM_TEXTPOS+1]  = ((nv_flags & (1<<5)) ? 'x' : ' ');
 }
 
 void exitFormCpu(void)
 {
-	/* todo: save settings */
+    saveSettings();
 }
 
 void initFormCpu(void)
@@ -346,13 +342,16 @@ static void confirmFormCpu(int num_setting, conf_setting_u confSetting)
 		case FORM_SETTING_TTRAM_CACHE:
             exit_flag |= EXIT_FLAG_COLD_RESET;
 			break;
+/*            
 		case FORM_SETTING_CACR_EIC: nv_flags = (nv_flags & ~(1<<0)) | (~nv_flags & (1<<0)); break;
 		case FORM_SETTING_CACR_EDC: nv_flags = (nv_flags & ~(1<<1)) | (~nv_flags & (1<<1)); break;
 		case FORM_SETTING_CACR_EBC: nv_flags = (nv_flags & ~(1<<2)) | (~nv_flags & (1<<2)); break;
 		case FORM_SETTING_CACR_ESB: nv_flags = (nv_flags & ~(1<<3)) | (~nv_flags & (1<<3)); break;
 		case FORM_SETTING_PCR_SS: 	nv_flags = (nv_flags & ~(1<<4)) | (~nv_flags & (1<<4)); break;
-		default:
             exit_flag |= EXIT_FLAG_COLD_RESET;
+            break;
+*/        
+		default:
 			break;
 	}
 

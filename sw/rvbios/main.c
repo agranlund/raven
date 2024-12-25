@@ -49,7 +49,6 @@
 /*----------------------------------------
 	Globals
 ----------------------------------------*/
-const raven_t* g_rv;
 extern uint8_t LogoPic;
 
 /*----------------------------------------
@@ -143,7 +142,7 @@ void InstallCookies(void)
 	}
 #endif
 	
-	Setcookie(C_RAVN, (uint32_t)g_rv);
+	Setcookie(C_RAVN, (uint32_t)raven());
 }
 
 /*----------------------------------------
@@ -252,8 +251,7 @@ long supermain()
 	linea_init();
 
 	/* fetch pointer rom bios */	
-	g_rv = *((const raven_t**)C_RAVN_PTR);
-	if (g_rv->magic != C_RAVN) {
+	if (raven()->magic != C_RAVN) {
 		return -1;
 	}
 

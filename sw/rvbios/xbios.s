@@ -45,6 +45,10 @@
 	.XREF 	xbc_gettime
 	.XREF 	xbc_nvmaccess
 
+    .XREF   xbc_cache_flush
+    .XREF   xbc_cache_enable
+    .XREF   xbc_cache_disable
+
 	.EXPORT InstallXbios
 	.EXPORT LogoPic
 
@@ -52,27 +56,27 @@
 
 	
 ;----------------------------------------------------------
-cache_enable:
-	movec.l	cacr,d0
-	btst.b	#31,d0
-	bne.b	.1
-	move.l	#0xA0C08000,d0		; EDC, ESB, EBC, EIC
-	nop
-	cinva	bc
-	nop
-	movec.l	d0,cacr
-.1:	rts
-
-cache_disable:
-	movec.l	cacr,d0
-	btst.b	#31,d0
-	beq.b	.1
-	moveq.l	#0,d0
-	nop
-	cpusha	bc
-	nop
-	movec.l	d0,cacr
-.1:	rts
+;cache_enable:
+;	movec.l	cacr,d0
+;	btst.b	#31,d0
+;	bne.b	.1
+;	move.l	#0xA0C08000,d0		; EDC, ESB, EBC, EIC
+;	nop
+;	cinva	bc
+;	nop
+;	movec.l	d0,cacr
+;.1:	rts
+;
+;cache_disable:
+;	movec.l	cacr,d0
+;	btst.b	#31,d0
+;	beq.b	.1
+;	moveq.l	#0,d0
+;	nop
+;	cpusha	bc
+;	nop
+;	movec.l	d0,cacr
+;.1:	rts
 
 
 
@@ -87,23 +91,17 @@ xb_cache_ctrl:
 	rte
 .1:	cmp.w	#1,d0			; flush data cache
 	bne.b	.2
-	nop
-	cpusha	dc
-	nop
+    bsr     xbc_cache_flush
 	moveq.l	#0,d0
 	rte
 .2:	cmp.w	#2,d0			; flush instruction cache
 	bne.b	.3
-	nop
-	cpusha	ic
-	nop
+    bsr     xbc_cache_flush
 	moveq.l	#0,d0
 	rte
 .3:	cmp.w	#3,d0			; flush both caches
 	bne.b	.4
-	nop
-	cpusha	bc
-	nop
+    bsr     xbc_cache_flush
 	moveq.l	#0,d0
 	rte
 .4:	cmp.w	#4,d0			; inquire data cache mode
@@ -116,9 +114,9 @@ xb_cache_ctrl:
 	bne.b	.6
 	cmp.w	#0,d1
 	bne.b	.5a
-	bsr		cache_disable		; disable all caches like CT60
+	bsr		xbc_cache_disable		; disable all caches like CT60
 	bra.b	.5b
-.5a:bsr		cache_enable		; enable all caches like CT60
+.5a:bsr		xbc_cache_enable		; enable all caches like CT60
 .5b:moveq.l	#0,d0
 	rte
 .6:	cmp.w	#6,d0			; inquire instruction cache mode
@@ -131,9 +129,9 @@ xb_cache_ctrl:
 	bne.b	.8
 	cmp.w	#0,d1
 	bne.b	.7a
-	bsr		cache_disable		; disable all caches like CT60
+	bsr		xbc_cache_disable		; disable all caches like CT60
 	bra.b	.7b
-.7a:bsr		cache_enable		; enable all caches like CT60
+.7a:bsr		xbc_cache_enable		; enable all caches like CT60
 .7b:moveq.l	#0,d0
 	rte
 .8:	move.l	#-5,d0			; EBADRQ
@@ -146,9 +144,9 @@ xb_ct60_cache:
 	move.w	2(a0),d0
 	bmi.b	.2
 	bne.b	.1
-.0:	bsr		cache_disable
+.0:	bsr		xbc_cache_disable
 	bra.b	.2
-.1:	bsr		cache_enable
+.1:	bsr		xbc_cache_enable
 .2:	movec.l	cacr,d0
 	rte
 
@@ -156,12 +154,7 @@ xb_ct60_cache:
 ;----------------------------------------------------------
 xb_ct60_flush_cache:
 	or.w	#0x0700,sr		; disable interrupts
-;	movec.l	cacr,d0
-;	btst.b	#31,d0
-;	bne.b	.1
-	nop
-	cpusha	bc
-	nop
+    bsr     xbc_cache_flush
 .1:	rte
 
 

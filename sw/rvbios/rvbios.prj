@@ -1,5 +1,6 @@
 rvbios.prg
 .C[-I..\purec\include]
+.C[-I..\lib]
 .C[-DXBTIME=0]
 .C[-DXBNVM=0]
 .C[-E1 -2 -P -W2]

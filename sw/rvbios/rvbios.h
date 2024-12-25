@@ -30,7 +30,6 @@
 	main.c
 */
 
-extern const  	raven_t* g_rv;
 extern void		SetCookie(uint32_t id, uint32_t value);
 
 
