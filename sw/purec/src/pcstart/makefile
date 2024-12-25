@@ -7,7 +7,7 @@ OFILES = $(SFILES:%.s=%.o)
 all: $(OFILES)
 
 %.o: %.s
-	$(PCROOT)/$(PASM) -S -U $<
+	$(PASM) -S -U $<
 	cp $@ $(PCROOT)/lib/$@
 
 clean:

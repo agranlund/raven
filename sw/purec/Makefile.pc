@@ -1,14 +1,30 @@
 
-ifeq ($(cross),y)
-    PCC         := m68k-atari-tos-pc-pcc
-    PASM        := m68k-atari-tos-pc-pasm
-    PLINK       := m68k-atari-tos-pc-plink
-    PCMAKE      := pcmake
-    PRGFLG      := m68k-atari-mint-flags
-else
-    PCC         := pcc.ttp
-    PASM        := pasm.ttp
-    PLINK       := plink.ttp
-    PCMAKE      := pcmake.ttp
-    PRGFLG      := flags.ttp
+ifeq ($(cross),)
+    ifeq ($(OS),Windows_NT)
+        UNAME = Windows
+    else
+        UNAME = $(shell uname -s)
+    endif
+
+    ifeq ($(UNAME),FreeMiNT)
+        cross = n
+    else
+        cross = y
+    endif
 endif
+
+
+ifeq ($(cross),y)
+	PCC			:= $(PCROOT)/m68k-atari-tos-pc-pcc
+	PASM		:= $(PCROOT)/m68k-atari-tos-pc-pasm
+	PLINK		:= $(PCROOT)/m68k-atari-tos-pc-plink
+	PFLAGS		:= m68k-atari-mint-flags
+	PCMAKE		:= $(PCROOT)/pcmake
+else
+	PCC			:= $(PCROOT)/pcc.ttp
+	PASM		:= $(PCROOT)/pasm.ttp
+	PLINK		:= $(PCROOT)/plink.ttp
+	PFLAGS		:= $(PCROOT)/flags.ttp
+	PCMAKE		:= $(PCROOT)/pcmake.ttp
+endif
+

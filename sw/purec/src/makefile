@@ -1,7 +1,8 @@
 
-PUREC		= crosstos/abin/pc
+PCROOT = ..
+include $(PCROOT)/Makefile.pc
 
-#cross		= y
+PUREC		= crosstos/abin/pc
 
 .PHONY: purec pcmake libs clean distclean
 all: purec pcmake libs
