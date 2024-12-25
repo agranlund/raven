@@ -76,7 +76,11 @@ typedef struct
     uint32_t    reserved0060[2];
     
 /* 0x0080 */
+#if defined(__GNUC__)
     struct X86EMU* _RVAPI (*x86)(void);
+#else
+    void*       _RVAPI (*x86)(void);
+#endif
     uint32_t    _RVAPI (*vga_Init)(void);
     void        _RVAPI (*vga_Clear)(void);
     uint32_t    _RVAPI (*vga_Addr)(void);
@@ -98,7 +102,7 @@ typedef struct
 } raven_t;
 
 
-_RVINL raven_t* raven() { return *((raven_t**)(C_RAVN_PTR)); }
+_RVINL raven_t* raven(void) { return *((raven_t**)(C_RAVN_PTR)); }
 
 #endif /* __ASM__ */
 #endif /* _RAVEN_H_ */
