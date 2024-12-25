@@ -1,15 +1,13 @@
-BINROOT	= c:/tools
-SRCROOT	= ../..
-include $(SRCROOT)/purec/Makefile.pc
-.PHONY: all clean install
 
-all:
-	$(SRCROOT)/purec/$(PCMAKE) -B resetnvm.prj
+NAME = resetnvm
 
-clean:
-	rm -f *.O *.prg *.tos
+BIN = $(NAME).prg
+PRJ = $(NAME).prj
 
-install: all
-ifneq ($(cross),y)
-	cp resetnvm.prg $(BINROOT)/
-endif
+INSTALL_ROOT = c:/raven
+INSTALL_BINS = $(BIN)
+
+OBJS = resetnvm.o
+
+ROOTDIR = ../..
+include $(ROOTDIR)/Makefile.cmn

@@ -1,15 +1,13 @@
-BINROOT	= c:/tools
-SRCROOT	= ../..
-include $(SRCROOT)/purec/Makefile.pc
-.PHONY: all clean install
 
-all:
-	$(SRCROOT)/purec/$(PCMAKE) -B fpu_off.prj
+NAME = fpu_off
 
-clean:
-	rm -f *.O *.prg *.tos
+BIN = $(NAME).prg
+PRJ = $(NAME).prj
 
-install: all
-ifneq ($(cross),y)
-	cp fpu_off.prg $(BINROOT)/
-endif
+INSTALL_ROOT = c:/tools
+INSTALL_BINS = $(BIN)
+
+OBJS = fpu_off.o
+
+ROOTDIR = ../..
+include $(ROOTDIR)/Makefile.cmn

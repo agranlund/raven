@@ -1,17 +1,13 @@
-BINROOT	= c:/tools/eiffel
-SRCROOT	= ../..
-include $(SRCROOT)/purec/Makefile.pc
-.PHONY: all clean install
 
-all:
-	$(SRCROOT)/purec/$(PCMAKE) eiffelcf.prj
+NAME = eiffelcf
 
-clean:
-	rm -f *.app *.lst *.pdb *.o
-	rm -f *.APP *.LST *.PDB *.O
+BIN = $(NAME).app
+PRJ = $(NAME).prj
 
-install: all
-ifneq ($(cross),y)
-	cp eiffelcf.app $(BINROOT)/
-	cp eiffel_g.rsc $(BINROOT)/	
-endif
+INSTALL_ROOT = c:/raven/eiffel
+INSTALL_BINS = $(BIN) eiffel_g.rsc
+
+OBJS = eiffelcf.o update.o
+
+ROOTDIR = ../..
+include $(ROOTDIR)/Makefile.cmn

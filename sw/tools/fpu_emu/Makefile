@@ -16,6 +16,9 @@ BIN			=	fpemu.prg
 ROOTDIR 	= 	../..
 OPTS 		=	-Ifpe -Ifpe/include $(CPUOPTS) -O2
 
+INSTALL_ROOT = c:/raven
+INSTALL_BINS = $(BIN)
+
 OBJS = 	main.o \
 		$(CPUOBJS) \
 		fpe/fpe_atari_asm.o \
@@ -41,7 +44,7 @@ OBJS = 	main.o \
 		fpe/fpu_subr.o \
 		fpe/fpu_trig.o \
 
-include $(ROOTDIR)/Makefile.gcc
+include $(ROOTDIR)/Makefile.cmn
 
 fpe/fpu_68020.o : fpe/fpu_68020.c
-	$(CC) $(CFLAGS) -m68020-60 -c $< -o $@
+	$(GCC) $(CFLAGS) -m68020-60 -c $< -o $@

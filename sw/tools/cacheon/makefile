@@ -1,13 +1,13 @@
 
-NAME = thingpal
+NAME = cacheon
 
-BIN = $(NAME).tos
+BIN = $(NAME).prg
 PRJ = $(NAME).prj
 
-INSTALL_ROOT = c:/tools
+INSTALL_ROOT = c:/raven
 INSTALL_BINS = $(BIN)
 
-OBJS = main.o
+OBJS = cacheon.o
 
 ROOTDIR = ../..
 include $(ROOTDIR)/Makefile.cmn
