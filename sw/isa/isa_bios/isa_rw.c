@@ -1,35 +1,35 @@
 #include "isa_rw.h"
 
-//-----------------------------------------------------------------------------------
-// helpers
-//-----------------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------------
+ * helpers
+ *---------------------------------------------------------------------------------*/
 #define leas8(x)    ((x)^3)
 #define leas16(x)   ((x)^2)
 
 
-//-----------------------------------------------------------------------------------
-//
-// ENDIAN_BE : Big endian
-//
-//-----------------------------------------------------------------------------------
-uint8 inp_be(uint16 port) {
-    return *((volatile uint8*)(isa.bus.iobase + port));
+/*-----------------------------------------------------------------------------------
+ *
+ * ENDIAN_BE : Big endian
+ *
+ *---------------------------------------------------------------------------------*/
+uint8_t _ISA_API inp_be(uint16l_t port) {
+    return *((volatile uint8_t*)(isa.bus.iobase + port));
 }
 
-void outp_be(uint16 port, uint8 data) {
-    *((volatile uint8*)(isa.bus.iobase + port)) = data;
+void _ISA_API outp_be(uint16l_t port, uint8l_t data) {
+    *((volatile uint8_t*)(isa.bus.iobase + port)) = data;
 }
 
-uint16 inpw_be(uint16 port) {
-    return *((volatile uint16*)(isa.bus.iobase + port));
+uint16_t _ISA_API inpw_be(uint16l_t port) {
+    return *((volatile uint16_t*)(isa.bus.iobase + port));
 }
 
-void outpw_be(uint16 port, uint16 data) {
-    *((volatile uint16*)(isa.bus.iobase + port)) = data;
+void _ISA_API outpw_be(uint16l_t port, uint16l_t data) {
+    *((volatile uint16_t*)(isa.bus.iobase + port)) = data;
 }
 
-void inp_be_buf(uint16 port, uint8* data, int count) {
-    volatile uint8* src = (volatile uint8*)(isa.bus.iobase + port);
+void _ISA_API inp_be_buf(uint16l_t port, uint8_t* data, int32_t count) {
+    volatile uint8_t* src = (volatile uint8_t*)(isa.bus.iobase + port);
     while (count >= 8) {
         *data++ = *src; *data++ = *src; *data++ = *src; *data++ = *src;
         *data++ = *src; *data++ = *src; *data++ = *src; *data++ = *src;
@@ -41,8 +41,8 @@ void inp_be_buf(uint16 port, uint8* data, int count) {
     }
 }
 
-void outp_be_buf(uint16 port, uint8* data, int count) {
-    volatile uint8* dst = (volatile uint8*)(isa.bus.iobase + port);
+void _ISA_API outp_be_buf(uint16l_t port, uint8_t* data, int32_t count) {
+    volatile uint8_t* dst = (volatile uint8_t*)(isa.bus.iobase + port);
     while (count >= 8) {
         *dst = *data++; *dst = *data++; *dst = *data++; *dst = *data++;
         *dst = *data++; *dst = *data++; *dst = *data++; *dst = *data++;
@@ -54,8 +54,8 @@ void outp_be_buf(uint16 port, uint8* data, int count) {
     }
 }
 
-void inpw_be_buf(uint16 port, uint16* data, int count) {
-    volatile uint16* src = (volatile uint16*)(isa.bus.iobase + port);
+void _ISA_API inpw_be_buf(uint16l_t port, uint16_t* data, int32_t count) {
+    volatile uint16_t* src = (volatile uint16_t*)(isa.bus.iobase + port);
     while (count) {
         *data++ = *src; *data++ = *src; *data++ = *src; *data++ = *src;
         *data++ = *src; *data++ = *src; *data++ = *src; *data++ = *src;
@@ -67,8 +67,8 @@ void inpw_be_buf(uint16 port, uint16* data, int count) {
     }
 }
 
-void outpw_be_buf(uint16 port, uint16* data, int count) {
-    volatile uint16* dst = (volatile uint16*)(isa.bus.iobase + port);
+void _ISA_API outpw_be_buf(uint16l_t port, uint16_t* data, int32_t count) {
+    volatile uint16_t* dst = (volatile uint16_t*)(isa.bus.iobase + port);
     while (count >= 8) {
         *dst = *data++; *dst = *data++; *dst = *data++; *dst = *data++;
         *dst = *data++; *dst = *data++; *dst = *data++; *dst = *data++;
@@ -82,25 +82,25 @@ void outpw_be_buf(uint16 port, uint16* data, int count) {
 
 
 
-//-----------------------------------------------------------------------------------
-//
-// ENDIAN_LELS : Little endian lane swapped
-//
-// When lane-swapped Intel (little endian) byte ordering is used, the address needs no modifications.
-// 8-bit accesses work normal, 16 and 32 bit accesses the read or written data needs to be swapped
-// (ror.w #8,d0 for 16 bit, ror.w d0:swap d0:ror.w d0 for 32 bit).
-//
-//-----------------------------------------------------------------------------------
-uint16 inpw_lels(uint16 port) {
-    return swap16(*((volatile uint16*)(isa.bus.iobase + port)));
+/*-----------------------------------------------------------------------------------
+ *
+ * ENDIAN_LELS : Little endian lane swapped
+ *
+ * When lane-swapped Intel (little endian) byte ordering is used, the address needs no modifications.
+ * 8-bit accesses work normal, 16 and 32 bit accesses the read or written data needs to be swapped
+ * (ror.w #8,d0 for 16 bit, ror.w d0:swap d0:ror.w d0 for 32 bit).
+ *
+ *---------------------------------------------------------------------------------*/
+uint16_t _ISA_API inpw_lels(uint16l_t port) {
+    return swap16(*((volatile uint16_t*)(isa.bus.iobase + port)));
 }
 
-void outpw_lels(uint16 port, uint16 data) {
-    *((volatile uint16*)(isa.bus.iobase + port)) = swap16(data);
+void _ISA_API outpw_lels(uint16l_t port, uint16l_t data) {
+    *((volatile uint16_t*)(isa.bus.iobase + port)) = swap16(data);
 }
 
-void inpw_lels_buf(uint16 port, uint16* data, int count) {
-    volatile uint16* src = (volatile uint16*)(isa.bus.iobase + port);
+void _ISA_API inpw_lels_buf(uint16l_t port, uint16_t* data, int32_t count) {
+    volatile uint16_t* src = (volatile uint16_t*)(isa.bus.iobase + port);
     while (count) {
         *data++ = swap16(*src); *data++ = swap16(*src); *data++ = swap16(*src); *data++ = swap16(*src);
         *data++ = swap16(*src); *data++ = swap16(*src); *data++ = swap16(*src); *data++ = swap16(*src);
@@ -112,8 +112,8 @@ void inpw_lels_buf(uint16 port, uint16* data, int count) {
     }
 }
 
-void outpw_lels_buf(uint16 port, uint16* data, int count) {
-    volatile uint16* dst = (volatile uint16*)(isa.bus.iobase + port);
+void _ISA_API outpw_lels_buf(uint16l_t port, uint16_t* data, int32_t count) {
+    volatile uint16_t* dst = (volatile uint16_t*)(isa.bus.iobase + port);
     while (count >= 8) {
         *dst = swap16(*data++); *dst = swap16(*data++); *dst = swap16(*data++); *dst = swap16(*data++);
         *dst = swap16(*data++); *dst = swap16(*data++); *dst = swap16(*data++); *dst = swap16(*data++);
@@ -126,35 +126,36 @@ void outpw_lels_buf(uint16 port, uint16* data, int count) {
 }
 
 
-//-----------------------------------------------------------------------------------
-//
-// ENDIAN_LEAS : Little endian address swapped
-//
-// When address-swapped Intel (little endian) byte ordering is used,
-// 32 bit accesses work without modifications.
-// 16 bit accesses, the address needs to be XOR'd with a value of 2
-// 8-bit accesses the address is XOR'd with a value of 3.
-// The data read or written is in correct format.
-//
-//-----------------------------------------------------------------------------------
-uint8 inp_leas(uint16 port) {
-    return *((volatile uint8*)(leas8(isa.bus.iobase + port)));
+
+/*-----------------------------------------------------------------------------------
+ *
+ * ENDIAN_LEAS : Little endian address swapped
+ *
+ * When address-swapped Intel (little endian) byte ordering is used,
+ * 32 bit accesses work without modifications.
+ * 16 bit accesses, the address needs to be XOR'd with a value of 2
+ * 8-bit accesses the address is XOR'd with a value of 3.
+ * The data read or written is in correct format.
+ *
+ *---------------------------------------------------------------------------------*/
+uint8_t _ISA_API inp_leas(uint16l_t port) {
+    return *((volatile uint8_t*)(leas8(isa.bus.iobase + port)));
 }
 
-void outp_leas(uint16 port, uint8 data) {
-    *((volatile uint8*)(leas8(isa.bus.iobase + port))) = data;
+void _ISA_API outp_leas(uint16l_t port, uint8l_t data) {
+    *((volatile uint8_t*)(leas8(isa.bus.iobase + port))) = data;
 }
 
-uint16 inpw_leas(uint16 port) {
-    return *((volatile uint16*)(leas16(isa.bus.iobase + port)));
+uint16_t _ISA_API inpw_leas(uint16l_t port) {
+    return *((volatile uint16_t*)(leas16(isa.bus.iobase + port)));
 }
 
-void outpw_leas(uint16 port, uint16 data) {
-    *((volatile uint16*)(leas16(isa.bus.iobase + port))) = data;
+void _ISA_API outpw_leas(uint16l_t port, uint16l_t data) {
+    *((volatile uint16_t*)(leas16(isa.bus.iobase + port))) = data;
 }
 
-void inp_leas_buf(uint16 port, uint8* data, int count) {
-    volatile uint8* src = (volatile uint8*)(leas8(isa.bus.iobase + port));
+void _ISA_API inp_leas_buf(uint16l_t port, uint8_t* data, int32_t count) {
+    volatile uint8_t* src = (volatile uint8_t*)(leas8(isa.bus.iobase + port));
     while (count >= 8) {
         *data++ = *src; *data++ = *src; *data++ = *src; *data++ = *src;
         *data++ = *src; *data++ = *src; *data++ = *src; *data++ = *src;
@@ -166,8 +167,8 @@ void inp_leas_buf(uint16 port, uint8* data, int count) {
     }
 }
 
-void outp_leas_buf(uint16 port, uint8* data, int count) {
-    volatile uint8* dst = (volatile uint8*)(leas8(isa.bus.iobase + port));
+void _ISA_API outp_leas_buf(uint16l_t port, uint8_t* data, int32_t count) {
+    volatile uint8_t* dst = (volatile uint8_t*)(leas8(isa.bus.iobase + port));
     while (count >= 8) {
         *dst = *data++; *dst = *data++; *dst = *data++; *dst = *data++;
         *dst = *data++; *dst = *data++; *dst = *data++; *dst = *data++;
@@ -179,8 +180,8 @@ void outp_leas_buf(uint16 port, uint8* data, int count) {
     }
 }
 
-void inpw_leas_buf(uint16 port, uint16* data, int count) {
-    volatile uint16* src = (volatile uint16*)(leas16(isa.bus.iobase + port));
+void _ISA_API inpw_leas_buf(uint16l_t port, uint16_t* data, int32_t count) {
+    volatile uint16_t* src = (volatile uint16_t*)(leas16(isa.bus.iobase + port));
     while (count) {
         *data++ = *src; *data++ = *src; *data++ = *src; *data++ = *src;
         *data++ = *src; *data++ = *src; *data++ = *src; *data++ = *src;
@@ -192,8 +193,8 @@ void inpw_leas_buf(uint16 port, uint16* data, int count) {
     }
 }
 
-void outpw_leas_buf(uint16 port, uint16* data, int count) {
-    volatile uint16* dst = (volatile uint16*)(leas16(isa.bus.iobase + port));
+void _ISA_API outpw_leas_buf(uint16l_t port, uint16_t* data, int32_t count) {
+    volatile uint16_t* dst = (volatile uint16_t*)(leas16(isa.bus.iobase + port));
     while (count >= 8) {
         *dst = *data++; *dst = *data++; *dst = *data++; *dst = *data++;
         *dst = *data++; *dst = *data++; *dst = *data++; *dst = *data++;

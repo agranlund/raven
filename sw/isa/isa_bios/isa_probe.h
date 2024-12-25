@@ -3,6 +3,6 @@
 
 #include "isa_core.h"
 
-extern uint32 isa_probe();
+extern uint32_t isa_probe(void);
 
-#endif // _ISA_PROBE_H_
+#endif /* _ISA_PROBE_H_ */

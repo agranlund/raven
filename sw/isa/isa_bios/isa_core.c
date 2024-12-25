@@ -1,28 +1,32 @@
+
 #include "isa_core.h"
 #include "mint/basepage.h"
 #include "mint/cookie.h"
 #include "mint/osbind.h"
+#include "stdlib.h"
 #include "string.h"
 #include "stdio.h"
 #include "unistd.h"
-#include "ext.h"
+#include "stdarg.h"
 
-extern long _stksize;
 static char* inf = 0;
-static int32 flog = 0;
+static int32_t flog = 0;
 
-
-static void LoadInf()
+static void LoadInf(void)
 {
-    // load config file and convert in-place to key/value pairs separated by null character
     char fname[64];
-    sprintf(fname, "%c:\\isa_bios.inf", 'a' + (char) (*((volatile uint16*)0x446)));
-    int32 fhandle = open(fname, 0);
+    int32_t fhandle, fsize;
+    char *src, *dst, *end;
+    bool keepspaces;
+
+    /* load config file and convert in-place to key/value pairs separated by null character */
+    sprintf(fname, "%c:\\isa_bios.inf", 'a' + (char) (*((volatile uint16_t*)0x446)));
+    fhandle = open(fname, 0);
     if (fhandle <= 0) {
         return;
     }
 
-	int32 fsize = lseek(fhandle, 0, SEEK_END);
+	fsize = lseek(fhandle, 0, SEEK_END);
     if (fsize < 2) {
         close(fhandle);
         return;
@@ -30,13 +34,13 @@ static void LoadInf()
 
     inf = malloc(fsize+1);
     lseek(fhandle, 0, SEEK_SET);
-    int r = read(fhandle, inf, fsize);
+    read(fhandle, inf, fsize);
     inf[fsize] = 0;
 	close(fhandle);
 
-    // skip comments until end of line
-    char* src = inf; char* dst = inf;
-    char* end = src + fsize;
+    /* skip comments until end of line */
+    src = dst = inf;
+    end = src + fsize;
     while (src < end) {
         char c = *src++;
         if (c == '#') {
@@ -47,13 +51,13 @@ static void LoadInf()
         }
     }
 
-    // convert whitespaces and illegal characters.
-    // keep spaces when inside quotation marks, but don't keep the
-    // actual quotation marks themselves.
+    /* convert whitespaces and illegal characters.
+       keep spaces when inside quotation marks, but don't keep the
+       actual quotation marks themselves. */
     end = dst; src = inf;
-    bool keepspaces = false;
+    keepspaces = false;
     while (src < end) {
-        uint8 c = *((uint8*)src);
+        uint8_t c = *((uint8_t*)src);
         if (c == 0x22) {
             keepspaces = !keepspaces;
             *src = 0;
@@ -63,7 +67,7 @@ static void LoadInf()
         src++;
     }
 
-    // extract strings
+    /* extract strings */
     end = src; src = inf; dst = inf; *end = 0;
     while (src < end) {
         while ((src < end) && (*src == 0)) { src++; }
@@ -72,7 +76,7 @@ static void LoadInf()
     }
 }
 
-static void CloseInf()
+static void CloseInf(void)
 {
     if (inf) {
         free(inf);
@@ -80,14 +84,14 @@ static void CloseInf()
     }
 }
 
-void CreateLog()
+void CreateLog(void)
 {
     char fname[64];
-    sprintf(fname, "%c:\\isa_bios.log", 'a' + (char) (*((volatile uint16*)0x446)));
+    sprintf(fname, "%c:\\isa_bios.log", 'a' + (char) (*((volatile uint16_t*)0x446)));
     flog = open(fname, O_CREAT | O_TRUNC | O_RDWR);
 }
 
-void CloseLog()
+void CloseLog(void)
 {
     if (flog > 0) {
         close(flog);
@@ -96,34 +100,39 @@ void CloseLog()
 }
 
 
-void OpenFiles() {
+void OpenFiles(void) {
     LoadInf();
     CreateLog();
 }
 
-void CloseFiles() {
+void CloseFiles(void) {
     CloseInf();
     CloseLog();
 }
 
-void Log(char* fmt, ...) {
-    if (flog <= 0)
-        return;
 
-    static char buf[256];
-    va_list args;
-    va_start (args, fmt);
-    size_t len = vsnprintf(buf, sizeof(buf), fmt, args);
-    va_end (args);
-    write(flog, buf, len);
+void Log(char* fmt, ...) {
+    if (flog > 0) {
+        static char buf[256];
+        size_t len;
+        va_list args;
+        va_start (args, fmt);
+#ifdef HAVE_VSNPRINTF        
+        len = vsnprintf(buf, sizeof(buf), fmt, args);
+#else
+        len = vsprintf(buf, fmt, args);
+#endif
+        va_end (args);
+        write(flog, buf, len);
+    }
 }
 
 
-const char* IdToStr(uint32 id) {
+const char* IdToStr(uint32_t id) {
     static const char* hextable = "0123456789abcdef";
     static char str[8];
-    uint32 idle = swap32(id);
-    uint8* d = (uint8*)&idle;
+    uint32_t idle = swap32(id);
+    uint8_t* d = (uint8_t*)&idle;
 	str[0] = '@' + ((d[0] & 0x7c) >> 2);
 	str[1] = '@' + (((d[0] & 0x3) << 3) + ((d[1] & 0xe0) >> 5));
 	str[2] = '@' + (d[1] & 0x1f);
@@ -135,14 +144,14 @@ const char* IdToStr(uint32 id) {
 	return (const char*)str;
 }
 
-uint32 StrToId(const char* str) {
+uint32_t StrToId(const char* str) {
     if (str) {
-        uint32 s0 = str[0] - '@'; uint32 s1 = str[1] - '@'; uint32 s2 = str[2] - '@';
-        uint32 s3 = (str[3] >= 'a') ? (str[3] - 'a') : ((str[3] >= 'A') ? (str[3] - 'A') : (str[3] - '0'));
-        uint32 s4 = (str[4] >= 'a') ? (str[4] - 'a') : ((str[4] >= 'A') ? (str[4] - 'A') : (str[4] - '0'));
-        uint32 s5 = (str[5] >= 'a') ? (str[5] - 'a') : ((str[5] >= 'A') ? (str[5] - 'A') : (str[5] - '0'));
-        uint32 s6 = (str[6] >= 'a') ? (str[6] - 'a') : ((str[6] >= 'A') ? (str[6] - 'A') : (str[6] - '0'));
-        uint32 d =  ((s6 & 0xf) << 0) | ((s5 & 0xf) << 4) | ((s4 & 0xf) << 8) | ((s3 & 0xf) << 12) |
+        uint32_t s0 = str[0] - '@'; uint32_t s1 = str[1] - '@'; uint32_t s2 = str[2] - '@';
+        uint32_t s3 = (str[3] >= 'a') ? (str[3] - 'a') : ((str[3] >= 'A') ? (str[3] - 'A') : (str[3] - '0'));
+        uint32_t s4 = (str[4] >= 'a') ? (str[4] - 'a') : ((str[4] >= 'A') ? (str[4] - 'A') : (str[4] - '0'));
+        uint32_t s5 = (str[5] >= 'a') ? (str[5] - 'a') : ((str[5] >= 'A') ? (str[5] - 'A') : (str[5] - '0'));
+        uint32_t s6 = (str[6] >= 'a') ? (str[6] - 'a') : ((str[6] >= 'A') ? (str[6] - 'A') : (str[6] - '0'));
+        uint32_t d =  ((s6 & 0xf) << 0) | ((s5 & 0xf) << 4) | ((s4 & 0xf) << 8) | ((s3 & 0xf) << 12) |
                     ((s2 & 0x1f) << 16) | ((s1 & 0x07) << 21) | ((s1 & 0x18) << 21) | ((s0 & 0x1f) << 26);
         return swap32(d);
     }
@@ -153,19 +162,19 @@ extern int StrToInt(const char* s) {
     return s ? atoi(s) : 0;
 }
 
-extern uint32 StrToHex(const char* s) {
-    uint32 result = 0;
+extern uint32_t StrToHex(const char* s) {
+    int i; uint32_t result = 0;
     if (s) {
-        // skip hex designators
+        /* skip hex designators */
         if (s[0] == '$') {
             s += 1;
         } else if (s[0] == '0' && s[1] == 'x') {
             s += 2;
         }
-        // parse number
-        for (int i=0; i<8 && *s; i++) {
-            result <<= 4;
+        /* parse number */
+        for (i=0; i<8 && *s; i++) {
             char c = *s++;
+            result <<= 4;
             if (c >= '0' && c <= '9') {
                 result |= (0 + (c - '0'));
             } else if (c >= 'a' && c <= 'f') {
@@ -196,18 +205,20 @@ const char* GetInfStr(const char* key) {
 }
 
 const char* GetInfCommand(const char* find, const char* start, char** outc, int* outs) {
-    static char buf[128];
+    static char buf[128]; int i; const char* src;
     int maxs = *outs; *outs = 0;
-    for (int i=0; i<maxs; i++) {
+    
+    src = start ? start : inf;
+    for (i=0; i<maxs; i++) {
         outc[i] = 0;
     }
-    const char* src = start ? start : inf;
     while (*src != 0) {
         const char* next = src + strlen(src) + 1;
         if (strstr(src, find) == src) {
+            char* token; int count;
             strncpy(buf, src, 127); buf[127] = 0;
-            char* token = strtok(buf, ".");
-            int count = 0;
+            token = strtok(buf, ".");
+            count = 0;
             while (token) {
                 if (count > 0) {
                     outc[count - 1] = token;
@@ -232,7 +243,7 @@ bool GetInfInt(const char* key, int* val) {
     return false;
 }
 
-bool GetInfHex(const char* key, uint32* val) {
+bool GetInfHex(const char* key, uint32_t* val) {
     const char* str = GetInfStr(key);
     if (str) {
         *val = StrToHex(str);
@@ -241,13 +252,14 @@ bool GetInfHex(const char* key, uint32* val) {
     return false;
 }
 
-bool Createcookie(uint32 id, uint32 value)
+bool Createcookie(uint32_t id, uint32_t value)
 {
-    // find free slot
+    /* find free slot */
     int cookies_size = 0;
 	int cookies_used = 0;
-	uint32* jar = (uint32*) *((uint32*)0x5a0);
-	uint32* c = jar;
+    int cookies_avail = 0;
+	uint32_t* jar = (uint32_t*) *((uint32_t*)0x5a0);
+	uint32_t* c = jar;
 	while (1) {
 		cookies_used++;
 		if (c[0] == id) {
@@ -261,67 +273,88 @@ bool Createcookie(uint32 id, uint32 value)
 		c += 2;
 	}
 
-    // grow jar when necessary
-    int cookies_avail = cookies_size - cookies_used;
+    /* grow jar when necessary */
+    cookies_avail = cookies_size - cookies_used;
 	if (cookies_avail <= 0) {
-        int oldsize = (2*4*(cookies_size));
+        uint32_t* newjar;
+        int oldsize = (2*4*(cookies_size + 0));
+        int newsize = (2*4*(cookies_size + 8));
         cookies_size += 8;
-        int newsize = (2*4*(cookies_size));
-        uint32* newjar = (uint32*)malloc(newsize);
+        newjar = (uint32_t*)malloc(newsize);
         memcpy(newjar, jar, oldsize);
-        *((uint32*)0x5a0) = (uint32)newjar;
+        *((uint32_t*)0x5a0) = (uint32_t)newjar;
         jar = newjar;
 	}
 
-	// install cookie
-	jar[(cookies_used<<1)-2] = id;                  // overwrite end marker
+	/* install cookie */
+	jar[(cookies_used<<1)-2] = id;                  /* overwrite end marker */
 	jar[(cookies_used<<1)-1] = value;
-	jar[(cookies_used<<1)+0] = 0;                   // write new end marker
+	jar[(cookies_used<<1)+0] = 0;                   /* write new end marker */
 	jar[(cookies_used<<1)+1] = cookies_size;
 	return true;    
 }
 
-void ExitTsr()
+void ExitTsr(void)
 {
-    extern unsigned long _PgmSize;
-    uint32 size = _PgmSize;
+    extern uint32_t _PgmSize;
+    uint32_t size = _PgmSize;
     Ptermres(size, 0);
 }
 
-static uint32 delayus_count = 0;
-uint32 delayus_calibrate() {
-    uint32 tick_start = *((volatile uint32*)0x4ba);
-    uint32 tick_end = tick_start;
-    uint32 counter = 0;
+#if defined(__GNUC__)
+static void nop(void) { __asm__ volatile ( "nop\n\t" : : : ); }
+#else
+static void nop(void) 0x4E71;
+#endif
+
+
+#define get200hz() *((volatile uint32_t*)0x4ba)
+
+static uint32_t delayus_count = 0;
+uint32_t delayus_calibrate(void) {
+    uint32_t tick_start = get200hz();
+    uint32_t tick_end = tick_start;
+    uint32_t counter = 0;
     do {
-        __asm__ volatile ( "nop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\t" : : : );
-        __asm__ volatile ( "nop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\t" : : : );
-        tick_end = *((volatile uint32*)0x4ba);
+        nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); 
+        nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); 
+        tick_end = get200hz();
         counter++;
-        if (counter > 1000000) {
-            return 0xffffffff;
+        if (counter > 1000000UL) {
+            return 0xffffffffUL;
         }
     } while ((tick_end - tick_start) <= 50);
     return counter;
 }
 
-void delayus(uint32 us)
+static void delayms(uint32_t ms)
+{
+	uint32_t cycles = ms / 5;
+	uint32_t start  = get200hz();
+    cycles = (cycles < 1) ? 1 : cycles;
+    while (1) {
+        volatile uint32_t now = get200hz();
+        if (now < start) {
+            start = now;
+        } else if ((now - start) >= cycles) {
+            break;
+        }
+    }
+}
+
+void delayus(uint32_t us)
 {
     if (delayus_count == 0) {
         delayus_count = delayus_calibrate();
         return;
     }
-    if ((us < 1000) && (delayus_count != 0xffffffff)) {
-        uint32 loops = 1 + ((4 * delayus_count * us) / (1000 * 1000));
-        for (uint32 i=0; i<=loops; i++) {
-            __asm__ volatile ( "nop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\t" : : : );
-            __asm__ volatile ( "nop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\t" : : : );
+    if ((us < 1000) && (delayus_count != 0xffffffffUL)) {
+        uint32_t i; uint32_t loops = 1 + ((4 * delayus_count * us) / (1000 * 1000UL));
+        for (i=0; i<=loops; i++) {
+            nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); 
+            nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); 
         }
         return;
     }
-
-    // libcmini sleep resolution if 5ms
-    unsigned int msec = us / 1000;
-    msec = (msec > 5) ? msec : 5;
-    delay(msec);
+    delayms(us / 1000);
 }

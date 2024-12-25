@@ -1,0 +1,17 @@
+isa_bios.prg
+.C[-I..\..\purec\include]
+.C[-DXBTIME=0]
+.C[-DXBNVM=0]
+.C[-E1 -P]
+
+.L[-V -S=4096]
+=
+..\..\purec\lib\cstart0.o
+isa_bios.c
+isa_core.c
+isa_rw.c
+isa_pnp.c
+isa_probe.c
+..\..\purec\lib\pctoslib.lib
+..\..\purec\lib\pcstdlib.lib
+

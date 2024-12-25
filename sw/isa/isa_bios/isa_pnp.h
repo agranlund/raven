@@ -3,27 +3,27 @@
 
 #include "isa_core.h"
 
-extern int32 pnp_init();
+extern int32_t pnp_init(void);
 
 typedef struct
 {
-    uint32  base_min;
-    uint32  base_max;
-    uint32  length;
-    uint32  align;
-    uint16  flags;
+    uint32_t  base_min;
+    uint32_t  base_max;
+    uint32_t  length;
+    uint32_t  align;
+    uint16_t  flags;
 } pnp_desc_range_t;
 
 typedef struct
 {
-    uint16              flags;
-    uint8               nio, nmem, nirq, ndma;
+    uint16_t              flags;
+    uint8_t               nio, nmem, nirq, ndma;
     pnp_desc_range_t    iorange[ISA_MAX_DEV_PORT];
     pnp_desc_range_t    memrange[ISA_MAX_DEV_MEM];
-    uint32              irqmask[ISA_MAX_DEV_IRQ];
-    uint16              dmamask[ISA_MAX_DEV_DMA];
+    uint32_t              irqmask[ISA_MAX_DEV_IRQ];
+    uint16_t              dmamask[ISA_MAX_DEV_DMA];
 } pnp_conf_t;
 
 
 
-#endif // _ISA_PNP_H_
+#endif /* _ISA_PNP_H_ */
