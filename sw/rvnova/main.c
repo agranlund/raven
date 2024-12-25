@@ -41,21 +41,21 @@ static const char* path_vdi			= "auto\\sta_vdi.prg";
 
 
 static void screen_off(void) {
-#if 1
+#if 0
 	char tmp[6];
 	sprintf(tmp, "\033c%c", '0'+15);	/* bg color */
 	(void)Cconws(tmp);
-	(void)Cconws("\033E");
+	(void)Cconws("\033E");              /* clear screen */
 	sprintf(tmp, "\033b%c", '0'+15);	/* fg color */
 	(void)Cconws(tmp);
 #endif
 }
 
 static void screen_restore(void) {
-#if 1
+#if 0
 	char tmp[6];
 	sprintf(tmp, "\033b%c", '0');		/* fg color */
-	(void)Cconws("\033E");
+	(void)Cconws("\033E");              /* clear screen */
 	(void)Cconws(tmp);
 #endif
 }

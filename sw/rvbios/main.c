@@ -43,8 +43,8 @@
 #define SETUP_ONLY		0
 #define ENABLE_SETUP	1
 
-#define COL_FG			COL_WHITE
-#define COL_BG			COL_BLACK
+#define COL_FG			COL_BLACK
+#define COL_BG			COL_WHITE
 
 /*----------------------------------------
 	Globals

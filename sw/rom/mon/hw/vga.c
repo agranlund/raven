@@ -219,23 +219,23 @@ void vga_Atari()
     // screen off
     vga_WritePort(0x3c6, 0x00);
 
+    // atari mono palette
+    for (int i=0; i<256; i++) {
+        vga_SetColor(i, 0x00, 0x00, 0x00);
+    }
+    vga_SetColor(1, 0xff, 0xff, 0xff);
+
     // clear all planes
     vga_WriteReg(0x3c4, 0x02, 0x0f);
     vga_Fill(0x00);
 
-    // fill plane 0 + 1
-    vga_WriteReg(0x3c4, 0x02, 0x03); // map-mask plane 0,1
+    // fill plane 0
+    vga_WriteReg(0x3c4, 0x02, 0x01); // map-mask plane 0
     vga_Fill(0xff);
 
     // use plane 1
     vga_WriteReg(0x3c4, 0x02, 0x02); // map-mask plane 1
     vga_WriteReg(0x3ce, 0x04, 0x01); // read-map plane 1
-
-    // set up atari palette
-    vga_SetColor( 0, 0x00, 0x00, 0x00);
-    vga_SetColor( 1, 0xff, 0xff, 0xff);      // vga 1 = atari 0 = white
-    vga_SetColor( 3, 0x00, 0x00, 0x00);      // vga 3 = atari 1 = black
-    vga_SetColor(15, 0x00, 0x00, 0x00);
 
     // screen on
     vga_WritePort(0x3c6, 0xff);
