@@ -1,0 +1,128 @@
+# -----------------------------------------------------------------------------------
+# PureC tools
+# -----------------------------------------------------------------------------------
+
+PCROOT := $(ROOTDIR)/purec
+include $(PCROOT)/Makefile.pc
+
+# -----------------------------------------------------------------------------------
+# Options from project makefile
+# -----------------------------------------------------------------------------------
+
+ifeq ($(PRJ),)
+    default = gcc
+else
+    default = pc
+endif
+
+ifeq ($(PRGFLAGS),)
+    PRGFLAGS = -S
+endif
+
+ifeq ($(CPUFLAGS),)
+    CPUFLAGS 	    = -m68000
+endif
+
+ifeq ($(OPTS),)
+    OPTS 	        = -Os
+endif
+
+
+# -----------------------------------------------------------------------------------
+# Tools
+# -----------------------------------------------------------------------------------
+
+GCDIR			:= $(ROOTDIR)/gcc
+LIBDIR			:= $(ROOTDIR)/lib
+
+GCC			    := m68k-atari-mint-gcc
+GAS			    := m68k-atari-mint-gcc
+GLD			    := m68k-atari-mint-gcc
+GSTRIP          := m68k-atari-mint-strip -s
+GFLAGS          := m68k-atari-mint-flags
+
+GCC_OBJS		:= $(GCDIR)/lgcc.o
+LIBCMINI_DIR	:= $(GCDIR)/libcmini
+LIBCMINI_CRT	:= $(LIBCMINI_DIR)/build/objs/crt0.o
+
+
+# -----------------------------------------------------------------------------------
+# GCC compiler flags
+# -----------------------------------------------------------------------------------
+
+INCLUDE = -I. -I$(ROOTDIR)/gcc -I$(ROOTDIR)/lib
+
+SFLAGS = $(OPTS) $(INCLUDE) 
+
+CFLAGS = $(OPTS) $(DEFS) $(INCLUDE) \
+	-I$(LIBCMINI_DIR)/include \
+	-std=c99 -fomit-frame-pointer -fno-exceptions -ffast-math \
+	-Wall -Wno-multichar -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unused-function -Wno-format
+
+LFLAGS = -L$(LIBCMINI_DIR)/build -nodefaultlibs -nostdlib -nostartfiles -lgcc -lcmini -Wl,-Map,mapfile
+
+LINKOBJS = $(LIBCMINI_CRT) $(GCC_OBJS) $(OBJS)
+
+
+
+# -----------------------------------------------------------------------------------
+# Standard rules
+# -----------------------------------------------------------------------------------
+
+.PHONY: prj pc gcc gcc_common_clean
+
+all: $(default)
+
+install: all
+ifneq ($(cross),y)
+ifneq ($(INSTALL_BINS),)
+ifneq ($(INSTALL_ROOT),)
+	cp $(INSTALL_BINS) $(INSTALL_ROOT)/
+endif
+endif
+endif
+
+
+clean:
+	rm -f $(BIN)
+	rm -f $(LINKOBJS)
+	rm -f $(LINKOBJS:.o=.d)
+	rm -f $(LINKOBJS:.o=.O)
+	rm -f mapfile
+
+common_clean:
+	rm -f $(GCC_OBJS)
+	rm -f gcc/stripx/stripx
+	cd $(LIBCMINI_DIR) && make clean
+
+
+# -----------------------------------------------------------------------------------
+# PureC rules
+# -----------------------------------------------------------------------------------
+
+pc: $(PRJ)
+	$(PCMAKE)
+	$(PFLAGS) $(PRGFLAGS) $(BIN)
+
+
+# -----------------------------------------------------------------------------------
+# GCC rules
+# -----------------------------------------------------------------------------------
+
+gcc: Makefile $(LINKOBJS)
+	$(GCC) $(CFLAGS) $(CPUFLAGS) $(LINKOBJS) $(LFLAGS) -o $(BIN)
+	$(GSTRIP) $(BIN)
+	$(GFLAGS) $(PRGFLAGS) $(BIN)
+
+$(GCDIR)/lgcc.o : $(GCDIR)/lgcc.S
+	$(GCC) $(SFLAGS) $(CPUFLAGS) -c $< -o $@
+
+$(LIBCMINI_CRT) :
+	cd $(LIBCMINI_DIR) && make
+
+%.o : %.S
+	$(GCC) $(SFLAGS) $(CPUFLAGS) -c $< -o $@
+
+%.o : %.c
+	$(GCC) $(CFLAGS) $(CPUFLAGS) -c $< -o $@
+
