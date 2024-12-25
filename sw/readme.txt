@@ -20,12 +20,11 @@ tools/raven.cpx             : pureC
 tools/resetnvm              : pureC
 tools/thingpal              : pureC
 
-isa/isa_bios                : m68k-atari-mint-gcc (1)
-isa/drivers/gus             : m68k-atari-mint-gcc (1)
+isa/isa_bios                : pureC / m68k-atari-mint-gcc
+isa/drivers/gus             : pureC / m68k-atari-mint-gcc
 isa/drivers/picogus         : m68k-atari-mint-gcc
-isa/drivers/ne2000/ethernec : turboC (2)
+isa/drivers/ne2000/ethernec : turboC (1)
 
 
-(1) todo: make pureC + GCC compatible
-(2) using existing binaries, not compiling from source.
+(1) using existing binaries, not compiling from source.
     to be replaced by own driver at some point.
