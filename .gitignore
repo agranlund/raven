@@ -37,3 +37,4 @@ sw/purec/src/crosstos/bin-pc-*.c
 sw/purec/src/crosstos/incbin
 sw/purec/src/pcmake/pcmake
 sw/purec/lib/*
+sw/m32test/*
