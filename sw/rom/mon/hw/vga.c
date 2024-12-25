@@ -122,9 +122,9 @@ void vga_Clear() {
 void vga_SetPal(uint32_t idx, uint32_t num, uint8_t *pal)
 {
     const uint8_t pshift = 2;
-    vga_WritePort(0x3c8, (uint8_t)idx);
     for (uint32_t i = 0; (i < num) && ((i + idx) < 256); i++)
     {
+        vga_WritePort(0x3c8, (uint8_t)(idx + i));
         vga_WritePort(0x3c9, *pal++ >> pshift);
         vga_WritePort(0x3c9, *pal++ >> pshift);
         vga_WritePort(0x3c9, *pal++ >> pshift);
@@ -135,9 +135,9 @@ void vga_SetPal(uint32_t idx, uint32_t num, uint8_t *pal)
 void vga_GetPal(uint32_t idx, uint32_t num, uint8_t *pal)
 {
     const uint8_t pshift = 2;
-    vga_WritePort(0x3c8, (uint8_t)idx);
     for (uint32_t i = 0; (i < num) && ((i + idx) < 256); i++)
     {
+        vga_WritePort(0x3c8, (uint8_t)(idx + i));
         *pal++ = vga_ReadPort(0x3c9) << pshift;
         *pal++ = vga_ReadPort(0x3c9) << pshift;
         *pal++ = vga_ReadPort(0x3c9) << pshift;
@@ -147,8 +147,7 @@ void vga_GetPal(uint32_t idx, uint32_t num, uint8_t *pal)
 
 void vga_SetColor(uint8_t idx, uint8_t r, uint8_t g, uint8_t b)
 {
-    uint8_t c[3];
-    c[0] = r; c[1] = g; c[2] = b;
+    uint8_t c[3] = { r, g, b };
     vga_SetPal(idx, 1, c);
 }
 
@@ -186,31 +185,11 @@ void vga_Test()
     vga_WritePort(0x3c6, 0x00);
 
     // palette
-    vga_WritePort(0x3c8, 0x00);
-    for (int i = 0; i < 64; i++)
-    {
-        vga_WritePort(0x3c9, i);
-        vga_WritePort(0x3c9, 0);
-        vga_WritePort(0x3c9, 0);
-    }
-    for (int i = 0; i < 64; i++)
-    {
-        vga_WritePort(0x3c9, 0);
-        vga_WritePort(0x3c9, i);
-        vga_WritePort(0x3c9, 0);
-    }
-    for (int i = 0; i < 64; i++)
-    {
-        vga_WritePort(0x3c9, 0);
-        vga_WritePort(0x3c9, 0);
-        vga_WritePort(0x3c9, i);
-    }
-    for (int i = 0; i < 8; i++)
-    {
-        vga_WritePort(0x3c9, 8 * i);
-        vga_WritePort(0x3c9, 8 * i);
-        vga_WritePort(0x3c9, 8 * i);
-    }
+    for (int i = 0; i < 64; i++) { vga_SetColor(i +   0, (i*4), 0, 0); }
+    for (int i = 0; i < 64; i++) { vga_SetColor(i +  64, 0, (i*4), 0); }
+    for (int i = 0; i < 64; i++) { vga_SetColor(i + 128, 0, 0, (i*4)); }
+    for (int i = 0; i <  8; i++) { vga_SetColor(i + 192, (i*32), (i*32), (i*32)); }
+    for (int i = 0; i < 56; i++) { vga_SetColor(i + 200, 0, 0, 0); }
 
     // test image
     volatile uint8_t *vram = (volatile uint8_t *)(ISA_MEMBASE + VGAMEM_BASE);
