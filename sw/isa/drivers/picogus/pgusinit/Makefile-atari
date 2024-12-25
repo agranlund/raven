@@ -3,4 +3,4 @@ DEFS        =   -D__ATARI__ -Wno-format
 BIN  	    =   pgusinit.prg
 OBJS        =   pgusinit.o
 
-include $(ROOTDIR)/Makefile.gcc
+include $(ROOTDIR)/Makefile.cmn
