@@ -1,5 +1,5 @@
 thingpal.tos
-.C[-E1 -M -P -Z]
+.C[-E1 -M -P -Z -W2]
 .C[-I..\..\purec\include]
 .L[-V -S=16384]
 =

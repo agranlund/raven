@@ -1,5 +1,5 @@
 eiffelcf.app
-.C[-E1 -2 -P]
+.C[-E1 -2 -P -W2]
 .C[-I..\..\purec\include]
 .C[-Ipure_c\include]
 .L[-v -S=8192]

@@ -1,6 +1,6 @@
 raven.cp
 .C[-I..\..\purec\include]
-.C[-E1 -2 -C]
+.C[-E1 -2 -C -W2]
 .S[-I..\..\purec\include]
 .S[-4 -S]
 .L[-V -S=16384]

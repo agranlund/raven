@@ -2,7 +2,7 @@ rvbios.prg
 .C[-I..\purec\include]
 .C[-DXBTIME=0]
 .C[-DXBNVM=0]
-.C[-E1 -2 -P]
+.C[-E1 -2 -P -W2]
 
 .S[-I..\purec\include]
 .S[-DXBTIME=0]
