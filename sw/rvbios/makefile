@@ -1,17 +1,19 @@
-BINROOT	= c:/auto
-SRCROOT	= ..
-include $(SRCROOT)/purec/Makefile.pc
-.PHONY: all clean install
 
-all:
-	$(SRCROOT)/purec/$(PCMAKE) rvbios.prj
-#	$(SRCROOT)/purec/$(PRGFLG) 0xff 0x31 rvbios.prg
+NAME = rvbios
 
-clean:
-	rm -f *.prg *.lst *.pdb *.o setup/*.o
-	rm -f *.PRG *.LST *.PDB *.O setup/*.O
+BIN = $(NAME).prg
+PRJ = $(NAME).prj
 
-install: all
-ifneq ($(cross),y)
-	cp rvbios.prg $(BINROOT)/rvbios.prg
-endif
+INSTALL_ROOT = c:/auto
+INSTALL_BINS = $(BIN)
+
+OBJS = main.o xbios_c.o utils.o xbios.o eiffel.o sp060.o \
+	setup/setup.o setup/form_vt.o setup/misc.o \
+	setup/f_nvram.o \
+	setup/f_cpu.o \
+	setup/f_nova.o \
+	setup/f_exit.o \
+	../rvnova/rvnova.o
+
+ROOTDIR = ..
+include $(ROOTDIR)/Makefile.cmn
