@@ -25,11 +25,11 @@ SWDIR		= $(OUTDIR)/software
 COPY		= cp -p
 
 
-SWDIR_AUTO	= $(SWDIR)/auto
-SWDIR_NOVA	= $(SWDIR)/nova
-SWDIR_TOOLS	= $(SWDIR)/tools
+SWDIR_AUTO		= $(SWDIR)/auto
+SWDIR_NOVA		= $(SWDIR)/nova
+SWDIR_TOOLS		= $(SWDIR)/tools
 SWDIR_RTOOLS	= $(SWDIR)/raven
-SWDIR_ISA	= $(SWDIR)/raven/drivers
+SWDIR_ISA		= $(SWDIR)/raven/drivers
 
 
 .phony: release release-test
@@ -110,41 +110,84 @@ copysw:
 	mkdir -p $(SWDIR)
 	mkdir -p $(SWDIR_AUTO)
 	mkdir -p $(SWDIR_TOOLS)
+	mkdir -p $(SWDIR_RTOOLS)
 	mkdir -p $(SWDIR_ISA)
 
+	# --------------------------------------------------
+	# General stuff
+	# --------------------------------------------------
 	$(COPY) $(DISTDIR)/readme_sw.txt $(SWDIR)/raven.txt
 
-	# --------------------------------------------------
-	# RAVEN tools : PureC compiled on Raven
-	# --------------------------------------------------
-		mkdir -p $(SWDIR_AUTO)
-		$(COPY) $(ROOTDIR)/sw/rvbios/rvbios.prg $(SWDIR_AUTO)/
-		$(COPY) $(ROOTDIR)/sw/rvnova/rvnova.prg $(SWDIR_AUTO)/
-
-		mkdir -p $(SWDIR_TOOLS)
-		$(COPY) $(ROOTDIR)/sw/tools/thingpal/thingpal.tos $(SWDIR_TOOLS)/
-
-		mkdir -p $(SWDIR_RTOOLS)
-		$(COPY) $(ROOTDIR)/sw/tools/cache/cacheon.prg $(SWDIR_RTOOLS)/
-		$(COPY) $(ROOTDIR)/sw/tools/cache/cacheoff.prg $(SWDIR_RTOOLS)/
-		$(COPY) $(ROOTDIR)/sw/tools/resetnvm/resetnvm.prg $(SWDIR_RTOOLS)/
-		$(COPY) $(ROOTDIR)/sw/tools/patch_xc/patch_xc.prg $(SWDIR_RTOOLS)/
 
 	# --------------------------------------------------
-	# RAVEN tools - GCC cross compiled
+	# RVBIOS
 	# --------------------------------------------------
-		make -C $(ROOTDIR)/sw/isa/isa_bios clean
-		make -C $(ROOTDIR)/sw/isa/isa_bios	
-		$(COPY) $(ROOTDIR)/sw/isa/isa_bios/isa_bios.prg $(SWDIR_AUTO)/
-		$(COPY) $(ROOTDIR)/sw/isa/isa_bios/isa_bios.inf $(SWDIR)/
+	make -C $(ROOTDIR)/sw/rvbios clean
+	make -C $(ROOTDIR)/sw/rvbios
+	$(COPY) $(ROOTDIR)/sw/rvbios/rvbios.prg $(SWDIR_AUTO)/
 
-		make -C $(ROOTDIR)/sw/tools/fpu_emu clean
-		make -C $(ROOTDIR)/sw/tools/fpu_emu
-		$(COPY) $(ROOTDIR)/sw/tools/fpu_emu/fpemu.prg $(SWDIR_RTOOLS)/
-		$(COPY) $(ROOTDIR)/sw/tools/fpu_emu/fpemu.txt $(SWDIR_RTOOLS)/
 
 	# --------------------------------------------------
-	# RAVEN tools - Other repos
+	# RVNOVA
+	# --------------------------------------------------
+	make -C $(ROOTDIR)/sw/rvnova clean
+	make -C $(ROOTDIR)/sw/rvnova
+	$(COPY) $(ROOTDIR)/sw/rvnova/rvnova.prg $(SWDIR_AUTO)/
+
+
+	# --------------------------------------------------
+	# TOOLS
+	# --------------------------------------------------
+	make -C $(ROOTDIR)/sw/tools clean
+	make -C $(ROOTDIR)/sw/tools
+	$(COPY) $(ROOTDIR)/sw/tools/thingpal/thingpal.tos $(SWDIR_TOOLS)/
+	$(COPY) $(ROOTDIR)/sw/tools/cacheon/cacheon.prg $(SWDIR_RTOOLS)/
+	$(COPY) $(ROOTDIR)/sw/tools/cacheoff/cacheoff.prg $(SWDIR_RTOOLS)/
+	$(COPY) $(ROOTDIR)/sw/tools/resetnvm/resetnvm.prg $(SWDIR_RTOOLS)/
+	$(COPY) $(ROOTDIR)/sw/tools/patch_xc/patch_xc.prg $(SWDIR_RTOOLS)/
+	$(COPY) $(ROOTDIR)/sw/tools/fpu_emu/fpemu.prg $(SWDIR_RTOOLS)/
+	$(COPY) $(ROOTDIR)/sw/tools/fpu_emu/fpemu.txt $(SWDIR_RTOOLS)/
+
+
+	# --------------------------------------------------
+	# ISA BIOS
+	# --------------------------------------------------
+	make -C $(ROOTDIR)/sw/isa/isa_bios clean
+	make -C $(ROOTDIR)/sw/isa/isa_bios
+	$(COPY) $(ROOTDIR)/sw/isa/isa_bios/isa_bios.prg $(SWDIR_AUTO)/
+	$(COPY) $(ROOTDIR)/sw/isa/isa_bios/isa_bios.inf $(SWDIR)/
+
+
+	# --------------------------------------------------
+	# ISA DRIVERS
+	# --------------------------------------------------
+
+		# --------------------------------------------------
+		# GUS
+		# --------------------------------------------------
+		mkdir -p $(SWDIR_ISA)/gus
+		make -C $(ROOTDIR)/sw/isa/drivers/gus
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/gus/ultrinit.prg $(SWDIR_ISA)/gus/ultrinit.prg
+
+		# --------------------------------------------------
+		# PicoGUS
+		# --------------------------------------------------
+		mkdir -p $(SWDIR_ISA)/picogus
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit/pgusinit.prg $(SWDIR_ISA)/picogus/pgusinit.prg
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit/README.md $(SWDIR_ISA)/picogus/readme.txt
+
+		# --------------------------------------------------
+		# NE2000
+		# --------------------------------------------------
+		mkdir -p $(SWDIR_ISA)/ne2000
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/ENEH.MIF $(SWDIR_ISA)/ne2000/eneh.xif
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/ENEH.STX $(SWDIR_ISA)/ne2000/eneh.stx
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/ETHERNE.TXT $(SWDIR_ISA)/ne2000/etherne.txt
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/COPYING.TXT $(SWDIR_ISA)/ne2000/copying.txt
+
+
+	# --------------------------------------------------
+	# Castaway
 	# --------------------------------------------------
 		mkdir -p $(SWDIR_RTOOLS)/castaway
 		# todo: clean and recompile?
@@ -200,34 +243,9 @@ copysw:
 		$(COPY) $(SUPPDIR)/nova/STA_VDI.INF $(SWDIR_AUTO)/sta_vdi.inf
 
 
-
-
 	# --------------------------------------------------
 	# Additional support tools
 	# --------------------------------------------------
 		unzip -j -L $(SUPPDIR)/Autosort.zip "autosort/autosort.prg" -d $(SWDIR_TOOLS)
-
-
-	# --------------------------------------------------
-	# ISA drivers
-	# --------------------------------------------------
-
-	# NE2000
-		mkdir -p $(SWDIR_ISA)/ne2000
-		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/ENEH.MIF $(SWDIR_ISA)/ne2000/eneh.xif
-		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/ENEH.STX $(SWDIR_ISA)/ne2000/eneh.stx
-		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/ETHERNE.TXT $(SWDIR_ISA)/ne2000/etherne.txt
-		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/COPYING.TXT $(SWDIR_ISA)/ne2000/copying.txt
-
-	# PicoGUS driver
-		mkdir -p $(SWDIR_ISA)/picogus
-		$(COPY) $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit/pgusinit.prg $(SWDIR_ISA)/picogus/pgusinit.prg
-		$(COPY) $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit/README.md $(SWDIR_ISA)/picogus/readme.txt
-
-	# GUS driver
-		mkdir -p $(SWDIR_ISA)/gus
-		$(COPY) $(ROOTDIR)/sw/isa/drivers/gus/ultrinit.prg $(SWDIR_ISA)/gus/ultrinit.prg
-
-
 
 
