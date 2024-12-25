@@ -108,8 +108,11 @@ void vga_SetMode(uint16_t mode)
 
 void vga_Fill(uint8_t color)
 {
-    for (uint32_t i = 0; i < (64 * 1024); i++) {
-        *((volatile uint8_t*)(i + ISA_MEMBASE8 + VGAMEM_BASE)) = color;
+    uint32_t c8 = (uint32_t)color;
+    uint32_t c32 = (c8 << 24) | (c8 << 16) | (c8 << 8) | c8;
+    uint32_t* ptr = (uint32_t*) (ISA_MEMBASE + VGAMEM_BASE);
+    for (uint32_t i = 0; i < ((64 * 1024) / 4); i++) {
+        *ptr++ = c32;
     }
 }
 
