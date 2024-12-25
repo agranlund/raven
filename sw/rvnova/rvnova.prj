@@ -1,5 +1,6 @@
 rvnova.prg
 .C[-I..\purec\include]
+.C[-I..\lib]
 .C[-E1 -Y -G -M -Z -P]
 
 .S[-I..\purec\include]

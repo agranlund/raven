@@ -28,6 +28,8 @@
 
 #include "rvnova.h"
 
+extern void xcb_create(void);
+
 static const char* path_root   		= "c:";
 static const char* path_vdibib 		= "auto\\sta_vdi.bib";
 static const char* path_emubib 		= "auto\\emulator.bib";
@@ -42,10 +44,10 @@ static void screen_off(void) {
 #if 1
 	char tmp[6];
 	sprintf(tmp, "\033c%c", '0'+15);	/* bg color */
-	Cconws(tmp);
-	Cconws("\033E");
+	(void)Cconws(tmp);
+	(void)Cconws("\033E");
 	sprintf(tmp, "\033b%c", '0'+15);	/* fg color */
-	Cconws(tmp);
+	(void)Cconws(tmp);
 #endif
 }
 
@@ -53,8 +55,8 @@ static void screen_restore(void) {
 #if 1
 	char tmp[6];
 	sprintf(tmp, "\033b%c", '0');		/* fg color */
-	Cconws("\033E");
-	Cconws(tmp);
+	(void)Cconws("\033E");
+	(void)Cconws(tmp);
 #endif
 }
 
@@ -79,26 +81,6 @@ long supermain()
 	/* force settings */
 	inf.menuinf.guikey = 3;		/* gui disable unless keypress */
 	inf.menuinf.maccel = 0;
-
-	/* temp setup */
-#if 0
-	inf.drv_enable = 1;
-	inf.vdi_enable = 1;
-	strcpy(&inf.drvpath, "et4kw32i");
-
-	inf.menuinf.output 	= 1;	/* vdi output */
-	inf.menuinf.gdos	= 1;
-	strcpy(&inf.menuinf.gdosfile, "NVDI");
-
-	inf.drv_res.w = 1024;
-	inf.drv_res.h = 768;
-	inf.drv_res.b = 1;
-	inf.drv_res.i = 0;
-	inf.vdi_res.w = 1280;
-	inf.vdi_res.h = 720;
-	inf.vdi_res.b = 8;
-	inf.vdi_res.i = 0;
-#endif
 
 	/* early out if disabled */
 	if ((inf.drv_enable == 0) || (inf.menuinf.output != 1) || (inf.drvpath[0] == 0)) {
@@ -127,7 +109,7 @@ long supermain()
 	rvnova_freebib(&bib_vdi);
 
 	/* xmenu.inf */
-	sprintf(&fname, "%s\\%s", path_root, path_inf);
+	sprintf(fname, "%s\\%s", path_root, path_inf);
 	if (!rvnova_saveinf(&inf, fname)) {
 		return 0;
 	}
@@ -151,11 +133,18 @@ long supermain()
 		}
 	}
 
+    /* Mach32 cookie hackery */
+#if 0
+    if (strncmp(inf.drvpath, "MACH", 4) == 0) {
+        xcb_create();
+    }
+#endif
+
 	return 1;
 }
 
 
-long main()
+int main()
 {
 	if (Supexec(supermain)) {
 /*		Ptermres(_PgmSize, 0); */
