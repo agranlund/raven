@@ -10,12 +10,13 @@
 #include "stdarg.h"
 
 static char* inf = 0;
-static int32_t flog = 0;
+static int flog = 0;
 
 static void LoadInf(void)
 {
     char fname[64];
-    int32_t fhandle, fsize;
+    int fhandle;
+    int32_t fsize;
     char *src, *dst, *end;
     bool keepspaces;
 
@@ -193,7 +194,7 @@ const char* GetInfStr(const char* key) {
     if (inf) {
         const char* src = inf;
         while (*src != 0) {
-            int len = strlen(src);
+            int32_t len = strlen(src);
             const char* s = strstr(src, key);
             src += (len + 1);
             if (s) {
@@ -255,9 +256,9 @@ bool GetInfHex(const char* key, uint32_t* val) {
 bool Createcookie(uint32_t id, uint32_t value)
 {
     /* find free slot */
-    int cookies_size = 0;
-	int cookies_used = 0;
-    int cookies_avail = 0;
+    int32_t cookies_size = 0;
+	int32_t cookies_used = 0;
+    int32_t cookies_avail = 0;
 	uint32_t* jar = (uint32_t*) *((uint32_t*)0x5a0);
 	uint32_t* c = jar;
 	while (1) {
@@ -277,8 +278,8 @@ bool Createcookie(uint32_t id, uint32_t value)
     cookies_avail = cookies_size - cookies_used;
 	if (cookies_avail <= 0) {
         uint32_t* newjar;
-        int oldsize = (2*4*(cookies_size + 0));
-        int newsize = (2*4*(cookies_size + 8));
+        int32_t oldsize = (2*4*(cookies_size + 0));
+        int32_t newsize = (2*4*(cookies_size + 8));
         cookies_size += 8;
         newjar = (uint32_t*)malloc(newsize);
         memcpy(newjar, jar, oldsize);

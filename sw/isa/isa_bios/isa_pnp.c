@@ -48,7 +48,7 @@
 
 
 #include "isa_pnp.h"
-#include "isa_probe.h"
+#include "isa_prob.h"
 #include "stdio.h"
 #include "string.h"
 #include "mint/osbind.h"
@@ -234,14 +234,13 @@ static void pnp_inf_modify_devices(void) {
                 strncpy(dev->name, offs, ISA_MAX_NAME-1);
                 card->numdevices++;
             }
-        }
-        else if (offs && (strs == 3)) {
+        } else if (offs && (strs == 3)) {
             isa_device_t* dev = pnp_find_dev(strc[0], strc[1], false);
             if (dev)
             {
                 pnp_conf_t* conf = pnp_getconfs(dev->csn, dev->ldn);
                 if (conf) {
-                    char* cmd = strc[2]; int idx = 0; int len = strlen(cmd);
+                    char* cmd = strc[2]; int idx = 0; int32_t len = strlen(cmd);
                     if (len > 0) {
                         if ((cmd[len-1]>='0') && (cmd[len-1]<='9')) {
                             idx = cmd[len-1] - '0';
@@ -313,7 +312,7 @@ static void pnp_inf_modify_devices(void) {
                 }
             }
         }
-    } while(offs);    
+    } while(offs);
 }
 
 /*---------------------------------------------------------*/
@@ -719,7 +718,7 @@ static bool pnp_register_card(uint8_t csn, uint32_t card_vendor, uint32_t card_s
 
 static int pnp_detect(void)
 {
-    int csn, i;
+    int csn;
     
     /* temporary resource buffer */
     uint32_t memsize_res = (16 * 1024UL);

@@ -11,7 +11,7 @@ OBJS	= 	isa_bios.o \
 			isa_core.o \
 			isa_rw.o \
 			isa_pnp.o \
-			isa_probe.o
+			isa_prob.o
 
 ROOTDIR	=	../..
 include $(ROOTDIR)/Makefile.cmn

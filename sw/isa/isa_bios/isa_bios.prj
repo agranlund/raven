@@ -2,7 +2,7 @@ isa_bios.prg
 .C[-I..\..\purec\include]
 .C[-DXBTIME=0]
 .C[-DXBNVM=0]
-.C[-E1 -P]
+.C[-E1 -P -W2]
 
 .L[-V -S=4096]
 =
@@ -11,7 +11,7 @@ isa_bios.c
 isa_core.c
 isa_rw.c
 isa_pnp.c
-isa_probe.c
+isa_prob.c
 ..\..\purec\lib\pctoslib.lib
 ..\..\purec\lib\pcstdlib.lib
 

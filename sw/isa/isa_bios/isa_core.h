@@ -54,16 +54,16 @@ typedef struct
  * cookies
  *--------------------------------------------------------------------*/
 #ifndef C_hade
-#define C_hade  0x68616465      /* 'hade' */
+#define C_hade  0x68616465L     /* 'hade' */
 #endif
 #ifndef C__MIL
-#define C__MIL  0x5F4D494C      /* '_MIL' */
+#define C__MIL  0x5F4D494CL     /* '_MIL' */
 #endif
 #ifndef C__P2I
-#define C__P2I  0x502F3249      /* 'P/2I' */
+#define C__P2I  0x502F3249L     /* 'P/2I' */
 #endif
 #ifndef C_RAVN
-#define C_RAVN  0x5241564E      /* 'RAVN' */
+#define C_RAVN  0x5241564EL     /* 'RAVN' */
 #endif
 
 /*----------------------------------------------------------------------
