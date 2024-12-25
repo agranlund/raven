@@ -1,6 +1,8 @@
-ROOTDIR 	=	../../..
-BIN  		=	ultrinit.prg
-OBJS 		=	ultrinit.o
+NAME 		= ultrinit
+BIN 		= $(NAME).prg
+PRJ 		= $(NAME).prj
 
-include $(ROOTDIR)/Makefile.gcc
+OBJS 		= ultrinit.o
 
+ROOTDIR 	= ../../..
+include $(ROOTDIR)/Makefile.cmn
