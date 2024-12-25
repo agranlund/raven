@@ -26,6 +26,9 @@
 	.EXPORT cache_clear	; void cache_clear()
 	.EXPORT ticks_get	; u32 ticks_get()
 
+    .EXPORT reset_warm  ; void reset_warm()
+    .EXPORT reset_cold  ; void reset_cold()
+
 	.TEXT
 
 ipl_set:
@@ -61,3 +64,19 @@ cache_clear:
 	cpusha	bc
 	nop
 	rts
+
+
+reset_warm:
+    nop
+    move.w  #0x2700,sr
+    nop
+    move.l  #0x00e00000,-(sp)
+    rts
+
+reset_cold:
+    nop
+    move.w  #0x2700,sr
+    nop
+    move.l  0x40000004,-(sp)
+    rts
+

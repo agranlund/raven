@@ -37,7 +37,8 @@
 
 /*--- Global variables ---*/
 
-unsigned char exit_type;
+unsigned char exit_state = SETUP_CONTINUE;
+unsigned char exit_flag = EXIT_FLAG_NORMAL;
 
 /*--- Const ---*/
 
@@ -89,10 +90,11 @@ void displayFormExit(void)
 
 void exitContinue(void)
 {
-	exit_type = SETUP_EXIT;
+	exit_state = SETUP_EXIT;
 }
 
 void exitReset(void)
 {
-	exit_type = SETUP_RESET;
+	exit_state = SETUP_EXIT;
+    exit_flag |= EXIT_FLAG_COLD_RESET;
 }

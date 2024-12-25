@@ -29,6 +29,7 @@
 #include "form_vt.h"
 #include "misc.h"
 #include "f_cpu.h"
+#include "f_exit.h"
 
 /*--- Defines ---*/
 
@@ -54,7 +55,6 @@ typedef enum
 	FORM_CACR_ESB,
 
 	FORM_PCR_SS,
-	FORM_PCR_FPU,
 	FORM_MAX
 };
 
@@ -68,7 +68,6 @@ typedef enum
 	FORM_SETTING_CACR_EBC,
 	FORM_SETTING_CACR_ESB,
 	FORM_SETTING_PCR_SS,
-	FORM_SETTING_PCR_FPU,
 	FORM_SETTING_MAX
 };
 
@@ -113,7 +112,6 @@ static form_t form_cpu[]={
 	{FORM_TEXT, "Storebuffer ........ [ ]",				FORM_X0, FORM_Y0+15},
 
 	{FORM_TEXT, "Superscalar ........ [ ]",				FORM_X0, FORM_Y0+17},
-	{FORM_TEXT, "Disable FPU ........ [ ]",				FORM_X0, FORM_Y0+18},
 
 	{FORM_END, 0,0,0}
 };
@@ -128,7 +126,6 @@ form_setting_t form_setting_cpu[]={
 	{FORM_X0+FORM_TEXTPOS+1, FORM_Y0+14, NULL, SETTING_BOOL, 1},
 	{FORM_X0+FORM_TEXTPOS+1, FORM_Y0+15, NULL, SETTING_BOOL, 1},
 	{FORM_X0+FORM_TEXTPOS+1, FORM_Y0+17, NULL, SETTING_BOOL, 1},
-	{FORM_X0+FORM_TEXTPOS+1, FORM_Y0+18, NULL, SETTING_BOOL, 1},
 	{0, 0, NULL, SETTING_END}
 };
 
@@ -250,7 +247,6 @@ void saveSettings(void)
 	changed |= g_rv->conf(RV_CONF_CPU, nv_flags);
 	changed |= g_rv->conf(RV_CONF_RAM, nv_ram);
 */
-
 }
 
 void refreshFormCpu(void)
@@ -327,7 +323,6 @@ void initFormCpu(void)
 	form_setting_cpu[FORM_SETTING_CACR_EBC].text = &form_cpu[FORM_CACR_EBC].text[FORM_TEXTPOS+1];
 	form_setting_cpu[FORM_SETTING_CACR_EIC].text = &form_cpu[FORM_CACR_EIC].text[FORM_TEXTPOS+1];
 	form_setting_cpu[FORM_SETTING_PCR_SS].text = &form_cpu[FORM_PCR_SS].text[FORM_TEXTPOS+1];
-	form_setting_cpu[FORM_SETTING_PCR_FPU].text = &form_cpu[FORM_PCR_FPU].text[FORM_TEXTPOS+1];
 
 	refreshFormCpu();
 }
@@ -349,14 +344,15 @@ static void confirmFormCpu(int num_setting, conf_setting_u confSetting)
 		case FORM_SETTING_STRAM_SIZE:
 		case FORM_SETTING_STRAM_CACHE:
 		case FORM_SETTING_TTRAM_CACHE:
+            exit_flag |= EXIT_FLAG_COLD_RESET;
 			break;
 		case FORM_SETTING_CACR_EIC: nv_flags = (nv_flags & ~(1<<0)) | (~nv_flags & (1<<0)); break;
 		case FORM_SETTING_CACR_EDC: nv_flags = (nv_flags & ~(1<<1)) | (~nv_flags & (1<<1)); break;
 		case FORM_SETTING_CACR_EBC: nv_flags = (nv_flags & ~(1<<2)) | (~nv_flags & (1<<2)); break;
 		case FORM_SETTING_CACR_ESB: nv_flags = (nv_flags & ~(1<<3)) | (~nv_flags & (1<<3)); break;
 		case FORM_SETTING_PCR_SS: 	nv_flags = (nv_flags & ~(1<<4)) | (~nv_flags & (1<<4)); break;
-		case FORM_SETTING_PCR_FPU: 	nv_flags = (nv_flags & ~(1<<5)) | (~nv_flags & (1<<5)); break;
 		default:
+            exit_flag |= EXIT_FLAG_COLD_RESET;
 			break;
 	}
 

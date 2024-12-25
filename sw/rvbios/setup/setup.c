@@ -92,6 +92,10 @@ static void setup_form_select(unsigned long key_pressed);
 static void setup_list_select(unsigned long key_pressed);
 static void setup_updown_select(unsigned long key_pressed);
 
+
+extern void reset_warm(void);
+extern void reset_cold(void);
+
 /*--- Functions ---*/
 
 int setup_main(void)
@@ -117,7 +121,10 @@ int setup_main(void)
 	display_banner();
 	vt_initSettings(NULL);
 
-	while (exit_type == SETUP_CONTINUE) {
+    exit_state = SETUP_CONTINUE;
+    exit_flag = EXIT_FLAG_NORMAL;
+
+	while (exit_state == SETUP_CONTINUE) {
 		unsigned long key_pressed;
 
 		/* Refresh menu, form, and status line */
@@ -173,6 +180,14 @@ int setup_main(void)
 		}
 	}
 
+
+
+    if (exit_flag & EXIT_FLAG_COLD_RESET) {
+        reset_cold();
+    } else if (exit_flag & EXIT_FLAG_WARM_RESET) {
+        /* reset_warm(); */
+        reset_cold(); 
+    }
 
     /* restore screen */
 /*
@@ -290,7 +305,7 @@ static void setup_menu(unsigned long key_pressed)
 
 	switch(scancode) {
         case SCANCODE_F10:
-			exit_type = SETUP_EXIT;
+			exit_state = SETUP_EXIT;
             stat_refresh = 1;
 			break;
 		case SCANCODE_UP:
@@ -338,7 +353,7 @@ static void setup_form_select(unsigned long key_pressed)
 
 	switch(scancode) {
 		case SCANCODE_F10:
-			exit_type = SETUP_EXIT;
+			exit_state = SETUP_EXIT;
 		case SCANCODE_ESCAPE:
             vt_setting_clear();
 			setup_state = STATE_MENU;

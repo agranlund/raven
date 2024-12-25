@@ -29,6 +29,7 @@
 #include "misc.h"
 #include "nvram.h"
 #include "f_nvram.h"
+#include "f_exit.h"
 #include "../rvbios.h"
 
 /*--- Defines ---*/
@@ -293,6 +294,10 @@ static void confirmFormNvram(int num_setting, conf_setting_u confSetting)
 		readNvram();
 		vt_displayForm(form_nvram);
 	}
+
+    if (save_date || save_time || refresh_nvram) {
+        exit_flag |= EXIT_FLAG_WARM_RESET;
+    }
 }
 
 static void readClock(void)

@@ -27,12 +27,18 @@
 enum {
 	SETUP_CONTINUE=0,
 	SETUP_EXIT=1,
-	SETUP_RESET=2
+};
+
+enum {
+    EXIT_FLAG_NORMAL = 0,
+    EXIT_FLAG_WARM_RESET = (1 << 1),
+    EXIT_FLAG_COLD_RESET = (1 << 2),
 };
 
 /*--- Variables ---*/
 
-extern unsigned char exit_type;
+extern unsigned char exit_state;
+extern unsigned char exit_flag;
 
 extern const form_menu_t form_menu_exit;
 extern form_setting_t form_setting_exit[];
