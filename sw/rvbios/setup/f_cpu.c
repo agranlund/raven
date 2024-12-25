@@ -229,21 +229,24 @@ void loadSettings(void)
     /*
     flags = raven()->cfg_Read("cpuflags");
     */
-    stram_cm = raven()->cfg_Read("st_ram_cache");
-    ttram_cm = raven()->cfg_Read("tt_ram_cache");
+    if ((raven()->version & 0x00ffffffUL) >= 0x00241225UL) {
+        stram_cm = raven()->cfg_Read("st_ram_cache");
+        ttram_cm = raven()->cfg_Read("tt_ram_cache");
+    }
 }
 
 void saveSettings(void)
 {
-    raven()->cfg_Write("st_ram_size", stram_size);
-    raven()->cfg_Write("st_ram_cache", stram_cm);
-    raven()->cfg_Write("tt_ram_cache", ttram_cm);
-
+    if ((raven()->version & 0x00ffffffUL) >= 0x00241225UL) {
+        raven()->cfg_Write("st_ram_size", stram_size);
+        raven()->cfg_Write("st_ram_cache", stram_cm);
+        raven()->cfg_Write("tt_ram_cache", ttram_cm);
 /*
     { "cpuflags",       0,  0, 0x3A, 6, 0, 0, 0x3F, 0x3F },
     { "boot_enable",    0,  0, 0x3B, 1, 0, 0, 1,    1 },
     { "boot_delay",     0,  0, 0x3B, 4, 4, 0, 15,   0 },
 */
+    }
 }
 
 void refreshFormCpu(void)

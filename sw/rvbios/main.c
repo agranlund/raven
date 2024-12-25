@@ -26,11 +26,7 @@
 #include <string.h>
 #include <mint/cookie.h>
 #include <mint/osbind.h>
-
-/*
-#define _RVBIOS_INTERNAL_
 #include "raven.h"
-*/
 #include "rvbios.h"
 
 #include "setup/setup.h"
@@ -45,6 +41,14 @@
 
 #define COL_FG			COL_BLACK
 #define COL_BG			COL_WHITE
+
+
+#define MIN_ROM_VERSION 0x00241225UL
+
+
+static bool RomVersionValid() {
+    return ((raven()->version & 0x00ffffffUL) >= MIN_ROM_VERSION) ? true : false;
+}
 
 /*----------------------------------------
 	Globals
@@ -193,6 +197,10 @@ int setup(void)
 
 	unsigned long boot_delay = 5;
 	
+    if (!RomVersionValid()) {
+        boot_delay = 10;
+    }
+
 	if (boot_delay > 0) {
 		unsigned long dot_tick, cur_tick, start_tick;
 		int start_setup = 0;
@@ -257,6 +265,10 @@ long supermain()
 
 	/* boot screen */
 	bootscreen();
+
+    if (!RomVersionValid()) {
+        printf("*** ROM version is old, please update ***\n");
+    }
 
 	/* install xbios extensions */
 	ipl = ipl_set(0x0700);

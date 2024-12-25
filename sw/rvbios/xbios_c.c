@@ -89,8 +89,8 @@ int16_t xbc_nvmaccess(
 		break;
 		
 		case 1:	/* set */
-			raven()->rtc_Write(addr, buffer, len);
 		{
+			raven()->rtc_Write(addr, buffer, len);
 		}
 		break;
 		
