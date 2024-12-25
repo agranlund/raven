@@ -166,6 +166,7 @@ copysw:
 		# GUS
 		# --------------------------------------------------
 		mkdir -p $(SWDIR_ISA)/gus
+		make -C $(ROOTDIR)/sw/isa/drivers/gus clean
 		make -C $(ROOTDIR)/sw/isa/drivers/gus
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/gus/ultrinit.prg $(SWDIR_ISA)/gus/ultrinit.prg
 
@@ -173,6 +174,8 @@ copysw:
 		# PicoGUS
 		# --------------------------------------------------
 		mkdir -p $(SWDIR_ISA)/picogus
+		make -C $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit -f Makefile-atari clean
+		make -C $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit -f Makefile-atari
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit/pgusinit.prg $(SWDIR_ISA)/picogus/pgusinit.prg
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit/README.md $(SWDIR_ISA)/picogus/readme.txt
 
