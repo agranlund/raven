@@ -1,6 +1,11 @@
 Raven.A1
 Hardware and software binary release
 
+20241226
+  rom:      added tos cookie commands
+  rom:      monitor input/output redirection
+  software: added mon.tos (requires rom >= 20241226)
+
 20241225
   rvbios:   use standard Atari colors
   rvbios:   reset after certain changes
