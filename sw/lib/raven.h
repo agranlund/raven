@@ -101,10 +101,9 @@ typedef struct
 
 /* 0x00C0 */
     void        _RVAPI (*mon_Exec)(const char* s);
-    uint32_t    reserved00C0[4];
-    void        _RVAPI (**lib_fputchar)(int32_t c);
-    int32_t     _RVAPI (**lib_fgetchar)(void);
-    int32_t     _RVAPI (**lib_fpeekchar)(void);
+    uint32_t    reserved00C0[5];
+    int32_t     _RVAPI (**mon_fgetchar)(void);
+    void        _RVAPI (**mon_fputchar)(int32_t c);
 
 } raven_t;
 

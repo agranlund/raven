@@ -87,8 +87,7 @@ const raven_t ravenBios =
     mmu_GetPageDescriptor,
 //0x00C0
     mon_Exec,
-    {0,0,0,0},
-    &putchar,
+    {0,0,0,0,0},
     &getchar,
-    &peekchar,
+    &putchar,
 };
