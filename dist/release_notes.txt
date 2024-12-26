@@ -4,7 +4,11 @@ Hardware and software binary release
 20241226
   rom:      added tos cookie commands
   rom:      monitor input/output redirection
-  software: added mon.tos (requires rom >= 20241226)
+  software: added raven/mon.tos (requires rom >= 20241226)
+  software: added 3rdparty autoexec
+  software: added 3rdparty setenv
+  software: added 3rdparty setflags
+  software: moved 3rdparty autosort into own folder
 
 20241225
   rvbios:   use standard Atari colors
