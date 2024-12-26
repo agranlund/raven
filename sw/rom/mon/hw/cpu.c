@@ -3,8 +3,8 @@
 #define PMMU_PAGESIZE           (4 * 1024UL)
 #define VBR_PROXY_IN_ROM        1
 
-NMIFunc_t   NMIFunc;
-uint32_t    NMIBusy;
+extern NMIFunc_t   NMIFunc;
+extern uint32_t    NMIBusy;
 
 uint32_t*   mmuRootTable;
 uint32_t*   mmuInvalidPtrTable;

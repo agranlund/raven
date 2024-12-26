@@ -24,7 +24,8 @@ vpath %.S $(SWDIR)
 LDFILE		:= $(SWDIR)/rom/srec/srec.ld
 STARTFILE	:= $(SWDIR)/rom/srec/start.o
 
-SFILES		:= $(wildcard *.S)
+SFILES		:= $(wildcard *.S) \
+            rom/mon/hw/asm.S
 			
            
 CFILES		:= $(wildcard *.c) \

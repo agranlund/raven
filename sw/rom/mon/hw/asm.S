@@ -1,7 +1,4 @@
 
-    .section .note.GNU-stack,"",%progbits
-
-    .text
     .global cpu_GetIPL
     .global cpu_SetIPL
     .global cpu_GetCACR
@@ -27,8 +24,8 @@
     .global vecNMI
     .global vecRTE
 
-    .extern NMIFunc
-    .extern NMIBusy
+    .global NMIFunc
+    .global NMIBusy
 
     .global cpu_SafeReadByte
     .global cpu_SafeReadWord
@@ -38,6 +35,12 @@
     .global cpu_SafeWriteWord
     .global cpu_SafeWriteLong
 
+    .section .bss.asm
+NMIFunc:    .space 4
+NMIBusy:    .space 4
+
+    .section .note.GNU-stack,"",%progbits
+    .text
 
 // ----------------------------------------------------------
     .macro pushrl,r
@@ -66,9 +69,11 @@
         pushrl  %buscr
         move.l  %a7,-(%a7)          // push args
         move.l  #1f,-(%a7)          // push return address from call
+        cmp.l   #0,NMIFunc
+        beq.b   1f
         move.l  NMIFunc,-(%a7)      // push nmi handler address
         rts                         // call it
-1:      add.l   #4,%a7              // get rid of args
+1:      addq.l  #4,%a7              // get rid of args
         add.l   #56,%a7             // get rid of special regs
         movem.l (%a7)+,%d0-%d7/%a0-%a6 // restore regs
         add.l   #4,%a7              // ignore a7
