@@ -1,0 +1,8 @@
+
+# Enable CD-IN on OPLSAX (WSS)
+#
+#c:\raven\mon.tos pb $81000534 2
+#c:\raven\mon.tos pb $81000535 5
+#c:\raven\mon.tos pb $81000534 3
+#c:\raven\mon.tos pb $81000535 5
+

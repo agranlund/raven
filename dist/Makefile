@@ -250,6 +250,24 @@ copysw:
 	# --------------------------------------------------
 	# Additional support tools
 	# --------------------------------------------------
-		unzip -j -L $(SUPPDIR)/Autosort.zip "autosort/autosort.prg" -d $(SWDIR_TOOLS)
+		mkdir -p $(SWDIR_TOOLS)/autosort
+		unzip -j -L $(SUPPDIR)/Autosort.zip "autosort/autosort.prg" -d $(SWDIR_TOOLS)/autosort/
+		unzip -j -L $(SUPPDIR)/Autosort.zip "autosort/autosort.doc" -d $(SWDIR_TOOLS)/autosort/
 
+		mkdir -p $(SWDIR_TOOLS)/autoexec
+		unzip -j -L $(SUPPDIR)/autoexec-for-tos-main.zip "autoexec-for-tos-main/autoexec.prg" -d $(SWDIR_TOOLS)/autoexec/
+		unzip -j -L $(SUPPDIR)/autoexec-for-tos-main.zip "autoexec-for-tos-main/readme.md" -d $(SWDIR_TOOLS)/autoexec/
+		$(COPY) $(SUPPDIR)/autoexec.cnf $(SWDIR)/
 
+		mkdir -p $(SWDIR_TOOLS)/setenv
+		unzip -j -L $(SUPPDIR)/setenv-main.zip "setenv-main/setenv.prg" -d $(SWDIR_TOOLS)/setenv/
+		unzip -j -L $(SUPPDIR)/setenv-main.zip "setenv-main/readme.md" -d $(SWDIR_TOOLS)/setenv/
+		$(COPY) $(SUPPDIR)/setenv.txt $(SWDIR)/
+
+		mkdir -p $(SWDIR_TOOLS)/setflags
+		unzip -j -L $(SUPPDIR)/setfl200.zip -d $(SWDIR_TOOLS)/setflags/
+		mv $(SWDIR_TOOLS)/setflags/README $(SWDIR_TOOLS)/setflags/readme
+		mv $(SWDIR_TOOLS)/setflags/SETFLAGS.APP $(SWDIR_TOOLS)/setflags/setflags.app
+
+		$(COPY) $(SWDIR_TOOLS)/autoexec/autoexec.prg $(SWDIR_AUTO)/
+		$(COPY) $(SWDIR_TOOLS)/setenv/setenv.prg $(SWDIR_AUTO)/

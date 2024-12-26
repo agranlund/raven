@@ -1,0 +1,4 @@
+SDL_VIDEODRIVER=xbios
+SDL_ATARI_EVENTSDRIVER=xbios
+PATH=.;c:\raven;c:\tools
+
