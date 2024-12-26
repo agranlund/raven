@@ -47,12 +47,10 @@ bool sys_Init()
     cpu_Init();
     uint32_t cpuRev = 0;
     uint32_t cpuSku = cpu_Detect(&cpuRev, 0);
-    fmt("\nCPU:  %sR%b\n", cpuNames[cpuSku], cpuRev);
 
     // identify rom
     uint32_t id_simm[4];
     id_simm[3] = IOL(IOL(RV_PADDR_SIMM3, 0), 4);
-    fmt("ROM:  %l\n", id_simm[3]);
 
 	// identify ram
     for (int i=0; i<3; i++) {
@@ -71,12 +69,9 @@ bool sys_Init()
                 j = 16;
             }
         }
-        fmt("RAM%d: %l\n", i, id_simm[i]);
     }
-    putchar('\n');
 
     // clear bios bss area & copy data
-    puts("InitBss");
     memset(&__bss_start, 0, &__bss_end - &__bss_start);
     memcpy(&__data_start, &__text_end, &__data_end - &__data_start);
 
@@ -87,6 +82,17 @@ bool sys_Init()
     ksimm[3] = id_simm[3];
 
     // init systems
+    lib_Init();
+
+    // can use printf and other lib functions from this point onward
+    putchar('\n');
+    printf("CPU:  %sR%d\n", cpuNames[cpuSku], cpuRev);
+    printf("ROM:  %08x\n", id_simm[3]);
+    printf("RAM0: %08x\n", id_simm[0]);
+    printf("RAM1: %08x\n", id_simm[1]);
+    printf("RAM2: %08x\n", id_simm[2]);
+    putchar('\n');
+
     puts("InitHeap");
     mem_Init();
 

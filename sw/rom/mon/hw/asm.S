@@ -30,6 +30,14 @@
     .extern NMIFunc
     .extern NMIBusy
 
+    .global cpu_SafeReadByte
+    .global cpu_SafeReadWord
+    .global cpu_SafeReadLong
+
+    .global cpu_SafeWriteByte
+    .global cpu_SafeWriteWord
+    .global cpu_SafeWriteLong
+
 
 // ----------------------------------------------------------
     .macro pushrl,r
@@ -301,3 +309,63 @@ cpu_Call:
     rts                             // d0 = return value
 
 
+
+
+cpu_SafeReadLong:
+    move.l  %a7,%a1             // save stack pointer
+    move.l  0x08,%d1            // save berr
+    move.l  #cpu_SafeDone,0x8   // set berr
+    move.l  #0xffffffff,%d0     // default value
+    move.l  4(%a7),%a0          // get address
+    move.l  (%a0),%d0           // read from address
+    bra.b   cpu_SafeDone
+
+cpu_SafeReadWord:
+    move.l  %a7,%a1             // save stack pointer
+    move.l  0x08,%d1            // save berr
+    move.l  #cpu_SafeDone,0x8   // set berr
+    move.w  #0xffff,%d0         // default value
+    move.l  4(%a7),%a0          // get address
+    move.w  (%a0),%d0           // read from address
+    bra.b   cpu_SafeDone
+
+cpu_SafeReadByte:
+    move.l  %a7,%a1             // save stack pointer
+    move.l  0x08,%d1            // save berr
+    move.l  #cpu_SafeDone,0x8   // set berr
+    move.b  #0xff,%d0           // default value
+    move.l  4(%a7),%a0          // get address
+    move.b  (%a0),%d0           // read from address
+
+cpu_SafeDone:
+    move.l  %a1,%a7             // restore stack
+    move.l  %d1,0x08            // restore berr
+    rts
+
+cpu_SafeWriteByte:
+    move.l  %a7,%a1             // save stack pointer
+    move.l  0x08,%d1            // save berr
+    move.l  #cpu_SafeDone,0x8   // set berr
+    move.l  4(%a7),%a0          // address
+    move.l  8(%a7),%d0          // data
+    move.b  %d0,(%a0)           // write
+    bra.b   cpu_SafeDone
+
+cpu_SafeWriteWord:
+    move.l  %a7,%a1             // save stack pointer
+    move.l  0x08,%d1            // save berr
+    move.l  #cpu_SafeDone,0x8   // set berr
+    move.l  4(%a7),%a0          // address
+    move.l  8(%a7),%d0          // data
+    move.w  %d0,(%a0)           // write
+    bra.b   cpu_SafeDone
+
+cpu_SafeWriteLong:
+    move.l  %a7,%a1             // save stack pointer
+    move.l  0x08,%d1            // save berr
+    move.l  #cpu_SafeDone,0x8   // set berr
+    move.l  %a7,%a1             // save stack pointer
+    move.l  4(%a7),%a0          // address
+    move.l  8(%a7),%d0          // data
+    move.l  %d0,(%a0)           // write
+    bra.b   cpu_SafeDone

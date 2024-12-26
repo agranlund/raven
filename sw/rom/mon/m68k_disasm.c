@@ -76,6 +76,7 @@
 
 //#include "config.h"
 #include "lib.h"
+#include "hw/cpu.h"
 #define M68K_DISASM_C
 //#include <string.h>
 //#include <stdio.h>
@@ -221,14 +222,21 @@ int db_radix;
 
 static u_short read16(u_short *p)
 {
-  return ((u_short)*(u_char *)p)<<8 | (u_short)*((u_char *)p+1);
+#if 1
+    return (u_short)cpu_SafeReadWord((uint32_t)p);
+#else
+    return ((u_short)*(u_char *)p)<<8 | (u_short)*((u_char *)p+1);
+#endif
 }
-
 
 static u_long read32(u_short *p)
 {
+#if 1
+    return (u_long)cpu_SafeReadLong((uint32_t)p);
+#else
   return ((u_long)*(u_char *)p)<<24 | ((u_long)*((u_char *)p+1))<<16 |
          ((u_long)*((u_char *)p+2))<<8 | (u_long)*((u_char *)p+3);
+#endif
 }
 
 

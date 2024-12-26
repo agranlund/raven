@@ -1,6 +1,24 @@
 #include "sys.h"
 #include "lib.h"
+#include "hw/cpu.h"
 #include "hw/uart.h"
+
+static void putchar_uart(int c) { uart_sendChar(c); }
+static int getchar_uart() { return uart_recvChar(); }
+static int peekchar_uart() { return uart_rxrdy() ? 1 : 0; }
+
+void (*putchar)(int c) = putchar_uart;
+int (*getchar)(void) = getchar_uart;
+int (*peekchar)(void) = peekchar_uart;
+
+bool
+lib_Init()
+{
+    putchar = putchar_uart;
+    getchar = getchar_uart;
+    peekchar = peekchar_uart;
+    return true;
+}
 
 size_t
 strlen (const char *str)
@@ -163,19 +181,6 @@ memcpy(void *restrict dst, const void *restrict src, size_t len)
 }
 
 int
-putchar(int c)
-{
-    uart_sendChar(c);
-    return 0;
-}
-
-int
-getc()
-{
-    return uart_recvChar();
-}
-
-int
 puts(const char *str)
 {
     while (*str != '\0') {
@@ -191,7 +196,7 @@ gets_internal(char * restrict buf, int bufsize, bool echo)
     uint32_t len = 0;
 
     for (;;) {
-        int c = getc();
+        int c = getchar();
 
         if (c > 0) {
             switch (c) {
@@ -259,7 +264,7 @@ gets(char * restrict str, int size)
 
 static const char *hextab = "0123456789abcdef";
 
-static void emits(int (*emit)(int c), const char *s)
+static void emits(void (*emit)(int c), const char *s)
 {
     while (*s) {
         emit(*s++);
@@ -267,7 +272,7 @@ static void emits(int (*emit)(int c), const char *s)
 }
 
 static void
-emitx(int (*emit)(int c), uint32_t value, size_t len)
+emitx(void (*emit)(int c), uint32_t value, size_t len)
 {
     uint32_t shifts = len * 2;
     char buf[shifts + 1];
@@ -291,7 +296,7 @@ putx(uint32_t value, size_t len)
 }
 
 static void
-emitd(int (*emit)(int c), uint32_t value)
+emitd(void (*emit)(int c), uint32_t value)
 {
     if (value == 0) {
         putchar('0');
@@ -342,7 +347,20 @@ hexdump(const uint8_t *addr, uint32_t address, size_t length, char width)
                 }
             } else {
                 const uint8_t *p = (addr + index + col);
-                uint32_t val = WSELECT(width, *(const volatile uint32_t *)p, *(const volatile uint16_t *)p, *(const volatile uint8_t *)p);
+                uint32_t val = 0xffffffff;
+
+                switch (width)
+                {
+                    case 'l':
+                        val = cpu_SafeReadLong((uint32_t)p);
+                        break;
+                    case 'w':
+                        val = cpu_SafeReadWord((uint32_t)p);
+                        break;
+                    default:
+                        val = cpu_SafeReadByte((uint32_t)p);
+                        break;
+                }
                 putx(val, incr);
             }
         }
@@ -353,8 +371,8 @@ hexdump(const uint8_t *addr, uint32_t address, size_t length, char width)
         for (uint32_t col = 0; col < 16; col++) {
             if ((index + col) < length) {
                 const uint8_t *p = (addr + index + col);
-
-                putchar(isprint(*p) ? *p : '.');
+                const uint8_t v = cpu_SafeReadByte((uint32_t)p);
+                putchar(isprint(v) ? v : '.');
             } else {
                 putchar(' ');
             }
@@ -383,7 +401,7 @@ hexdump(const uint8_t *addr, uint32_t address, size_t length, char width)
  * @param[in]  <unnamed>  format string arguments
  */
 void
-_fmt(int (*emit)(int c), const char *format, va_list ap)
+_fmt(void (*emit)(int c), const char *format, va_list ap)
 {
     char c;
     bool dofmt = false;

@@ -55,6 +55,8 @@ typedef signed long long    int64_t;
 
 typedef long jmp_buf[6 + 1 + 6 + 8 * 3]; /* 6 data regs, retaddr, 6 addr regs, 8 fpu regs */
 
+extern bool lib_Init();
+
 extern int setjmp(jmp_buf buf);
 extern void longjmp(jmp_buf, int);
 extern int sigsetjmp(jmp_buf buf, int mask);
@@ -68,15 +70,18 @@ extern int strncasecmp(const char *s1, const char *s2, size_t n);
 extern void *memset(void *b, int c, size_t len);
 extern void *memcpy(void *restrict dst, const void *restrict src, size_t len);
 extern int memcmp(const void *s1, const void *s2, size_t n);
-extern int putchar(int c);
-extern int getc();
 extern int puts(const char *str);
 extern char *gets(char *restrict str, int size);
 extern size_t hexdump(const uint8_t *addr, uint32_t address, size_t length, char width);
 extern void fmt(const char *format, ...);
-extern void _fmt(int (*emit)(int c), const char *format, va_list ap);
+extern void _fmt(void (*emit)(int c), const char *format, va_list ap);
 extern int scan(const char *buf, const char *format, ...);
 extern void printf(const char* format, ...);
+
+extern void (*putchar)(int c);
+extern int (*getchar)(void);
+extern int (*peekchar)(void);
+
 
 static inline int toupper(int c)
 {

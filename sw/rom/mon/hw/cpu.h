@@ -72,6 +72,14 @@ void        cpu_CacheOn();
 void        cpu_CacheOff();
 void        cpu_CacheFlush();
 
+uint8_t     cpu_SafeReadByte(uint32_t addr);
+uint16_t    cpu_SafeReadWord(uint32_t addr);
+uint32_t    cpu_SafeReadLong(uint32_t addr);
+
+void        cpu_SafeWriteByte(uint32_t addr, uint8_t val);
+void        cpu_SafeWriteWord(uint32_t addr, uint16_t val);
+void        cpu_SafeWriteLong(uint32_t addr, uint32_t val);
+
 //-------------------------------------------------------
 // nmi
 //-------------------------------------------------------

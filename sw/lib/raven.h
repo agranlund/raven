@@ -8,7 +8,7 @@ Important:
 #define _RAVEN_H_
 
 /*--------------------------------------------------------------------------------*/
-#define C_RAVN_VER          0x20241225UL
+#define C_RAVN_VER          0x20241226UL
 #define C_RAVN_PTR          0x40000000UL
 #ifndef C_RAVN
 #define C_RAVN              0x5241564EUL
@@ -89,7 +89,7 @@ typedef struct
     void        _RVAPI (*vga_SetPal)(uint32_t idx, uint32_t num, uint8_t* pal);
     void        _RVAPI (*vga_GetPal)(uint32_t idx, uint32_t num, uint8_t* pal);
 
-/* 0x0100 */
+/* 0x00A0 */
     void        _RVAPI (*cache_On)(void);
     void        _RVAPI (*cache_Off)(void);
     void        _RVAPI (*cache_Flush)(void);
@@ -98,6 +98,13 @@ typedef struct
     void        _RVAPI (*mmu_Invalid)(uint32_t log, uint32_t size);
     void        _RVAPI (*mmu_Flush)(void);
     uint32_t*   _RVAPI (*mmu_GetPageDescriptor)(uint32_t log);
+
+/* 0x00C0 */
+    void        _RVAPI (*mon_Exec)(const char* s);
+    uint32_t    reserved00C0[4];
+    void        _RVAPI (**lib_fputchar)(int32_t c);
+    int32_t     _RVAPI (**lib_fgetchar)(void);
+    int32_t     _RVAPI (**lib_fpeekchar)(void);
 
 } raven_t;
 

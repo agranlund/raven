@@ -15,6 +15,11 @@ char oldcmd;
 int oldarg1;
 int oldarg2;
 
+uint32_t dump_old_addr;
+uint32_t dump_old_size;
+uint32_t dasm_old_addr;
+uint32_t dasm_old_size;
+
 static void mon_Main(regs_t* regs);
 static void monHelp();
 static void monRegs(regs_t* regs);
@@ -33,6 +38,11 @@ extern void monTest(char* cmd, uint32_t val);   // test.c
 
 bool mon_Init()
 {
+    dump_old_addr = 0x00000000;
+    dump_old_size = 256;
+    dasm_old_addr = 0x40000400;
+    dasm_old_size = 16;
+
     cpu_SetNMI(mon_Main);
     return true;
 }
@@ -42,12 +52,96 @@ void mon_Start()
     cpu_TriggerNMI();
 }
 
+uint16_t mon_Parse(regs_t* regs)
+{
+    // convert whitespaces to 0 as argument delimiters
+    size_t monBufferSize = strlen(monBuffer);
+    for (int i=0; i<monBufferSize; i++) {
+        if (monBuffer[i] <= 32 || monBuffer[i] >= 127) {
+            monBuffer[i] = 0;
+        }
+    }
+
+    // parse command arguments
+    // XXX TODO use scan()
+    int args = 0;
+    char* argc[8];
+
+    uint16_t exit = 0;
+    uint32_t start = 0;
+    for (int i=0; i<8; i++) {
+        argc[i] = 0;
+        // skip whitespaces
+        while ((start < monBufferSize) && (monBuffer[start] == 0)) {
+            start++;
+        }
+        // find length
+        if (start < monBufferSize) {
+            uint32_t end = start;
+            while ((end < monBufferSize) && (monBuffer[end] != 0)) {
+                end++;
+            }
+            uint32_t size = end - start;
+            if (size > 0) {
+                argc[i] = (char*)&monBuffer[start];
+                start += size;
+                args++;
+            }
+        }
+    }
+
+    // execute command
+    if (args > 0) {
+        if (strcmp(argc[0], "x") == 0)              { exit = 1; }
+        else if (strcmp(argc[0], "reset") == 0)     { extern void start(); start(); }
+        else if (strcmp(argc[0], "r") == 0)         { monRegs(regs); }
+        else if (strcmp(argc[0], "d") == 0)         { monDump(args > 1 ? strtoi(argc[1]) : 0xffffffff, args > 2 ? strtoi(argc[2]) : 0xffffffff); }
+        else if (strcmp(argc[0], "a") == 0)         { monDisasm(args > 1 ? strtoi(argc[1]) : 0xffffffff, args > 2 ? strtoi(argc[2]) : 0xffffffff); }
+        else if (strcmp(argc[0], "pb") == 0)        { if (args>2) { monWrite( 8, strtoi(argc[1]), strtoi(argc[2])); } else { monRead( 8, strtoi(argc[1])); } }
+        else if (strcmp(argc[0], "pw") == 0)        { if (args>2) { monWrite(16, strtoi(argc[1]), strtoi(argc[2])); } else { monRead(16, strtoi(argc[1])); } }
+        else if (strcmp(argc[0], "pl") == 0)        { if (args>2) { monWrite(32, strtoi(argc[1]), strtoi(argc[2])); } else { monRead(32, strtoi(argc[1])); } }
+        else if (strcmp(argc[0], "rtc") == 0) {
+            if ((args>1) && (strcmp(argc[1], "clear") == 0)) { monRtcClear(); }
+            else if ((args>1) && (strcmp(argc[1], "reset") == 0)) { monRtcReset(); }
+            monRtcDump();
+        }
+        else if (strcmp(argc[0], "cfg") == 0) {
+            if (args == 1) {
+                monCfgList();
+            } else if (args == 2) {
+                monCfgRead(argc[1]);
+            } else {
+                monCfgWrite(argc[1], strtoi(argc[2]));
+            }
+        }
+        else if (strcmp(argc[0], "vga") == 0)
+        {
+            if (args == 1) {
+                puts(   "Commands:\n"
+                        "   vga init\n"
+                        "  vga test\n" );
+            } else if (strcmp(argc[1], "init") == 0) {
+                vga_Init();
+            } else if (strcmp(argc[1], "test") == 0) {
+                vga_Test();
+            }
+        }
+        else if (strcmp(argc[0], "run") == 0)       { cpu_Call(strtoi(argc[1])); }
+        else if (strncmp(argc[0], "S0", 2) == 0)    { monSrec(argc[0]); }
+        else                                        { monHelp(); }
+    }
+    return exit;
+}
+
 void mon_Main(regs_t* regs)
 {
     oldcmd = oldarg1 = oldarg2 = 0;
 
-    puts("");
+    puts("\n# Raven monitor\n");
     monRegs(regs);
+    putchar('\n');
+    monHelp();
+    putchar('\n');
 
     uint16_t exit = 0;
     while(exit == 0)
@@ -59,81 +153,25 @@ void mon_Main(regs_t* regs)
             continue;
         }
 
-        // convert whitespaces to 0 as argument delimiters
-        size_t monBufferSize = strlen(monBuffer);
-        for (int i=0; i<monBufferSize; i++) {
-            if (monBuffer[i] <= 32 || monBuffer[i] >= 127) {
-                monBuffer[i] = 0;
-            }
-        }
+        exit = mon_Parse(regs);
+    }
+}
 
-        // parse command arguments
-        // XXX TODO use scan()
-        int args = 0;
-        char* argc[8];
+void mon_MainOnce(regs_t* regs)
+{
+    cpu_SetNMI(mon_Main);
+    mon_Parse(regs);
+}
 
-        uint32_t start = 0;
-        for (int i=0; i<8; i++) {
-            argc[i] = 0;
-            // skip whitespaces
-            while ((start < monBufferSize) && (monBuffer[start] == 0)) {
-                start++;
-            }
-            // find length
-            if (start < monBufferSize) {
-                uint32_t end = start;
-                while ((end < monBufferSize) && (monBuffer[end] != 0)) {
-                    end++;
-                }
-                uint32_t size = end - start;
-                if (size > 0) {
-                    argc[i] = (char*)&monBuffer[start];
-                    start += size;
-                    args++;
-                }
-            }
-        }
-
-        // execute command
-        if (args > 0) {
-            if (strcmp(argc[0], "x") == 0)              { exit = 1; }
-            else if (strcmp(argc[0], "reset") == 0)     { extern void start(); start(); }
-            else if (strcmp(argc[0], "r") == 0)         { monRegs(regs); }
-            else if (strcmp(argc[0], "d") == 0)         { monDump(args > 1 ? strtoi(argc[1]) : 0xffffffff, args > 2 ? strtoi(argc[2]) : 0xffffffff); }
-            else if (strcmp(argc[0], "a") == 0)         { monDisasm(args > 1 ? strtoi(argc[1]) : 0xffffffff, args > 2 ? strtoi(argc[2]) : 0xffffffff); }
-            else if (strcmp(argc[0], "pb") == 0)        { if (args>2) { monWrite( 8, strtoi(argc[1]), strtoi(argc[2])); } else { monRead( 8, strtoi(argc[1])); } }
-            else if (strcmp(argc[0], "pw") == 0)        { if (args>2) { monWrite(16, strtoi(argc[1]), strtoi(argc[2])); } else { monRead(16, strtoi(argc[1])); } }
-            else if (strcmp(argc[0], "pl") == 0)        { if (args>2) { monWrite(32, strtoi(argc[1]), strtoi(argc[2])); } else { monRead(32, strtoi(argc[1])); } }
-            else if (strcmp(argc[0], "rtc") == 0) {
-                if ((args>1) && (strcmp(argc[1], "clear") == 0)) { monRtcClear(); }
-                else if ((args>1) && (strcmp(argc[1], "reset") == 0)) { monRtcReset(); }
-                monRtcDump();
-            }
-            else if (strcmp(argc[0], "cfg") == 0) {
-                if (args == 1) {
-                    monCfgList();
-                } else if (args == 2) {
-                    monCfgRead(argc[1]);
-                } else {
-                    monCfgWrite(argc[1], strtoi(argc[2]));
-                }
-            }
-            else if (strcmp(argc[0], "vga") == 0)
-            {
-                if (args == 1) {
-                    puts(   "Commands:\n"
-                           "   vga init\n"
-                            "  vga test\n" );
-                } else if (strcmp(argc[1], "init") == 0) {
-                    vga_Init();
-                } else if (strcmp(argc[1], "test") == 0) {
-                    vga_Test();
-                }
-            }
-            else if (strcmp(argc[0], "run") == 0)       { cpu_Call(strtoi(argc[1])); }
-            else if (strncmp(argc[0], "S0", 2) == 0)    { monSrec(argc[0]); }
-            else                                        { monHelp(); }
-        }
+void mon_Exec(const char* s)
+{
+    if (s && *s) {
+        strcpy(monBuffer, s);
+        cpu_SetNMI(mon_MainOnce);
+        cpu_TriggerNMI();
+    } else {
+        cpu_SetNMI(mon_Main);
+        cpu_TriggerNMI();
     }
 }
 
@@ -175,13 +213,11 @@ void monDisasm(uint32_t addr, uint32_t size)
 	struct DisasmPara_68k dp;
 	static char opcode[16];
 	static char operands[128];
-    static uint32_t old_size = 8;
-    static m68k_word* old_addr = (m68k_word*)0x40000400;
-	m68k_word* p = (addr == 0xffffffff) ? old_addr : (m68k_word*)addr;
+	m68k_word* p = (addr == 0xffffffff) ? (m68k_word*)dasm_old_addr : (m68k_word*)addr;
 
-    if (size == 0xffffffff) { size = old_size; }
+    if (size == 0xffffffff) { size = dasm_old_size; }
     if (size == 0) { size = 8; }
-    old_size = size;
+    dasm_old_size = size;
 
     dp.get_areg = 0;
     dp.find_symbol = 0;                                
@@ -205,25 +241,18 @@ void monDisasm(uint32_t addr, uint32_t size)
         }
         puts(operands);
     }
-    old_addr = p;
+    dasm_old_addr = (uint32_t)p;
 }
 
 void monDump(uint32_t addr, uint32_t size)
 {
-    const uint32_t sizeDefault = 256;
-    const uint32_t sizeMin = 16;
-    const uint32_t sizeMax = 16*256;
-    static uint32_t sizeOld = sizeDefault;
-    static uint32_t addrOld = 0;
-
-    if (addr == 0xffffffff)     addr = addrOld;
-    if (size == 0xffffffff)     size = sizeOld;
-    if (size == 0)              size = sizeDefault;
-    else if (size < sizeMin)    size = sizeMin;
-    else if (size > sizeMax)    size = sizeMax;
-
-    addrOld = addr + size;
-    sizeOld = size;
+    if (addr == 0xffffffff)     addr = dump_old_addr;
+    if (size == 0xffffffff)     size = dump_old_size;
+    if (size == 0)              size = 256;
+    else if (size > (16*256))   size = 16*256;
+    else if (size < (16*1))     size = 16*1;
+    dump_old_addr = addr + size;
+    dump_old_size = size;
     hexdump((uint8_t *)addr, addr, size, 'b');
 }
 
@@ -233,15 +262,15 @@ void monRead(uint32_t bits, uint32_t addr)
     switch (bits)
     {
         case 8: {
-            uint8_t v = IOB(addr, 0);
+            uint8_t v = cpu_SafeReadByte(addr);
             fmt("$%b\n", v);
         } break;
         case 16: {
-            uint16_t v = IOW(addr, 0);
+            uint16_t v = cpu_SafeReadWord(addr);
             fmt("$%w\n", v);
         } break;
         case 32: {
-            uint32_t v = IOL(addr, 0);
+            uint32_t v = cpu_SafeReadLong(addr);
             fmt("$%l\n", v);
         } break;
     }
@@ -252,13 +281,13 @@ void monWrite(uint32_t bits, uint32_t addr, uint32_t val)
     switch (bits)
     {
         case 8:
-            IOB(addr, 0) = (uint8_t) val;
+            cpu_SafeWriteByte(addr, (uint8_t)val);
             break;
         case 16:
-            IOW(addr, 0) = (uint16_t) val;
+            cpu_SafeWriteWord(addr, (uint16_t)val);
             break;
         case 32:
-            IOL(addr, 0) = (uint32_t) val;
+            cpu_SafeWriteLong(addr, (uint32_t)val);
             break;
     }
 }
@@ -327,7 +356,7 @@ static uint8_t srec_get_nyb()
 {
     for (;;)
     {
-        int c = getc();
+        int c = getchar();
         switch (c)
         {
         case -1:
@@ -346,7 +375,7 @@ static uint8_t srec_get_nyb()
 }
 
 
-static int srec_sum;
+int srec_sum;
 #define srec_mem_start  0x00600000
 #define srec_mem_end    0x00800000
 
@@ -381,7 +410,7 @@ static void srec_s7(uint32_t address_offset, uint32_t low_address, uint32_t high
     (void)srec_get_byte();
 
     // discard any additional bytes
-    while (getc() >= 0);
+    while (getchar() >= 0);
 
     // if no offset, upload was to DRAM - run it
     if (address_offset == 0)
@@ -413,7 +442,7 @@ void monSrec()
         // wait for 'S'
         for (;;)
         {
-            int c = getc();
+            int c = getchar();
             if (c == 'S') break;
             switch (c)
             {
@@ -431,7 +460,7 @@ void monSrec()
         // get record type
         for (;;)
         {
-            int c = getc();
+            int c = getchar();
             if (c == '3') break;
             if (c == '7')
             {

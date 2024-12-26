@@ -1,6 +1,7 @@
 #include "sys.h"
 #include "raven.h"
 #include "config.h"
+#include "monitor.h"
 #include "hw/cpu.h"
 #include "hw/uart.h"
 #include "hw/ikbd.h"
@@ -75,8 +76,7 @@ const raven_t ravenBios =
     vga_Mode13h,
     vga_SetPal,
     vga_GetPal,
-
-//0x0100
+//0x00A0
     cpu_CacheOn,
     cpu_CacheOff,
     cpu_CacheFlush,
@@ -85,4 +85,10 @@ const raven_t ravenBios =
     mmu_Invalid,
     mmu_Flush,
     mmu_GetPageDescriptor,
+//0x00C0
+    mon_Exec,
+    {0,0,0,0},
+    &putchar,
+    &getchar,
+    &peekchar,
 };
