@@ -1,0 +1,10 @@
+mon.tos
+.C[-E1 -M -P -Z -W2]
+.C[-I..\..\purec\include]
+.C[-I..\..\lib]
+.L[-V]
+=
+..\..\purec\lib\cstartn.o
+main.c
+..\..\purec\lib\pctoslib.lib
+..\..\purec\lib\pcstdlib.lib
