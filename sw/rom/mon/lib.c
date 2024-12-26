@@ -5,18 +5,15 @@
 
 static void putchar_uart(int c) { uart_sendChar(c); }
 static int getchar_uart() { return uart_recvChar(); }
-static int peekchar_uart() { return uart_rxrdy() ? 1 : 0; }
 
-void (*putchar)(int c) = putchar_uart;
-int (*getchar)(void) = getchar_uart;
-int (*peekchar)(void) = peekchar_uart;
+void (*putchar)(int c);
+int (*getchar)(void);
 
 bool
 lib_Init()
 {
     putchar = putchar_uart;
     getchar = getchar_uart;
-    peekchar = peekchar_uart;
     return true;
 }
 
