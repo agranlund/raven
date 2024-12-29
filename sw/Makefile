@@ -3,14 +3,17 @@ DIRS = \
 	rvbios \
 	rvnova \
 	tools \
+	isa/isa_bios \
+	isa/drivers/gus \
+	isa/drivers/mpu401 \
 	#end
 
 DIRS_FORCE_PC = \
 	#end
 
 DIRS_FORCE_GCC = \
-	isa/isa_bios \
-	isa/drivers/gus \
+#	isa/isa_bios \
+#	isa/drivers/gus \
 	#end
 
 all: sw rom
