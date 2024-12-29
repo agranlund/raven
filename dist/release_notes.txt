@@ -1,6 +1,11 @@
 Raven.A1
 Hardware and software binary release
 
+20241230
+  rom:      fixed bug in cookie set command
+  devel:    small isa library can work even without ISA_BIOS
+            to a limited degree and on regonised platforms
+
 20241229
   drivers:  MPU401 driver
 
