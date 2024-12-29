@@ -26,6 +26,7 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 #include <mint/osbind.h>
 #include "raven.h"
 
@@ -66,10 +67,12 @@ long supermain()
 
     for (i = 1; i<args; i++)
     {
-        int len = strlen(argv[i]);
+        int32_t len = strlen(argv[i]);
         strcpy(arg_ptr, argv[i]);
         arg_ptr += len;
-        *arg_ptr++ = ' ';
+        if (i < (args-1)) {
+            *arg_ptr++ = ' ';
+        }
     }
     *arg_ptr++ = 0;
     raven()->mon_Exec(mon_arg);
