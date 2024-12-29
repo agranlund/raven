@@ -26,12 +26,6 @@
     #include <mint/cookie.h>
     #include "../../../isa.h"
 
-    isa_t* isa;
-    static inline unsigned char     inp(unsigned short a)                      { return isa->inp(a);   }
-    static inline unsigned short    inpw(unsigned short a)                     { return isa->inpw(a);  }
-    static inline void              outp(unsigned short a, unsigned char b)    { isa->outp(a,b);       }
-    static inline void              outpw(unsigned short a, unsigned short b)  { isa->outpw(a, b);     }
-
 #else
 
     #include <conio.h>
@@ -465,7 +459,7 @@ int main(int _argc, char* _argv[]) {
     return Supexec(super_main);
 }
 int super_main() {
-    if (Getcookie(C__ISA, (long*)&isa) == C_NOTFOUND) {
+    if (!isa_init()) {
         return 0;
     }
 #else
