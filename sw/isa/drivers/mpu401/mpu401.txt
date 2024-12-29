@@ -1,0 +1,31 @@
+-------------------------------------------------------------------------------
+  MPU401 uart mode driver for Atari bios/xbios
+  (c)2024 Anders Granlund
+-------------------------------------------------------------------------------
+ This file is free software  you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation  either version 2, or (at your option)
+ any later version.
+
+ This file is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY  without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program  if not, write to the Free Software
+ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+-----------------------------------------------------------------------------
+
+usage:
+MPU401.PRG {mode} {port}
+
+  {mode} is optional and can be any of these:
+    in    : midi input only
+    out   : midi output only (default)
+    inout : midi input + output
+
+  {port} is an optional parameter for overriding the default port 330
+  
+Running without any commandline options will use port 330 for midi output only.
+
