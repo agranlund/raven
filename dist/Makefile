@@ -164,6 +164,15 @@ copysw:
 	# --------------------------------------------------
 
 		# --------------------------------------------------
+		# MPU401
+		# --------------------------------------------------
+		mkdir -p $(SWDIR_ISA)/mpu401
+		make -C $(ROOTDIR)/sw/isa/drivers/mpu401 clean
+		make -C $(ROOTDIR)/sw/isa/drivers/mpu401
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/mpu401/mpu401.prg $(SWDIR_ISA)/mpu401/mpu401.prg
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/mpu401/mpu401.txt $(SWDIR_ISA)/mpu401/mpu401.txt
+
+		# --------------------------------------------------
 		# GUS
 		# --------------------------------------------------
 		mkdir -p $(SWDIR_ISA)/gus
