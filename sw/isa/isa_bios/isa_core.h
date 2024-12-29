@@ -5,9 +5,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <mint/cookie.h>
 
+#define ISA_EXCLUDE_LIBRARY
 #include "../isa.h"
-#include "mint/cookie.h"
 
 #define ISA_BIOS_VERSION    0x0001
 
