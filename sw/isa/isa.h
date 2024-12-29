@@ -42,8 +42,8 @@
 #define C__PNP  0x5F504E50UL        /* '_PNP' */
 #endif
 
-#ifndef ISA_VERSION
-#define ISA_VERSION         0x0001
+#ifndef ISA_BIOS_VERSION
+#define ISA_BIOS_VERSION    0x0001
 #endif
 
 #define ISA_ENDIAN_BE       0       /* Big endian                       */
@@ -237,7 +237,7 @@ _ISA_INL isa_t* isa_init(void) {
             }
             if (iobase) {
                 isa_if = &isa_if_fallback;
-                isa_if->version = ISA_VERSION;
+                isa_if->version = ISA_BIOS_VERSION;
                 isa_if->iobase = iobase;
                 isa_if->membase = membase;
                 isa_if->irqmask = 0;
