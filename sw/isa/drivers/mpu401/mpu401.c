@@ -53,55 +53,10 @@ extern uint32_t new_bcostat3;
 
 static uint16_t mpu401_port = 0;
 
-
 /* ------------------------------------------------------------------- */
-
-static void nop(void) 0x4E71;
-#define get200hz() *((volatile uint32_t*)0x4ba)
-
-static void mpu401_Delay(uint32_t micros)
-{
-    /* calibration */
-    static uint32_t loops_count = 0;
-    if (loops_count == 0) {
-        uint32_t tick_start = get200hz();
-        uint32_t tick_end = tick_start;
-        do {
-            nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); 
-            nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); 
-            tick_end = get200hz();
-            loops_count++;
-            if (loops_count > 1000000UL) {
-                loops_count = 0xffffffffUL;
-                break;
-            }
-        } while ((tick_end - tick_start) <= 25UL);
-    }
-    if ((micros < 1000) && (loops_count != 0xffffffffUL)) {
-        /* microseconds delay using calibration data */
-        uint32_t i; uint32_t loops = 1 + ((2 * 4 * loops_count * micros) / (1000 * 1000UL));
-        for (i=0; i<=loops; i++) {
-            nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); 
-            nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); 
-        }
-        return;
-    } else {
-        /* millisecond delay using 200hz counter */
-        uint32_t ticks = micros / 5000;
-        uint32_t start  = get200hz();
-        ticks = (ticks < 1) ? 1 : ticks;
-        while (1) {
-            volatile uint32_t now = get200hz();
-            if (now < start) {
-                start = now;
-            } else if ((now - start) >= ticks) {
-                break;
-            }
-        }
-    }
+static void mpu401_Delay(uint32_t microseconds) {
+    isa_delay(microseconds);
 }
-
-/* ------------------------------------------------------------------- */
 
 static bool mpu401_CheckStatus(uint8_t stat) {
     return ((inp(mpu401_port + MPU401_REG_STATUS) & stat) == 0) ? true : false;

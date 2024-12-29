@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <mint/cookie.h>
 
-#define ISA_EXCLUDE_LIBRARY
+#define ISA_EXCLUDE_LIB
 #include "../isa.h"
 
 #define ISA_BIOS_VERSION    0x0001
