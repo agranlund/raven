@@ -1,6 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+20241229
+  drivers:  MPU401 driver
+
 20241226
   rom:      added tos cookie commands
   rom:      monitor input/output redirection
