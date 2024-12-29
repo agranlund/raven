@@ -1,5 +1,6 @@
 ultrinit.prg
 .C[-I..\..\..\purec\include]
+.C[-I..\..]
 .C[-DXBTIME=0]
 .C[-DXBNVM=0]
 .C[-E1 -P -W2]

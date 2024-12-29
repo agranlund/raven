@@ -27,7 +27,8 @@
 #include "mint/basepage.h"
 #include "mint/cookie.h"
 #include "mint/osbind.h"
-#include "../../isa.h"
+#define ISA_EXCLUDE_LIBRARY
+#include "isa.h"
 
 #if 0
 #define DEBUG
