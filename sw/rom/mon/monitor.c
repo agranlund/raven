@@ -341,7 +341,7 @@ void monCookieRead(char* id) {
 
 void monCookieWrite(char* id, char* vl)
 {
-    uint32_t cvl = *((uint32_t*)vl);
+    uint32_t cvl = strtoi(vl);
     uint32_t cid = *((uint32_t*)id);
     if (*id == '$' || (strlen(id) != 4)) { cid = strtoi(id); }
     volatile uint32_t* p = *((volatile uint32_t**)0x5a0);
