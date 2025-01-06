@@ -1128,6 +1128,14 @@
 #endif
 
 /*
+ * Set CONF_WITH_ROMDISK to add support for a ROM disk.
+ * Target-specific support is required to configure the disk.
+ */
+#ifndef CONF_WITH_ROMDISK
+# define CONF_WITH_ROMDISK 0
+#endif
+
+/*
  * Set CONF_WITH_VAMPIRE_SPI to 1 to activate SPI on the Vampire,
  * required for SD/MMC support on these boards
  */
