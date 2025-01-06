@@ -17,6 +17,9 @@ ROM_EMUTOS		= rom_tos.bin
 ROM_EMUTOS_CON	= rom_con.bin
 ROM_EMUTOS_DBG	= rom_dbg.bin
 
+ROMDISK_DIR		= romdisk
+ROMDISK_IMG		= romdisk.bin
+
 DEPS			= $(MAKEFILE_LIST)
 
 all: tos mon
@@ -27,19 +30,19 @@ tos-con: $(ROM_EMUTOS_CON)
 tos-st: $(EMUTOS_IMG_ST)
 
 .PHONY: $(ROM_EMUTOS)
-$(ROM_EMUTOS): $(EMUTOS_IMG) $(ROM_MON) $(DEPS)
+$(ROM_EMUTOS): $(EMUTOS_IMG) $(ROM_MON) $(ROMDISK_IMG) $(DEPS)
 	rm -f $@
-	cat $(ROM_MON) $(EMUTOS_IMG) > $@
+	cat $(ROM_MON) $(EMUTOS_IMG) $(ROMDISK_IMG) > $@
 
 .PHONY: $(ROM_EMUTOS_CON)
-$(ROM_EMUTOS_CON): $(EMUTOS_IMG_CON) $(ROM_MON) $(DEPS)
+$(ROM_EMUTOS_CON): $(EMUTOS_IMG_CON) $(ROM_MON) $(ROMDISK_IMG) $(DEPS)
 	rm -f $@
-	cat $(ROM_MON) $(EMUTOS_IMG_CON) > $@
+	cat $(ROM_MON) $(EMUTOS_IMG_CON) $(ROMDISK_IMG) > $@
 
 .PHONY: $(ROM_EMUTOS_DBG)
-$(ROM_EMUTOS_DBG): $(EMUTOS_IMG_DBG) $(ROM_MON) $(DEPS)
+$(ROM_EMUTOS_DBG): $(EMUTOS_IMG_DBG) $(ROM_MON) $(ROMDISK_IMG) $(DEPS)
 	rm -f $@
-	cat $(ROM_MON) $(EMUTOS_IMG_DBG) > $@
+	cat $(ROM_MON) $(EMUTOS_IMG_DBG) $(ROMDISK_IMG) > $@
 
 .PHONY: $(ROM_MON)
 $(ROM_MON): $(MON_IMG) $(DEPS)
@@ -65,7 +68,12 @@ $(EMUTOS_IMG_DBG): $(DEPS)
 $(EMUTOS_IMG_ST): $(DEPS)
 	$(MAKE) -C $(EMUTOS_DIR) 192 UNIQUE=uk DEF="-DINITINFO_DURATION=0 -DSHOW_STARTUP_MESSAGE=0"
 
+.PHONY: $(ROMDISK_IMG)
+$(ROMDISK_IMG): $(wildcard $(ROMDISK_DIR)/files/*) $(ROMDISK_DIR)/romdisk.sh $(DEPS)
+	rm -f $@
+	$(ROMDISK_DIR)/romdisk.sh --diskfile $@ $(ROMDISK_DIR)/files/*
+
 clean:
 	$(MAKE) -C $(MON_DIR) clean
 	$(MAKE) -C $(EMUTOS_DIR) clean
-	rm -f $(ROM_MON) $(ROM_EMUTOS) $(ROM_EMUTOS_DBG) $(ROM_EMUTOS_CON) $(EMUTOS_IMG_ST)
+	rm -f $(ROM_MON) $(ROM_EMUTOS) $(ROM_EMUTOS_DBG) $(ROM_EMUTOS_CON) $(EMUTOS_IMG_ST) $(ROMDISK_IMG)
