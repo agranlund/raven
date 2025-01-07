@@ -660,6 +660,9 @@
 # ifndef CONF_WITH_NVRAM
 #  define CONF_WITH_NVRAM 1
 # endif
+# ifndef CONF_WITH_ROMDISK
+#  define CONF_WITH_ROMDISK 1
+# endif
 # ifndef CONF_WITH_BUS_ERROR
 #  define CONF_WITH_BUS_ERROR 1
 # endif
@@ -1125,6 +1128,14 @@
  */
 #ifndef CONF_WITH_SDMMC
 # define CONF_WITH_SDMMC 0
+#endif
+
+/*
+ * Set CONF_WITH_ROMDISK to add support for a ROM disk.
+ * Target-specific support is required to configure the disk.
+ */
+#ifndef CONF_WITH_ROMDISK
+# define CONF_WITH_ROMDISK 0
 #endif
 
 /*

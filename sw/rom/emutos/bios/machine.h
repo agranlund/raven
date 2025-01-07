@@ -51,6 +51,10 @@
 # define MAX_BUS            ACSI_BUS
 #endif
 
+#if CONF_WITH_ROMDISK
+# define ROMDISK_BUS        MAX_BUS+1
+#endif
+
 extern ULONG detected_busses;
 
 /*

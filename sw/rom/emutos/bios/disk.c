@@ -217,6 +217,10 @@ void disk_init_all(void)
         }
     }
 
+#if CONF_WITH_ROMDISK
+    romdisk_init(UNITSNUM - 1, &devices_available);
+#endif
+
     /* save bitmaps of drives associated with each physical unit.
      * these maps are not changed after booting.
      *
@@ -303,6 +307,11 @@ LONG disk_mediach(UWORD unit)
         ret = sd_ioctl(reldev,GET_MEDIACHANGE,NULL);
         break;
 #endif /* CONF_WITH_SDMMC */
+#if CONF_WITH_ROMDISK
+    case ROMDISK_BUS:
+        ret = romdisk_ioctl(reldev,GET_MEDIACHANGE,NULL);
+        break;
+#endif
     default:
         ret = EUNDEV;
     }
@@ -827,6 +836,11 @@ static LONG internal_inquire(UWORD unit, ULONG *blocksize, ULONG *deviceflags, c
         flags = XH_TARGET_REMOVABLE;    /* medium is removable */
         break;
 #endif /* CONF_WITH_SDMMC */
+#if CONF_WITH_ROMDISK
+    case ROMDISK_BUS:
+        ret = romdisk_ioctl(reldev,GET_DISKNAME,name);
+        break;
+#endif /* CONF_WITH_ROMDISK */
     default:
         ret = EUNDEV;
     }
@@ -913,6 +927,14 @@ LONG disk_get_capacity(UWORD unit, ULONG *blocks, ULONG *blocksize)
             return ret;
         break;
 #endif /* CONF_WITH_SDMMC */
+#if CONF_WITH_ROMDISK
+    case ROMDISK_BUS:
+        ret = romdisk_ioctl(reldev,GET_DISKINFO,info);
+        KDEBUG(("romdisk_ioctl(%d) returned %ld\n", reldev, ret));
+        if (ret < 0)
+            return ret;
+        break;
+#endif /* CONF_WITH_ROMDISK */
     default:
         return EUNDEV;
     }
@@ -981,6 +1003,12 @@ LONG disk_rw(UWORD unit, UWORD rw, ULONG sector, UWORD count, UBYTE *buf)
         KDEBUG(("sd_rw() returned %ld\n", ret));
         break;
 #endif /* CONF_WITH_SDMMC */
+#if CONF_WITH_ROMDISK
+    case ROMDISK_BUS:
+        ret = romdisk_rw(rw, sector, count, buf, reldev);
+        KDEBUG(("romdisk_rw() returned %ld\n", ret));
+        break;
+#endif /* CONF_WITH_ROMDISK */
     default:
         ret = EUNDEV;
     }

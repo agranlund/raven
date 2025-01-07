@@ -19,13 +19,14 @@
 
 #define DEVICES_PER_BUS     8
 
-#define UNITSNUM            (NUMFLOPPIES+(DEVICES_PER_BUS*(MAX_BUS+1)))
+#define UNITSNUM            (NUMFLOPPIES+(DEVICES_PER_BUS*(MAX_BUS+1))+CONF_WITH_ROMDISK)
 
 #define GET_BUS(major)          ((major)/DEVICES_PER_BUS)
 #define IS_ACSI_DEVICE(major)   (GET_BUS(major) == ACSI_BUS)
 #define IS_SCSI_DEVICE(major)   (GET_BUS(major) == SCSI_BUS)
 #define IS_IDE_DEVICE(major)    (GET_BUS(major) == IDE_BUS)
 #define IS_SDMMC_DEVICE(major)  (GET_BUS(major) == SDMMC_BUS)
+#define IS_ROMDISK_DEVICE(major) (GET_BUS(major) == (MAX_BUS+1))
 
 #define GET_UNITNUM(bus,dev)    (NUMFLOPPIES+(DEVICES_PER_BUS*(bus))+dev)
 
@@ -110,5 +111,11 @@ LONG DMAwrite(LONG sector, WORD count, const UBYTE *buf, WORD major);
 void disk_init_all(void);
 LONG disk_mediach(UWORD unit);
 void disk_rescan(UWORD unit);
+
+#if CONF_WITH_ROMDISK
+void romdisk_init(WORD dev, LONG *devices_available);
+LONG romdisk_ioctl(WORD dev, UWORD ctrl, void *arg);
+LONG romdisk_rw(WORD rw, LONG sector, WORD count, UBYTE *buf, WORD dev);
+#endif
 
 #endif /* DISK_H */
