@@ -693,7 +693,13 @@
 # ifndef USE_STOP_INSN_TO_FREE_HOST_CPU
 #  define USE_STOP_INSN_TO_FREE_HOST_CPU 0
 # endif
-
+/* Increase AES stack size in the hope to be more compatible with programs that use CFLib and does not
+ * have their own stacksize workarounds, for example recent versions of QED. It is understandable that
+ * official EmuTOS want to keep the same behavior and crashes as on Atari TOS but Raven does not.
+ */
+# ifndef AES_STACK_SIZE
+#  define AES_STACK_SIZE 4096   /* in LONGs */
+# endif
 #endif
 
 /*
