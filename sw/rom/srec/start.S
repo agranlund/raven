@@ -4,6 +4,7 @@
 
     .globl main
     .globl exit
+    .globl lib_Init
     .section .note.GNU-stack,"",%progbits
 
     .text
@@ -26,6 +27,8 @@ start:
     bra.b   1f
 0:  move.b  #0,(%a0)+
 1:  dbra    %d0,0b
+
+    jbsr    lib_Init                    //; init tiny c library
 
     jbsr    main                        //; call programm
 
