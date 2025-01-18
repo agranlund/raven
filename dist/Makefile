@@ -173,6 +173,15 @@ copysw:
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/mpu401/mpu401.txt $(SWDIR_ISA)/mpu401/mpu401.txt
 
 		# --------------------------------------------------
+		# OPL-MIDI
+		# --------------------------------------------------
+		mkdir -p $(SWDIR_ISA)/oplmidi
+		make -C $(ROOTDIR)/sw/isa/drivers/oplmidi clean
+		make -C $(ROOTDIR)/sw/isa/drivers/oplmidi
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/oplmidi/oplmidi.prg $(SWDIR_ISA)/oplmidi/oplmidi.prg
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/oplmidi/oplmidi.txt $(SWDIR_ISA)/oplmidi/oplmidi.txt
+
+		# --------------------------------------------------
 		# GUS
 		# --------------------------------------------------
 		mkdir -p $(SWDIR_ISA)/gus
