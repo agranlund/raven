@@ -35,6 +35,19 @@ static fmdriver_t* drivers[] = {
 };
 
 
+void info(void) {
+    printf(
+        "\n"
+        "usage: fmradio.prg [arg 1]\n"
+        "\n"
+        "[arg 1] = Any of the following :\n"
+        "          i.   [on] or [off] to switch on or off fm radion\n"
+        "          ii.  Frequency value [88-108] Mhz\n"
+        "          iii. [-] or [+] to decrease or increase volume\n"
+        "\n"
+    );
+}
+
 /* ------------------------------------------------------------------- */
 long super_main(int args, char** argv) {
 
@@ -44,7 +57,15 @@ long super_main(int args, char** argv) {
     {
         char* arg = argv[1];
 
-        if (arg[0] == '+')
+        if (stricmp(arg, "on") == 0)
+        {
+            drv->Start();
+        }
+        else if (stricmp(arg, "off") == 0)
+        {
+            drv->Stop();
+        }
+        else if (arg[0] == '+')
         {
             drv->AdjustVolume(16);
         }
@@ -52,14 +73,10 @@ long super_main(int args, char** argv) {
         {
             drv->AdjustVolume(-16);
         }
-        else if (arg[0] == '0')
-        {
-            drv->SetFrequency(0);
-        }
         else if (arg[0] >= '1' && arg[0] <= '9')
         {
             uint32_t freq = 0;
-            char* delim = strchr(arg, ',');
+            char* delim = strchr(arg, '.');
             if (delim) {
                 freq = ((delim[1] - '0') * 256) / 10;
             }
@@ -67,6 +84,10 @@ long super_main(int args, char** argv) {
             freq += (((uint32_t)atoi(argv[1])) << 8);
             drv->SetFrequency(freq);
         }
+    }
+    else
+    {
+        info();
     }
     return 0;
 }

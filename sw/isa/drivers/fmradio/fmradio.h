@@ -27,6 +27,8 @@ typedef struct
     const char* name;
 
     bool        (*Detect)(void);
+    bool        (*Start)(void);
+    void        (*Stop)(void);
     void        (*SetFrequency)(uint32_t freq);
     void        (*AdjustVolume)(int8_t v);
 

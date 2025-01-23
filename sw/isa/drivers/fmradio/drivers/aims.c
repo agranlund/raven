@@ -50,14 +50,14 @@ static void send(uint8_t data)
 }
 
 
-static int setfreq(uint32_t freq)
+static void setfreq(uint32_t freq)
 {
 	int i;
 
 	/* adapted from radio-aztech.c */
 	/* now uses VIDEO_TUNER_LOW for fine tuning */
 
-	freq += 171200;			    /* Add 10.7 MHz IF 		*/
+	freq += 171200UL;   	    /* Add 10.7 MHz IF 		*/
 	freq /= 800;			    /* Convert to 50 kHz units	*/
     send(0);
 	send(0);		            /*  0: LSB of frequency		*/
@@ -90,6 +90,15 @@ static bool drv_detect(void) {
     return true;
 }
 
+static bool drv_on(void) {
+    outp(port, 0xd8);
+    return true;
+}
+
+static void drv_off(void) {
+    outp(port, 0xd0);
+}
+
 static void drv_vol(int8_t vol) {
     if (vol > 0) {
         outp(port, 0x98);   /* volume up */
@@ -103,16 +112,14 @@ static void drv_vol(int8_t vol) {
 }
 
 static void drv_freq(uint32_t freq) {
-    if (freq == 0) {
-        outp(port, 0xd0);
-    } else {
-        setfreq((freq * 125) >> 1);
-    }
+    setfreq((freq * 125) >> 1);
 }
 
 fmdriver_t drv_aims = {
     "aims",
     drv_detect,
+    drv_on,
+    drv_off,
     drv_freq,
     drv_vol,
 };
