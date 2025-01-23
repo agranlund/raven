@@ -164,6 +164,15 @@ copysw:
 	# --------------------------------------------------
 
 		# --------------------------------------------------
+		# FMRADIO
+		# --------------------------------------------------
+		mkdir -p $(SWDIR_ISA)/fmradio
+		make -C $(ROOTDIR)/sw/isa/drivers/fmradio clean
+		make -C $(ROOTDIR)/sw/isa/drivers/fmradio
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/fmradio/fmradio.prg $(SWDIR_ISA)/fmradio/fmradio.prg
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/fmradio/fmradio.txt $(SWDIR_ISA)/fmradio/fmradio.txt
+
+		# --------------------------------------------------
 		# MPU401
 		# --------------------------------------------------
 		mkdir -p $(SWDIR_ISA)/mpu401
