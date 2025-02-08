@@ -23,9 +23,13 @@ get_atari.sh
 rvst.zip
 sw/rom/srec_test/*
 sw/tools/*/*.prg
+sw/tools/*/*.app
 sw/tools/*/*.tos
 sw/rvbios/*.prg
 sw/rvnova/*.prg
+sw/isa/*/*.prg
+sw/isa/drivers/*/*.prg
+sw/isa/drivers/picogus/pgusinit/*.prg
 sw/tools/setenv/*
 sw/tools/autoexec/*
 local/*
