@@ -15,7 +15,7 @@
 
 #include "iorec.h"
 
-#define BCONMAP_AVAILABLE (CONF_WITH_SCC || CONF_WITH_TT_MFP)
+#define BCONMAP_AVAILABLE (CONF_WITH_SCC || CONF_WITH_TT_MFP || defined(MACHINE_RAVEN))
 
 /*
  * baud rate codes

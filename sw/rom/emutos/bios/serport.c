@@ -27,6 +27,7 @@
 #include "vectors.h"
 #include "coldfire.h"
 #include "amiga.h"
+#include "raven.h"
 #include "ikbd.h"
 
 /*
@@ -1060,6 +1061,10 @@ void init_serport(void)
 
 #ifdef MACHINE_AMIGA
     amiga_rs232_init();
+#endif
+
+#ifdef MACHINE_RAVEN
+    raven_rs232_init();
 #endif
 
 #if !CONF_SERIAL_IKBD

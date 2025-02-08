@@ -86,8 +86,10 @@ void raven_nvram_writeb(int index, UBYTE value);
 void raven_nvram_detect(void);
 #endif
 
+void raven_rs232_init(void);
+
 #if RAVEN_DEBUG_PRINT
-void raven_com1_write_byte(UBYTE b);
+void raven_rs232_write_byte(UBYTE b);
 #endif
 
 #endif /* __RAVEN__ASM__ */

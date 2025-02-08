@@ -2077,7 +2077,7 @@
 #endif
 
 /*
- * Set RAVEN_DEBUG_PRINT to 1 to redirect debug prints to COM1
+ * Set RAVEN_DEBUG_PRINT to 1 to redirect debug prints to Raven uart
  */
 #ifndef RAVEN_DEBUG_PRINT
 # define RAVEN_DEBUG_PRINT 0
