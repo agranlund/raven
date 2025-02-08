@@ -9,6 +9,7 @@ FOLDERS = \
 	resetnvm \
 	thingpal \
 	fpu_emu \
+	serial.cpx
 
 all:
 	for dir in $(FOLDERS); do \

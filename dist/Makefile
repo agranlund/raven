@@ -26,6 +26,7 @@ COPY		= cp -p
 
 
 SWDIR_AUTO		= $(SWDIR)/auto
+SWDIR_CPX		= $(SWDIR)/cpx
 SWDIR_NOVA		= $(SWDIR)/nova
 SWDIR_TOOLS		= $(SWDIR)/tools
 SWDIR_RTOOLS	= $(SWDIR)/raven
@@ -109,6 +110,7 @@ github_create_release:
 copysw:
 	mkdir -p $(SWDIR)
 	mkdir -p $(SWDIR_AUTO)
+	mkdir -p $(SWDIR_CPX)
 	mkdir -p $(SWDIR_TOOLS)
 	mkdir -p $(SWDIR_RTOOLS)
 	mkdir -p $(SWDIR_ISA)
@@ -134,7 +136,6 @@ copysw:
 	make -C $(ROOTDIR)/sw/rvnova
 	$(COPY) $(ROOTDIR)/sw/rvnova/rvnova.prg $(SWDIR_AUTO)/
 
-
 	# --------------------------------------------------
 	# TOOLS
 	# --------------------------------------------------
@@ -148,7 +149,7 @@ copysw:
 	$(COPY) $(ROOTDIR)/sw/tools/patch_xc/patch_xc.prg $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/fpu_emu/fpemu.prg $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/fpu_emu/fpemu.txt $(SWDIR_RTOOLS)/
-
+	$(COPY) $(ROOTDIR)/sw/tools/serial.cpx/serial.cpx $(SWDIR_CPX)/
 
 	# --------------------------------------------------
 	# ISA BIOS

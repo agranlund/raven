@@ -93,6 +93,8 @@ tools/setenv        : environment variables for TOS
 tools/setflags      : utility to set program flags
 tools/thingpal      : convert nova_col palette to Photoshop and ThingImg
 
+cpx/serial.cpx      : Serial port control panel extension
+
 
 
 
@@ -149,6 +151,10 @@ https://github.com/th-otto/pcmake
 pgusinit
 (c) 2022-2024 Ian Scott
 https://github.com/polpo/picogus
+
+serial.cpx
+(c) 1997 Peter Rottengatter
+With additions by: Ulf Ronald Andersson, Thorsten Otto, Anders Granlund
 
 setenv
 (c) 2021 Vinz/MPS

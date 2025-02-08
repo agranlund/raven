@@ -1,6 +1,19 @@
 Raven.A1
 Hardware and software binary release
 
+20250208
+  rom:      hi-speed serial now usable in TOS as bios device 7
+  tools:    added serial.cpx for configurating serial ports
+
+20250123
+  drivers:  Aims FM-Radio ISA card
+
+20250119
+  drivers:  OPL midi driver
+
+20250107
+  rom:      ROM disk support for utilities
+
 20241230
   rom:      fixed bug in cookie set command
   devel:    small isa library can work even without ISA_BIOS
