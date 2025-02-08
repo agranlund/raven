@@ -50,6 +50,8 @@ LIBCMINI_CRT	:= $(LIBCMINI_DIR)/build/objs/crt0.o
 # GCC compiler flags
 # -----------------------------------------------------------------------------------
 
+MAPFILE = $(BIN).map
+
 INCLUDE = -I. -I$(ROOTDIR)/gcc -I$(ROOTDIR)/lib
 
 SFLAGS = $(OPTS) $(INCLUDE) 
@@ -59,7 +61,7 @@ CFLAGS = $(OPTS) $(DEFS) $(INCLUDE) \
 	-std=c99 -fomit-frame-pointer -fno-exceptions -ffast-math \
 	-Wall -Wno-multichar -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unused-function -Wno-format
 
-LFLAGS = -L$(LIBCMINI_DIR)/build -nodefaultlibs -nostdlib -nostartfiles -lgcc -lcmini -Wl,-Map,mapfile
+LFLAGS = -L$(LIBCMINI_DIR)/build -nodefaultlibs -nostdlib -nostartfiles -lgcc -lcmini -Wl,-Map,$(MAPFILE)
 
 LINKOBJS = $(LIBCMINI_CRT) $(GCC_OBJS) $(OBJS)
 
@@ -88,7 +90,12 @@ clean:
 	rm -f $(LINKOBJS)
 	rm -f $(LINKOBJS:.o=.d)
 	rm -f $(LINKOBJS:.o=.O)
-	rm -f mapfile
+ifneq ($(MAPFILE),)
+	rm -f $(MAPFILE)
+endif
+ifneq ($(CLEAN),)
+	rm -f $(CLEAN)
+endif
 
 common_clean:
 	rm -f $(GCC_OBJS)
@@ -103,16 +110,18 @@ common_clean:
 pc: $(PRJ)
 	$(PCMAKE)
 	$(PFLAGS) $(PRGFLAGS) $(BIN)
+	$(POST)
 
 
 # -----------------------------------------------------------------------------------
 # GCC rules
 # -----------------------------------------------------------------------------------
 
-gcc: Makefile $(LINKOBJS)
+gcc: $(current_makefile) $(LINKOBJS)
 	$(GCC) $(CFLAGS) $(CPUFLAGS) $(LINKOBJS) $(LFLAGS) -o $(BIN)
 	$(GSTRIP) $(BIN)
 	$(GFLAGS) $(PRGFLAGS) $(BIN)
+	$(POST)
 
 $(GCDIR)/lgcc.o : $(GCDIR)/lgcc.S
 	$(GCC) $(SFLAGS) $(CPUFLAGS) -c $< -o $@
