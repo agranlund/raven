@@ -625,7 +625,7 @@ static long get_port_data(void)
 			if (port->port_driver.iorec)
 			{
 				rate = (int) do_Rsconf(&port->port_driver, -2, -1, -1, -1, -1, -1);
-                printf("get rate = %d\n", rate);
+                /*printf("get rate = %d\n", rate);*/
 				if (0 <= rate && rate <= 15)
 					spd = get_baudrate(port, rate);
 			}
@@ -821,7 +821,7 @@ static void set_port(SER_PORT *port, SER_PORT *back, int alert)
                         baud_idx = count;
                     }
                 }
-                printf("set baud: %ld, %ld\n", port->speed, baud_idx);
+                /*printf("set baud: %ld, %ld\n", port->speed, baud_idx);*/
 				do_Rsconf(&port->port_driver, baud_idx, -1, -1, -1, -1, -1);
 				ok_flag = TRUE;
 			}
