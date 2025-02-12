@@ -251,8 +251,7 @@ void raven_rs232_write_byte(UBYTE b) { rs232_bconout(7, b); }
 
 
 static ULONG rs232_rsconf(WORD baud, WORD ctrl, WORD ucr, WORD rsr, WORD tsr, WORD scr) {
-    ULONG lcr;
-    ULONG old;
+    ULONG old, lcr, mcr;
 
     if (baud == -2) {
         return (ULONG) rs232_baud_to_idx(rs232_get_baud());
@@ -264,6 +263,8 @@ static ULONG rs232_rsconf(WORD baud, WORD ctrl, WORD ucr, WORD rsr, WORD tsr, WO
      * return 0 for rsr and scr, and the only valid bit in the tsr is bit 3.
      */
     lcr = (ULONG)REGB(RAVEN_UART2_BASE, 0x0C);
+    mcr = (ULONG)REGB(RAVEN_UART2_BASE, 0x10);
+
     old = 0;
     old |= ((lcr & (1UL<<6)) << 5);       /* break */
     old |= ((lcr & (1UL<<3)) << 23);      /* partity enable */
@@ -282,25 +283,25 @@ static ULONG rs232_rsconf(WORD baud, WORD ctrl, WORD ucr, WORD rsr, WORD tsr, WO
         efr = REGB(RAVEN_UART2_BASE, 0x08) & 0x30;
         REGB(RAVEN_UART2_BASE, 0x08) = efr;             /* disable all flow control */
         REGB(RAVEN_UART2_BASE, 0x0C) = lcr;             /* select normal registers */
+        mcr &= ~0x02;                                   /* clear rts */
 
         if (ctrl & (FLOW_CTRL_SOFT | FLOW_CTRL_HARD))
         {
-#if 0            
+#if 0
             REGB(RAVEN_UART2_BASE, 0x0C) = 0xBF;        /* LCR: select enhanced registers */
             REGB(RAVEN_UART2_BASE, 0x08) |= 0x10;       /* EFR: unlock  MCR[7:5] */
             REGB(RAVEN_UART2_BASE, 0x0C) = lcr;         /* LCR: select normal registers */
             REGB(RAVEN_UART2_BASE, 0x10) |= 0x40;       /* MCR: select TCR register */
-            //REGB(RAVEN_UART2_BASE, 0x18) = 0x1c;        /* TCR: resume: 4, halt 48 */
-            REGB(RAVEN_UART2_BASE, 0x01) = 0x1c;        /* TCR: resume: 0, halt 4 */
+            REGB(RAVEN_UART2_BASE, 0x18) = 0x8f;        /* TCR: resume: 0, halt 64 */
             REGB(RAVEN_UART2_BASE, 0x10) &= ~0x40;      /* MCR: deselect TCR register */
             REGB(RAVEN_UART2_BASE, 0x0C) = 0xBF;        /* LCR: select enhanced registers */
             REGB(RAVEN_UART2_BASE, 0x08) &= ~0x10;      /* EFR: lock  MCR[7:5] */
 #endif
             REGB(RAVEN_UART2_BASE, 0x0C) = 0xBF;        /* LCR: select enhanced registers */
             if (ctrl & FLOW_CTRL_HARD) {
-                lcr |= 0x02;                            /* rts signal */
                 efr |= (1 << 7);                        /* auto cts */
                 efr |= (1 << 6);                        /* auto rts */
+                mcr |= 0x02;                            /* rts signal */
             }
             if (ctrl & FLOW_CTRL_SOFT) {
                 REGB(RAVEN_UART2_BASE, 0x10) = 0x11;    /* XON1:  CTRL-Q */
@@ -310,6 +311,7 @@ static ULONG rs232_rsconf(WORD baud, WORD ctrl, WORD ucr, WORD rsr, WORD tsr, WO
             REGB(RAVEN_UART2_BASE, 0x08) = efr;         /* EFR: apply flow control settings */
             REGB(RAVEN_UART2_BASE, 0x0C) = lcr;         /* LCR: select normal registers */
         }
+        REGB(RAVEN_UART2_BASE, 0x10) = mcr;         /* apply modem control changes */
         rs232_iorec.flowctrl = ctrl;
     }
 
