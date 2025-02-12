@@ -1,10 +1,12 @@
     #include "raven.h"
     #include "hw/uart.h"
 
+// todo: settings stored in rom so they can be reflashed without recompiling
+
 //  #define UART_BAUDR      750000
     #define UART_BAUDR      115200
     #define UART_BAUDD      (UART_CLK/(UART_BAUDR*16))
-    #define UART_FLOWCTRL   0
+    #define UART_RTS_FLOW   1
 
     .global start
 
@@ -78,8 +80,8 @@ start:
     move.b  #0x00,UART_MCR(%a5)                     // modem control
 
     move.b  #0xBF,UART_LCR(%a5)                     // access efr register
-    bset.b  #4,UART_EFR(%a5)                        // enable access
-#if (UART_FLOWCTRL != 0)
+    bset.b  #4,UART_EFR(%a5)                        // enable dld and mcr[7:5] access
+#if (UART_RTS_FLOW != 0)
     bset.b  #6,UART_EFR(%a5)                        // auto rts
 #endif
     
@@ -89,15 +91,15 @@ start:
     move.b  #0x00,UART_DLD(%a5)                     // baudrate D
 
     bset.b  #6,UART_MCR(%a5)                        // enable tcr/tcl access
-    move.b  #0x04,UART_TCR(%a5)                     // auto rts resume/halt levels (0 / 16)
-    move.b  #0x11,UART_TLR(%a5)                     // rx/tx fifo trigger levels (4 / 4)
-    bclr.b  #6,UART_MCR(%a5)                        // disable tcr/tcl access
+    move.b  #0x0f,UART_TCR(%a5)                     // auto rts resume/halt levels (0 / 64)
+    move.b  #0x0f,UART_TLR(%a5)                     // rx/tx fifo trigger levels (0 / 64)
+    bclr.b  #6,UART_MCR(%a5)                        // latch and disable tcr/tcl access
 
     move.b  #0xBF,UART_LCR(%a5)                     // access efr register
-    bclr.b  #4,UART_EFR(%a5)                        // latch and disable access
+    bclr.b  #4,UART_EFR(%a5)                        // latch and disable access to dld and mcr[7:5]
 
     move.b  #0x03,UART_LCR(%a5)                     // 8 data bits, no parity, 1 stop bit
-#if (UART_FLOWCTRL != 0)
+#if (UART_RTS_FLOW != 0)
     bset.b  #1,UART_MCR(%a5)                        // enable rts
 #endif
 
