@@ -164,6 +164,10 @@ setflags
 (c) 1993-2012 Uwe Seimet
 https://www.seimet.de/atari/de/
 
+uip-tools
+(c) 2001, Adam Dunkels
+https://bitbucket.org/sqward/uip-tools/src/master/
+
 x86emu
 (c) 1996-1999 SciTech Software, Inc.
 (c) David Mosberger-Tang

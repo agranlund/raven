@@ -1,6 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+20250215
+  software: added uiptools for NE2000 ISA cards
+
 20250208
   rom:      hi-speed serial now usable in TOS as bios device 7
   tools:    added serial.cpx for configurating serial ports

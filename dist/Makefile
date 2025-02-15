@@ -217,6 +217,10 @@ copysw:
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/ETHERNE.TXT $(SWDIR_ISA)/ne2000/etherne.txt
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/COPYING.TXT $(SWDIR_ISA)/ne2000/copying.txt
 
+		make -C $(ROOTDIR)/sw/tools/uiptools
+		$(COPY) $(ROOTDIR)/sw/tools/uiptools/uip.tos $(SWDIR_ISA)/ne2000/uip.tos
+		$(COPY) $(ROOTDIR)/sw/tools/uiptools/uip.txt $(SWDIR_ISA)/ne2000/uip.txt
+
 
 	# --------------------------------------------------
 	# Castaway

@@ -1,0 +1,56 @@
+
+Uiptool
+
+Uip-tools brings an easy way to upload or download files to your beloved
+TOS machine without a need for MiNT or STING TCP/IP stacks.
+It is a self contained binary, including a TCP/IP stack based on
+uIP embedded stack with DHCP support included.
+
+
+This build will only operate in FTP mode.
+HTTP webserver is not included.
+
+Main uip-tools repositry can be found here:
+https://bitbucket.org/sqward/uip-tools/
+
+
+
+## Security
+Obviously, you should never expose your uiptool IP/port to the internet!
+Absolutly no effort was expanded at hardening the uiptool.
+It should *ONLY* be used in a trusted environment!
+
+
+## FTP server
+A simple FTP server on a default port is now available with a limited
+command support. Although simple it is sufficient to allow most PC clients.
+No login credentials are required. Anonumous login should work.
+Also, any made up credentials will allow to login.
+
+Make sure to use PASSIVE mode in your client!
+Just use the IP address displayed by uiptool as your FTP server address.
+
+
+## DHCP and STATIC IP Operating Mode
+Uiptool can operate in two modes: DHCP or STATIC IP modes.
+
+To toggle between DHCP and STATIC IP use F1 key.
+
+When toggled for the first time a config fill will be saved
+alongside uiptool executable. User is expected to edit that file with
+a text editor to set IP address, netmask, and gateway which
+corresponds with their configuration.
+
+
+
+## Thanks and acknowledgments
+
+Thanks to jamesfmackenzie (https://www.youtube.com/watch?v=m3Lk96knpI0)
+for his great YouTube video demonstrating usage of older uiptool version.
+
+Thanks to Lotharek (https://lotharek.pl/)
+for manufacturing NetUSBee devices
+
+Thanks to Kroll and Piter for testing and support.
+
+Thanks to Atari community for great feedback on the tool.
