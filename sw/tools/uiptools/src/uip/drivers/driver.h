@@ -15,8 +15,8 @@
 	#define driver_send slipdev_send
 	#define driver_deinit slipdev_done
 
-#elif defined(NE2000ISA_DRIVER)
-	#include "rtl8019/rtl8019.h"
+#elif defined(RTL8019ISA_DRIVER)
+	#include "rtl8019_isa/rtl8019.h"
 	#define driver_init RTL8019dev_init
 	#define driver_poll RTL8019dev_poll
 	#define driver_send RTL8019dev_send

@@ -1,4 +1,4 @@
-BIN			=	uiptools.prg
+BIN			=	uip.tos
 
 ROOTDIR		= 	../..
 LIBDIR		= 	$(ROOTDIR)/lib
@@ -7,16 +7,16 @@ VPATH		=	$(LIBDIR)
 
 
 ifeq ($(driver),)
-	driver = rtl8019
+	driver = rtl8019_isa
 endif
 
-ifeq ($(driver),rtl8019)
-	DRV_OPTS = -DNE2000ISA_DRIVER
-	DRV_OBJS = src/uip/drivers/rtl8019/rtl8019.o
+ifeq ($(driver),rtl8019_isa)
+	DRV_OPTS = -DRTL8019ISA_DRIVER
+	DRV_OBJS = src/uip/drivers/rtl8019_isa/rtl8019.o
 endif
 
 ifeq ($(driver),slip)
-	DRV_OPTS = -DSLIP_DRIVER
+	DRV_OPTS = -DSLIP_DRIVER -DWITHOUT_DHCP
 	DRV_OBJS = src/uip/drivers/slip/slip_dev.o
 endif
 
@@ -35,10 +35,6 @@ OPTS		= 	-Os -DMACHINE_RAVEN \
 				-DWITHOUT_HTTP \
 				$(DRV_OPTS) \
 				#end
-
-#				-DWITHOUT_FTP \
-#				-DWITHOUT_DHCP \
-
 
 OBJS	= 	\
 			src/main.o \
