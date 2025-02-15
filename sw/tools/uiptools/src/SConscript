@@ -1,0 +1,30 @@
+Import('targetEnv')
+Import('hostEnv')
+Import('varian_name')
+import os.path
+
+DRIVERS =  Glob('uip/drivers/' + varian_name + '/*.c')
+
+SOURCES = [
+        DRIVERS,
+        "main.c",
+        "uip_arch.c",
+        "clock-arch.c",
+        "ioredirect.c",
+        "ioredirect-trap.s",
+        "common.c",
+        Glob('uip/*.c'),
+        targetEnv.SConscript("atari_ftp_server/SConscript", exports=['hostEnv', 'targetEnv']),
+#        targetEnv.SConscript("atari_http_server/SConscript", exports=['hostEnv', 'targetEnv']),
+    ]
+
+targetEnv.Append( CPPPATH=[ Dir('./uip').srcnode().abspath ] )
+targetEnv.Append( CPPPATH=[ Dir('./').srcnode().abspath ] )
+
+TARGETS =[
+    targetEnv.Program("uip.tos", source = SOURCES),
+#    targetEnv.Program("romtest.tos", "romport-speed.c"),
+#    targetEnv.Program("contest.tos", "console-helper.c")
+]
+
+Return (["TARGETS"])

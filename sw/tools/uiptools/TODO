@@ -1,0 +1,35 @@
+WEBINTERFACE:
+	* queue stats: upload speed, queue depth
+	* refresh folder after file operation
+	* sorting
+	* file/folder icons
+	* display date
+	* add logo
+	* add panel with ajax traffic
+
+	done:
+	* multiple file upload
+
+FTP:
+    * prevent STOR in the fake root folder
+    * Improve compatibility with some esoteric clients (Aftp etc.)
+
+PERFORMANCE:
+	* Simple preemptive kernel to allow async IO
+
+APP:
+	* Allow it to run as accessory?
+	* display date
+	* allow for more then one connection?
+
+SCRIPTS:
+	* sanitize path passed to the tool
+	* add help option
+
+BUGS:
+	* toggling between static and DHCP IP seems to be broken when toggling back to DHCP
+	* UI: expanding an empty folder would cause that folder to disappear from the list
+	* Does not seem to copy 0 byte files
+	* Does not seem to copy empty directories
+	* garbage caused in GEMDOS filesystem (looks like not all paths are validated which causes directory/path creation which aren't possible to remove  afterwards - it looks like file system corruption)
+	* crash when NETUsbee isn't plugged in

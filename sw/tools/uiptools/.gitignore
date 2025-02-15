@@ -1,0 +1,5 @@
+/src/atari_http_server/ui/cssc.css
+/src/atari_http_server/ui/jsc.js
+*.prg
+*.map
+*.o

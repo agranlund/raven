@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"> 
+<meta name="description" content="uIPTool web interface">
+<meta name="keywords" content="HTML,CSS,XML,JavaScript">
+<meta name="author" content="Sqward/Mystic Bytes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Atari ST/STe/TT/F030/F060">
+<title id='Description'>uIPTool ver. VERSION</title>
+
+<script type="text/javascript">
+"use strict";
+
+let img_favicon_src = 
+#include "img/favicon.dat"
+
+let img_floppy_active_src =
+#include "img/floppy_active.dat"
+
+let img_hd_active_src =
+#include "img/hd_active.dat"
+
+let img_dir_open_src =
+#include "img/dir_open.dat"
+
+let img_dir_close_src = 
+#include "img/dir_close.dat"
+
+let img_file_generic_src = 
+#include "img/file_generic.dat"
+
+let img_file_app_src = 
+#include "img/file_app.dat"
+
+let img_folder_add_src = 
+#include "img/folder_add.dat"
+
+
+#if USE_UGLIFYJS==1
+#include "jsc.js"
+#else
+#include "js.js"
+#endif
+</script>
+
+<style type="text/css">
+#if USE_LESSC==1
+#include "cssc.css"
+#else
+#include "css.css"
+#endif
+</style>
+
+</head>
+<body>
+
+<header>
+</header>
+<!-- Navigation interface -->
+<nav>
+    <div id="driveButtonListTab" />
+</nav>
+
+<div id="mainSection" ondrop="event.preventDefault()" 
+                      ondragover="event.preventDefault()" 
+                      ondragenter="event.preventDefault()" class="clearfix">
+
+  <div id="fileManagementBlock">
+    <div id="directoryListView" class="column menu">
+      <div id="PayPalDonate" class="ppDonate">
+      <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" style="margin-top:8px;margin-left:15px; margin-right: auto;">
+
+      <input type="hidden" name="cmd" value="_s-xclick" />
+      <input type="hidden" name="hosted_button_id" value="L766684U4EYJW" />
+      <input type="image" src="https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif" style="margin-top:10px" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+      <img alt="" border="0" src="https://www.paypal.com/en_GB/i/scr/pixel.gif" width="1" height="1" />
+    </form>
+    </div>
+    </div>
+  
+    <div id="directoryView" class="column content">
+      <div id="dirBreadcrumb"></div>
+      <div class="fileActionsView" id="fileActionsView"> <div/>
+      <div class="fileView" id="fileView"> </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+  
+<footer>
+<div id="lowerBar" class="lowerBar">
+<div id="additionalOptions" class="additionalOptions">
+ <button id="ClearCompleted" type="button" onclick="clearCompletedList();">Clear completed list</button><button id="RequeFailed" type="button" onclick="requeFailedTransfers();">Restart failed transfers</button><div id="fileTransferProgressInfo" class="fileTransferProgressInfo"></div><div id="totalUploadStateInfo" class="totalUploadStateInfo"></div>
+</div>
+<div id="uploadStateInformation" class="uploadStateInfo"></div>
+<div id="fileDragAndDrop" style="float:left;width:33%;">
+  <form class="dragAndDropForm">
+    <p>Upload single/multiple files to currently selected Atari GEMDOS directory with common file selector or by dragging and dropping files onto the dashed region.</p>
+    <input type="file" id="fileElem" multiple onchange="uploadFiles(this.files)" />
+    <label class="button" for="fileElem">Select files to upload</label>
+   </form>
+  </div>
+</div>
+<div id="credits" class="credits"><a href="https://bitbucket.org/sqward/uip-tools" target="_blank">uIPTool ver. VERSION</a> by Sqward / Mystic Bytes &copy;2019-23, ui: <a href="https://nokturnal.pl" target="_blank">Nokturnal</a>, usb driver: <a href="https://www.chzsoft.de" target="_blank">Christian Zietz (czietz)</a>, icons: Mark James</a>
+</div>
+</footer>
+
+#if RELEASE!=0
+<div id="debugOutput" />
+#endif
+
+<script>
+    (function() {
+            startup();
+})();
+</script>
+
+</body>
+</html>

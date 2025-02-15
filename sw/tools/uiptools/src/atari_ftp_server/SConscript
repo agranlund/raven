@@ -1,0 +1,7 @@
+Import('targetEnv')
+Import('hostEnv')
+
+obj = [ targetEnv.Object(Glob('*.c'))]
+
+targetEnv.Append( CPPPATH=[ Dir('.').srcnode().abspath ] )
+Return (["obj"])

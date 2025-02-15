@@ -1,0 +1,12 @@
+Import('targetEnv')
+Import('hostEnv')
+
+
+deps = targetEnv.SConscript("ui/SConscript", exports=['hostEnv', 'targetEnv'])
+
+obj = [ targetEnv.Object(Glob('*.c'))]
+
+targetEnv.Depends(obj, deps)
+
+targetEnv.Append( CPPPATH=[ Dir('.').srcnode().abspath ] )
+Return (["obj"])

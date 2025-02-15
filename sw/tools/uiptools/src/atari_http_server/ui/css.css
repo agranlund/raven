@@ -1,0 +1,395 @@
+
+html, body {
+  padding: 0; margin: 0; height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a:link {
+  color: green;
+  text-decoration: none
+}
+
+a:link span {
+  padding-left:5px;
+}
+
+a:visited {
+  color: green;
+}
+
+a:hover {
+  color: red;
+}
+
+a:active {
+  color: yellow;
+} 
+
+    nav {
+        background-color: black;
+        color: white;
+        width:100%;
+        height:auto;
+        border: 0px;
+        margin-right:10px;
+        padding-left:10px;
+    }   
+
+    footer {
+        width: 100%;
+        height: 21vh;
+        float:none;
+        position: fixed; 
+        bottom: 0px;
+        border: 0px;
+        padding: 0px;
+        margin: 0px;
+        overflow-y:hidden;
+        background:black;
+        color:white;    
+        clear:both;
+    }
+
+    footer .credits {
+        height: 2em;
+        border: 0px;
+        padding:1px;
+        margin:0px;
+        
+        clear:both;
+        font-size: xx-small;
+    }
+
+    div #dirBreadcrumb {
+      width: 100%;
+      float:none;
+      bottom: 0px;
+      clear:both;
+      background:black;
+      color:white;
+      padding: 2px;
+    }
+
+     .BcrmbButton {
+       border-radius: 5px;
+       border:0px;
+     }
+
+    .BcrmbButton:hover {
+      background-color: #ddd;
+      cursor: pointer;
+    }
+
+    div #mainSection{
+      height: 76vh;
+    }
+
+    div #fileManagementBlock{
+        width:100%;
+        height: 76vh;
+        overflow-x:hidden;
+        overflow-y:auto;
+    }
+
+    div #directoryListView {
+       width:185px;
+       height: auto;
+       overflow-x:hidden;
+       overflow-y:auto;
+       padding-top:18px;
+    }
+
+    div  #directoryView {
+         height: auto;
+    }
+
+    div #fileListView{
+        width:80%;
+        height:95%;
+        overflow-y: scroll; 
+    }
+
+    div #driveButtonListTab{
+        width:100%;
+        float:none;
+        clear:both;
+        overflow:hidden;
+    }
+
+    div #fileOperationsList {
+       width:185px;
+       height: auto;
+       overflow-x:hidden;
+       overflow-y:auto;
+       padding-top:36px;
+    }
+
+    .column {
+        float: left;
+        padding: 2px;
+    }
+
+    .menu {
+        width: 25%;
+        height: 65vh;
+    }
+
+    .content {
+        width: 75%;
+        height: 65vh;
+    }
+
+    .clearfix::after {
+        content: "";
+        clear: both;
+        display: table;
+     }
+
+/* file table */
+div.blueTable {
+  border: 1px solid #1C6EA4;
+  background-color: #EEEEEE;
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+}
+.divTable.blueTable .divTableCell, .divTable.blueTable .divTableHead {
+  padding: 3px 2px;
+}
+.divTable.blueTable .divTableBody .divTableCell {
+  font-size: 1.2em;
+}
+.divTable.blueTable .divTableHeading {
+  background: #506555;
+  background: -moz-linear-gradient(top, #7c8b7f 0%, #617466 66%, #506555 100%);
+  background: -webkit-linear-gradient(top, #7c8b7f 0%, #617466 66%, #506555 100%);
+  background: linear-gradient(to bottom, #7c8b7f 0%, #617466 66%, #506555 100%);
+}
+.divTable.blueTable .divTableHeading .divTableHead {
+  font-size: 15px;
+  font-weight: bold;
+  color: #FFFFFF;
+  border-left: 2px solid #D0E4F5;
+}
+.divTable.blueTable .divTableHeading .divTableHead:first-child {
+  border-left: none;
+}
+
+.blueTable .tableFootStyle {
+  font-size: 14px;
+}
+.blueTable .tableFootStyle .links {
+     text-align: right;
+}
+.blueTable .tableFootStyle .links a{
+  display: inline-block;
+  background: #1C6EA4;
+  color: #FFFFFF;
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+.blueTable.outerTableFooter {
+  border-top: none;
+}
+.blueTable.outerTableFooter .tableFootStyle {
+  padding: 3px 5px; 
+}
+
+.divTable{ display: table; }
+.divTableRow { display: table-row; }
+.divTableHeading { display: table-header-group;}
+.divTableCell, .divTableHead { display: table-cell;}
+.divTableHeading { display: table-header-group;}
+.divTableFoot { display: table-footer-group;}
+.divTableBody { display: table-row-group;}
+
+/* progress bar */
+div #progress p.success {
+  background: #0c0 none 0 0 no-repeat;
+}
+
+div #progress p.failed {
+  background: #c00 none 0 0 no-repeat;
+}
+
+/* drag and drop */
+div #fileDragAndDrop {
+   border: 2px dashed #ccc;
+   border-radius: 20px;
+   width: auto;
+   height: 16vh;
+   min-height: 16vh;
+   font-family: sans-serif;
+   margin: 2px auto;
+   padding: 5px;
+   display: none;
+}
+
+div #fileDragAndDrop.highlight {
+  border-color: purple;
+}
+
+div #fileDragAndDrop .button {
+  background-color: #728276;
+  color: white;
+  border: 0;
+  padding: 5px;
+  height: 2em;
+}
+
+div #fileDragAndDrop .button:hover{
+  background-color: #ddd;
+  cursor: pointer;
+}
+
+div #fileTransferProgressInfo {
+  color: white;
+}
+
+div #fileTransferProgressInfo span {
+  color: white;
+  padding-left: 2px;
+}
+
+p {
+  margin-top: 0;
+}
+
+.dragAndDropForm {
+  margin-bottom: 10px;
+}
+
+.directoryButton {
+    display: inline-block;
+    background: #ccc;
+    cursor: pointer;
+    border-radius: 10px;
+    border: 2px solid #ccc;
+    width: auto;
+    height:2em;
+    min-width: 140px;
+    margin-left: 25px;
+    margin-top: 1px;
+    margin-right: 0px;
+    padding-top: 2px;
+    padding-left: 15px;
+    float: left;
+    text-align: left;
+}
+
+.directoryButton:hover{
+  background: #ddd;
+}
+
+.directoryButton img {
+   float: left;
+   margin:0px;
+   padding:0px;
+}
+
+.directoryButton span {
+  padding-left:5px;
+}
+
+div #DriveButtonGroup{
+  padding-left:176px;
+}
+
+.HdButton {
+  display: inline-block;
+  padding: 2px;
+  background: #ccc;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  margin-left:1px;
+}
+
+.HdButton span {
+  padding-left:4px;
+}
+
+.HdButton:hover {
+  background: #ddd;
+}
+
+div #fileElem {
+  display: none;
+}
+
+div #lowerBar{
+  width: 100%;
+  height: 14vh;
+  overflow: hidden;
+  background: black;
+  margin: 0px;
+  padding: 0px;
+}
+
+div #additionalOptions{
+  margin:0;
+  padding:0;
+  overflow: hidden;
+  height: 2em;
+}
+
+div #totalUploadStateInfo{
+  float: left;
+  width: 200px;
+  padding-left: 5px;
+}
+
+div #fileTransferProgressInfo {
+  float: right;
+  width: 33%;
+  overflow:hidden;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+div #fileTransferProgressInfo span {
+  padding-left: 8px;
+}
+
+.transferStateColumn {
+  width: 33%;
+  float:left;
+  min-height: 16vh;
+  max-height: 16vh;
+  padding-bottom: 25px;
+  padding-left: 2px;
+  color: white;
+  display: block;
+  font-size: 9px;
+  font-family: sans-serif;
+}
+
+.uploadStateInfo{
+  width: 66%;
+  float: left; 
+  background: black;
+  height: 16vh;
+}
+
+.progressQue{
+   background: black;
+   overflow-x:hidden;
+   overflow-y:auto;
+}
+
+.failedQue {
+   background: black;
+   overflow-x:hidden;
+   overflow-y:auto;
+ }
+
+.completedList{
+  background: black;
+  overflow: auto;
+}
+
+.ppDonate{
+  padding-top:5px;
+}
