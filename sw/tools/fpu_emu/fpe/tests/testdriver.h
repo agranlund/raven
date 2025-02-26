@@ -300,13 +300,13 @@ static int check_fp(uint16_t exponent, uint32_t mant0, uint32_t mant1, const uni
 #endif
 	}
 	if (JIT_LOOPS > 1)
-		fprintf(stderr, "%s:%d: test %d(%d): expected %04x:%08lx:%08lx got %04x:%08lx:%08lx (%s)" CR "\n", 
+		fprintf(stderr, "%s:%d: test %d(%d): expected %04x:%08lx:%08lx got %04x:%08lx:%08lx (%s)" CR "\n",
 			file, line, numtests, i,
 			exponent, (unsigned long)mant0, (unsigned long)mant1,
 			f->v.exponent, (unsigned long)f->v.mantissa0, (unsigned long)f->v.mantissa1,
 			print_ld(f));
 	else
-		fprintf(stderr, "%s:%d: test %d): expected %04x:%08lx:%08lx got %04x:%08lx:%08lx (%s)" CR "\n", 
+		fprintf(stderr, "%s:%d: test %d: expected %04x:%08lx:%08lx got %04x:%08lx:%08lx (%s)" CR "\n",
 			file, line, numtests,
 			exponent, (unsigned long)mant0, (unsigned long)mant1,
 			f->v.exponent, (unsigned long)f->v.mantissa0, (unsigned long)f->v.mantissa1,

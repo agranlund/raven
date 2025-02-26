@@ -46,15 +46,26 @@ static int test_table_i_ff_op(const test_i_ff_data *data, size_t n, const char *
 				this_fail = data[l].cc != (cc & FPSR_CCB);
 				if (this_fail)
 				{
-					fprintf(stderr, "%s:%d: test %d(%d): expected %c%c%c%c, got %c%c%c%c" CR "\n", file, data[l].line, numtests, i,
-						data[l].cc & FPSR_CCB_NEGATIVE ? 'N' : '-',
-						data[l].cc & FPSR_CCB_ZERO ? 'Z' : '-',
-						data[l].cc & FPSR_CCB_INFINITY ? 'I' : '-',
-						data[l].cc & FPSR_CCB_NAN ? 'U' : '-',
-						cc & FPSR_CCB_NEGATIVE ? 'N' : '-',
-						cc & FPSR_CCB_ZERO ? 'Z' : '-',
-						cc & FPSR_CCB_INFINITY ? 'I' : '-',
-						cc & FPSR_CCB_NAN ? 'U' : '-');
+					if (JIT_LOOPS > 1)
+						fprintf(stderr, "%s:%d: test %d(%d): expected %c%c%c%c, got %c%c%c%c" CR "\n", file, data[l].line, numtests, i,
+							data[l].cc & FPSR_CCB_NEGATIVE ? 'N' : '-',
+							data[l].cc & FPSR_CCB_ZERO ? 'Z' : '-',
+							data[l].cc & FPSR_CCB_INFINITY ? 'I' : '-',
+							data[l].cc & FPSR_CCB_NAN ? 'U' : '-',
+							cc & FPSR_CCB_NEGATIVE ? 'N' : '-',
+							cc & FPSR_CCB_ZERO ? 'Z' : '-',
+							cc & FPSR_CCB_INFINITY ? 'I' : '-',
+							cc & FPSR_CCB_NAN ? 'U' : '-');
+					else
+						fprintf(stderr, "%s:%d: test %d: expected %c%c%c%c, got %c%c%c%c" CR "\n", file, data[l].line, numtests,
+							data[l].cc & FPSR_CCB_NEGATIVE ? 'N' : '-',
+							data[l].cc & FPSR_CCB_ZERO ? 'Z' : '-',
+							data[l].cc & FPSR_CCB_INFINITY ? 'I' : '-',
+							data[l].cc & FPSR_CCB_NAN ? 'U' : '-',
+							cc & FPSR_CCB_NEGATIVE ? 'N' : '-',
+							cc & FPSR_CCB_ZERO ? 'Z' : '-',
+							cc & FPSR_CCB_INFINITY ? 'I' : '-',
+							cc & FPSR_CCB_NAN ? 'U' : '-');
 					status |= this_fail;
 					break;
 				}
