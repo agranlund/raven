@@ -99,7 +99,7 @@ inline int ufetch_short(const unsigned short *from, unsigned short *to) {
 
 /* fpe_atari.c */
 #include "machine/frame.h"
-extern void panic();
+extern void panic(const char *fmt, ...);
 extern int fpe_abort(struct frame *frame, int signo, int code);
 
 #endif /* _FPE_ATARI_H_ */

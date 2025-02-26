@@ -145,7 +145,7 @@ int fpe_install(uint32_t cpu)
     return 1;
 }
 
-void panic(const char* str) {
+void panic(const char* str, ...) {
     // todo
 #ifdef DIAGNOSTIC    
     printf("FPE PANIC [%s]!\n\r", str);
