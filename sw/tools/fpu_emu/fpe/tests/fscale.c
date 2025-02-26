@@ -8,11 +8,34 @@ struct fpemu;
 struct fpn *fpu_scale(struct fpemu *fe);
 #include "testdriver.h"
 
-/* TODO: fpu_emul_fscale needs an instruction */
-#undef TEST_FUNC_F_FF
 struct fpn *fpu_scale(struct fpemu *fe)
 {
-	return &fe->fe_f3;
+	struct instruction inst;
+
+	/*
+	 * compose a fscale.x fp1,fp0 for fpu_emul_fscale
+	 */
+	inst.is_pc = 0xdeadbeafL;
+	inst.is_nextpc = inst.is_pc + 4;
+	inst.is_advance = 4;
+	inst.is_datasize = 12;
+	inst.is_opcode = 0xf200;
+	inst.is_word1 = 0x0426; /* 000 001 000 0100110 */
+	/*
+	 * put the scale into fp1
+	 */
+	fpu_implode(fe, &fe->fe_f2, FTYPE_EXT, &fe->fe_fpframe->fpf_regs[1 * 3]);
+	/*
+	 * put the dest into fp0
+	 */
+	fpu_implode(fe, &fe->fe_f1, FTYPE_EXT, &fe->fe_fpframe->fpf_regs[0 * 3]);
+	fpu_emul_fscale(fe, &inst);
+	/*
+	 * store the result
+	 */
+	fpu_explode(fe, &fe->fe_f1, FTYPE_EXT, &fe->fe_fpframe->fpf_regs[0 * 3]);
+	
+	return &fe->fe_f1;
 }
 
 #define ONE_P HEXCONSTE("1", 0x3fff, 0x80000000L, 0x00000000L)
