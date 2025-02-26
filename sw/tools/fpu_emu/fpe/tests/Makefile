@@ -43,9 +43,6 @@ OBJS = \
 	$(CPUOBJS) \
 	$(empty)
 
-$(OBJS): ../fpe_atari.h ../fpu_arith.h ../fpu_emulate.h Makefile
-
-
 TEST_PROGRAMS = \
 	fabs.ttp \
 	facos.ttp \
@@ -94,6 +91,8 @@ MISC_PROGRAMS = \
 all: $(TEST_PROGRAMS) runtests.sh
 
 check::
+
+$(OBJS): ../fpe_atari.h ../fpu_arith.h ../fpu_emulate.h Makefile
 
 
 CPU_FLAGS_fpu_68020 = -m68020-60
