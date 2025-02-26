@@ -129,7 +129,7 @@ int main(int argc, char **argv)
 	set_rounding(FPCR_ROUND_NEAR);
 	
 #ifdef TEST_OP_FF_F
-	status |= test_table_ff_f_func(fsincos_data, ARRAY_SIZE(fsincos_data), __FILE__);
+	status |= test_table_ff_f_op(fsincos_data, ARRAY_SIZE(fsincos_data), __FILE__);
 #endif
 #ifdef TEST_FUNC_FF_F
 	status |= test_table_ff_f_func(fsincos_data, ARRAY_SIZE(fsincos_data), __FILE__);
