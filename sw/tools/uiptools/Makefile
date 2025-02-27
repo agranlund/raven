@@ -21,8 +21,9 @@ ifeq ($(driver),slip)
 endif
 
 
-CPUFLAGS	= 	-m68020-60
-OPTS		= 	-Os -DMACHINE_RAVEN \
+CPUFLAGS	= 	-m68000
+
+OPTS		= 	-Os \
 				-Wno-address-of-packed-member \
 				-Wno-pointer-sign \
 				-I. -I$(LIBDIR) -I$(LIBDIR)/../isa \
