@@ -11,230 +11,89 @@
 #define MONBUFFERSIZE 1024
 char monBuffer[MONBUFFERSIZE];
 
-char oldcmd;
-int oldarg1;
-int oldarg2;
-
 uint32_t dump_old_addr;
 uint32_t dump_old_size;
 uint32_t dasm_old_addr;
 uint32_t dasm_old_size;
 
-static void mon_Main(regs_t* regs);
-static void monHelp();
-static void monRegs(regs_t* regs);
-static void monDump(uint32_t addr, uint32_t size);
-static void monDisasm(uint32_t addr, uint32_t size);
-static void monRead(uint32_t bits, uint32_t addr);
-static void monWrite(uint32_t bits, uint32_t addr, uint32_t val);
-static void monRtcDump();
-static void monRtcClear();
-static void monRtcReset();
-static void monCfgList();
-static void monCfgRead(char* cfg);
-static void monCfgWrite(char* cfg, uint32_t val);
-static void monSrec();
-extern void monTest(char* cmd, uint32_t val);   // test.c
-
-static void monCookieList();
-static void monCookieRead(char* id);
-static void monCookieWrite(char* id, char* val);
-
-
-bool mon_DetectTos()
-{
+static bool detectTos() {
     extern bool atari_DetectTos();
     return atari_DetectTos();
 }
 
-bool mon_Init()
-{
-    dump_old_addr = 0x00000000;
-    dump_old_size = 256;
-    dasm_old_addr = 0x40000400;
-    dasm_old_size = 16;
 
-    cpu_SetNMI(mon_Main);
-    return true;
+//-----------------------------------------------------------------------
+// reset
+//-----------------------------------------------------------------------
+static void cmdReset(int args, char* argv[]) {
+    extern void start(); start();
 }
 
-void mon_Start()
+
+//-----------------------------------------------------------------------
+// run
+//-----------------------------------------------------------------------
+static void cmdRun(int args, char* argv[])
 {
-    cpu_TriggerNMI();
+    if (args > 1) {
+        cpu_Call(strtoi(argv[1]));
+    }
 }
 
-uint16_t mon_Parse(regs_t* regs)
-{
-    // convert whitespaces to 0 as argument delimiters
-    size_t monBufferSize = strlen(monBuffer);
-    for (int i=0; i<monBufferSize; i++) {
-        if (monBuffer[i] <= 32 || monBuffer[i] >= 127) {
-            monBuffer[i] = 0;
-        }
-    }
 
-    // parse command arguments
-    // XXX TODO use scan()
-    int args = 0;
-    char* argc[8];
-
-    uint16_t exit = 0;
-    uint32_t start = 0;
-    for (int i=0; i<8; i++) {
-        argc[i] = 0;
-        // skip whitespaces
-        while ((start < monBufferSize) && (monBuffer[start] == 0)) {
-            start++;
-        }
-        // find length
-        if (start < monBufferSize) {
-            uint32_t end = start;
-            while ((end < monBufferSize) && (monBuffer[end] != 0)) {
-                end++;
-            }
-            uint32_t size = end - start;
-            if (size > 0) {
-                argc[i] = (char*)&monBuffer[start];
-                start += size;
-                args++;
-            }
-        }
-    }
-
-    // execute command
-    if (args > 0) {
-        if (strcmp(argc[0], "x") == 0)              { exit = 1; }
-        else if (strcmp(argc[0], "reset") == 0)     { extern void start(); start(); }
-        else if (strcmp(argc[0], "r") == 0)         { monRegs(regs); }
-        else if (strcmp(argc[0], "d") == 0)         { monDump(args > 1 ? strtoi(argc[1]) : 0xffffffff, args > 2 ? strtoi(argc[2]) : 0xffffffff); }
-        else if (strcmp(argc[0], "a") == 0)         { monDisasm(args > 1 ? strtoi(argc[1]) : 0xffffffff, args > 2 ? strtoi(argc[2]) : 0xffffffff); }
-        else if (strcmp(argc[0], "pb") == 0)        { if (args>2) { monWrite( 8, strtoi(argc[1]), strtoi(argc[2])); } else { monRead( 8, strtoi(argc[1])); } }
-        else if (strcmp(argc[0], "pw") == 0)        { if (args>2) { monWrite(16, strtoi(argc[1]), strtoi(argc[2])); } else { monRead(16, strtoi(argc[1])); } }
-        else if (strcmp(argc[0], "pl") == 0)        { if (args>2) { monWrite(32, strtoi(argc[1]), strtoi(argc[2])); } else { monRead(32, strtoi(argc[1])); } }
-        else if (mon_DetectTos() && (strcmp(argc[0], "c") == 0)) {
-            if (args==1) { monCookieList(); }
-            else if (args==2) { monCookieRead(argc[1]); }
-            else if (args==3) { monCookieWrite(argc[1], argc[2]); }
-        }
-        else if (strcmp(argc[0], "rtc") == 0) {
-            if ((args>1) && (strcmp(argc[1], "clear") == 0)) { monRtcClear(); }
-            else if ((args>1) && (strcmp(argc[1], "reset") == 0)) { monRtcReset(); }
-            monRtcDump();
-        }
-        else if (strcmp(argc[0], "cfg") == 0) {
-            if (args == 1) {
-                monCfgList();
-            } else if (args == 2) {
-                monCfgRead(argc[1]);
-            } else {
-                monCfgWrite(argc[1], strtoi(argc[2]));
-            }
-        }
-        else if (strcmp(argc[0], "vga") == 0)
+//-----------------------------------------------------------------------
+// peek/poke
+//-----------------------------------------------------------------------
+static void cmdPeekPoke(int args, char* argv[]) {
+    uint32_t addr = strtoi(argv[1]);
+    if (args > 2) {
+        uint32_t val = strtoi(argv[2]);
+        switch (argv[0][1])
         {
-            if (args == 1) {
-                puts(   "Commands:\n"
-                        "   vga init\n"
-                        "  vga test\n" );
-            } else if (strcmp(argc[1], "init") == 0) {
-                vga_Init();
-            } else if (strcmp(argc[1], "test") == 0) {
-                vga_Test();
-            }
+            case 'l': { cpu_SafeWriteLong(addr, (uint32_t)val); } break;
+            case 'w': { cpu_SafeWriteWord(addr, (uint16_t)val); } break;
+            default:  { cpu_SafeWriteByte(addr, (uint8_t)val);  } break;
         }
-        else if (strcmp(argc[0], "run") == 0)       { cpu_Call(strtoi(argc[1])); }
-        else if (strncmp(argc[0], "S0", 2) == 0)    { monSrec(argc[0]); }
-        else                                        { monHelp(); }
-    }
-    return exit;
-}
-
-void mon_Main(regs_t* regs)
-{
-    oldcmd = oldarg1 = oldarg2 = 0;
-
-    printf("\n# Raven monitor %06x #\n", VERSION);
-    monRegs(regs);
-    putchar('\n');
-    monHelp();
-    putchar('\n');
-
-    uint16_t exit = 0;
-    while(exit == 0)
-    {
-        putchar('>');
-        putchar(' ');
-
-        if (gets(monBuffer, sizeof(monBuffer)) == NULL) {
-            continue;
-        }
-
-        exit = mon_Parse(regs);
-    }
-}
-
-void mon_MainOnce(regs_t* regs)
-{
-    cpu_SetNMI(mon_Main);
-    mon_Parse(regs);
-}
-
-void mon_Exec(const char* s)
-{
-    if (s && *s) {
-        strcpy(monBuffer, s);
-        cpu_SetNMI(mon_MainOnce);
-        cpu_TriggerNMI();
     } else {
-        cpu_SetNMI(mon_Main);
-        cpu_TriggerNMI();
+        switch (argv[0][1])
+        {
+            case 'l': { uint32_t val = cpu_SafeReadLong(addr); fmt("$%l\n", val); } break;
+            case 'w': { uint16_t val = cpu_SafeReadWord(addr); fmt("$%w\n", val); } break;
+            default:  { uint8_t  val = cpu_SafeReadByte(addr); fmt("$%b\n", val); } break;
+        }
     }
 }
 
-void monHelp()
+
+//-----------------------------------------------------------------------
+// dump
+//-----------------------------------------------------------------------
+static void cmdDump(int args, char* argv[])
 {
-    puts("Commands:\n"
-         "  x                 : exit monitor\n"
-         "  r                 : show registers\n"
-         "  pb [addr] {val}   : peek/poke byte\n"
-         "  pw [addr] {val}   : peek/poke word\n"
-         "  pl [addr] {val}   : peek/poke long\n"
-         "  d  [addr] {len}   : dump memory\n"
-         "  a  [addr] {len}   : disassemble");
-    if (mon_DetectTos()) { puts(
-         "  c {id} {val}      : cookie (TOS)"); }
-    puts(
-         "  rtc {clear/reset} : dump/clear/reset rtc\n"
-         "  vga {cmd} {opt}   : screen commands\n"
-         "  cfg {opt} {val}   : list/get/set option\n"
-         "  run [addr]        : call program at address\n"
-         "  reset             : reset computer");
+    uint32_t addr = (args < 2) ? dump_old_addr : strtoi(argv[1]);
+    uint32_t size = (args < 3) ? dump_old_size : strtoi(argv[2]);
+    if (size == 0)              size = 256;
+    else if (size > (16*256))   size = 16*256;
+    else if (size < (16*1))     size = 16*1;
+    dump_old_addr = addr + size;
+    dump_old_size = size;
+    hexdump((uint8_t *)addr, addr, size, 'b');
 }
 
-void monRegs(regs_t* regs)
-{
-    if (!regs)
-        return;
-    fmt("\n d0: %l  d2: %l  d4: %l  d6: %l", regs->d0, regs->d2, regs->d4, regs->d6);
-    fmt("\n d1: %l  d3: %l  d5: %l  d7: %l", regs->d1, regs->d3, regs->d5, regs->d7);
-    fmt("\n a0: %l  a2: %l  a4: %l  a6: %l", regs->a0, regs->a2, regs->a4, regs->a6);
-    fmt("\n a1: %l  a3: %l  a5: %l  a7: %l", regs->a1, regs->a3, regs->a5, regs->a7);
-    fmt("\n pc: %l  sr: %w                   usp: %l", regs->pc, regs->sr, regs->usp);
-    fmt("\nvbr: %l  tc: %l srp: %l urp: %l", regs->vbr, regs->tc, regs->srp, regs->urp);
-    fmt("\ndt0: %l dt1: %l it0: %l it1: %l", regs->dtt0, regs->dtt1, regs->itt0, regs->itt1);
-    fmt("\npcr: %l bcr: %l ccr: %l\n", regs->pcr, regs->buscr, regs->cacr);
-}
 
-void monDisasm(uint32_t addr, uint32_t size)
+//-----------------------------------------------------------------------
+// disasm
+//-----------------------------------------------------------------------
+static void cmdDisasm(int args, char* argv[])
 {
     int i, n;
 	struct DisasmPara_68k dp;
 	static char opcode[16];
 	static char operands[128];
-	m68k_word* p = (addr == 0xffffffff) ? (m68k_word*)dasm_old_addr : (m68k_word*)addr;
 
-    if (size == 0xffffffff) { size = dasm_old_size; }
-    if (size == 0) { size = 8; }
+	m68k_word* p = (args < 2) ? (m68k_word*)dasm_old_addr : (m68k_word*)strtoi(argv[1]);
+    uint32_t size = (args < 3) ? dasm_old_size : strtoi(argv[2]);
+    size = (size > 0) ? size : 8;
     dasm_old_size = size;
 
     dp.get_areg = 0;
@@ -262,157 +121,156 @@ void monDisasm(uint32_t addr, uint32_t size)
     dasm_old_addr = (uint32_t)p;
 }
 
-void monDump(uint32_t addr, uint32_t size)
-{
-    if (addr == 0xffffffff)     addr = dump_old_addr;
-    if (size == 0xffffffff)     size = dump_old_size;
-    if (size == 0)              size = 256;
-    else if (size > (16*256))   size = 16*256;
-    else if (size < (16*1))     size = 16*1;
-    dump_old_addr = addr + size;
-    dump_old_size = size;
-    hexdump((uint8_t *)addr, addr, size, 'b');
-}
 
-void monRead(uint32_t bits, uint32_t addr)
-{
-    fmt("%l : ", addr);
-    switch (bits)
-    {
-        case 8: {
-            uint8_t v = cpu_SafeReadByte(addr);
-            fmt("$%b\n", v);
-        } break;
-        case 16: {
-            uint16_t v = cpu_SafeReadWord(addr);
-            fmt("$%w\n", v);
-        } break;
-        case 32: {
-            uint32_t v = cpu_SafeReadLong(addr);
-            fmt("$%l\n", v);
-        } break;
-    }
-}
-
-void monWrite(uint32_t bits, uint32_t addr, uint32_t val)
-{
-    switch (bits)
-    {
-        case 8:
-            cpu_SafeWriteByte(addr, (uint8_t)val);
-            break;
-        case 16:
-            cpu_SafeWriteWord(addr, (uint16_t)val);
-            break;
-        case 32:
-            cpu_SafeWriteLong(addr, (uint32_t)val);
-            break;
-    }
-}
-
-void monCookieList() {
-    volatile uint32_t* p = *((volatile uint32_t**)0x5a0);
-    while (p && p[0]) {
-        char b0 = (p[0] >> 24) & 0xff; b0 = isprint(b0) ? b0 : ' ';
-        char b1 = (p[0] >> 16) & 0xff; b1 = isprint(b1) ? b1 : ' ';
-        char b2 = (p[0] >>  8) & 0xff; b2 = isprint(b2) ? b2 : ' ';
-        char b3 = (p[0] >>  0) & 0xff; b3 = isprint(b3) ? b3 : ' ';
-        printf("[%c%c%c%c] : $%08x : $%08x\n", b0, b1, b2, b3, p[0], p[1]);
-        p += 2;
-    }
-}
-
-void monCookieRead(char* id) {
-    uint32_t cid = *((uint32_t*)id);
-    if (*id == '$' || (strlen(id) != 4)) { cid = strtoi(id); }
-    volatile uint32_t* p = *((volatile uint32_t**)0x5a0);
-    while (p && p[0]) {
-        if (p[0] == cid) {
-            char b0 = (p[0] >> 24) & 0xff; b0 = isprint(b0) ? b0 : ' ';
-            char b1 = (p[0] >> 16) & 0xff; b1 = isprint(b1) ? b1 : ' ';
-            char b2 = (p[0] >>  8) & 0xff; b2 = isprint(b2) ? b2 : ' ';
-            char b3 = (p[0] >>  0) & 0xff; b3 = isprint(b3) ? b3 : ' ';
-            printf("[%c%c%c%c] : $%08x : $%08x\n", b0, b1, b2, b3, p[0], p[1]);
-            break;
-        }
-        p += 2;
-    }
-}
-
-void monCookieWrite(char* id, char* vl)
-{
-    uint32_t cvl = strtoi(vl);
-    uint32_t cid = *((uint32_t*)id);
-    if (*id == '$' || (strlen(id) != 4)) { cid = strtoi(id); }
-    volatile uint32_t* p = *((volatile uint32_t**)0x5a0);
-    while (p && p[0]) {
-        if (p[0] == cid) {
-            p[1] = cvl;
-            break;
-        }
-        p += 2;
-    }
-}
-
-void monRtcDump()
+//-----------------------------------------------------------------------
+// rtc
+//-----------------------------------------------------------------------
+static void cmdRtc(int args, char* argv[])
 {
     uint8_t regs[RTC_RAM_END];
+    if (args > 1) {
+        if (strcmp(argv[1], "clear") == 0) {
+            rtc_ClearRam();
+            cfg_Reset();
+        }
+        else if (strcmp(argv[1], "reset") == 0) {
+            rtc_Reset();
+            cfg_Reset();
+        }
+    }
     rtc_Read(0x00, regs, RTC_RAM_END);
     hexdump(regs, 0, 0x40, 'b');
 }
 
-void monRtcClear()
-{
-    rtc_ClearRam();
-    cfg_Reset();
-}
 
-void monRtcReset()
+//-----------------------------------------------------------------------
+// config
+//-----------------------------------------------------------------------
+static void cmdCfg(int args, char* argv[])
 {
-    rtc_Reset();
-    cfg_Reset();
-}
-
-void monCfgList()
-{
-    for (int i=0; i<cfg_Num(); i++) {
-        const cfg_entry_t* c = cfg_Get(i);
-        if (c) {
-            if (c->opts) {
-                fmt(" %s : %d [", c->name, cfg_GetValue(c));
-                for (int j=0; j<=c->max; j++) {
-                    fmt("%d:%s", j, c->opts[j]);
-                    if (j < c->max) { fmt(" "); }
+    if (args < 2)
+    {
+        /* list configs */
+        for (int i=0; i<cfg_Num(); i++) {
+            const cfg_entry_t* c = cfg_Get(i);
+            if (c) {
+                if (c->opts) {
+                    fmt(" %s : %d [", c->name, cfg_GetValue(c));
+                    for (int j=0; j<=c->max; j++) {
+                        fmt("%d:%s", j, c->opts[j]);
+                        if (j < c->max) { fmt(" "); }
+                    }
+                    fmt("]\n");
+                } else {
+                    uint32_t v = cfg_GetValue(c);
+                    fmt(" %s : %d [%d-%d]\n", c->name, v, c->min, c->max);
                 }
-                fmt("]\n");
+            }
+        }        
+    }
+    else if (args < 3)
+    {
+        /* read config */
+        const cfg_entry_t* e = cfg_Find(argv[1]);
+        if (e) {
+            uint32_t v = cfg_GetValue(e);
+            uint32_t s = ((e->bits + 7) >> 3);
+            if (s <= 1) {
+                fmt("$%b\n", v);
+            } else if (s <= 2) {
+                fmt("$%w\n", v);
             } else {
-                uint32_t v = cfg_GetValue(c);
-                fmt(" %s : %d [%d-%d]\n", c->name, v, c->min, c->max);
+                fmt("$%l\n", v);
+            }
+        }
+    }
+    else {
+        /* write config */
+        cfg_SetValue(cfg_Find(argv[1]), strtoi(argv[2]));
+    }
+}
+
+
+//-----------------------------------------------------------------------
+// cookie
+//-----------------------------------------------------------------------
+static void cmdCookie(int args, char* argv[]) {
+    if (detectTos())
+    {
+        if (args == 2) {
+            /* read cookie */
+            char* id = argv[1];
+            uint32_t cid = *((uint32_t*)id);
+            if (*id == '$' || (strlen(id) != 4)) { cid = strtoi(id); }
+            volatile uint32_t* p = *((volatile uint32_t**)0x5a0);
+            while (p && p[0]) {
+                if (p[0] == cid) {
+                    char b0 = (p[0] >> 24) & 0xff; b0 = isprint(b0) ? b0 : ' ';
+                    char b1 = (p[0] >> 16) & 0xff; b1 = isprint(b1) ? b1 : ' ';
+                    char b2 = (p[0] >>  8) & 0xff; b2 = isprint(b2) ? b2 : ' ';
+                    char b3 = (p[0] >>  0) & 0xff; b3 = isprint(b3) ? b3 : ' ';
+                    printf("[%c%c%c%c] : $%08x : $%08x\n", b0, b1, b2, b3, p[0], p[1]);
+                    break;
+                }
+                p += 2;
+            }
+        } else if (args == 3) {
+            /* write cookie */
+            char* id = argv[1];
+            char* vl = argv[2];
+            uint32_t cvl = strtoi(vl);
+            uint32_t cid = *((uint32_t*)id);
+            if (*id == '$' || (strlen(id) != 4)) { cid = strtoi(id); }
+            volatile uint32_t* p = *((volatile uint32_t**)0x5a0);
+            while (p && p[0]) {
+                if (p[0] == cid) {
+                    p[1] = cvl;
+                    break;
+                }
+                p += 2;
+            }
+        } else {
+            /* list cookies */
+            volatile uint32_t* p = *((volatile uint32_t**)0x5a0);
+            while (p && p[0]) {
+                char b0 = (p[0] >> 24) & 0xff; b0 = isprint(b0) ? b0 : ' ';
+                char b1 = (p[0] >> 16) & 0xff; b1 = isprint(b1) ? b1 : ' ';
+                char b2 = (p[0] >>  8) & 0xff; b2 = isprint(b2) ? b2 : ' ';
+                char b3 = (p[0] >>  0) & 0xff; b3 = isprint(b3) ? b3 : ' ';
+                printf("[%c%c%c%c] : $%08x : $%08x\n", b0, b1, b2, b3, p[0], p[1]);
+                p += 2;
             }
         }
     }
 }
 
-void monCfgRead(char* cfg)
+
+//-----------------------------------------------------------------------
+// vga
+//-----------------------------------------------------------------------
+static void cmdVga(int args, char* argv[])
 {
-    const cfg_entry_t* e = cfg_Find(cfg);
-    if (e) {
-        uint32_t v = cfg_GetValue(e);
-        uint32_t s = ((e->bits + 7) >> 3);
-        if (s <= 1) {
-            fmt("$%b\n", v);
-        } else if (s <= 2) {
-            fmt("$%w\n", v);
-        } else {
-            fmt("$%l\n", v);
+    if (args < 2) {
+        puts(   "Commands:\n"
+                "  vga init\n"
+                "  vga test\n" );
+    } else {
+        if (strcmp(argv[1], "init") == 0) {
+            vga_Init();
+        } else if (strcmp(argv[1], "test") == 0) {
+            vga_Test();
         }
     }
 }
 
-void monCfgWrite(char* cfg, uint32_t val)
-{
-    cfg_SetValue(cfg_Find(cfg), val);
-}
+
+//-----------------------------------------------------------------------
+// srec
+//-----------------------------------------------------------------------
+
+int srec_sum;
+#define srec_mem_start  0x00600000
+#define srec_mem_end    0x00800000
 
 static uint8_t srec_get_nyb()
 {
@@ -435,11 +293,6 @@ static uint8_t srec_get_nyb()
         }
     }
 }
-
-
-int srec_sum;
-#define srec_mem_start  0x00600000
-#define srec_mem_end    0x00800000
 
 static uint8_t srec_get_byte()
 {
@@ -493,7 +346,7 @@ static void srec_s7(uint32_t address_offset, uint32_t low_address, uint32_t high
     // otherwise we just received something to be flashed...
 }
 
-void monSrec()
+static void cmdSrec(int args, char* argv[])
 {
     uint32_t address_offset = 0;
     uint32_t low_address = 0;
@@ -581,4 +434,159 @@ void monSrec()
             return;
         }
     }
+}
+
+
+//-----------------------------------------------------------------------
+
+static void showRegs(regs_t* regs)
+{
+    if (!regs)
+        return;
+    fmt("\n d0: %l  d2: %l  d4: %l  d6: %l", regs->d0, regs->d2, regs->d4, regs->d6);
+    fmt("\n d1: %l  d3: %l  d5: %l  d7: %l", regs->d1, regs->d3, regs->d5, regs->d7);
+    fmt("\n a0: %l  a2: %l  a4: %l  a6: %l", regs->a0, regs->a2, regs->a4, regs->a6);
+    fmt("\n a1: %l  a3: %l  a5: %l  a7: %l", regs->a1, regs->a3, regs->a5, regs->a7);
+    fmt("\n pc: %l  sr: %w                   usp: %l", regs->pc, regs->sr, regs->usp);
+    fmt("\nvbr: %l  tc: %l srp: %l urp: %l", regs->vbr, regs->tc, regs->srp, regs->urp);
+    fmt("\ndt0: %l dt1: %l it0: %l it1: %l", regs->dtt0, regs->dtt1, regs->itt0, regs->itt1);
+    fmt("\npcr: %l bcr: %l ccr: %l\n", regs->pcr, regs->buscr, regs->cacr);
+}
+
+static void showHelp()
+{
+    puts("Commands:\n"
+         "  x                 : exit monitor\n"
+         "  r                 : show registers\n"
+         "  pb [addr] {val}   : peek/poke byte\n"
+         "  pw [addr] {val}   : peek/poke word\n"
+         "  pl [addr] {val}   : peek/poke long\n"
+         "  d  [addr] {len}   : dump memory\n"
+         "  a  [addr] {len}   : disassemble");
+    if (detectTos()) { puts(
+         "  c {id} {val}      : cookie (TOS)"); }
+    puts(
+         "  rtc {clear/reset} : dump/clear/reset rtc\n"
+         "  vga {cmd} {opt}   : screen commands\n"
+         "  cfg {opt} {val}   : list/get/set option\n"
+         "  run [addr]        : call program at address\n"
+         "  reset             : reset computer");
+}
+
+
+uint16_t mon_Parse(regs_t* regs)
+{
+    // convert whitespaces to 0 as argument delimiters
+    size_t monBufferSize = strlen(monBuffer);
+    for (int i=0; i<monBufferSize; i++) {
+        if (monBuffer[i] <= 32 || monBuffer[i] >= 127) {
+            monBuffer[i] = 0;
+        }
+    }
+
+    // parse command arguments
+    // XXX TODO use scan()
+    int args = 0;
+    char* argv[8];
+
+    uint16_t exit = 0;
+    uint32_t start = 0;
+    for (int i=0; i<8; i++) {
+        argv[i] = 0;
+        // skip whitespaces
+        while ((start < monBufferSize) && (monBuffer[start] == 0)) {
+            start++;
+        }
+        // find length
+        if (start < monBufferSize) {
+            uint32_t end = start;
+            while ((end < monBufferSize) && (monBuffer[end] != 0)) {
+                end++;
+            }
+            uint32_t size = end - start;
+            if (size > 0) {
+                argv[i] = (char*)&monBuffer[start];
+                start += size;
+                args++;
+            }
+        }
+    }
+
+    // execute command
+    if (args > 0)
+    {
+        if (strcmp(argv[0], "x") == 0)              { exit = 1; }
+        else if (strcmp(argv[0], "r") == 0)         { showRegs(regs); }
+        else if (strcmp(argv[0], "reset") == 0)     { cmdReset(args, argv); }
+        else if (strcmp(argv[0], "d") == 0)         { cmdDump(args, argv); }
+        else if (strcmp(argv[0], "a") == 0)         { cmdDisasm(args, argv); }
+        else if (strcmp(argv[0], "pb") == 0)        { cmdPeekPoke(args, argv); }
+        else if (strcmp(argv[0], "pw") == 0)        { cmdPeekPoke(args, argv); }
+        else if (strcmp(argv[0], "pl") == 0)        { cmdPeekPoke(args, argv); }
+        else if (strcmp(argv[0], "c") == 0)         { cmdCookie(args, argv); }
+        else if (strcmp(argv[0], "rtc") == 0)       { cmdRtc(args, argv); }
+        else if (strcmp(argv[0], "cfg") == 0)       { cmdCfg(args, argv); }
+        else if (strcmp(argv[0], "vga") == 0)       { cmdVga(args, argv); }
+        else if (strcmp(argv[0], "run") == 0)       { cmdRun(args, argv); }
+        else if (strncmp(argv[0], "S0", 2) == 0)    { cmdSrec(args, argv); }
+        else                                        { showHelp(); }
+    }
+    return exit;
+}
+
+
+void mon_Main(regs_t* regs)
+{
+    printf("\n# Raven monitor %06x #\n", VERSION);
+    showRegs(regs);
+    putchar('\n');
+    showHelp();
+    putchar('\n');
+
+    uint16_t exit = 0;
+    while(exit == 0)
+    {
+        putchar('>');
+        putchar(' ');
+
+        if (gets(monBuffer, sizeof(monBuffer)) == NULL) {
+            continue;
+        }
+
+        exit = mon_Parse(regs);
+    }
+}
+
+void mon_MainOnce(regs_t* regs)
+{
+    cpu_SetNMI(mon_Main);
+    mon_Parse(regs);
+}
+
+void mon_Exec(const char* s)
+{
+    if (s && *s) {
+        strcpy(monBuffer, s);
+        cpu_SetNMI(mon_MainOnce);
+        cpu_TriggerNMI();
+    } else {
+        cpu_SetNMI(mon_Main);
+        cpu_TriggerNMI();
+    }
+}
+
+void mon_Start()
+{
+    cpu_TriggerNMI();
+}
+
+bool mon_Init()
+{
+    dump_old_addr = 0x00000000;
+    dump_old_size = 256;
+    dasm_old_addr = 0x40000400;
+    dasm_old_size = 16;
+
+    cpu_SetNMI(mon_Main);
+    return true;
 }
