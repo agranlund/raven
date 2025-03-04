@@ -48,11 +48,18 @@ bool sys_Init()
     uint32_t cpuRev = 0;
     uint32_t cpuSku = cpu_Detect(&cpuRev, 0);
 
-    // identify rom
-    uint32_t id_simm[4];
-    id_simm[3] = IOL(IOL(RV_PADDR_SIMM3, 0), 4);
+    // identify rom size
+    uint32_t siz_simm[4];
+    for (int i=0; i<16; i++) {
+        bool romaddr_valid = true;
+        siz_simm[3] = ((i+1) * 1024) * 1024UL;
+        for (int j=0; j<1024 && romaddr_valid; j+=4) {
+            romaddr_valid = (IOL(RV_PADDR_SIMM3, j) != IOL((RV_PADDR_SIMM3 + siz_simm[3]), j)) ? true : false;
+        }
+        i = romaddr_valid ? i : 16;
+    }
 
-	// identify ram
+	// identify ram sizes
     for (int i=0; i<3; i++) {
         for (int j=15; j>=0; j--) {
             uint32_t addr = (((i*16)+j)*1024*1024UL);
@@ -60,11 +67,11 @@ bool sys_Init()
         }
     }
     for (int i=0; i<3; i++) {
-        id_simm[i] = 0;
+        siz_simm[i] = 0;
         for (int j=0; j<16; j++) {
             uint32_t addr = (((i*16)+j)*1024*1024UL);
             if ( *((volatile uint32_t*)addr) == j) {
-                id_simm[i] = ((j+1) * 1024) * 1024UL;
+                siz_simm[i] = ((j+1) * 1024) * 1024UL;
             } else {
                 j = 16;
             }
@@ -76,21 +83,21 @@ bool sys_Init()
     memcpy(&__data_start, &__text_end, &__data_end - &__data_start);
 
     // we can use bss section from this point onward
-    ksimm[0] = id_simm[0];
-    ksimm[1] = id_simm[1];
-    ksimm[2] = id_simm[2];
-    ksimm[3] = id_simm[3];
+    ksimm[0] = siz_simm[0];
+    ksimm[1] = siz_simm[1];
+    ksimm[2] = siz_simm[2];
+    ksimm[3] = siz_simm[3];
 
     // init systems
     lib_Init();
 
     // can use printf and other lib functions from this point onward
     putchar('\n');
-    printf("CPU:  %sR%d\n", cpuNames[cpuSku], cpuRev);
-    printf("ROM:  %08x\n", id_simm[3]);
-    printf("RAM0: %08x\n", id_simm[0]);
-    printf("RAM1: %08x\n", id_simm[1]);
-    printf("RAM2: %08x\n", id_simm[2]);
+    printf("CPU:   %sR%d\n", cpuNames[cpuSku], cpuRev);
+    printf("SIMM0: %08x\n", siz_simm[0]);
+    printf("SIMM1: %08x\n", siz_simm[1]);
+    printf("SIMM2: %08x\n", siz_simm[2]);
+    printf("SIMM3: %08x\n", siz_simm[3]);
     putchar('\n');
 
     puts("InitHeap");

@@ -45,6 +45,7 @@ static void mmu_Invalid24bit(uint32_t log, uint32_t size) {
     mmu_Invalid(log & 0x00ffffff, size);
     mmu_Invalid(log | 0xff000000, size);
 }
+
 /*
 static void mmu_Redirect24bit(uint32_t logsrc, uint32_t logdst, uint32_t size) {
     mmu_Redirect(logsrc & 0x00ffffff, logdst, size);
@@ -199,7 +200,7 @@ bool atari_InitMMU(uint32_t* simms)
 	}
 
     // peripheral access flags
-    mmu_Map(0x40000000, 0x40000000, 0x00200000, PMMU_READONLY  | PMMU_CM_WRITETHROUGH);    // ROM
+    mmu_Map(0x40000000, 0x40000000,   simms[3], PMMU_READONLY  | PMMU_CM_WRITETHROUGH);    // ROM
     mmu_Map(0x20000000, 0x20000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // LOCBUS  (uart)
     mmu_Map(0xA0000000, 0xA0000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // EXTBUS  (ide, mfp2)
     mmu_Map(0xA1000000, 0xA1000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // EXTBUS  (ym, mfp1)
