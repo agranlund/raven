@@ -4,6 +4,7 @@ FOLDERS = \
 	cacheoff \
 	cacheon \
 	eiffel \
+	flash \
 	fpu_off \
 	patch_xc \
 	resetnvm \

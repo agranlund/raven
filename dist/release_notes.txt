@@ -1,6 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+20250304
+  software: added ROM flash utility
+
 20250215
   software: added uiptools for NE2000 ISA cards
 

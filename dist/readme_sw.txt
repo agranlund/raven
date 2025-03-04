@@ -83,6 +83,7 @@ raven/cacheon       : enable cpu caches
 raven/cacheoff      : disable cpu caches
 raven/castaway      : Atari ST emulation
 raven/eiffel        : Configuration software for keyboard/mouse/fan
+raven/flash         : ROM flash utility
 raven/fpemu         : FPU emulator for 68LC060 users
 raven/mon           : raven monitor/debugger
 raven/resetnvm      : reset NVRAM
