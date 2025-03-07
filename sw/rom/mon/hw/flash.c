@@ -27,7 +27,6 @@ void flashR_Id(uint32_t addr, uint32_t* mid, uint32_t* did)
     *((volatile uint32_t*)(addr+(0x5555UL<<2))) = 0xF0F0F0F0UL;
 }
 
-
 __attribute__((section(".ramtext")))
 void flashR_Indicate(bool en)
 {
@@ -38,48 +37,73 @@ void flashR_Indicate(bool en)
     }
 }
 
+__attribute__((section(".ramtext")))
+void flashR_Delay(uint32_t count) {
+    for (uint32_t i=0; i<count; i++) {
+        __asm__ __volatile__( "\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n" : : : );
+        __asm__ __volatile__( "\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n" : : : );
+    }
+}
 
 __attribute__((section(".ramtext")))
 void flashR_ProgramAndReset(uint32_t addr, void* src, uint32_t size)
 {
     cpu_CacheOff();
-
-    // erase
-    flashR_Indicate(false);
-    *((volatile uint32_t*)(addr+(0x5555UL<<2))) = 0xAAAAAAAAUL;
-    *((volatile uint32_t*)(addr+(0x2AAAUL<<2))) = 0x55555555UL;
-    *((volatile uint32_t*)(addr+(0x5555UL<<2))) = 0x80808080UL;
-    *((volatile uint32_t*)(addr+(0x5555UL<<2))) = 0xAAAAAAAAUL;
-    *((volatile uint32_t*)(addr+(0x2AAAUL<<2))) = 0x55555555UL;
-    *((volatile uint32_t*)(addr+(0x5555UL<<2))) = 0x10101010UL;
-    for (int i=0; i<1000; i++) {
-        __asm__ __volatile__( "\tnop\n" : : : );
-        uint32_t d = *((volatile uint32_t*)(addr));
-        if (d != 0xffffffff) { i = 0; }
-    }
-
-    // program
-    flashR_Indicate(true);
-    uint32_t* sptr = (uint32_t*)src;
-    for (uint32_t i=0; i<size; i+=4) {
-        uint32_t val = *sptr++;
+    for (int retry = 1; retry >= 0; retry--)
+    {
+        // erase
+        flashR_Indicate(false);
         *((volatile uint32_t*)(addr+(0x5555UL<<2))) = 0xAAAAAAAAUL;
         *((volatile uint32_t*)(addr+(0x2AAAUL<<2))) = 0x55555555UL;
-        *((volatile uint32_t*)(addr+(0x5555UL<<2))) = 0xA0A0A0A0UL;
-        *((volatile uint32_t*)(addr+i)) = val;
-        flashR_Indicate((i & 0x4000UL) ? false : true);
+        *((volatile uint32_t*)(addr+(0x5555UL<<2))) = 0x80808080UL;
+        *((volatile uint32_t*)(addr+(0x5555UL<<2))) = 0xAAAAAAAAUL;
+        *((volatile uint32_t*)(addr+(0x2AAAUL<<2))) = 0x55555555UL;
+        *((volatile uint32_t*)(addr+(0x5555UL<<2))) = 0x10101010UL;
+        flashR_Delay(1000);
+        for (short i=0; i<1000; i++) {
+            uint32_t d = *((volatile uint32_t*)(addr));
+            if (d != 0xffffffff) { i = 0; }
+        }
 
-        // wait ~20us or early out when D6 stops toggling
-        for (int j=0; j<100; j++) {
-            __asm__ __volatile__( "\tnop\n" : : : );
-            volatile uint32_t d0 = *((volatile uint32_t*)(addr+i)) & 0x00400040UL;
-            volatile uint32_t d1 = *((volatile uint32_t*)(addr+i)) & 0x00400040UL;
-            volatile uint32_t d2 = *((volatile uint32_t*)(addr+i)) & 0x00400040UL;
-            volatile uint32_t d3 = *((volatile uint32_t*)(addr+i)) & 0x00400040UL;
-            if (d0 == d1 && d0 == d2 && d0 == d3) {
-                break;
+        // program
+        flashR_Indicate(true);
+        uint32_t* sptr = (uint32_t*)src;
+        for (uint32_t i=0; i<size; i+=4) {
+            uint32_t val = *sptr++;
+            flashR_Indicate((i & 0x4000UL) ? false : true);
+            *((volatile uint32_t*)(addr+(0x5555UL<<2))) = 0xAAAAAAAAUL;
+            *((volatile uint32_t*)(addr+(0x2AAAUL<<2))) = 0x55555555UL;
+            *((volatile uint32_t*)(addr+(0x5555UL<<2))) = 0xA0A0A0A0UL;
+            *((volatile uint32_t*)(addr+i)) = val;
+            flashR_Delay(10);
+            for (short j=0; j<1000; j++) {
+                volatile uint32_t d0 = *((volatile uint32_t*)(addr+i));
+                volatile uint32_t d1 = *((volatile uint32_t*)(addr+i));
+                if ((d0 == d1) && (d0 == val)) {
+                    break;
+                }
             }
         }
+
+        // verify
+        bool corrupt = false;
+        flashR_Indicate(false);
+        for (uint32_t i=0; i<size && !corrupt; i++) {
+            corrupt = (*((uint8_t*)(addr+i)) != *((uint8_t*)(src+i))) ? true : false;
+        }
+        retry = corrupt ? retry : 0;
+        while (corrupt && (retry == 0)) {
+            flashR_Indicate(true); flashR_Delay(80000);  flashR_Indicate(false); flashR_Delay(50000);
+            flashR_Indicate(true); flashR_Delay(80000);  flashR_Indicate(false); flashR_Delay(50000);
+            flashR_Indicate(true); flashR_Delay(80000);  flashR_Indicate(false); flashR_Delay(50000 + 100000);
+            flashR_Indicate(true); flashR_Delay(240000); flashR_Indicate(false); flashR_Delay(50000);
+            flashR_Indicate(true); flashR_Delay(240000); flashR_Indicate(false); flashR_Delay(50000);
+            flashR_Indicate(true); flashR_Delay(240000); flashR_Indicate(false); flashR_Delay(50000 + 100000);
+            flashR_Indicate(true); flashR_Delay(80000);  flashR_Indicate(false); flashR_Delay(50000);
+            flashR_Indicate(true); flashR_Delay(80000);  flashR_Indicate(false); flashR_Delay(50000);
+            flashR_Indicate(true); flashR_Delay(80000);  flashR_Indicate(false); flashR_Delay(50000+ 400000);
+        }
+        flashR_Delay(10000);
     }
 
     // reset
@@ -95,7 +119,7 @@ void flashR_ProgramAndReset(uint32_t addr, void* src, uint32_t size)
         "   nop\n"
         "   move.l  0x40000004,-(%%sp)\n"   /* reset */
         "   rts\n"
-        : : : );
+        : : : "d0", "cc" );
 }
 
 
@@ -185,7 +209,6 @@ bool flash_Program(void* data, uint32_t size) {
     }
 
     printf("\n");
-    printf("Flashing ROM:\n");
     printf(" rom version....%08lx\n", version);
     printf(" rom size.......%ld Kb\n", size / 1024);
     printf(" device id......%04x:%04x\n", (dev>>16), (dev & 0xffff));
