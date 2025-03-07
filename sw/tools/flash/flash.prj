@@ -7,7 +7,5 @@ flash.tos
 =
 ..\..\purec\lib\cstartn.o
 main.c
-flash.c
-asm.s
 ..\..\purec\lib\pctoslib.lib
 ..\..\purec\lib\pcstdlib.lib

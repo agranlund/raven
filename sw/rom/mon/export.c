@@ -9,6 +9,7 @@
 #include "hw/i2c.h"
 #include "hw/rtc.h"
 #include "hw/vga.h"
+#include "hw/flash.h"
 #include "x86/x86emu.h"
 
 extern struct X86EMU* x86emu;
@@ -39,6 +40,9 @@ static void b_i2c_Start() { i2c_Start(); }
 static void b_i2c_Stop() { i2c_Stop(); }
 static uint32_t b_i2c_Read(uint32_t ack) { return (uint32_t) i2c_Read((uint8_t)ack); }
 static uint32_t b_i2c_Write(uint32_t val) { return (uint32_t) i2c_Write((uint8_t)val); }
+
+static uint32_t b_flash_Identify(void) { return flash_Identify(); }
+static uint32_t b_flash_Program(void* data, uint32_t size) { return flash_Program(data, size) ? 1 : 0; }
 
 static struct X86EMU* b_x86() { return x86emu; }
 
@@ -87,7 +91,9 @@ const raven_t ravenBios =
     mmu_GetPageDescriptor,
 //0x00C0
     mon_Exec,
-    {0,0,0,0,0},
+    b_flash_Identify,
+    b_flash_Program,
+    {0,0,0},
     &getchar,
     &putchar,
 };

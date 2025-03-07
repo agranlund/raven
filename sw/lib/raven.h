@@ -8,7 +8,7 @@ Important:
 #define _RAVEN_H_
 
 /*--------------------------------------------------------------------------------*/
-#define C_RAVN_VER          0x20241226UL
+#define C_RAVN_VER          0x20250307UL
 #define C_RAVN_PTR          0x40000000UL
 #ifndef C_RAVN
 #define C_RAVN              0x5241564EUL
@@ -101,7 +101,9 @@ typedef struct
 
 /* 0x00C0 */
     void        _RVAPI (*mon_Exec)(const char* s);
-    uint32_t    reserved00C0[5];
+    uint32_t    _RVAPI (*rom_Id)(void);
+    uint32_t    _RVAPI (*rom_Program)(void* data, uint32_t size);
+    uint32_t    reserved00C0[3];
     int32_t     _RVAPI (**mon_fgetchar)(void);
     void        _RVAPI (**mon_fputchar)(int32_t c);
 

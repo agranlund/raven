@@ -29,16 +29,20 @@
 #include <string.h>
 #include <mint/osbind.h>
 #include "raven.h"
-#include "flash.h"
+
+#define ROM_VERSION_REQUIRED 0x20250307UL
+
 
 char mon_arg[1024];
+void (*putchar_old)(int32_t);
+int32_t (*getchar_old)(void);
 
-uint32_t getRomVersion(void* rom) {
-    uint32_t* rptr = *((uint32_t**)rom);
-    if (rptr[0] == 0x5241564EUL) {
-        return rptr[1];
-    }
-    return 0UL;
+void cdecl putchar_new(int32_t c) {
+    putchar((int)c);
+}
+
+int32_t cdecl getchar_new(void) {
+    return (int32_t)getchar();
 }
 
 void* loadRom(char* filename, int32_t* sizeOut) {
@@ -61,9 +65,6 @@ void* loadRom(char* filename, int32_t* sizeOut) {
             if (result != fsize) {
                 printf("Failed to load '%s'\n", filename);
                 data = 0;
-            } else if (getRomVersion(data) == 0UL) {
-                printf("%s is not a valid rom image\n", filename);
-                data = 0;
             }
         }
         Fclose(fhandle);
@@ -79,6 +80,11 @@ long supermain()
     void* rom_data;
     int32_t rom_size;
 
+    if (raven()->version < ROM_VERSION_REQUIRED) {
+        printf("This program requires ROM %08lx or later\n", ROM_VERSION_REQUIRED);
+        return 0;
+    }
+
     if (args != 2) {
         printf("usage: flash.tos <filename>\n");
         return 0;
@@ -87,24 +93,16 @@ long supermain()
     rom_data = loadRom(argv[1], &rom_size);
     if (rom_data == 0) { return 0; }
 
-    printf("\n");
-    printf(" rom version....%08lx\n", getRomVersion((void*)rom_data));
-    printf(" rom size.......%ld Kb\n", rom_size / 1024);
-    if (!flash_Open()) {
-        printf("Flash identification failed\n");
-        Mfree(rom_data);
-        return 0;
-    }
-    printf("\n");
-    printf(" WARNING: Do not turn off the computer.\n");
-    printf(" The power LED will blink continously during programming and\n");
-    printf(" the computer will restart automatically when completed.\n");
-    printf("\n");
+    getchar_old  = *(raven()->mon_fgetchar);
+    putchar_old  = *(raven()->mon_fputchar);
+    *(raven()->mon_fgetchar)  = getchar_new;
+    *(raven()->mon_fputchar)  = putchar_new;
 
-    flash_Program(rom_data, rom_size);  /* restarts when done */
+    raven()->rom_Program(rom_data, rom_size);
 
-    flash_Close();
     Mfree(rom_data);
+    *(raven()->mon_fgetchar)  = getchar_old;
+    *(raven()->mon_fputchar)  = putchar_old;
     return 0;
 }
 

@@ -52,11 +52,10 @@ void flashR_ProgramAndReset(uint32_t addr, void* src, uint32_t size)
     *((volatile uint32_t*)(addr+(0x5555UL<<2))) = 0xAAAAAAAAUL;
     *((volatile uint32_t*)(addr+(0x2AAAUL<<2))) = 0x55555555UL;
     *((volatile uint32_t*)(addr+(0x5555UL<<2))) = 0x10101010UL;
-    for (int i=0; i<8; i++) {
+    for (int i=0; i<1000; i++) {
+        __asm__ __volatile__( "\tnop\n" : : : );
         uint32_t d = *((volatile uint32_t*)(addr));
-        if ((d & 0x80808080UL) != 0x80808080UL) {
-            i = 0;
-        }
+        if (d != 0xffffffff) { i = 0; }
     }
 
     // program
@@ -72,6 +71,7 @@ void flashR_ProgramAndReset(uint32_t addr, void* src, uint32_t size)
 
         // wait ~20us or early out when D6 stops toggling
         for (int j=0; j<100; j++) {
+            __asm__ __volatile__( "\tnop\n" : : : );
             volatile uint32_t d0 = *((volatile uint32_t*)(addr+i)) & 0x00400040UL;
             volatile uint32_t d1 = *((volatile uint32_t*)(addr+i)) & 0x00400040UL;
             volatile uint32_t d2 = *((volatile uint32_t*)(addr+i)) & 0x00400040UL;
