@@ -77,7 +77,7 @@ extern isa_core_t isa;
 #define EXIT_SUPER()    if (sstack) { Super(sstack); }
 
 
-#if defined(__GNUC__) && defined(__builtin_bswap16)
+#if defined(__GNUC__) && (__GNUC__ > 4)
 static uint16_t swap16(uint16_t d) { return __builtin_bswap16(d); }
 static uint32_t swap32(uint32_t d) { return __builtin_bswap32(d); }
 #else

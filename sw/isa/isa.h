@@ -189,7 +189,7 @@ static void isa_delay(uint32_t microseconds) { _isa_delay(microseconds, false); 
 static void isa_delay_super(uint32_t microseconds) { _isa_delay(microseconds, true); }
 
 #ifndef ISA_EXCLUDE_LIB_FALLBACK
-#if defined(__GNUC__) && (__GNUC__ >= 13)
+#if defined(__GNUC__) && (__GNUC__ > 4)
     static inline uint16_t _isa_swap16(uint16_t data) { return __builtin_bswap16(data); }
 #else
     static uint16_t _isa_swap16(uint16_t data) { return ((data>>8)|(data<<8)); }

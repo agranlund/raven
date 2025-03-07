@@ -11,8 +11,13 @@
 
 #include "x86core.h"
 
+#if defined(__GNUC__) && (__GNUC__ > 4)
 #define x86_swap16(x)    __builtin_bswap16((x))
 #define x86_swap32(x)    __builtin_bswap32((x))
+#else
+#define x86_swap16(x)   ((((x) >> 8) & 0xff) | (((x) & 0xff) << 8))
+#define x86_swap16(x)   (((((x) >> 24) & 0x000000ffUL) | (((x) & 0x000000ffUL) << 24) | (((x) >> 8) & 0x0000ff00UL) | (((x) & 0x0000ff00UL) << 8)))
+#endif
 
 static inline void      x86_Run(struct X86EMU* emu)                                     { emu->_X86EMU_run(emu); }
 static inline void      x86_Call(struct X86EMU* emu, uint16_t seg, uint16_t offs)       { emu->_X86EMU_call(emu, seg, offs); }
