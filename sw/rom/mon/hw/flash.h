@@ -3,8 +3,9 @@
 #ifndef __ASM__
 #include "sys.h"
 
-// todo: api for in-system programming of flash rom.
-// mostly a higher level wrapper for "ram/flash.c"
+bool flash_Init(void);
+uint32_t flash_Identify(void);
+bool flash_Program(void* data, uint32_t size);
 
 #endif //!__ASM__
 #endif // _FLASH_H_

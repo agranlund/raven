@@ -4,6 +4,7 @@
 #include "hw/uart.h"
 #include "hw/rtc.h"
 #include "hw/vga.h"
+#include "hw/flash.h"
 #include "monitor.h"
 #include "config.h"
 #include "m68k_disasm.h"
@@ -344,6 +345,7 @@ static void srec_s7(uint32_t address_offset, uint32_t low_address, uint32_t high
     }
 
     // otherwise we just received something to be flashed...
+    flash_Program((void*)srec_mem_start, (high_address - low_address));
 }
 
 static void cmdSrec(int args, char* argv[])

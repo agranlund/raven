@@ -202,6 +202,9 @@ cpu_SetIPL:
     move.w  %sr,%d1
     and.w   #0xF0FF,%d1
     or.w    %d0,%d1
+    move.w  %sr,%d0
+    lsr.w   #8,%d0
+    and.l   #0x00000007,%d0
     move.w  %d1,%sr
     nop
     rts
@@ -211,12 +214,13 @@ cpu_GetCACR:
     rts
 
 cpu_SetCACR:
-    move.l  4(%a7),%d0
-    or.l    #0x00400000,%d0       // clear branch cache
+    move.l  4(%a7),%d1
+    or.l    #0x00400000,%d1       // clear branch cache
     nop
     cpusha  %bc
     nop
-    movec.l %d0,%cacr
+    movec.l %cacr,%d0
+    movec.l %d1,%cacr
     nop
     rts
 
@@ -225,9 +229,10 @@ cpu_GetPCR:
     rts
 
 cpu_SetPCR:
-    move.l  4(%a7),%d0
+    move.l  4(%a7),%d1
     nop
-    movec.l %d0,%pcr
+    movec.l %pcr,%d0
+    movec.l %d1,%pcr
     nop
     rts
 
@@ -236,9 +241,10 @@ cpu_GetVBR:
     rts
 
 cpu_SetVBR:
-    move.l  4(%a7),%d0
+    move.l  4(%a7),%d1
     nop
-    movec.l %d0,%vbr
+    movec.l %vbr,%d0
+    movec.l %d1,%vbr
     nop
     cpusha  %bc
     nop

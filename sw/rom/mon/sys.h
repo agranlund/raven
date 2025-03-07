@@ -6,6 +6,8 @@
 #include "lib.h"
 #include "raven.h"
 
+#define initprint(x)    puts(x)
+
 #define IOB(base,offs)  *((volatile  uint8_t*)(base + offs))
 #define IOW(base,offs)  *((volatile uint16_t*)(base + offs))
 #define IOL(base,offs)  *((volatile uint32_t*)(base + offs))

@@ -311,16 +311,16 @@ bool atari_InitScreen()
 
 bool atari_Init()
 {
-    puts("InitVbr");
+    initprint("InitVbr");
     atari_InitVBR();
 
-    puts("InitMmu");
+    initprint("InitMmu");
     atari_InitMMU(ksimm);
 
-    puts("InitEmu");
+    initprint("InitEmu");
     atari_InitEMU();
 
-    puts("InitTos");
+    initprint("InitTos");
 	for (int i=0x400; i<0x700; i+=4) {
 		IOL(0, i) = 0;
 	}
@@ -350,10 +350,10 @@ bool atari_Init()
         }
     }
 
-    puts("InitVga");
+    initprint("InitVga");
     atari_InitScreen();
 
-    puts("Start");
+    puts("Starting TOS");
     cpu_Call(0xe00000);
     return false;
 }

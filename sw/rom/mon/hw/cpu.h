@@ -109,13 +109,13 @@ void        vbr_Apply();
 // special register accessors
 //-------------------------------------------------------
 uint32_t    cpu_GetIPL();
-void        cpu_SetIPL(uint32_t v);
+uint32_t    cpu_SetIPL(uint32_t v);
 uint32_t    cpu_GetCACR();
-void        cpu_SetCACR(uint32_t v);
+uint32_t    cpu_SetCACR(uint32_t v);
 uint32_t    cpu_GetVBR();
-void        cpu_SetVBR(uint32_t v);
+uint32_t    cpu_SetVBR(uint32_t v);
 uint32_t    cpu_GetPCR();
-void        cpu_SetPCR(uint32_t v);
+uint32_t    cpu_SetPCR(uint32_t v);
 void        cpu_GetMMU(mmuregs_t* mmu);
 void        cpu_SetMMU(mmuregs_t* mmu);
 

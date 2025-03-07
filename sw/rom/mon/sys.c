@@ -7,6 +7,7 @@
 #include "hw/midi.h"
 #include "hw/i2c.h"
 #include "hw/rtc.h"
+#include "hw/flash.h"
 #include "monitor.h"
 #include "config.h"
 #include "atari.h"
@@ -23,6 +24,7 @@ uint32_t kheapPtr;
 uint32_t ksimm[4];
 
 extern uint8_t __text_end;
+extern uint8_t __data_load;
 extern uint8_t __data_start;
 extern uint8_t __data_end;
 extern uint8_t __bss_start;
@@ -80,7 +82,7 @@ bool sys_Init()
 
     // clear bios bss area & copy data
     memset(&__bss_start, 0, &__bss_end - &__bss_start);
-    memcpy(&__data_start, &__text_end, &__data_end - &__data_start);
+    memcpy(&__data_start, &__data_load, &__data_end - &__data_start);
 
     // we can use bss section from this point onward
     ksimm[0] = siz_simm[0];
@@ -98,42 +100,43 @@ bool sys_Init()
     printf("SIMM1: %08x\n", siz_simm[1]);
     printf("SIMM2: %08x\n", siz_simm[2]);
     printf("SIMM3: %08x\n", siz_simm[3]);
+    //printf("FLASH: %08x\n", flash_Identify());
     putchar('\n');
 
-    puts("InitHeap");
+    initprint("InitHeap");
     mem_Init();
 
-    puts("InitUart");
+    initprint("InitUart");
     uart_Init();
 
-    puts("InitIkbd");
+    initprint("InitIkbd");
     ikbd_Init();
 
-    puts("InitMfp");
+    initprint("InitMfp");
     mfp_Init();
 
-    puts("InitMidi");
+    initprint("InitMidi");
     midi_Init();
 
-    puts("InitI2C");
+    initprint("InitI2C");
     i2c_Init();
 
-    puts("InitRtc");
+    initprint("InitRtc");
     rtc_Init();
 
-    puts("InitCfg");
+    initprint("InitCfg");
     cfg_Init();
 
-    puts("InitVbr");
+    initprint("InitVbr");
     vbr_Init();
 
-    puts("InitMonitor");
+    initprint("InitMonitor");
     mon_Init();
 
-    puts("InitAtari");
+    initprint("InitAtari");
     atari_Init();
 
-    puts("StartMonitor");
+    initprint("StartMonitor");
     mon_Start();
 
     return 0;

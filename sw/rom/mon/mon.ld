@@ -28,10 +28,12 @@ SECTIONS
 	.data :
 	{
 		__data_start = .;
-		*(.data*)					/* non-constant initialised data */
+		*(.data* .ramtext*)				/* non-constant initialised data */
 		. = ALIGN(4);
 		__data_end = .;
 	} >RAM AT>ROM
+
+	__data_load = LOADADDR(.data);
 
 	.bss :
 	{
