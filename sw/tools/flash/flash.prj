@@ -1,4 +1,4 @@
-flash.tos
+flash.ttp
 .S[-4 -S]
 .C[-E1 -M -P -Z -W2]
 .C[-I..\..\purec\include]

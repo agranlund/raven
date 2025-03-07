@@ -1,7 +1,7 @@
 
 NAME = flash
 
-BIN = $(NAME).tos
+BIN = $(NAME).ttp
 PRJ = $(NAME).prj
 
 INSTALL_ROOT = c:/raven
