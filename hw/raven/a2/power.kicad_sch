@@ -2004,6 +2004,13 @@
     (effects (font (size 1.27 1.27)) (justify left top))
     (uuid 0c42e35d-c5ee-4cd5-b4cb-502714ab1187)
   )
+  (text_box "TODO:\nPWRSW+ to spare GPI on uart\nTo read power button state"
+    (at -3.175 29.845 0) (size 34.925 11.43)
+    (stroke (width 0) (type default))
+    (fill (type color) (color 255 230 63 0.53))
+    (effects (font (size 1.27 1.27) (color 0 0 0 1)) (justify left top))
+    (uuid 3460d5a3-3ab9-468c-a016-e13148aa7cce)
+  )
   (text_box "Fan connector (5V)"
     (at 23.495 147.955 0) (size 39.37 40.005)
     (stroke (width 0) (type dash_dot_dot))
