@@ -264,6 +264,41 @@ static void cmdVga(int args, char* argv[])
     }
 }
 
+//-----------------------------------------------------------------------
+// flash
+//-----------------------------------------------------------------------
+static void cmdFlash(int args, char* argv[])
+{
+    uint32_t data_start = 0x00600000;
+    uint8_t* data = (uint8_t*)data_start;
+    uint32_t ipl = cpu_SetIPL(7);
+
+    printf("Waiting for serial transfer...\n");
+    *data++ = uart_recv();
+
+    printf("Receiving rom image");
+    uint32_t silent = 0;
+    uint32_t period = 0;
+    uint32_t timeout = 1000000;
+    while (silent < timeout) {
+        int v = uart_recvChar();
+        silent++;
+        if (v >= 0) {
+            silent = 0;
+            *data++ = (uint8_t) (v & 0xff);
+            period = (period + 1) & ((16 * 1024) - 1);
+            if (period == 0) { putchar('.'); }
+        }
+    }
+
+    uint32_t size = (uint32_t)data - (uint32_t)data_start;
+    printf("\nReceived %d bytes\n", size);
+    while(uart_recvChar() >= 0) {}
+
+    size = (size + 3) & ~3;
+    flash_Program((void*)data_start, size);
+    cpu_SetIPL(ipl);
+}
 
 //-----------------------------------------------------------------------
 // srec
@@ -472,6 +507,7 @@ static void showHelp()
          "  vga {cmd} {opt}   : screen commands\n"
          "  cfg {opt} {val}   : list/get/set option\n"
          "  run [addr]        : call program at address\n"
+         "  flash             : flash rom image over serial\n"
          "  reset             : reset computer");
 }
 
@@ -520,6 +556,7 @@ uint16_t mon_Parse(regs_t* regs)
         if (strcmp(argv[0], "x") == 0)              { exit = 1; }
         else if (strcmp(argv[0], "r") == 0)         { showRegs(regs); }
         else if (strcmp(argv[0], "reset") == 0)     { cmdReset(args, argv); }
+        else if (strcmp(argv[0], "flash") == 0)     { cmdFlash(args, argv); }
         else if (strcmp(argv[0], "d") == 0)         { cmdDump(args, argv); }
         else if (strcmp(argv[0], "a") == 0)         { cmdDisasm(args, argv); }
         else if (strcmp(argv[0], "pb") == 0)        { cmdPeekPoke(args, argv); }
