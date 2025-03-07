@@ -1,11 +1,14 @@
     #include "raven.h"
     #include "hw/uart.h"
 
+//
 // todo: settings stored in rom so they can be reflashed without recompiling
+//       or from motherboard jumper on rev.A2 boards
+//
 
-//  #define UART_BAUDR      750000
+//    #define UART_BAUDR      460800
     #define UART_BAUDR      115200
-    #define UART_BAUDD      (UART_CLK/(UART_BAUDR*16))
+
     #define UART_RTS_FLOW   1
 
     .global start
@@ -84,11 +87,23 @@ start:
 #if (UART_RTS_FLOW != 0)
     bset.b  #6,UART_EFR(%a5)                        // auto rts
 #endif
-    
+
     move.b  #0x80,UART_LCR(%a5)                     // access baud registers
-    move.b  #(UART_BAUDD&0xFF),UART_DLL(%a5)        // baudrate L
-    move.b  #((UART_BAUDD>>8)&0xFF),UART_DLM(%a5)   // baudrate H
-    move.b  #0x00,UART_DLD(%a5)                     // baudrate D
+    move.l  #UART_CLK,%d1                           // set DLL and DLM
+    move.l  #UART_BAUDR,%d0
+    move.l  %d1,%d2
+    divul.l %d0,%d2
+    lsr.l   #4,%d2                                  // d2 = xx.xx.mm.ll       
+    move.b  %d2,UART_DLL(%a5)
+    lsr.l   #8,%d2
+    move.b  %d2,UART_DLM(%a5)
+    move.l  %d1,%d2                                 // set DLD
+    lsl.l   #1,%d2
+    divul.l %d0,%d2
+    addq.l  #1,%d2
+    lsr.l   #1,%d2
+    and.b   #0x0f,%d2                               // d2 = xx.xx.xx.dd
+    move.b  %d2,UART_DLD(%a5)
 
     bset.b  #6,UART_MCR(%a5)                        // enable tcr/tcl access
     move.b  #0x0f,UART_TCR(%a5)                     // auto rts resume/halt levels (0 / 64)
