@@ -14394,7 +14394,7 @@
         (name "RST#" (effects (font (size 1.27 1.27))))
         (number "12" (effects (font (size 1.27 1.27))))
       )
-      (pin no_connect line (at 16.51 -20.32 180) (length 5.08) hide
+      (pin no_connect line (at 16.51 -24.13 180) (length 5.08)
         (name "nc" (effects (font (size 1.27 1.27))))
         (number "13" (effects (font (size 1.27 1.27))))
       )
@@ -14542,8 +14542,8 @@
         (name "VSS_2" (effects (font (size 1.27 1.27))))
         (number "46" (effects (font (size 1.27 1.27))))
       )
-      (pin no_connect line (at 16.51 -22.86 180) (length 5.08) hide
-        (name "nc" (effects (font (size 1.27 1.27))))
+      (pin passive line (at 16.51 -27.305 180) (length 5.08)
+        (name "BYTE#" (effects (font (size 1.27 1.27))))
         (number "47" (effects (font (size 1.27 1.27))))
       )
       (pin passive line (at -16.51 -12.7 0) (length 5.08)
