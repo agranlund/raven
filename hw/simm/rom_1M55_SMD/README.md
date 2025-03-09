@@ -4,12 +4,12 @@
 ![Alt text](images/render.png?raw=true "")
 
 Chip suggestions for 1MB:
-* SST39LF400
+* SST39LF400A
 * SST39LF401C  <-- tested
 * SST39LF402C
 
 Chip suggestions for 2MB:
-* SST39LF800
+* SST39LF800A
 * SST39LF801C
 * SST39LF802C
 
