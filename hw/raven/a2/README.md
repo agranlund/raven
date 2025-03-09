@@ -24,7 +24,10 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - BOM: Replaced PLCC84 socket for U108 with black part
 - BOM: Replaced buttons SW101,SW201,SW202 with black parts
 - BOM: Changed C310 to 0.1uF (was 0.01uF)
-
+- Status of power button can be read from cpu
+- (wip) Exposed uart spare gpio
+- (wip) Added pullups on MC68150 data bus
+- (wip) Added cpu-temperature sensor
 
 
 ## Optional / non-critical:
@@ -40,6 +43,7 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - Spare CPLD-In:   J105, R117
 - Spare CPLD-Out:  J106
 - RTC:             Y402, R402, U406, C413
+- CPU-Temp:        R123, R124, C129, U109
 
 
 ## Errata:

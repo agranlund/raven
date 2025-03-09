@@ -2153,7 +2153,7 @@
     (uuid 79e6d7ab-dd9c-40a0-844d-38a12e954f4f)
   )
   (rectangle (start 213.995 187.325) (end 232.41 212.725)
-    (stroke (width 0) (type default))
+    (stroke (width 0) (type dash))
     (fill (type none))
     (uuid 8deb2e86-17d0-4b4e-98fb-d64d10bb11d8)
   )

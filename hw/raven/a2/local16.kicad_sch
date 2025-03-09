@@ -3853,6 +3853,10 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid da441bdf-31f9-43ae-88cb-044dad9fb82e)
   )
+  (text "i2c address:\nDS1307 : x1101000 : 0x68" (at 209.55 246.38 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid e213a980-3ea8-4bcf-8bdc-6d5357fedab8)
+  )
   (text "AutoShutdownPlus Disabled\n\nFORCEON = ~{FORCEOFF} = VCC, no load"
     (at 413.385 238.125 0)
     (effects (font (size 1 1)) (justify right bottom))

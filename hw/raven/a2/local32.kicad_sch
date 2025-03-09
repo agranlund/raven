@@ -6437,7 +6437,7 @@
     (uuid a8229e8e-5670-4bdf-99b8-e041cde54a7d)
   )
   (text_box "TODO:\nSpare GPI to header for cpu readable bios config etc\n(CTSA, DSRA, CDA, RIA)\n\nSpare GPO to header\n(TRSA)\n"
-    (at 539.115 196.215 0) (size 45.72 20.955)
+    (at 525.78 179.705 0) (size 45.72 20.955)
     (stroke (width 0) (type default))
     (fill (type color) (color 255 230 63 0.53))
     (effects (font (size 1.27 1.27) (color 0 0 0 1)) (justify left top))
