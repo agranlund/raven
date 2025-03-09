@@ -14,8 +14,8 @@ Chip suggestions for 2MB:
 * SST39LF802C
 
 
-Only the first one has been tested. The other ones will _probably_ work.
-TSOP48 nor flash from other manufacturers could work too but make sure to check the datasheet to establish that the pinout as well as programming methods are fully compatible.
+Only SST39LF401C has been tested. The other ones will _probably_ work.
+TSOP48 nor flash from other manufacturers might work too but make sure to check the datasheet to establish if pinout as well as programming methods are fully compatible.
 The SIMM board as well as Raven supports up to 16MB rom.
 
 Important:
