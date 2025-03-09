@@ -3,13 +3,12 @@
 
 ![Alt text](images/render.png?raw=true "")
 
-Chip suggestions:
-(1MB)
+Chip suggestions for 1MB:
 * SST39LF400
 * SST39LF401C  <-- tested
 * SST39LF402C
 
-(2MB)
+Chip suggestions for 2MB:
 * SST39LF800
 * SST39LF801C
 * SST39LF802C
