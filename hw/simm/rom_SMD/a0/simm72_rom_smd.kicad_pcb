@@ -6,7 +6,7 @@
 
   (paper "A4")
   (title_block
-    (title "Raven 1MB ROM")
+    (title "Raven SMD ROM")
     (date "2023")
     (rev "A0")
     (company "Licensed under CERN-OHL-P v2")

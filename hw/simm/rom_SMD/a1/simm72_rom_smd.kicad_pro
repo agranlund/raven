@@ -45,7 +45,7 @@
         "silk_text_thickness": 0.15,
         "silk_text_upright": false,
         "zones": {
-          "min_clearance": 0.508
+          "min_clearance": 0.0
         }
       },
       "diff_pair_dimensions": [
@@ -114,7 +114,7 @@
       "rule_severitieslegacy_no_courtyard_defined": false,
       "rules": {
         "max_error": 0.005,
-        "min_clearance": 0.127,
+        "min_clearance": 0.0,
         "min_connection": 0.0,
         "min_copper_edge_clearance": 0.024999999999999998,
         "min_hole_clearance": 0.25,
@@ -174,10 +174,8 @@
       ],
       "track_widths": [
         0.0,
-        0.127,
-        0.1524,
-        0.2032,
-        0.508
+        0.254,
+        0.3048
       ],
       "via_dimensions": [
         {
@@ -394,9 +392,9 @@
       "no_connect_connected": "warning",
       "no_connect_dangling": "warning",
       "pin_not_connected": "error",
-      "pin_not_driven": "warning",
+      "pin_not_driven": "error",
       "pin_to_pin": "warning",
-      "power_pin_not_driven": "warning",
+      "power_pin_not_driven": "error",
       "similar_labels": "warning",
       "simulation_model_issue": "ignore",
       "unannotated": "error",
@@ -410,7 +408,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "simm72_rom_2M55.kicad_pro",
+    "filename": "simm72.kicad_pro",
     "version": 1
   },
   "net_settings": {

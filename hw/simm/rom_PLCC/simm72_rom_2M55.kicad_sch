@@ -5,7 +5,7 @@
   (paper "A4")
 
   (title_block
-    (title "Raven 2MB ROM")
+    (title "Raven PLCC ROM")
     (date "2023")
     (rev "A0")
     (company "Licensed under CERN-OHL-P v2")
@@ -3901,7 +3901,7 @@
     (pin "8" (uuid 36e1052f-fc57-4bbc-9256-08aa3732327b))
     (pin "9" (uuid 81344e9d-43b9-49b8-ab59-aa9021aa7cf9))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "J1") (unit 1)
         )
@@ -3926,7 +3926,7 @@
     )
     (pin "1" (uuid 42e6c59b-afc8-49c5-8ef8-d69758b03c19))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR011") (unit 1)
         )
@@ -3951,7 +3951,7 @@
     )
     (pin "1" (uuid f708375d-3ab9-46bf-ac52-14c5e1fc12e2))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR02") (unit 1)
         )
@@ -3976,7 +3976,7 @@
     )
     (pin "1" (uuid 51f907d9-358a-43c2-b365-b14d0cb3d118))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR012") (unit 1)
         )
@@ -4001,7 +4001,7 @@
     )
     (pin "1" (uuid acd22314-6181-4aef-8e34-72501f261f6d))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR07") (unit 1)
         )
@@ -4063,7 +4063,7 @@
     (pin "9" (uuid 13c62109-828e-4340-aa99-7da7864ab07d))
     (pin "8" (uuid 794f5533-0e1b-4ad1-aaa9-677754732645))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "U3") (unit 1)
         )
@@ -4095,7 +4095,7 @@
     (pin "1" (uuid 66fb1414-6fed-476f-acf4-f2c62254cabb))
     (pin "2" (uuid 8e444ac1-684b-45fa-a9fa-0b4078c4d78e))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "C4") (unit 1)
         )
@@ -4127,7 +4127,7 @@
     (pin "1" (uuid a64837be-391c-4ac1-8821-c602893b85c2))
     (pin "2" (uuid 721bc701-8c47-46e1-9383-1678f49b700a))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "C2") (unit 1)
         )
@@ -4152,7 +4152,7 @@
     )
     (pin "1" (uuid 832fe58f-329a-440a-8782-d44f95e4d5b2))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR01") (unit 1)
         )
@@ -4177,7 +4177,7 @@
     )
     (pin "1" (uuid 63824a28-c569-4143-b232-ececace0d02b))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR05") (unit 1)
         )
@@ -4202,7 +4202,7 @@
     )
     (pin "1" (uuid baf7e952-5719-47f5-af55-e73452dec90e))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR03") (unit 1)
         )
@@ -4264,7 +4264,7 @@
     (pin "9" (uuid c9b99dea-145c-4e5d-b87c-4f2c6180172a))
     (pin "8" (uuid 55acfb9c-3254-4510-8bc1-1aac13cc483f))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "U2") (unit 1)
         )
@@ -4296,7 +4296,7 @@
     (pin "1" (uuid 93f998dc-3523-42b9-aed4-5a9c4f0846e3))
     (pin "2" (uuid befc7566-c698-4842-9a69-a7394bc34ebe))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "C3") (unit 1)
         )
@@ -4358,7 +4358,7 @@
     (pin "9" (uuid 6614b67b-544c-43f6-8bbd-8b4ea38879e0))
     (pin "8" (uuid a0ff23bc-79e2-4eca-bf44-aaffb58c1892))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "U4") (unit 1)
         )
@@ -4383,7 +4383,7 @@
     )
     (pin "1" (uuid 403f4413-ee86-4c39-9db7-a6452fd5bda5))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR014") (unit 1)
         )
@@ -4408,7 +4408,7 @@
     )
     (pin "1" (uuid d526191f-926b-48cf-a6e8-3b307dc41f8a))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR010") (unit 1)
         )
@@ -4433,7 +4433,7 @@
     )
     (pin "1" (uuid 3ee5e628-2304-4ae9-a759-e31f10e55488))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR08") (unit 1)
         )
@@ -4458,7 +4458,7 @@
     )
     (pin "1" (uuid 364b20b8-b348-4182-8852-1da00f3a9b6c))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR06") (unit 1)
         )
@@ -4490,7 +4490,7 @@
     (pin "1" (uuid 3c0101ee-6e7e-4138-aa38-982cd8730616))
     (pin "2" (uuid 6b7f1d8e-a77b-483e-b339-f9cc3e8c5ee1))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "C1") (unit 1)
         )
@@ -4515,7 +4515,7 @@
     )
     (pin "1" (uuid 0e40bcec-2f63-4cb5-8520-d41b3eada212))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR04") (unit 1)
         )
@@ -4577,7 +4577,7 @@
     (pin "9" (uuid e7093497-8402-42eb-83b2-731182c73a6d))
     (pin "8" (uuid 63c707c0-ddaf-4f96-88cc-5bfa88424791))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "U1") (unit 1)
         )
@@ -4602,7 +4602,7 @@
     )
     (pin "1" (uuid 7071c237-9b3c-4e30-8949-4ae5ee7c5585))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR013") (unit 1)
         )
@@ -4627,7 +4627,7 @@
     )
     (pin "1" (uuid f7c16985-17aa-44c9-8b27-e19269f9b9df))
     (instances
-      (project "simm72_rom_2M55"
+      (project "simm72_rom_plcc"
         (path "/0981ba96-97e1-483d-834d-af22b04cbe88"
           (reference "#PWR09") (unit 1)
         )

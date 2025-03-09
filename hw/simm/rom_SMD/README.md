@@ -1,7 +1,10 @@
 
-# ROM module, SMD revision A0
+# ROM module, SMD
 
 ![Alt text](images/render.png?raw=true "")
+
+Current revision: [A0](a0/)
+
 
 Chip suggestions for 1MB:
 * SST39LF400A
@@ -15,12 +18,19 @@ Chip suggestions for 2MB:
 
 
 Only SST39LF401C has been tested. The other ones will _probably_ work.
-TSOP48 nor flash from other manufacturers might work too but make sure to check the datasheet to establish if pinout as well as programming methods are fully compatible.
+TSOP48 nor flash from other manufacturers might work too but make sure to check the datasheet to establish pinout, timing and programming methods are fully compatible.
+
 The SIMM board as well as Raven supports up to 16MB rom.
 
+
 Important:
-- This board can only support WORD roms. BYTE/WORD selectable roms does not work due to pin47 being unconnected.
+
+- Revision A0 can only support WORD roms.
+BYTE/WORD selectable roms does not work due to pin47 being unconnected.
+
 - As of today, the Raven bus controller assume 55ns or faster ROMS.
+This may change in the future to allow a larger selection of rom chips to be used.
+In particular, most of the larger ROM chips are 70ns.
 
 
 ## BOM

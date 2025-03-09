@@ -59,8 +59,8 @@ It is easy to make misstakes during assembly and such skills can be vital for fi
     - [16MB 55ns](hw/simm/ram_16M55/)
     - ~~[8MB 10ns](hw/simm/ram_8M10/)~~
 - ROM module
-    - [1MB 55ns SMD](hw/simm/rom_1M55_SMD/)
-    - [2MB 55ns PLCC](hw/simm/rom_2M55_PLCC/)
+    - [55ns SMD](hw/simm/rom_SMD/)
+    - [55ns PLCC](hw/simm/rom_PLCC/)
 - ATX power supply
 - PS/2 Keyboard and mouse
 - Some kind of suitable 44pin IDE->CF adapter
