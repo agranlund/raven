@@ -5,7 +5,7 @@
 
 Chip suggestions:
 * SST39LF040-55 for 2MB
-* SST39LS020-55 for 1MB
+* SST39LF020-55 for 1MB
 
 
 ## BOM
