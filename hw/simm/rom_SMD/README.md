@@ -26,7 +26,7 @@ The SIMM board as well as Raven supports up to 16MB rom.
 Important:
 
 - Revision A0 can only support WORD roms.
-BYTE/WORD selectable roms does not work due to pin47 being unconnected.
+Chips that has BYTE/WORD select does not work due to pin47 being unconnected.
 
 - As of today, the Raven bus controller assume 55ns or faster ROMS.
 This may change in the future to allow a larger selection of rom chips to be used.
