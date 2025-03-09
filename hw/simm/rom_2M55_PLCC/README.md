@@ -1,7 +1,11 @@
 
-# ROM module: 2MB / 55ns (socketed plcc)
+# ROM module, socketed PLCC revision A0
 
 ![Alt text](images/render.png?raw=true "")
+
+Chip suggestions:
+* SST39LF040-55 for 2MB
+* SST39LS020-55 for 1MB
 
 
 ## BOM
@@ -12,6 +16,4 @@
 | 3M                    | 8432-11B1-RK-TP             | PLCC socket | 4     | U1, U2, U3, U4                        |
 | Kemet                 | C1206C104K5RACTU            | 0.1u        | 4     | C1, C2, C3, C4                        |
 
-
-Alternatively, use SST39LF020-55 for a total of 1MB instead of 2MB
 
