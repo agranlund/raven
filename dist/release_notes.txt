@@ -1,6 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+20250317
+  drivers:  added US-ANSI keyboard table for Eiffel
+
 20250307
   monitor:  in-system rom flashing
   software: added rom flash utility

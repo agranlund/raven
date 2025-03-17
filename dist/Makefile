@@ -237,16 +237,17 @@ copysw:
 	# Eiffel
 	# --------------------------------------------------
 		mkdir -p $(SWDIR_RTOOLS)/eiffel
-		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/eiffelcf.app" -d $(SWDIR_RTOOLS)
-		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/copying" -d $(SWDIR_RTOOLS)
-		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/eiffel_g.rsc" -d $(SWDIR_RTOOLS)
-		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/doc/eiffel.hyp" -d $(SWDIR_RTOOLS)
-		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/doc/eiffel.ref" -d $(SWDIR_RTOOLS)
-		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/doc/authors.txt" -d $(SWDIR_RTOOLS)
-		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/doc/Technik.txt" -d $(SWDIR_RTOOLS)
-		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/french/*" -d $(SWDIR_RTOOLS)
-		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/german/*" -d $(SWDIR_RTOOLS)
-		unzip -L $(SUPPDIR)/eiffel1110.zip "eiffel/tab_keyb/*" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel/eiffel1110.zip "eiffel/eiffelcf.app" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel/eiffel1110.zip "eiffel/copying" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel/eiffel1110.zip "eiffel/eiffel_g.rsc" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel/eiffel1110.zip "eiffel/doc/eiffel.hyp" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel/eiffel1110.zip "eiffel/doc/eiffel.ref" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel/eiffel1110.zip "eiffel/doc/authors.txt" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel/eiffel1110.zip "eiffel/doc/Technik.txt" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel/eiffel1110.zip "eiffel/french/*" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel/eiffel1110.zip "eiffel/german/*" -d $(SWDIR_RTOOLS)
+		unzip -L $(SUPPDIR)/eiffel/eiffel1110.zip "eiffel/tab_keyb/*" -d $(SWDIR_RTOOLS)
+		$(COPY) -R $(SUPPDIR)/eiffel/tab_keyb/* $(SWDIR_RTOOLS)/eiffel/tab_keyb/
 
 
 	# --------------------------------------------------
