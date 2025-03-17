@@ -5,7 +5,7 @@ DATE		= $(shell date +%Y%m%d)
 FW_NESSI	= nessi_240901.jed
 FW_NARNIA	= narnia_240422.jed
 FW_IKSI		= iksi_240418.jed
-FW_EIFFEL	= eiffel_1.10.1\(Mq\)_fixedFire_noLcd.hex
+FW_EIFFEL	= eiffel_1.10.1-Mq_fixedFire_noLcd.hex
 FW_SIMMPROG	= ravenprog.uf2
 
 RELEASE_TAG	= Raven.A1.latest

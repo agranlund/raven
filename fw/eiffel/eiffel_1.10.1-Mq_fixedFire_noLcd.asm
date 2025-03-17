@@ -557,7 +557,7 @@ Joy_Monitoring
 		movwf TEMP1
 		movf JOY1,W; lecture joystick 1
 		andlw 0x0F;    DGBHDGBH (Droite, Gauche, Bas, Haut)
-		inpwf TEMP1,W; nnnnmmmm  avec m pour le joystick 1 et n pour le joystick 0
+		iorwf TEMP1,W; nnnnmmmm  avec m pour le joystick 1 et n pour le joystick 0
 		call SerialTransmit_Host
 		goto End_Read
 		
@@ -925,8 +925,8 @@ Not_Interrog_Time
 		movwf PTRL_LOAD; ADRLSB
 		call SerialReceive
 		movwf Counter_LOAD; NUM
-		inpwf PTRL_LOAD,W; ADRLSB
-		inpwf PTRH_LOAD,W; ADRMSB
+		iorwf PTRL_LOAD,W; ADRLSB
+		iorwf PTRH_LOAD,W; ADRMSB
 		btfsc STATUS,Z
 			goto Prog_Flash; adresse $0000 taille $00 => programmation FLASH
 		bsf Flags3,RE_TIMER_IKBD; flag reception donnees IKBD dans boucle principale
@@ -4200,7 +4200,7 @@ Loop_Bcd
 Exit_Bcd
 		swapf TEMP2,W
 		andlw 0xF0; 4 bits de poids fort
-		inpwf TEMP1,W
+		iorwf TEMP1,W
 		return
 
 ;------------------------------------------------------------------------
@@ -4343,7 +4343,7 @@ KGetLoop
 			rrf Value,F; rotate to right to get a shift
 			bcf Value,7; force MSB to zero to disable Carry state used
 			call KPSGetBit; get a bit from keyboard
-			inpwf Value,F; logical OR with previous value
+			iorwf Value,F; logical OR with previous value
 			xorwf PARITY,F; parity calc
 			decfsz Counter,F; check if we should get another one
 		goto KGetLoop
@@ -4428,7 +4428,7 @@ MGetLoop
 			rrf Value,F; rotate to right to get a shift
 			bcf Value,7; force MSB to zero to disable Carry state used
 			call MPSGetBit; get a bit from mouse
-			inpwf Value,F; logical OR with previous value
+			iorwf Value,F; logical OR with previous value
 			xorwf PARITY,F; parity calc
 			decfsz Counter,F; check if we should get another one
 		goto MGetLoop
@@ -5363,7 +5363,7 @@ Init_Page_0
 		call Read_Flash; lecture 2 octets en 0x0FFF	
 		bcf PCLATH,3; page 0
 		movf BUFFER_FLASH,W
-		inpwf BUFFER_FLASH+1,W
+		iorwf BUFFER_FLASH+1,W
 		btfss STATUS,Z
 			goto Startup; lance programme en page page 0 si programme en page 2 invalide (0x1000 - 0x17FF)
 		movlw 0xFF
