@@ -8,13 +8,12 @@ bool ikbd_Init()
     //-----------------------------------------------------------------------
     //  acia<->ikbd = 7812.5 bits/sec
     //  rdiv = (XTAL1 / prescaler) / (baud * 16)
-    //  rdiv = (24*1024*1024) / (7812.5 * 16)
-    //  rdiv = (24*1024*1024) / 125000
-    //  rdiv = 201,326592 = 201
+    //  rdiv = (24*1000*1000) / (7812.5 * 16)
+    //  rdiv = (24*1000*1000) / 125000
+    //  rdiv = 192
     //  DLM = (trunc(rdiv) >> 8) & 0xff          = 0
-    //  DLL = trunc(rdiv) & 0xff                 = 201
-    //  DLD = round((rdiv-trunc(trdiv)) * 16)    = 5
-    //  without DLD = 7825 = 0,16% error
+    //  DLL = trunc(rdiv) & 0xff                 = 192
+    //  DLD = round((rdiv-trunc(trdiv)) * 16)    = 0
     //-----------------------------------------------------------------------
     volatile uint8_t* uart1 = (volatile uint8_t*) RV_PADDR_UART1;
 
@@ -32,7 +31,11 @@ bool ikbd_Init()
 
     uart1[UART_LCR] = 0x80;         // access baud regs
     uart1[UART_DLM] = 0;
-    uart1[UART_DLL] = 201;          // 7825 baud
+
+    uart1[UART_DLL] = 192;          // 7812,5 baud
+    //uart1[UART_DLL] = 96;           // 15625 baud
+    //uart1[UART_DLL] = 48;           // 31250 baud
+
     uart1[UART_DLD] = 0;
 
     uart1[UART_MCR] |= (1 << 6);    // enable tcr/tlr access
