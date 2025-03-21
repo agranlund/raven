@@ -47,6 +47,7 @@
         .extern _run
         .extern _ui_mupb
         .extern amiga_startup
+        .extern raven_startup
 
 // ===========================================================================
 // ==== TEXT segment (TOS image) =============================================
@@ -365,6 +366,12 @@ _realmain:
         lea     amiga_startup_ret,a6
         jmp     amiga_startup
 amiga_startup_ret:
+#endif
+
+#ifdef MACHINE_RAVEN
+        lea     raven_startup_ret,a6
+        jmp     raven_startup
+raven_startup_ret:
 #endif
 
 #if (!EMUTOS_LIVES_IN_RAM) && (CONF_WITH_ST_MMU)

@@ -25,8 +25,15 @@
     .extern _int_vbl
 
 /******************************************************************************/
-/* Asm helpers                                                                */
+/* Startup                                                                    */
 /******************************************************************************/
+
+        .globl  raven_startup
+raven_startup:
+        // detect warm reset and perform cold reset instead
+        tst.w   _longframe.w
+        jne     _cold_reset
+        jmp     (a6)
 
 
 

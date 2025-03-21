@@ -103,9 +103,6 @@ _kill_program:
  * Restart this OS
  */
 _warm_reset:
-#if defined(MACHINE_RAVEN)
-        bra     _cold_reset
-#endif
         jsr     _flush_data_cache
         jmp     _main
 
@@ -132,7 +129,7 @@ _cold_reset:
         move.l  0x00e00004,a0   // Get the entry adress from offset 4 in the ROM
         jmp     (a0)
 #elif defined(MACHINE_RAVEN)
-        jsr     _flush_data_cache
+        move.w  #0x2700,sr
         move.l  0x40000004,a0   // Get the entry adress from offset 4 in the ROM
         jmp     (a0)
 #elif CONF_ATARI_HARDWARE
