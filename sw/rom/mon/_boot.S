@@ -24,6 +24,7 @@
 // ----------------------------------------------------------
     .section    .vectors
     .align      4
+rom_vectors:
     .dcb.l     1,ravenBios          //   0 / 0x00 : initial sp (bios ptr)
     .dcb.l     1,start              //   1 / 0x04 : initial pc
     .dcb.l     1,vec_berr           //   2 / 0x08 : bus errror
@@ -52,23 +53,34 @@
 start:
     // setup hardware
     move.w  #0x2700,%sr                             // no interrupts
-    cinva   %bc                                     // invalidate caches
-    move.l  #0x400000,%d0                           // clear branch cache
-    movec   %d0,%cacr                               // disable all caches
-    sub.l   %d0,%d0
+    nop
+    reset                                           // reset peripherals
+    movec.l %pcr,%d0                                // no superscalar
+    bclr.l  #0,%d0
+    nop
+    movec.l %d0,%pcr
+    nop
+    move.l  #rom_vectors,%d0                        // use rom vectors
+    nop
+    movec   %d0,%vbr
+    moveq.l #0,%d0
+    nop
+    movec   %d0,%vbr                                // reset vbr
+    nop
     movec   %d0,%tc                                 // disable pmmu
-    pflusha
-    //move.l  #0x00ff8040,%d0
-    sub.l   %d0,%d0
     movec   %d0,%dtt0
     movec   %d0,%itt0
-    sub.l   %d0,%d0
     movec   %d0,%dtt1
     movec   %d0,%itt1
+    nop
     pflusha
+    nop
+    movec   %d0,%cacr                               // disable caches
+    nop
+    cinva   %bc                                     // invalidate caches
+    nop
     reset                                           // reset peripherals
-    sub.l   %d0,%d0                                 // reset vbr
-    movec   %d0,%vbr
+    nop
 
     // setup stack
     move.l  #__stack_top,%sp
@@ -130,7 +142,14 @@ start:
 
 .Lvec_boot_ram_ok:
 
-    // exception handlers
+    // setup default vectors
+    move.l  #rom_vectors,%a0
+    move.l  #0x00000000,%a1
+    move.w  #255,%d0
+.Lcopyvecs:
+    move.l  (%a0)+,(%a1)+
+    dbra.w  %d0,.Lcopyvecs
+
     move.l  #vec_berr,0x8                           // bus error
     move.l  #vec_rte, 0x60                          // irq0
     move.l  #vec_rte, 0x64                          // irq1
@@ -141,32 +160,33 @@ start:
     move.l  #vec_rte, 0x78                          // irq6
     move.l  #vec_rte, 0x7C                          // irq7
 
+    moveq.l #0,%d0
+    nop
+    movec   %d0,%vbr
+    nop
+
     // init
     jsr     sys_Init
 
     // reset
-    move.w  #0x2700,%sr
-    reset
     bra     start
 
 
 // ----------------------------------------------------------
-// dummy vector
+// vectors
 // ----------------------------------------------------------
     .type vec_other,@function
 vec_other:
     move.l  #RV_PADDR_UART2,%a5
     BPRINT  %a5,#msg_exception
-1:
-    stop    #0x2700
+1:  stop    #0x2700
     bra     1b
 
     .type vec_berr,@function
 vec_berr:
     move.l  #RV_PADDR_UART2,%a5
     BPRINT  %a5,#msg_berr
-1:
-    stop    #0x2700
+1:  stop    #0x2700
     bra     1b
 
     .type vec_rte,@function
