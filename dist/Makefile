@@ -5,7 +5,7 @@ DATE		= $(shell date +%Y%m%d)
 FW_NESSI	= nessi_240901.jed
 FW_NARNIA	= narnia_240422.jed
 FW_IKSI		= iksi_240418.jed
-FW_EIFFEL	= eiffel_1.10.1-Mq_fixedFire_noLcd.hex
+FW_EIFFEL	= eiffel_1.10.2-raven_A1.hex
 FW_SIMMPROG	= ravenprog.uf2
 
 RELEASE_TAG	= Raven.A1.latest
@@ -76,6 +76,7 @@ copyfw:
 	$(COPY) $(ROOTDIR)/fw/$(BOARD)/Nessi/$(FW_NESSI) $(FWDIR)/
 	$(COPY) $(ROOTDIR)/fw/$(BOARD)/Narnia/$(FW_NARNIA) $(FWDIR)/
 	$(COPY) $(ROOTDIR)/fw/$(BOARD)/Iksi/$(FW_IKSI) $(FWDIR)/
+	make -C $(ROOTDIR)/fw/eiffel
 	$(COPY) $(ROOTDIR)/fw/eiffel/$(FW_EIFFEL) $(FWDIR)/eiffel.hex
 	$(COPY) $(ROOTDIR)/hw/simm/programmer/firmware/build/$(FW_SIMMPROG) $(FWDIR)/
 
