@@ -117,6 +117,17 @@
 ; Voir le fichier technik.txt et evolution.txt
 ;**********************************************************************
 
+
+;**********************************************************************
+; 1.10.2-raven
+;
+; - default to scancode set 2 instead of old and rarely used set 3
+; - can be built with ansi layout as default
+; - can be built to communicate with higher baud rate
+;**********************************************************************
+
+
+
 		PROCESSOR p16f876a
 		RADIX dec
 		
@@ -5584,6 +5595,6 @@ Tab_CTN
 		DE 6; 5.6 deg C
 ;-----------------------------------------------------------------------------
 Tab_Config
-		DE 3; jeu 2 ou 3 clavier             Eiffel 1.0.5
+		DE 2; jeu 2 ou 3 clavier             Eiffel 1.0.5
 ;-----------------------------------------------------------------------------
 		END
