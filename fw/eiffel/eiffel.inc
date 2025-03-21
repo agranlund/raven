@@ -377,7 +377,11 @@ DEF_VERRNUM                  EQU    0x54
 DEF_WINLEFT                  EQU    0x56
 DEF_WINRIGHT                 EQU    0x57
 DEF_WINAPP                   EQU    0x58
+IF ANSI
+DEF_RUSSE                    EQU    0x29
+ELSE
 DEF_RUSSE                    EQU    0x5B
+ENDIF
 DEF_ALTGR                    EQU    0x38   ; Alt Atari
 DEF_F11                      EQU    0x62   ; Help Atari
 DEF_F12                      EQU    0x61   ; Undo Atari
