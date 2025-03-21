@@ -1,6 +1,7 @@
 ## Eiffel firmware v1.10.2-raven_A1
 
 Firmware for Raven rev.A1 boards, based on v1.10.1-Mq_fixedFire_noLcd
+
 The version ending with _ansi defaults to US-ANSI keyboard layout, however the layout can be changed at any time using the Eiffelcf application.
 
 
