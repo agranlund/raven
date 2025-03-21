@@ -1,6 +1,10 @@
 Raven.A1
 Hardware and software binary release
 
+20250321
+  rom:      fixed software reset from tos/mint
+  firmware: eiffel defaults to scancode set 2
+
 20250317
   drivers:  added US-ANSI keyboard table for Eiffel
 
