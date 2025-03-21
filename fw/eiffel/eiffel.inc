@@ -30,9 +30,27 @@
 ;       12/10/2002 -Ajout des macros  WAIT_KCLOCK_L, WAIT_KCLOCK_H
 ;                                     WAIT_MCLOCK_L, WAIT_MCLOCK_H
 ;**********************************************************************
+;
+;   1.10.1 : joystick fix by Mq
+;   1.10.2 : raven
+;
+;**********************************************************************
 
-BAUD_9600			EQU		0x19		; Constant for baud generator 9600 baud at 4 Mhz
-BAUD_7812_5			EQU		0x1F		; Constant for baud generator 7812.5 bauds at 4 Mhz
+
+IF MHZ_8
+BAUD_9600           EQU     0x0C
+BAUD_7812_5         EQU     0x0F
+BAUD_15625          EQU     0x07
+BAUD_31250          EQU     0x03
+ELSE
+BAUD_9600           EQU     0x19
+BAUD_7812_5         EQU     0x1F
+BAUD_15625          EQU     0x0F
+BAUD_31250          EQU     0x07
+ENDIF
+
+
+
 TAILLE_TAMPON_EM		EQU		80		; Taille tampon emission
 
 ;-----------------------------------------------------------------------------
@@ -639,8 +657,8 @@ READ_FLASH	MACRO ADRH,ADRL,DATAADR
 		bsf STATUS,RP0; page 3
 		bsf EECON1,EEPGD; FLASH
 		bsf EECON1,RD; lecture
-		nop
-		nop
+        NopDelay
+        NopDelay
 		bcf STATUS,RP0; page 2
 		movf EEDATA,W
 		movwf DATAADR; 1er octet a lire (poids faible)
@@ -674,8 +692,8 @@ WRITE_FLASH	MACRO ADRH,ADRL,DATAADR
 		movlw 0xAA
 		movwf EECON2
 		bsf EECON1,WR; commence ecriture
-		nop
-		nop
+        NopDelay
+        NopDelay
 		bcf EECON1,WREN; enleve autorisation ecriture
 		btfsc STATUS,C; etat GIE avant masquage interruptions
 			bsf INTCON,GIE; autorise interruptions
@@ -691,7 +709,25 @@ Delay_Ms   	macro   Time            ; Delais en 1/10 mS
           endm
 
 ;-----------------------------------------------------------------------------
-Delay   	macro   Time            ; Delais "Cycles" instruction cycles
+
+
+NopDelay        macro
+    nop
+    IF MHZ_8
+    nop
+    ENDIF
+    endm
+
+
+Delay           macro   Time
+    DelayReal   Time
+    IF MHZ_8
+    DelayReal   Time
+    ENDIF
+    endm
+
+
+DelayReal   	macro   Time            ; Delais "Cycles" instruction cycles
 
     if (Time==1)
           nop
