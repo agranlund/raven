@@ -21,16 +21,40 @@
 ;
 ;-------------------------------------------------------------------------------
 
+KEYREPEAT_FIX EQU 1         ; prevent ps/2 hardware repeat
+
 	.XREF 	Setcookie
 
 	.EXPORT InstallEiffel
 
 	.BSS
 
+IFNE KEYREPEAT_FIX
+eiffel_ignore:  ds.w    1
+ENDIF
 eiffel_data:	ds.b	2
 eiffel_temp:	ds.b	6
 
 	.TEXT
+
+
+;----------------------------------------------------------
+;
+; Eiffel kbvec
+;
+;----------------------------------------------------------
+IFNE KEYREPEAT_FIX
+    DC.B "XBRA"
+    DC.B "RAVN"
+kbvec_old:
+    DC.L 0
+kbvec_new:
+    cmp.w   eiffel_ignore,d0
+    beq.b  .1
+    move.w  d0,eiffel_ignore
+    move.l  kbvec_old,-(sp)		; old vec
+.1: rts
+ENDIF
 
 ;----------------------------------------------------------
 ;
@@ -65,15 +89,23 @@ InstallEiffel:
 	move.w	sr,-(sp)			; disable interrupts
 	move.w	#0x2700,sr
 
-	; Eiffel statvec
-	move.l	#0,eiffel_data+0
-	move.l	#0,eiffel_data+4
+	; Eiffel vectors
 	move.w	#34,-(sp)			; Kbdvbase()
 	trap	#14
 	addq.l	#2,sp
 	move.l	d0,a0
 .1:	move.b	36(a0),d0			; wait for ready
 	bne.b	.1
+
+IFNE KEYREPEAT_FIX
+    move.w  #0,eiffel_ignore
+	move.l	-4(a0),d0			; replace kbvec
+	move.l	d0,kbvec_old
+	move.l	#kbvec_new,-4(a0)
+ENDIF
+
+	move.l	#0,eiffel_data+0
+	move.l	#0,eiffel_data+4
 	move.l	12(a0),d0			; replace statvec
 	move.l	d0,statvec_old
 	move.l	#statvec_new,12(a0)
