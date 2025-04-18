@@ -1,3 +1,6 @@
+Compiles with GPASM from GPUTILS: https://gputils.sourceforge.io/
+
+
 ## Eiffel firmware v1.10.2-raven_A1
 
 Firmware for Raven rev.A1 boards, based on v1.10.1-Mq_fixedFire_noLcd
@@ -15,4 +18,5 @@ http://www.atari.org.pl/forum/viewtopic.php?id=19470
 Original Eiffel schematics, firmware and control software:
 
 http://didier.mequignon.free.fr/eiffel-e.htm
+
 
