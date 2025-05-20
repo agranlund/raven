@@ -37,6 +37,7 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - i2c expansion header
 - get rid of old ym pins expansion header
 - vs1053 dsp, or suitable expansion header to allow it as expansion later
+- software controlled power-off (gpio pin tbd)
 - (maybe) change IDE connector to big endian byte order
 
 ## Optional / non-critical:
