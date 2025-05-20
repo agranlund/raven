@@ -38,6 +38,7 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - get rid of old ym pins expansion header
 - vs1053 dsp, or suitable expansion header to allow it as expansion later
 - software controlled power-off (gpio pin tbd)
+- separate cs signals for 68150 and buffers
 - (maybe) change IDE connector to big endian byte order
 
 ## Optional / non-critical:
