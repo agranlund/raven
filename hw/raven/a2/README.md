@@ -29,6 +29,15 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - (wip) Added pullups on MC68150 data bus
 - (wip) Added cpu-temperature sensor
 
+## Planned:
+- replace 2xPS2 connector with 2xUSB+Ethernet
+- ch559 based eiffel replacement
+- w5100s ethernet controller
+- i2c eprom with preprogrammed mac address
+- i2c expansion header
+- get rid of old ym pins expansion header
+- vs1053 dsp, or suitable expansion header to allow it as expansion later
+- (maybe) change IDE connector to big endian byte order
 
 ## Optional / non-critical:
 - Pushbuttons:     SW101, SW201, SW202
@@ -50,17 +59,4 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
 
 ## Untested:
-
-
-## Todo:
-
-- route spare uart1 GPI to jumpers for bios settings
-  (CTSA, DSRA, CDA, RIA)
-- route spare uart1 GPO to jumper?
-  (RTSA)
-- uart1 interrupts, use RXRDYA instead of or in combination with /IRQ ?
-- pullups on 68150 databus
-- IDE connector:
-  - 40 instead of 44 pin?
-  - or female idc pinout on motherboard?
 
