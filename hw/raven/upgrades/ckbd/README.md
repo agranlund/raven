@@ -1,5 +1,7 @@
 
 # Eiffel upgrade module for Raven.A1
+### *** WIP. This particular version has not yet been built and firmware is still in development ***
+
 - Plugs into the Eiffel socket instead of Eiffel.
 - Retains support for PS/2 mouse+keyboard, joystick and motherboard temperature sensor.
 - Adds USB mouse and keyboard support on an internal USB header.
@@ -7,6 +9,7 @@
 - Adds support for reading CPU temperature (*)
 - Adds support for software controlled shutdown (*)
 
+![Alt text](ckbd.png?raw=true "")
 
 (*) Features marked with an asterix requires soldering patch wires on the motherboard.
 All solder points are available on through hole components and can be done on the underside of the motherboard.
