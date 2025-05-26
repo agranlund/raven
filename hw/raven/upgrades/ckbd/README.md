@@ -7,6 +7,7 @@
 - Adds support for reading CPU temperature (*)
 - Adds support for software controlled shutdown (*)
 
+![Alt text](ckbd.png?raw=true "")
 
 (*) Features marked with an asterix requires soldering patch wires on the motherboard.
 All solder points are available on through hole components and can be done on the underside of the motherboard.
