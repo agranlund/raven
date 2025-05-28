@@ -30,6 +30,7 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 ## Planned:
 - replace 2xPS2 connector with 2xUSB+Ethernet
 - ch559 based eiffel replacement
+- 4 port usb hub for additional internal headers
 - w5100s ethernet controller
 - i2c eprom with preprogrammed mac address
 - i2c expansion header
