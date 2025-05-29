@@ -378,9 +378,11 @@ static void srec_s7(uint32_t address_offset, uint32_t low_address, uint32_t high
             cpu_Call(address);
         }
     }
-
-    // otherwise we just received something to be flashed...
-    flash_Program((void*)srec_mem_start, (high_address - low_address));
+    else
+    {
+        // otherwise we just received something to be flashed...
+        flash_Program((void*)srec_mem_start, (high_address - low_address));
+    }
 }
 
 static void cmdSrec(int args, char* argv[])
