@@ -49,7 +49,7 @@ https://www.exxosforum.co.uk/atari/store2/#0132
 40-pin breakaway strips can be found here:
 https://www.exxosforum.co.uk/atari/store2/#0158
 
-(3) SN74LVC1G34DBVRG4 is optional.
+(3) 74LVC1G34 is optional.
 It is for an option to drive CH559 from an external oscillator rather than the internal one.
 The internal oscillator has been working well for me.
 

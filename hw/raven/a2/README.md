@@ -24,19 +24,20 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - BOM: Replaced PLCC84 socket for U108 with black part
 - BOM: Replaced buttons SW101,SW201,SW202 with black parts
 - BOM: Changed C310 to 0.1uF (was 0.01uF)
-- Status of power button can be read from cpu
-- (wip) Exposed uart spare gpio
-- (wip) Added pullups on MC68150 data bus
-- (wip) Added cpu-temperature sensor
+- Small pad for soldering top of Y402 to board
+- Added pullups on MC68150 data bus
 
 ## Planned:
 - replace 2xPS2 connector with 2xUSB+Ethernet
 - ch559 based eiffel replacement
+- 4 port usb hub for additional internal headers
 - w5100s ethernet controller
 - i2c eprom with preprogrammed mac address
 - i2c expansion header
 - get rid of old ym pins expansion header
 - vs1053 dsp, or suitable expansion header to allow it as expansion later
+- cpu temperature sensor
+- Status of power button can be read from cpu
 - software controlled power-off (gpio pin tbd)
 - separate cs signals for 68150 and buffers
 - (maybe) change IDE connector to big endian byte order
