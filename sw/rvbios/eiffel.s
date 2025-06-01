@@ -33,10 +33,11 @@ IFNE KEYREPEAT_FIX
 eiffel_ignore:  ds.w    1
 ENDIF
 eiffel_data:	ds.b	2
-eiffel_temp:	ds.b	6
+eiffel_temp:	ds.b	6       ; eiffel temperature (board)
+eiffel_temp2:   ds.b    6       ; ckbd temperature (cpu)
+eiffel_info:    ds.b    6       ; ckbd version
 
 	.TEXT
-
 
 ;----------------------------------------------------------
 ;
@@ -66,21 +67,27 @@ ENDIF
 statvec_old:
 	DC.L 0
 statvec_new:
-	cmp.b	#3,(a0)
-	bne.s	.1
-	movem.l	a0-a1,-(sp)
-	move.l	#eiffel_temp,a1
-	addq.l	#1,a0
-	move.b	(a0)+,(a1)+
-	move.b	(a0)+,(a1)+
-	move.b	(a0)+,(a1)+
-	move.b	(a0)+,(a1)+
-	move.b	(a0)+,(a1)+
-	move.b	(a0)+,(a1)+
-	movem.l	(sp)+,a0-a1
-.1:	move.l	statvec_old,-(sp)	; old vec
-	rts
+    ; prepare jump to old statvec handler
+    move.l	statvec_old,-(sp)
 
+    ; eiffel temperature message (board)
+	cmp.b	#0x03,(a0)
+    bne.b   .1
+    move.l  1(a0),eiffel_temp+0
+    move.w  5(a0),eiffel_temp+0+4
+    rts
+    ; ckbd temperature message (cpu)
+.1: cmp.b   #0x2A,(a0)
+    bne.b   .2
+    move.l  1(a0),eiffel_temp+6
+    move.w  5(a0),eiffel_temp+6+4
+    rts
+    ; ckbd version info
+.2: cmp.b   #0x2C,(a0)
+    bne.b   .3
+    move.l  1(a0),eiffel_temp+12
+    move.w  5(a0),eiffel_temp+12+4
+.3: rts
 
 
 ;----------------------------------------------------------
