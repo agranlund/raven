@@ -32,6 +32,9 @@ sw/isa/drivers/*/*.prg
 sw/isa/drivers/picogus/pgusinit/*.prg
 sw/tools/setenv/*
 sw/tools/autoexec/*
+sw/tools/flash/*.ttp
+sw/tools/serial.cpx/*.cpx
+sw/tools/serial.cpx/*.bin
 local/*
 sw/rvga/*
 sw/purec/m68k-atari-tos-pc-*
