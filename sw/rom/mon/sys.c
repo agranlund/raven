@@ -103,6 +103,8 @@ bool sys_Init()
     //printf("FLASH: %08x\n", flash_Identify());
     putchar('\n');
 
+    const bool safemode = false;
+
     initprint("InitHeap");
     mem_Init();
 
@@ -110,31 +112,37 @@ bool sys_Init()
     uart_Init();
 
     initprint("InitIkbd");
-    ikbd_Init();
+    ikbd_Init(IKBD_BAUD_7812);
 
-    initprint("InitMfp");
-    mfp_Init();
+    if (!safemode)
+    {
+        initprint("InitMfp");
+        mfp_Init();
 
-    initprint("InitMidi");
-    midi_Init();
+        initprint("InitMidi");
+        midi_Init();
 
-    initprint("InitI2C");
-    i2c_Init();
+        initprint("InitI2C");
+        i2c_Init();
 
-    initprint("InitRtc");
-    rtc_Init();
+        initprint("InitRtc");
+        rtc_Init();
 
-    initprint("InitCfg");
-    cfg_Init();
+        initprint("InitCfg");
+        cfg_Init();
 
-    initprint("InitVbr");
-    vbr_Init();
+        initprint("InitVbr");
+        vbr_Init();
+    }
 
     initprint("InitMonitor");
     mon_Init();
 
-    initprint("InitAtari");
-    atari_Init();
+    if (!safemode)
+    {
+        initprint("InitAtari");
+        atari_Init();
+    }
 
     initprint("StartMonitor");
     mon_Start();

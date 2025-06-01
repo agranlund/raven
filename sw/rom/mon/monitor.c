@@ -3,6 +3,7 @@
 #include "hw/cpu.h"
 #include "hw/uart.h"
 #include "hw/rtc.h"
+#include "hw/ikbd.h"
 #include "hw/vga.h"
 #include "hw/flash.h"
 #include "monitor.h"
@@ -264,6 +265,33 @@ static void cmdVga(int args, char* argv[])
     }
 }
 
+
+//-----------------------------------------------------------------------
+// ikbd
+//-----------------------------------------------------------------------
+static void cmdKbd(int args, char* argv[])
+{
+    if (args < 2) {
+        puts(   "Commands:\n"
+                "  kbd info\n"
+                "  kbd prog\n"
+                "  kbd reset\n"
+        );
+    } else {
+        if (strcmp(argv[1], "info") == 0) {
+            puts("info\n");
+            ikbd_Info();
+        } else if (strcmp(argv[1], "prog") == 0) {
+            puts("prog\n");
+            ikbd_Reset(true);
+        } else if (strcmp(argv[1], "reset") == 0) {
+            puts("reset\n");
+            ikbd_Reset(false);
+        }
+    }
+}
+
+
 //-----------------------------------------------------------------------
 // flash
 //-----------------------------------------------------------------------
@@ -371,6 +399,10 @@ static void srec_s7(uint32_t address_offset, uint32_t low_address, uint32_t high
             puts("srec: S7 bad address");
             return;
         }
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
         fmt("S-record upload complete at address %p\n", address);
         if (1) {
             cpu_Call(address);
@@ -501,10 +533,12 @@ static void showHelp()
          "  d  [addr] {len}   : dump memory\n"
          "  a  [addr] {len}   : disassemble");
     if (detectTos()) { puts(
-         "  c {id} {val}      : cookie (TOS)"); }
+         "  c {id} {val}      : cookie (TOS)");
+    }
     puts(
          "  rtc {clear/reset} : dump/clear/reset rtc\n"
          "  vga {cmd} {opt}   : screen commands\n"
+         "  kbd {cmd} {opt}   : ikbd commands\n"
          "  cfg {opt} {val}   : list/get/set option\n"
          "  run [addr]        : call program at address\n"
          "  flash             : flash rom image over serial\n"
@@ -566,6 +600,7 @@ uint16_t mon_Parse(regs_t* regs)
         else if (strcmp(argv[0], "rtc") == 0)       { cmdRtc(args, argv); }
         else if (strcmp(argv[0], "cfg") == 0)       { cmdCfg(args, argv); }
         else if (strcmp(argv[0], "vga") == 0)       { cmdVga(args, argv); }
+        else if (strcmp(argv[0], "kbd") == 0)       { cmdKbd(args, argv); }
         else if (strcmp(argv[0], "run") == 0)       { cmdRun(args, argv); }
         else if (strncmp(argv[0], "S0", 2) == 0)    { cmdSrec(args, argv); }
         else                                        { showHelp(); }

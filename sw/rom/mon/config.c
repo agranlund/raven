@@ -14,12 +14,11 @@ static const cfg_entry_t* cfgs[CFG_MAX];
 static uint32_t cfgcnt = 0;
 static bool cfgvalid = false;
 
-
 const cfg_entry_t confs[] = {
     { "st_ram_size",    0,  0, 0x30, 3, 0, 0, 4, 0},
     { "st_ram_cache",   0,  0, 0x31, 2, 0, 0, 3, 0},
     { "tt_ram_cache",   0,  0, 0x31, 2, 2, 0, 3, 0},
- 
+    { "ikbd_baud",      0,  0, 0x32, 4, 0, 0, 7, 0 },
     { "cpuflags",       0,  0, 0x3A, 6, 0, 0, 0x3F, 0x3F },
     { "boot_enable",    0,  0, 0x3B, 1, 0, 0, 1,    1 },
     { "boot_delay",     0,  0, 0x3B, 4, 4, 0, 15,   0 },
