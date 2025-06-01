@@ -1,4 +1,4 @@
-# CHKBD
+# CKBD
 ## Eiffel replacement for Raven
 
 ## **** WIP and not ready for general use ****
