@@ -371,10 +371,8 @@ static void srec_s7(uint32_t address_offset, uint32_t low_address, uint32_t high
             puts("srec: S7 bad address");
             return;
         }
+        fmt("S-record upload complete at address %p\n", address);
         if (1) {
-            fmt("S-record upload complete at address %p\n", address);
-        } else {
-            fmt("S-record upload complete, jumping to %p...\n\n", address);
             cpu_Call(address);
         }
     }
