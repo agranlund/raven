@@ -27,12 +27,12 @@ STARTFILE	:= $(SWDIR)/rom/srec/start.o
 SFILES		:= $(wildcard *.S) \
             rom/mon/hw/asm.S
 			
-           
+          
 CFILES		:= $(wildcard *.c) \
 			rom/mon/lib.c \
 			rom/mon/hw/uart.c
 
-OFILES		= $(SFILES:%.S=%.o) $(CFILES:%.c=%.o)
+OFILES		= $(SFILES:%.S=%.o) $(CFILES:%.c=%.o) $(EXTRA_OFILES)
 
 DEPS		= $(MAKEFILE_LIST) $(LDFILE)
 
