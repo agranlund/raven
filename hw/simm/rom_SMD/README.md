@@ -5,7 +5,6 @@
 
 Current revision: [A0](a0/)
 
-
 Chip suggestions for 1MB:
 * SST39LF400A
 * SST39LF401C  <-- tested
@@ -26,7 +25,9 @@ The SIMM board as well as Raven supports up to 16MB rom.
 Important:
 
 - Revision A0 can only support WORD roms.
-Chips that has BYTE/WORD select does not work due to pin47 being unconnected.
+Chips with BYTE/WORD select will not work because pin47 is not connected.
+
+- Revision A1 is done but has not yet been built and tested.
 
 - As of today, the Raven bus controller assume 55ns or faster ROMS.
 This may change in the future to allow a larger selection of rom chips to be used.
