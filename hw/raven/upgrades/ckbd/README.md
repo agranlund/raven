@@ -11,7 +11,7 @@
 
 ### Firmware:
 * binary (todo link binary)
-* [sourcecode](../../fw/ckbd/) 
+* [sourcecode](../../../../fw/ckbd/) 
 
 
 ![Alt text](ckbd.png?raw=true "")
