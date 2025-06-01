@@ -12,6 +12,13 @@
 // HID to PS2 before passing the data over here.
 //
 // Compatible with Eiffel (set3) keyboard usertables
+//
+// todo:
+//  - is joy1-fire/rmb exclusive to the selected mode or does it
+//    go to both regardless of mouse/joystick mode?
+//  - test all the different modes and fix bugs
+//  - implement the many remaining sections marked with "todo"
+//
 //---------------------------------------------------------------------
 #include <stdio.h>
 #include <string.h>
@@ -499,6 +506,7 @@ void ProcessIkbd(void)
     const uint32_t report_ms = 8;
     if (elapsed(report_time) >= report_ms) {
         report_time = msnow;
+        ProcessJoysticks();
         ProcessMouse();
     }
 
