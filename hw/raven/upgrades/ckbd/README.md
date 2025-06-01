@@ -9,6 +9,10 @@
 - Adds support for reading CPU temperature (*)
 - Adds support for software controlled shutdown (*)
 
+Firmware binary (todo link binary)
+[Firmware sourcecode](../../fw/ckbd/) 
+
+
 ![Alt text](ckbd.png?raw=true "")
 
 (*) Features marked with an asterix requires soldering patch wires on the motherboard.
