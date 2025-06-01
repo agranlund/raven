@@ -11,6 +11,7 @@ CHKBD aims to be fairly compatible with Eiffel and allows the use of the followi
 * Amiga mouse
 
 Raven.A2 has the necessary hardware already on the motherboard.
+
 Older revisions can use an [upgrade board](../../hw/raven/upgrades/ckbd/) that plugs into the Eiffel port.
 Two USB ports are then exposed on an internal header.
 
