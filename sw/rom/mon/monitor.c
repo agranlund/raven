@@ -399,10 +399,7 @@ static void srec_s7(uint32_t address_offset, uint32_t low_address, uint32_t high
             puts("srec: S7 bad address");
             return;
         }
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
         fmt("S-record upload complete at address %p\n", address);
         if (1) {
             cpu_Call(address);
