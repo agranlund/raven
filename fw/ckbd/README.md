@@ -1,6 +1,8 @@
 # CHKBD
 ## Eiffel replacement for Raven
 
+## **** WIP and not ready for general use ****
+
 CHKBD aims to be fairly compatible with Eiffel and allows the use of the following devices:
 * USB Keyboard and mouse
 * PS2 Keyboard and mouse
