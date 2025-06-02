@@ -252,17 +252,21 @@ void InitIkbdState(void)
     rbufwr = 0;
 }
 
-void InitIkbd(void)
-{
+void InitIkbdEx(uint32_t baud) {
     TRACE("InitIkbd");
     InitIkbdState();
-    CH559UART1Init(BAUD_IKBD);
+    CH559UART1Init(baud);
     uint8_t lcr = SER1_LCR;         // unlock ier register
     SER1_LCR &= ~bLCR_DLAB;
     SER1_IER |= bIER_RECV_RDY;      // interrupt on recieve
     SER1_LCR = lcr;                 // restore lock
     SER1_MCR |= bMCR_OUT2;          // enable interrupt requests
     IE_UART1 = 1;                   // enable uart1 interrupts
+}
+
+void InitIkbd(void)
+{
+    InitIkbdEx(BAUD_IKBD);
 }
 
 void ResetIkbd(void)
@@ -1075,23 +1079,31 @@ bool cmd_0x03(uint8_t* data, uint8_t size) {        // IKBD_CMD_EIFFEL_GET_TEMP
 bool cmd_0x04(uint8_t* data, uint8_t size) {        // IKBD_CMD_EIFFEL_PROG_TEMP
     uint8_t idx = data[1];
     uint8_t val = data[2];
-    if (idx == 0) {
-        Settings.EiffelTemp[0].High = val;
-    } else if (idx == 1) {
-        Settings.EiffelTemp[0].Low = val;
-    } else if (idx < 26) {
-        idx -= 2;
-        if (idx & 1) {
-            Settings.EiffelTemp[0].Temp[idx >> 1] = val;
-        } else {
-            Settings.EiffelTemp[0].Rctn[idx >> 1] = val;
-        }
+    uint8_t dev = 0;
+    // temp sensor index
+    while (idx >= 26) {
+        idx -= 26;
+        dev++;
     }
-    Settings.Changed++;
+    // change setting
+    if (dev < 2) {
+        if (idx == 0) {
+            Settings.EiffelTemp[dev].High = val;
+        } else if (idx == 1) {
+            Settings.EiffelTemp[dev].Low = val;
+        } else if (idx < 26) {
+            idx -= 2;
+            if (idx & 1) {
+                Settings.EiffelTemp[dev].Temp[idx >> 1] = val;
+            } else {
+                Settings.EiffelTemp[dev].Rctn[idx >> 1] = val;
+            }
+        }
+        Settings.Changed++;
+    }
     return true;
 }
 bool cmd_0x05(uint8_t* data, uint8_t size) {        // IKBD_CMD_EIFFEL_PROG_KEY
-    // todo
     uint8_t idx = data[1];
     uint8_t val = data[2];
     if ((idx < 0x90) && (val < 0x80)) {
@@ -1104,7 +1116,6 @@ bool cmd_0x05(uint8_t* data, uint8_t size) {        // IKBD_CMD_EIFFEL_PROG_KEY
     return true;
 }
 bool cmd_0x06(uint8_t* data, uint8_t size) {        // IKBD_CMD_EIFFEL_PROG_MOUSE
-    // todo
     uint8_t idx = data[1];
     uint8_t val = data[2];
     if (idx < 8) {
@@ -1137,37 +1148,66 @@ bool cmd_0x23(uint8_t* data, uint8_t size) {        // IKBD_CMD_EIFFEL_LCD
 
 //---------------------------------------------------------------------
 // CKBD commands
+//
+// todo: hook into eiffels prog_temp, prog_setting instead
+//       just use higher idx values.
+//
 //---------------------------------------------------------------------
-bool cmd_0x2A(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_PROG_TEMP
-    // todo
-    // idx = data[1];
-    // val = data[2];
+bool cmd_0x2A(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_READ_SETTING
+    uint8_t idx = data[1];
+    if (idx < sizeof(settings_t)) {
+        uint8_t* dst = (uint8_t*)&Settings;
+        ikbd_Send(IKBD_REPORT_STATUS);
+        ikbd_Send(IKBD_CKBD_STATUS_SETTING);
+        ikbd_Send(0x00);
+        ikbd_Send(idx);
+        ikbd_Send(dst[idx+0]);
+        ikbd_Send(dst[idx+1]);
+        ikbd_Send(dst[idx+2]);
+        ikbd_Send(dst[idx+3]);
+    }
     return true;
 }
 bool cmd_0x2B(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_PROG_SETTING
     uint8_t idx = data[1];
     uint8_t val = data[2];
-    if ((idx == 0xff) && (val == 0xff)) {
-        // reset all settings to default
-        InitSettings(true);
+    if (idx == 0xFF) {
+        if (val == 0x5A) {
+            InitSettings(true);     // ff,5A = restore to defaults
+        } else {
+            SyncSettings(true);     // ff,00 = save settings
+        }
+    }
+    else if (idx == 0xFE) {
+        // change baudrate and reset ikbd
+        InitIkbdEx(ikbd_baudrates[val&7]);
+    }
+    else if (idx < sizeof(settings_t)) {
+        uint8_t* dst = (uint8_t*)&Settings;
+        dst[idx] = val;
     }
     return true;
 }
 bool cmd_0x2C(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_PROG_FIRMWARE
-    // todo
-    return true;
-}
-bool cmd_0x2D(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_BOOTLOADER
-    bool bootloader = (data[1] != 0) ? true : false;
-    reset(bootloader);
+    // todo: we could possibly hook into eiffels
+    // method for consistency
     return true;
 }
 bool cmd_0x2E(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_RESET
-    // unsupported
+    if (data[1] == 0x5A) {
+        reset(true);                // 5A : reset to bootloader
+    } else {
+        reset(false);               // xx : reset normally
+    }
     return true;
 }
-bool cmd_0x2F(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_POWEROFF
-    // todo
+bool cmd_0x2F(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_POWER
+    uint8_t val = data[1];
+    if (val == 0) {
+        // todo: system reset
+    } else {
+        // todo: system power off
+    }
     return true;
 }
 
@@ -1241,12 +1281,12 @@ const ikbd_cmd_t hostcommands_0x20[16] = {
     {0, cmd_null},      // 0x27 :
     {0, cmd_null},      // 0x28 :
     {0, cmd_null},      // 0x29 : 
-    {2, cmd_0x2A},      // 0x2A : IKBD_CMD_CKBD_PROG_TEMP
+    {1, cmd_0x2A},      // 0x2A : IKBD_CMD_CKBD_READ_SETTING
     {2, cmd_0x2B},      // 0x2B : IKBD_CMD_CKBD_PROG_SETTING
     {0, cmd_0x2C},      // 0x2C : IKBD_CMD_CKBD_PROG_FIRMWARE
-    {1, cmd_0x2D},      // 0x2D : IKBD_CMD_CKBD_BOOTLOADER
-    {0, cmd_0x2E},      // 0x2E : IKBD_CMD_CKBD_RESET
-    {0, cmd_0x2F},      // 0x2F : IKBD_CMD_CKBD_POWEROFF
+    {0, cmd_null},      // 0x2D :
+    {1, cmd_0x2E},      // 0x2E : IKBD_CMD_CKBD_RESET
+    {1, cmd_0x2F},      // 0x2F : IKBD_CMD_CKBD_POWER
 };
 const ikbd_cmd_t hostcommands_0x80[16] = {
     {1, cmd_0x80},      // 0x80 : IKBD_CMD_RESET

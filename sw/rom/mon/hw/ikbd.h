@@ -28,8 +28,13 @@ uint8_t     ikbd_recv();
 
 uint32_t    ikbd_Info();
 void        ikbd_Reset();
-void        ikbd_HardReset(bool bootloader);    // ckbd only
-void        ikbd_ClearSettings();               // ckbd only
+
+// --- ckbd only ---
+void        ikbd_HardReset(bool bootloader);
+void        ikbd_ClearSettings();
+void        ikbd_SaveSettings();
+void        ikbd_ReadSetting(uint8_t idx);
+void        ikbd_WriteSetting(uint8_t idx, uint8_t val);
 
 #endif //!__ASM__
 #endif // _IKBD_H_

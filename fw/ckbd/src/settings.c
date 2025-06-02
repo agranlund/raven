@@ -67,8 +67,6 @@ void InitSettings(bool SafeMode)
         Settings.Magic = SETTINGS_MAGIC;
         Settings.Version = SETTINGS_VERSION;
         Settings.Changed = 0;
-        Settings.BaudDebug = BAUD_DEBUG;
-        Settings.BaudIkbd = BAUD_IKBD;
 
         Settings.UsbMouseScale = FIXED16(1.0);
         Settings.UsbWheelScale = FIXED16(1.0);

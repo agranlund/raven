@@ -296,19 +296,18 @@ static inline int16_t ScaleToIkbd(int16_t v, uint16_t s) {
 //--------------------------------------------------
 // ckbd command extensions
 //--------------------------------------------------
-#define IKBD_CMD_CKBD_PROG_TEMP             0x2A
+#define IKBD_CMD_CKBD_READ_SETTING          0x2A
 #define IKBD_CMD_CKBD_PROG_SETTING          0x2B    /* <settings...> */
 #define IKBD_CMD_CKBD_PROG_FIRMWARE         0x2C
-#define IKBD_CMD_CKBD_BOOTLOADER            0x2D
 #define IKBD_CMD_CKBD_RESET                 0x2E
-#define IKBD_CMD_CKBD_POWEROFF              0x2F
+#define IKBD_CMD_CKBD_POWER                 0x2F
 
 //--------------------------------------------------
 // ckbd status command identifiers
 //--------------------------------------------------
 #define IKBD_CKBD_STATUS_TEMP               0x2A
-#define IKBD_CKBD_STATUS_SETTING            0x2B
-#define IKBD_CKBD_STATUS_VERSION            0x2C
+#define IKBD_CKBD_STATUS_VERSION            0x2B
+#define IKBD_CKBD_STATUS_SETTING            0x2C
 
 
 #endif /* __IKBD_H__ */

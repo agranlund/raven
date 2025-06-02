@@ -25,29 +25,26 @@ typedef struct
 
 typedef struct
 {
-    uint32_t Magic;
-    uint32_t Version;
-    uint32_t Changed;
-
-    uint32_t BaudDebug;
-    uint32_t BaudIkbd;
-
-    fuint16_t   PS2MouseScale;
-    fuint16_t   PS2WheelScale;
-    fuint16_t   UsbMouseScale;
-    fuint16_t   UsbWheelScale;
-    fuint16_t   LegacyMouseScale;
-
-    uint8_t UsbKeyboardReportMode : 1;      // usb keyboard boot or report mode
-    uint8_t UsbMouseReportMode : 1;         // usb mouse boot or report mode
-    uint8_t LegacyMouseAmiga : 1;           // atari or amiga mouse
-
-    uint8_t CoreTempShutdown;               // abbbbbbb. a = enable, b = temp (0-127)
-    uint8_t FanControl0 : 2;
-    uint8_t FanControl1 : 2;
-    settings_eiffel_temp_t EiffelTemp[2];   // eiffel temperature tables
-    settings_eiffel_mouse_t EiffelMouse;    // eiffel mouse settings
-    uint8_t EiffelKeymap[0x90];             // eiffel keyboard usertable
+/* 0x00 */  uint32_t Magic;
+/* 0x04 */  uint32_t Version;
+/* 0x08 */  uint32_t Changed;
+            uint8_t pad0C[4];
+/* 0x10 */  fuint16_t PS2MouseScale;
+/* 0x12 */  fuint16_t PS2WheelScale;
+/* 0x14 */  fuint16_t UsbMouseScale;
+/* 0x16 */  fuint16_t UsbWheelScale;
+/* 0x18 */  fuint16_t LegacyMouseScale;
+            uint8_t pad1A[6];
+/* 0x20 */  uint8_t UsbKeyboardReportMode;          // usb keyboard boot or report mode
+/* 0x21 */  uint8_t UsbMouseReportMode;             // usb mouse boot or report mode
+/* 0x22 */  uint8_t LegacyMouseAmiga;               // atari or amiga mouse
+/* 0x23 */  uint8_t CoreTempShutdown;               // abbbbbbb. a = enable, b = temp (0-127)
+/* 0x24 */  uint8_t FanControl0;
+/* 0x25 */  uint8_t FanControl1;
+            uint8_t pad26[10];
+/* 0x30 */  settings_eiffel_mouse_t EiffelMouse;    // eiffel mouse settings
+/* 0x38 */  settings_eiffel_temp_t EiffelTemp[2];   // eiffel temperature tables
+/* 0x6C */  uint8_t EiffelKeymap[0x90];             // eiffel keyboard usertable
 
 } settings_t;
 

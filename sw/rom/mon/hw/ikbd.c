@@ -239,34 +239,8 @@ uint8_t ikbd_recv()
 
 
 //-----------------------------------------------------------------------
-void ikbd_Reset(void)
+uint32_t ikbd_Info(void)
 {
-    ikbd_send(0x80);
-    ikbd_send(0x01);
-}
-
-void ikbd_HardReset(bool bootloader)
-{
-    if (!ckbd_version()) {
-        printf("requires ckbd controller\n");
-    } else {
-        ikbd_send(0x2D);
-        ikbd_send(bootloader ? 0x01 : 0x00);
-    }
-}
-
-void ikbd_ClearSettings(void)
-{
-    if (ckbd_version()) {
-        ikbd_send(0x2B);    // prog_settings
-        ikbd_send(0xFF);    // 0xff, 0xff
-        ikbd_send(0xFF);    // restores all settings to default
-    } else {
-        printf("requires ckbd controller\n");
-    }
-}
-
-uint32_t ikbd_Info(void) {
     if (ckbd_version()) {
         printf("CKBD.%08x %dbps\n", ikbd_version, ikbd_baud_regs[ikbd_baud].speed);
     } else if (eiffel_version()) {
@@ -276,3 +250,87 @@ uint32_t ikbd_Info(void) {
     }
     return ikbd_version;
 }
+
+void ikbd_Reset(void)
+{
+    ikbd_send(0x80);
+    ikbd_send(0x01);
+}
+
+//-----------------------------------------------------------------------
+void ikbd_HardReset(bool bootloader)
+{
+    if (!ckbd_version()) {
+        printf("requires ckbd controller\n");
+    } else {
+        ikbd_send(0x2E);
+        ikbd_send(bootloader ? 0x5A : 0x00);
+    }
+}
+
+void ikbd_WriteSetting(uint8_t idx, uint8_t val) {
+    if (ckbd_version()) {
+        ikbd_send(0x2B);
+        ikbd_send(idx);
+        ikbd_send(val);
+    } else {
+        printf("requires ckbd controller\n");
+    }
+}
+
+void ikbd_ReadSetting(uint8_t idx) {
+    if (ckbd_version()) {
+        // pause ikbd and wait for silence
+        ikbd_send(0x13);
+        sys_Delay(100);
+        while (ikbd_rxrdy()) {
+            ikbd_recv();
+            sys_Delay(100);
+        }
+        // request setting
+        ikbd_send(0x2A);
+        ikbd_send(idx);
+        // retrieve up to 8 bytes with timeout
+        uint32_t silent = 0;
+        uint8_t infosize = 0;
+        uint8_t infodata[8];
+        while ((infosize < 8) && (silent < 100000)) {
+            silent++;
+            if (ikbd_rxrdy()) {
+                silent = 0;
+                infodata[infosize++] = ikbd_recv();
+            }
+        }
+        // resume ikbd and wait for silence
+        ikbd_send(0x11);
+        sys_Delay(100);
+        while (ikbd_rxrdy()) {
+            ikbd_recv();
+            sys_Delay(100);
+        }
+        //printf("%02x %02x %02x %02x %02x %02x %02x %02x\n", infodata[0], infodata[1], infodata[2], infodata[3], infodata[4], infodata[5], infodata[6], infodata[7]);
+        if ((infodata[0] == 0xF6) && (infodata[1] == 0x2C)) {
+            printf("%02x : %02x %02x %02x %02x\n", infodata[3], infodata[4], infodata[5], infodata[6], infodata[7]);
+        } else {
+            printf("fail [%02x%02x%02x%02x%02x%02x%02x%02x]\n", infodata[0], infodata[1], infodata[2], infodata[3], infodata[4], infodata[5], infodata[6], infodata[7]);
+        }
+    } else {
+        printf("requires ckbd controller\n");
+    }
+}
+
+void ikbd_ClearSettings(void)
+{
+    ikbd_WriteSetting(0xFF, 0x5A);
+}
+
+void ikbd_SaveSettings(void)
+{
+    ikbd_WriteSetting(0xFF, 0x00);
+}
+
+void ikbd_TargetBaud(uint8_t baud)
+{
+    ikbd_WriteSetting(0xFE, baud&7);
+}
+

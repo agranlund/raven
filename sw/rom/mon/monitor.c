@@ -274,14 +274,20 @@ static void cmdKbd(int args, char* argv[])
     if (args < 2) {
         puts(   "Commands:\n"
                 "  kbd info\n"
+                "  kbd get <idx>\n"
+                "  kbd set <idx> <val>\n"
+                "  kbd clear\n"
                 "  kbd reset\n"
                 "  kbd hardreset\n"
-                "  kbd clear\n"
                 "  kbd prog\n"
         );
     } else {
         if (strcmp(argv[1], "info") == 0) {
             ikbd_Info();
+        } else if ((strcmp(argv[1], "get") == 0) && (args > 2)){
+            ikbd_ReadSetting(strtoi(argv[2]));
+        } else if ((strcmp(argv[1], "set") == 0) && (args > 3)){
+            ikbd_WriteSetting(strtoi(argv[2]), strtoi(argv[3]));
         } else if (strcmp(argv[1], "reset") == 0) {
             ikbd_Reset(0);
         } else if (strcmp(argv[1], "hardreset") == 0) {
