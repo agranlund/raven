@@ -129,6 +129,15 @@ static volatile uint8_t rbufwr;
 static inline uint8_t   rbuf_avail(void) { return (rbufwr >= rbufrd) ? (rbufwr - rbufrd) : (1 + rbufwr + (ikbd_rbufmask - rbufrd)); }
 static inline uint8_t   rbuf_get(void) { uint8_t d = rbuf[rbufrd]; rbufrd = ((rbufrd + 1) & ikbd_rbufmask); return d; }
 
+uint8_t rbuf_getblocking(void) {
+    while (1) {
+        SoftWatchdog = 0;
+        if (rbuf_avail()) {
+            return rbuf_get();
+        }
+    }
+}
+
 static inline bool      wbuf_avail(uint8_t c)   { return (eventqueue_pos < (EVENT_QUEUE_SIZE - c)); }
 static inline void      wbuf_put(uint8_t b)     { eventqueue[eventqueue_pos++] = b; }
 
@@ -139,6 +148,7 @@ static inline void ikbd_Send(unsigned char b) {
 }
 
 void ikbd_QueueKey(uint8_t b) {
+    //TRACE("qkey: %02x", b);
     if (wbuf_avail(1)) {
         wbuf_put(b);
     }
@@ -509,14 +519,14 @@ void ProcessMouse(void) {
     #define mbtn_changed(x)         ((btns&(1<<(x))) != (btns_old&(1<<(x))))
     #define eiffel_code_valid(x)    ((x > 0x00) & (x < 0x80))
     if (((ikbd.mouse.action & (1 << 2)) || (ikbd.mouse.mode == MOUSE_MODE_KEYCODE))) {
-        if (mbtn_changed(0)) { ikbd_QueueKey(0x74 | mbtn_down(0) ? 0x00 : 0x80); }
-        if (mbtn_changed(1)) { ikbd_QueueKey(0x75 | mbtn_down(1) ? 0x00 : 0x80); }
+        if (mbtn_changed(0)) { ikbd_QueueKey(mbtn_down(0) ? 0x74 : 0x74 | 0x80); }
+        if (mbtn_changed(1)) { ikbd_QueueKey(mbtn_down(1) ? 0x75 : 0x75 | 0x80); }
     }
  
     // eiffel buttons 3,4,5
-    if (mbtn_changed(2) && eiffel_code_valid(Settings.EiffelMouse.Button3)) { ikbd_QueueKey(Settings.EiffelMouse.Button3 | mbtn_down(2) ? 0x00 : 0x80); }
-    if (mbtn_changed(3) && eiffel_code_valid(Settings.EiffelMouse.Button4)) { ikbd_QueueKey(Settings.EiffelMouse.Button4 | mbtn_down(3) ? 0x00 : 0x80); }
-    if (mbtn_changed(4) && eiffel_code_valid(Settings.EiffelMouse.Button5)) { ikbd_QueueKey(Settings.EiffelMouse.Button5 | mbtn_down(4) ? 0x00 : 0x80); }
+    if (mbtn_changed(2) && eiffel_code_valid(Settings.EiffelMouse.Button3)) { ikbd_QueueKey(mbtn_down(2) ? Settings.EiffelMouse.Button3 : Settings.EiffelMouse.Button3 | 0x80); }
+    if (mbtn_changed(3) && eiffel_code_valid(Settings.EiffelMouse.Button4)) { ikbd_QueueKey(mbtn_down(3) ? Settings.EiffelMouse.Button4 : Settings.EiffelMouse.Button4 | 0x80); }
+    if (mbtn_changed(4) && eiffel_code_valid(Settings.EiffelMouse.Button5)) { ikbd_QueueKey(mbtn_down(4) ? Settings.EiffelMouse.Button5 : Settings.EiffelMouse.Button5 | 0x80); }
 
     // eiffel scrollwheel
     int16_t wheely = (mouse_state.zrel >> 8) * Settings.EiffelMouse.WheelRepeat;
@@ -834,14 +844,33 @@ bool cmd_0x1C(uint8_t* data, uint8_t size) {        // IKBD_CMD_TIME_GET
 }
 bool cmd_0x20(uint8_t* data, uint8_t size) {        // IKBD_CMD_MEM_LOAD
     // unsupported, consumes but does not store the data
+    uint16_t addr = (data[1] << 8) | data[2];
     uint8_t count = data[3];
-    uint8_t avail = rbuf_avail();
-    if (avail >= count) {
-        //uint16_t addr = (data[1] << 8) | data[2];
-        for (int i=0; i<count; i++) {
-            (void)rbuf_get();
+    if ((addr == 0) && (count == 0)) {
+        // eiffel is using this for flashing firmware
+        // consume all them bytes...
+        TRACE("Eiffel dummy prog");
+        for (int i=0; i<8192; i++) {
+            #ifdef DEBUG            
+            if ((i & 255) == 0) { TRACE("%04x", i); }
+            #endif            
+            rbuf_getblocking();
         }
+        // and the final checksum byte
+        rbuf_getblocking();
+        TRACE("Eiffel dummy prog done");
         return true;
+    }
+    else
+    {
+        // normal mem_load command.
+        uint8_t avail = rbuf_avail();
+        if (avail >= count) {
+            for (int i=0; i<count; i++) {
+                (void)rbuf_get();
+            }
+            return true;
+        }
     }
     return false;
 }
@@ -1063,15 +1092,26 @@ bool cmd_0x04(uint8_t* data, uint8_t size) {        // IKBD_CMD_EIFFEL_PROG_TEMP
 }
 bool cmd_0x05(uint8_t* data, uint8_t size) {        // IKBD_CMD_EIFFEL_PROG_KEY
     // todo
-    // idx = data[1];
-    // val = data[2];
-    // if idx is 0xff, val is set2 or set3
+    uint8_t idx = data[1];
+    uint8_t val = data[2];
+    if ((idx < 0x90) && (val < 0x80)) {
+        Settings.EiffelKeymap[idx] = val;
+        Settings.Changed++;
+    } else if(idx == 0xFF) {
+        // val selects set2 or set3
+        // which we ignore since we're always in set2
+    }
     return true;
 }
 bool cmd_0x06(uint8_t* data, uint8_t size) {        // IKBD_CMD_EIFFEL_PROG_MOUSE
     // todo
-    // idx = data[1];
-    // val = data[2];
+    uint8_t idx = data[1];
+    uint8_t val = data[2];
+    if (idx < 8) {
+        uint8_t* dst = (uint8_t*)&Settings.EiffelMouse;
+        dst[idx] = val;
+        Settings.Changed++;
+    }
     return true;
 }
 bool cmd_0x23(uint8_t* data, uint8_t size) {        // IKBD_CMD_EIFFEL_LCD
