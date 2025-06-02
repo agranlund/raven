@@ -27,6 +27,7 @@ typedef struct
 {
     uint32_t Magic;
     uint32_t Version;
+    uint32_t Changed;
 
     uint32_t BaudDebug;
     uint32_t BaudIkbd;
@@ -51,6 +52,6 @@ typedef struct
 
 extern __xdata settings_t Settings;
 extern void InitSettings(bool SafeMode);
-extern bool SyncSettings(void);
+extern bool SyncSettings(bool force);
 
 #endif

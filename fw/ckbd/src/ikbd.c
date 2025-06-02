@@ -959,8 +959,8 @@ bool cmd_0x03(uint8_t* data, uint8_t size) {        // IKBD_CMD_EIFFEL_GET_TEMP
     ikbd_Send(deg);
     ikbd_Send(adc >> 3);
     ikbd_Send((status & TEMP_STATUS_FAN0) ? 0x01 : 0x00);
-    ikbd_Send(Settings.EiffelTemp[0].Low);
     ikbd_Send(Settings.EiffelTemp[0].High);
+    ikbd_Send(Settings.EiffelTemp[0].Low);
     ikbd_Send(res);
     // temp2 (ckbd extension)
     GetTemps(1, &status, &adc, &res, &deg);
@@ -969,8 +969,8 @@ bool cmd_0x03(uint8_t* data, uint8_t size) {        // IKBD_CMD_EIFFEL_GET_TEMP
     ikbd_Send(deg);
     ikbd_Send(adc >> 3);
     ikbd_Send((status & TEMP_STATUS_FAN1) ? 0x01 : 0x00);
-    ikbd_Send(Settings.EiffelTemp[1].Low);
     ikbd_Send(Settings.EiffelTemp[1].High);
+    ikbd_Send(Settings.EiffelTemp[1].Low);
     ikbd_Send(res);
     // version (ckbd extension)
     ikbd_Send(IKBD_REPORT_STATUS);
@@ -990,9 +990,21 @@ bool cmd_0x03(uint8_t* data, uint8_t size) {        // IKBD_CMD_EIFFEL_GET_TEMP
     return true;
 }
 bool cmd_0x04(uint8_t* data, uint8_t size) {        // IKBD_CMD_EIFFEL_PROG_TEMP
-    // todo
-    // idx = data[1];
-    // val = data[2];
+    uint8_t idx = data[1];
+    uint8_t val = data[2];
+    if (idx == 0) {
+        Settings.EiffelTemp[0].High = val;
+    } else if (idx == 1) {
+        Settings.EiffelTemp[0].Low = val;
+    } else if (idx < 26) {
+        idx -= 2;
+        if (idx & 1) {
+            Settings.EiffelTemp[0].Temp[idx >> 1] = val;
+        } else {
+            Settings.EiffelTemp[0].Rctn[idx >> 1] = val;
+        }
+    }
+    Settings.Changed++;
     return true;
 }
 bool cmd_0x05(uint8_t* data, uint8_t size) {        // IKBD_CMD_EIFFEL_PROG_KEY

@@ -112,6 +112,9 @@ int main(void)
 		ProcessKeyboardLed();
         ProcessTemps();
         ProcessIkbd();
+
+        // sync settings when required
+        SyncSettings(false);
     }
 }
 

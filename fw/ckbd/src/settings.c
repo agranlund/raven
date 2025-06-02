@@ -11,7 +11,7 @@
 #include "settings.h"
 
 #define SETTINGS_MAGIC   0x434B4244      /* CKBD */
-#define SETTINGS_VERSION 0x25060101
+#define SETTINGS_VERSION 0x25060205
 
 __xdata settings_t Settings;
 
@@ -19,8 +19,31 @@ __xdata settings_t Settings;
 #define FlashSize       1024
 #define FlashSettings   ((__code settings_t*)FlashAddress)        /* 1024 bytes */
 
-bool SyncSettings(void)
+#define AutoSyncDelay   2000
+
+static uint32_t synctime;
+static uint32_t syncto;
+
+bool SyncSettings(bool force)
 {
+    // sync if changed, or forced
+    if (!force) {
+        if (Settings.Changed == FlashSettings->Changed) {
+            return true;
+        }
+        if (Settings.Changed != syncto) {
+            // each change resets the timer
+            syncto = Settings.Changed;
+            synctime = msnow;
+            return true;
+        } else {
+            // sync when x time has passed since last change
+            if (elapsed(synctime) < AutoSyncDelay) {
+                return true;
+            }
+        }
+    }
+
     TRACE("Erasing flash");
     if(CH559EraseDataFlash(FlashAddress) != 0) {
         TRACE("Flash erase failed");
@@ -39,10 +62,11 @@ void InitSettings(bool SafeMode)
     // magic value not present (or we're in safe mode), initialize flash data
     if (SafeMode || (FlashSettings->Magic != SETTINGS_MAGIC) || (FlashSettings->Version != SETTINGS_VERSION))
     {
-        TRACE("Initializing settings");
+        TRACE("Defaulting settings");
         memset(&Settings, 0x00, sizeof(settings_t));
         Settings.Magic = SETTINGS_MAGIC;
         Settings.Version = SETTINGS_VERSION;
+        Settings.Changed = 0;
         Settings.BaudDebug = BAUD_DEBUG;
         Settings.BaudIkbd = BAUD_IKBD;
 
@@ -88,10 +112,12 @@ void InitSettings(bool SafeMode)
         memcpy((void*)&Settings.EiffelMouse,   (void*)&defaultEiffelMouse,   sizeof(settings_eiffel_mouse_t));
         memcpy((void*)&Settings.EiffelTemp[0], (void*)&defaultEiffelTemp[0], sizeof(settings_eiffel_temp_t));
         memcpy((void*)&Settings.EiffelTemp[1], (void*)&defaultEiffelTemp[1], sizeof(settings_eiffel_temp_t));
-        SyncSettings();
+        SyncSettings(true);
     }
     else
     {
         memcpy(&Settings, FlashSettings, sizeof(settings_t));
     }
+    syncto = Settings.Changed;
+    synctime = msnow;
 }
