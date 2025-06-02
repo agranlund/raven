@@ -15,8 +15,8 @@
 #define IKBD_BAUD_500000    6
 #define IKBD_BAUD_1000000   7
 
-bool        ikbd_Init(uint8_t baud);
-void        ikbd_Connect(uint8_t baud);
+bool        ikbd_Init();
+uint32_t    ikbd_Connect(uint8_t baud);
 void        ikbd_GPO(uint8_t bit, bool enable);
 bool        ikbd_GPI(uint8_t bit);
 
@@ -26,8 +26,10 @@ uint16_t    ikbd_sendbuf(uint8_t* data, uint16_t count);
 bool        ikbd_send(uint8_t data);
 uint8_t     ikbd_recv();
 
-void        ikbd_Info();
-void        ikbd_Reset(bool bootloader);    /* ckbd only */
+uint32_t    ikbd_Info();
+void        ikbd_Reset();
+void        ikbd_HardReset(bool bootloader);    // ckbd only
+void        ikbd_ClearSettings();               // ckbd only
 
 #endif //!__ASM__
 #endif // _IKBD_H_

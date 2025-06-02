@@ -112,7 +112,7 @@ bool sys_Init()
     uart_Init();
 
     initprint("InitIkbd");
-    ikbd_Init(IKBD_BAUD_7812);
+    ikbd_Init();
 
     if (!safemode)
     {
@@ -140,6 +140,9 @@ bool sys_Init()
 
     if (!safemode)
     {
+        initprint("IkbdConnect");
+        ikbd_Connect(IKBD_BAUD_7812);
+
         initprint("InitAtari");
         atari_Init();
     }

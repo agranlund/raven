@@ -19,28 +19,38 @@ typedef struct
     uint8_t dlm;
     uint8_t dll;
     uint8_t dld;
-    uint8_t pad;
+    uint32_t speed;
 } ikbd_baud_regs_t;
 
 const ikbd_baud_regs_t ikbd_baud_regs[8] =
 {  //  dlm  dll  dld
-    { 0x00, 192, 0x00 },    // 7812
-    { 0x00,  96, 0x00 },    // 15625
-    { 0x00,  48, 0x00 },    // 31250
-    { 0x00,  24, 0x00 },    // 62500
-    { 0x00,  12, 0x00 },    // 125000
-    { 0x00,   6, 0x00 },    // 250000
-    { 0x00,   3, 0x00 },    // 500000
-    { 0x00,   1, 0x08 },    // 1000000
+    { 0x00, 192, 0x00,    7812 },
+    { 0x00,  96, 0x00,   15625 },
+    { 0x00,  48, 0x00,   31250 },
+    { 0x00,  24, 0x00,   62500 },
+    { 0x00,  12, 0x00,  125000 },
+    { 0x00,   6, 0x00,  250000 },
+    { 0x00,   3, 0x00,  500000 },
+    { 0x00,   1, 0x08, 1000000 },
 };
 
 static uint8_t ikbd_baud;       // according to table above
 static uint32_t ikbd_version;   // yymmddtt (tt = Ex for Eiffel, Cx for Ckbd)
 
-bool ikbd_Init(uint8_t baud)
-{
-    volatile uint8_t* uart1 = (volatile uint8_t*) RV_PADDR_UART1;
+static inline uint32_t ckbd_version(void) {
+    return ((ikbd_version & 0xf0) != 0) ? ikbd_version : 0;
+}
 
+static inline uint32_t eiffel_version() {
+    return ((ikbd_version & 0xf0) == 0) ? ikbd_version : 0;
+}
+
+bool ikbd_Init()
+{
+    ikbd_version = 0;
+    ikbd_baud = IKBD_BAUD_7812;
+
+    volatile uint8_t* uart1 = (volatile uint8_t*) RV_PADDR_UART1;
     uart1[UART_LCR] = 0x00;         // access normal regs
     uart1[UART_IER] = 0x00;         // disable interrupts
     uart1[UART_FCR] = 0x01;         // fifo enabled
@@ -49,27 +59,117 @@ bool ikbd_Init(uint8_t baud)
     uart1[UART_MCR] = 0x00;         // modem control)
                                         // bit0 = #dtr -> powerled on/off
                                         // bit1 = #rts -> spare output TP301
-
     uart1[UART_LCR] = 0xBF;         // access efr
     uart1[UART_EFR] = 0x10;         // enable access
-
     uart1[UART_LCR] = 0x80;         // access baud regs
-
-    ikbd_baud = baud & 0x7;
     uart1[UART_DLM] = ikbd_baud_regs[ikbd_baud].dlm;
     uart1[UART_DLL] = ikbd_baud_regs[ikbd_baud].dll;
     uart1[UART_DLD] = ikbd_baud_regs[ikbd_baud].dld;
-
     uart1[UART_MCR] |= (1 << 6);    // enable tcr/tlr access
     uart1[UART_TCR] = 0x00;         // rx fifo halt/resume
     uart1[UART_TLR] = 0x11;         // rx/tx fifo trigger level (4/4)
     uart1[UART_MCR] &= ~(1 << 6);   // diable tcr/tlr access
-
     uart1[UART_LCR] = 0xBF;         // access efr
     uart1[UART_EFR] = 0x00;         // latch and disable access
-
     uart1[UART_LCR] = 0x03;         // 8 data bits, no parity, 1 stop bit
     return true; 
+}
+
+uint8_t ikbd_SetBaud(uint8_t baud)
+{
+    baud &= 0x7;
+    uint8_t oldbaud = ikbd_baud;
+    if (baud != oldbaud) {
+        volatile uint8_t* uart1 = (volatile uint8_t*) RV_PADDR_UART1;
+        uint8_t ier = uart1[UART_IER];  // save interrupt register
+        uart1[UART_IER] = 0x00;         // disable interrupts
+        uart1[UART_LCR] = 0x00;         // access normal regs
+        uart1[UART_FCR] = 0x01;         // fifo enabled
+        uart1[UART_FCR] = 0x07;         // clear fifo buffers
+        uart1[UART_LCR] = 0xBF;         // access efr
+        uart1[UART_EFR] = 0x10;         // enable dld access
+        uart1[UART_LCR] = 0x80;         // access baud regs
+        uart1[UART_DLM] = ikbd_baud_regs[baud].dlm;
+        uart1[UART_DLL] = ikbd_baud_regs[baud].dll;
+        uart1[UART_DLD] = ikbd_baud_regs[baud].dld;
+        uart1[UART_LCR] = 0xBF;         // access efr
+        uart1[UART_EFR] = 0x00;         // latch and disable dld access
+        uart1[UART_LCR] = 0x03;         // 8 data bits, no parity, 1 stop bit
+        uart1[UART_IER] = ier;          // restore interrupt register
+        ikbd_baud = baud;
+    }
+    return oldbaud;
+}
+
+uint32_t ikbd_Connect(uint8_t baud)
+{
+    #define connect_retries     3
+    #define timeout_long        1000000
+    #define timeout_short       100000
+
+    ikbd_SetBaud(baud);
+    ikbd_version = 0x00000000;
+
+    bool connected = false;
+    for (int i=0; i<connect_retries && !connected; i++)
+    {
+        // flush inputs
+        while (ikbd_rxrdy()) {
+            ikbd_recv();
+        }
+        // send reset command
+        ikbd_send(0x80);
+        ikbd_send(0x01);
+        // wait for ack
+        for (int j=0; j<timeout_long && !connected; j++) {
+            if (ikbd_rxrdy()) {
+                (void)ikbd_recv();
+                connected = true;
+            }
+        }
+    }
+
+    uint8_t infosize = 0;
+    uint8_t infodata[32];
+    if (connected) {
+        // pause ikbd and wait for silence
+        ikbd_send(0x13);
+        sys_Delay(100);
+        while (ikbd_rxrdy()) {
+            ikbd_recv();
+            sys_Delay(100);
+        }
+        // send eiffel get_temp command
+        ikbd_send(0x03);
+        // retrieve up to 24 bytes with timeout
+        uint32_t silent = 0;
+        uint32_t timeout = timeout_long;
+        while ((infosize < 24) && (silent < timeout)) {
+            silent++;
+            if (ikbd_rxrdy()) {
+                silent = 0;
+                timeout = timeout_short;
+                infodata[infosize++] = ikbd_recv();
+            }
+        }
+        // resume ikbd and wait for silence
+        ikbd_send(0x11);
+        sys_Delay(100);
+        while (ikbd_rxrdy()) {
+            ikbd_recv();
+            sys_Delay(100);
+        }
+    }
+
+    if (infosize < 8) {
+        ikbd_version = 0x00000000;
+    } else if (infosize < 24) {
+        ikbd_version = 0x00000001;
+    } else {
+        ikbd_version = (infodata[21] << 24) | (infodata[22] << 16) | (infodata[23] << 8) | (infodata[18] << 0);
+    }
+    ikbd_Info();
+    return ikbd_version;
 }
 
 
@@ -139,86 +239,40 @@ uint8_t ikbd_recv()
 
 
 //-----------------------------------------------------------------------
-void ikbd_Info()
+void ikbd_Reset(void)
 {
-    // flush input
-    while (ikbd_rxrdy()) {
-        ikbd_recv();
-    }
+    ikbd_send(0x80);
+    ikbd_send(0x01);
+}
 
-    // send eiffel get_temp command
-    uint8_t buf[24];
-    ikbd_send(0x03);
-
-    // retrieve up to 24 bytes with timeout
-    uint8_t size = 0;
-    uint32_t silent = 0;
-    uint32_t timeout = 1000000;
-    while ((size < 24) && (silent < timeout)) {
-        silent++;
-        if (ikbd_rxrdy()) {
-            silent = 0;
-            buf[size++] = ikbd_recv();
-        }
-    }
-
-    printf("size %d : ", size);
-    if (size < 8) {
-        printf("unknown\n");
-    } else if (size < 16) {
-        printf("eiffel\n");
+void ikbd_HardReset(bool bootloader)
+{
+    if (!ckbd_version()) {
+        printf("requires ckbd controller\n");
     } else {
-        printf("ckbd\n");
-    }
-
-    for (int i=0; i<size; i+=8) {
-        printf("%02x %02x %02x %02x %02x %02x %02x %02x\n",
-            buf[i+0], buf[i+1], buf[i+2], buf[i+3], buf[i+4], buf[i+5], buf[i+6], buf[i+7]);
+        ikbd_send(0x2D);
+        ikbd_send(bootloader ? 0x01 : 0x00);
     }
 }
 
-//-----------------------------------------------------------------------
-void ikbd_Reset(bool bootloader)
+void ikbd_ClearSettings(void)
 {
-    if (bootloader) {
-        ikbd_send(0x2D);    // ckbd reset to bootloader
+    if (ckbd_version()) {
+        ikbd_send(0x2B);    // prog_settings
+        ikbd_send(0xFF);    // 0xff, 0xff
+        ikbd_send(0xFF);    // restores all settings to default
     } else {
-        ikbd_send(0x80);    // ikbd reset
-        ikbd_send(0x01);
+        printf("requires ckbd controller\n");
     }
 }
 
-
-
-//-----------------------------------------------------------------------
-void ikbd_Connect(uint8_t baud)
-{
-    // change baud rate if necessary
-    baud &= 0x7;
-    if (baud != ikbd_baud) {
-        volatile uint8_t* uart1 = (volatile uint8_t*) RV_PADDR_UART1;
-        uint8_t ier = uart1[UART_IER];  // save interrupt register
-        uart1[UART_IER] = 0x00;         // disable interrupts
-        uart1[UART_LCR] = 0x00;         // access normal regs
-        uart1[UART_FCR] = 0x01;         // fifo enabled
-        uart1[UART_FCR] = 0x07;         // clear fifo buffers
-
-        uart1[UART_LCR] = 0xBF;         // access efr
-        uart1[UART_EFR] = 0x10;         // enable dld access
-        uart1[UART_LCR] = 0x80;         // access baud regs
-
-        uart1[UART_DLM] = ikbd_baud_regs[baud].dlm;
-        uart1[UART_DLL] = ikbd_baud_regs[baud].dll;
-        uart1[UART_DLD] = ikbd_baud_regs[baud].dld;
-
-        uart1[UART_LCR] = 0xBF;         // access efr
-        uart1[UART_EFR] = 0x00;         // latch and disable dld access
-        uart1[UART_LCR] = 0x03;         // 8 data bits, no parity, 1 stop bit
-        uart1[UART_IER] = ier;          // restore interrupt register
-        ikbd_baud = baud;
+uint32_t ikbd_Info(void) {
+    if (ckbd_version()) {
+        printf("CKBD.%08x %dbps\n", ikbd_version, ikbd_baud_regs[ikbd_baud].speed);
+    } else if (eiffel_version()) {
+        printf("Eiffel %dbps\n", ikbd_baud_regs[ikbd_baud].speed);
+    } else {
+        printf("Unknown IKBD\n");
     }
-
-    // identify ikbd type and get version info
-    ikbd_Info();    // todo
-    ikbd_version = 0x00000000;  // yy.mm.dd.type (Ex for Eiffel, Cx for Ckbd, 00 for unknown)
+    return ikbd_version;
 }
