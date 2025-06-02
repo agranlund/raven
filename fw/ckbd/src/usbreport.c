@@ -233,7 +233,7 @@ bool ParseReport(__xdata INTERFACE *interface, uint32_t len, __xdata uint8_t *re
         uint8_t b = descReport->Mouse.b >> 1;
         descReport->oldMouse = descReport->Mouse;
         descReport->MouseUpdated = 0;
-        ikbd_MouseUpdate(x, y, z, b);
+        ikbd_MouseUpdate(x, y, -z, b);
     }
 
 	return 1;
