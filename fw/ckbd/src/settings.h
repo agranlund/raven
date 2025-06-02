@@ -33,7 +33,9 @@ typedef struct
     uint32_t BaudIkbd;
 
     fuint16_t   PS2MouseScale;
+    fuint16_t   PS2WheelScale;
     fuint16_t   UsbMouseScale;
+    fuint16_t   UsbWheelScale;
     fuint16_t   LegacyMouseScale;
 
     uint8_t UsbKeyboardReportMode : 1;      // usb keyboard boot or report mode

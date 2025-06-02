@@ -19,6 +19,8 @@
 //  - test all the different modes and fix bugs
 //  - implement the many remaining sections marked with "todo"
 //
+// TT/MSTe : mouse pin 5 (button3) is connected to joy1-up
+//
 //---------------------------------------------------------------------
 #include <stdio.h>
 #include <string.h>
@@ -206,10 +208,8 @@ void ikbd_QueueAbsoluteMouseEvent(bool interrogate) {
 
 //---------------------------------------------------------------------
 
-void InitIkbd(void)
+void InitIkbdState(void)
 {
-    TRACE("InitIkbd");
-
     ikbd.paused = false;
     ikbd.joy.mode = JOYSTICK_MODE_EVENT;
     ikbd.joy.rate = 1;
@@ -240,20 +240,28 @@ void InitIkbd(void)
     eventqueue_pos = 0;
     rbufrd = 0;
     rbufwr = 0;
+}
 
+void InitIkbd(void)
+{
+    TRACE("InitIkbd");
+    InitIkbdState();
     CH559UART1Init(BAUD_IKBD);
-
     uint8_t lcr = SER1_LCR;         // unlock ier register
     SER1_LCR &= ~bLCR_DLAB;
     SER1_IER |= bIER_RECV_RDY;      // interrupt on recieve
     SER1_LCR = lcr;                 // restore lock
     SER1_MCR |= bMCR_OUT2;          // enable interrupt requests
     IE_UART1 = 1;                   // enable uart1 interrupts
-    
-    // send reset complete notification
-    ikbd_QueueKey(0xF0);
 }
 
+void ResetIkbd(void)
+{
+    TRACE("ResetIkbd");
+    InitIkbdState();
+    // todo: some kind of delay here
+    ikbd_QueueKey(0xF0);
+}
 
 void IkbdInterrupt(void) __interrupt(INT_NO_UART1) {
     while (SER1_LSR & bLSR_DATA_RDY) {
@@ -416,6 +424,19 @@ void ProcessJoysticks(void) {
     joy_state_old[1] = joy_state[1];
 }
 
+void QueueEiffelStatusFrameKey(uint8_t key) {
+    if (wbuf_avail(8) && (key > 0x00) && (key < 0x80)) {
+        ikbd_QueueKey(IKBD_REPORT_STATUS);
+        ikbd_QueueKey(IKBD_EIFFEL_STATUS_KEY);
+        ikbd_QueueKey(0x00);
+        ikbd_QueueKey(0x00);
+        ikbd_QueueKey(0x00);
+        ikbd_QueueKey(0x00);
+        ikbd_QueueKey(0x00);
+        ikbd_QueueKey(key);
+    }
+}
+
 void ProcessMouse(void) {
     static uint8_t btns_old;
 
@@ -478,21 +499,53 @@ void ProcessMouse(void) {
         }
     }
 
-    // button action: keycode
-    if (((ikbd.mouse.action & (1 << 2)) || (ikbd.mouse.mode == MOUSE_MODE_KEYCODE))) {
-        if ((btns & 1) && !(btns_old & 1)) { ikbd_QueueKey(0x74); }
-        else if (!(btns & 1) && (btns_old & 1)) { ikbd_QueueKey(0x74 | 0x80); }
-        if ((btns & 2) && !(btns_old & 2)) { ikbd_QueueKey(0x75); }
-        else if (!(btns & 2) && (btns_old & 2)) { ikbd_QueueKey(0x75 | 0x80); }
-    }
-
     // button action: absolute report
     if ((ikbd.mouse.action & 3) && (ikbd.mouse.mode == MOUSE_MODE_ABSOLUTE)) {
         ikbd_QueueAbsoluteMouseEvent(false);
     }
 
-    // todo: extra buttons and scroll wheel
-    mouse_state.zrel = 0;
+    // button action: keycode
+    #define mbtn_down(x)            (btns&(1<<(x)))
+    #define mbtn_changed(x)         ((btns&(1<<(x))) != (btns_old&(1<<(x))))
+    #define eiffel_code_valid(x)    ((x > 0x00) & (x < 0x80))
+    if (((ikbd.mouse.action & (1 << 2)) || (ikbd.mouse.mode == MOUSE_MODE_KEYCODE))) {
+        if (mbtn_changed(0)) { ikbd_QueueKey(0x74 | mbtn_down(0) ? 0x00 : 0x80); }
+        if (mbtn_changed(1)) { ikbd_QueueKey(0x75 | mbtn_down(1) ? 0x00 : 0x80); }
+    }
+ 
+    // eiffel buttons 3,4,5
+    if (mbtn_changed(2) && eiffel_code_valid(Settings.EiffelMouse.Button3)) { ikbd_QueueKey(Settings.EiffelMouse.Button3 | mbtn_down(2) ? 0x00 : 0x80); }
+    if (mbtn_changed(3) && eiffel_code_valid(Settings.EiffelMouse.Button4)) { ikbd_QueueKey(Settings.EiffelMouse.Button4 | mbtn_down(3) ? 0x00 : 0x80); }
+    if (mbtn_changed(4) && eiffel_code_valid(Settings.EiffelMouse.Button5)) { ikbd_QueueKey(Settings.EiffelMouse.Button5 | mbtn_down(4) ? 0x00 : 0x80); }
+
+    // eiffel scrollwheel
+    int16_t wheely = (mouse_state.zrel >> 8) * Settings.EiffelMouse.WheelRepeat;
+    mouse_state.zrel -= (mouse_state.zrel & 0xff00);
+    if (wheely != 0)
+    {
+        #define wheelrepeat_max 7
+        if (wheely < 0) {
+            for (wheely = (wheely < -wheelrepeat_max) ? -wheelrepeat_max : wheely; wheely != 0; wheely++) {
+                if (wbuf_avail(2) && eiffel_code_valid(Settings.EiffelMouse.WheelUp)) {
+                    ikbd_QueueKey(Settings.EiffelMouse.WheelUp);
+                    ikbd_QueueKey(Settings.EiffelMouse.WheelUp | 0x80);
+                }
+                //QueueEiffelStatusFrameKey(IKBD_KEY_WHEELUP);
+            }
+        }
+        else {
+            for (wheely = (wheely > wheelrepeat_max) ? wheelrepeat_max : wheely; wheely != 0; wheely--) {
+                if (wbuf_avail(2) && eiffel_code_valid(Settings.EiffelMouse.WheelDown)) {
+                    ikbd_QueueKey(Settings.EiffelMouse.WheelDown);
+                    ikbd_QueueKey(Settings.EiffelMouse.WheelDown | 0x80);
+                }
+                //QueueEiffelStatusFrameKey(IKBD_KEY_WHEELDN);
+            }
+        }
+    }
+
+    // simulate TT/MSTe 3-button mouse behavior (mouse:mmb -> joy1:up)
+    ikbd_JoyUpdate(1, joy_state[1] | ((btns >> 2) & 0b00000001));
 
     btns_old = btns;
 }
@@ -554,6 +607,7 @@ void ikbd_MouseUpdate(int16_t x, int16_t y, int16_t z, uint8_t b) {
     mouse_state.xrel = xrel;
     mouse_state.yrel = yrel;
     mouse_state.zrel = zrel;
+
     // process directly if button status was changed
     if (mouse_state.btns != b) {
         ProcessMouse();
@@ -806,7 +860,7 @@ bool cmd_0x22(uint8_t* data, uint8_t size) {        // IKBD_CMD_MEM_EXEC
     return true;
 }
 bool cmd_0x80(uint8_t* data, uint8_t size) {        // IKBD_CMD_RESET
-    reset(false);
+    ResetIkbd();    
     return true;
 }
 
@@ -1051,9 +1105,12 @@ bool cmd_0x2A(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_PROG_TEMP
     return true;
 }
 bool cmd_0x2B(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_PROG_SETTING
-    // todo
-    // idx = data[1];
-    // val = data[2];
+    uint8_t idx = data[1];
+    uint8_t val = data[2];
+    if ((idx == 0xff) && (val == 0xff)) {
+        // reset all settings to default
+        InitSettings(true);
+    }
     return true;
 }
 bool cmd_0x2C(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_PROG_FIRMWARE
@@ -1061,7 +1118,8 @@ bool cmd_0x2C(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_PROG_FIRMWA
     return true;
 }
 bool cmd_0x2D(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_BOOTLOADER
-    reset(true);
+    bool bootloader = (data[1] != 0) ? true : false;
+    reset(bootloader);
     return true;
 }
 bool cmd_0x2E(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_RESET
@@ -1146,7 +1204,7 @@ const ikbd_cmd_t hostcommands_0x20[16] = {
     {2, cmd_0x2A},      // 0x2A : IKBD_CMD_CKBD_PROG_TEMP
     {2, cmd_0x2B},      // 0x2B : IKBD_CMD_CKBD_PROG_SETTING
     {0, cmd_0x2C},      // 0x2C : IKBD_CMD_CKBD_PROG_FIRMWARE
-    {0, cmd_0x2D},      // 0x2D : IKBD_CMD_CKBD_BOOTLOADER
+    {1, cmd_0x2D},      // 0x2D : IKBD_CMD_CKBD_BOOTLOADER
     {0, cmd_0x2E},      // 0x2E : IKBD_CMD_CKBD_RESET
     {0, cmd_0x2F},      // 0x2F : IKBD_CMD_CKBD_POWEROFF
 };

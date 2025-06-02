@@ -11,7 +11,7 @@
 #include "settings.h"
 
 #define SETTINGS_MAGIC   0x434B4244      /* CKBD */
-#define SETTINGS_VERSION 0x25060205
+#define SETTINGS_VERSION 0x25060207
 
 __xdata settings_t Settings;
 
@@ -71,21 +71,35 @@ void InitSettings(bool SafeMode)
         Settings.BaudIkbd = BAUD_IKBD;
 
         Settings.UsbMouseScale = FIXED16(1.0);
+        Settings.UsbWheelScale = FIXED16(1.0);
         Settings.UsbKeyboardReportMode = 1;
         Settings.UsbMouseReportMode = 1;
 
         Settings.PS2MouseScale = FIXED16(1.0);
+        Settings.PS2WheelScale = FIXED16(1.0);
 
         Settings.LegacyMouseAmiga = 0;
         Settings.LegacyMouseScale = FIXED16(2.0);
 
-
         // default mouse settings
         const settings_eiffel_mouse_t defaultEiffelMouse = {
+#if 1
+            // Since EmuTOS GEM has disabled support for Eiffel wheel, and NAES does not support
+            // them, we're going to set arrow keys as default wheel behavior.
+            // This can be reprogrammed to the Eiffel defaults using the Eiffel control panel
+            // if needed (XaAES has native and working support for Eiffel wheel scancodes)
+            // There are supposedly TSR's that can translate Eiffel wheel codes into VDI scroll events.
+            IKBD_KEY_UP,
+            IKBD_KEY_DOWN,
+            IKBD_KEY_LEFT,
+            IKBD_KEY_RIGHT,
+#else
+            // eiffel defaults
             IKBD_KEY_WHEELUP,
             IKBD_KEY_WHEELDN,
             IKBD_KEY_WHEELLT,
             IKBD_KEY_WHEELRT,
+#endif            
             IKBD_KEY_BUTTON3,
             IKBD_KEY_BUTTON4,
             IKBD_KEY_BUTTON5,

@@ -229,7 +229,7 @@ bool ParseReport(__xdata INTERFACE *interface, uint32_t len, __xdata uint8_t *re
     {
         int16_t x = ScaleToIkbd(descReport->Mouse.x, Settings.UsbMouseScale);
         int16_t y = ScaleToIkbd(descReport->Mouse.y, Settings.UsbMouseScale);
-        int16_t z = ((descReport->Mouse.z & 0xff) << 8);
+        int16_t z = ScaleToIkbd(descReport->Mouse.z, Settings.UsbWheelScale);
         uint8_t b = descReport->Mouse.b >> 1;
         descReport->oldMouse = descReport->Mouse;
         descReport->MouseUpdated = 0;

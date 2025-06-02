@@ -392,7 +392,7 @@ static bool ParseMouse(void) {
     uint8_t b = data[0] & 0b00000111;
     if (ps2m_type == PS2M_TYPE_3BTN) {
         // 3: z7 z6 z5 z4 z3 z2 z1 z0
-        z = (int16_t) data[3];
+        z = (int8_t) data[3];
     } else if (ps2m_type == PS2M_TYPE_5BTN) {
         // 3: 00 00 b5 b4 z3 z2 z1 z0
         z = (int8_t) ((data[3] & 7) | (zs ? 0xf8 : 0x00));
@@ -407,7 +407,7 @@ static bool ParseMouse(void) {
 
     x = ScaleToIkbd(x, Settings.PS2MouseScale);
     y = ScaleToIkbd(y, Settings.PS2MouseScale);
-    z = (z << 8);
+    z = ScaleToIkbd(z, Settings.PS2WheelScale);
     ikbd_MouseUpdate(x, y, z, b);
     return true;
 }
