@@ -253,7 +253,7 @@ void InitIkbdState(void)
 }
 
 void InitIkbdEx(uint32_t baud) {
-    TRACE("InitIkbd");
+    TRACE("InitIkbdEx %ld", baud);
     InitIkbdState();
     CH559UART1Init(baud);
     uint8_t lcr = SER1_LCR;         // unlock ier register
@@ -322,6 +322,7 @@ void ProcessHostCommands(void)
                 packet[i] = rbuf_get();
             }
             // call command handler
+            //TRACE("cmd %02x %02x", cmd, size);
             ikbd.paused = 0;    // any command received implicitly resumes
             if (!desc->func(packet, size)) {
                 // bail out if there's not enough data for variable length commands
@@ -851,8 +852,7 @@ bool cmd_0x20(uint8_t* data, uint8_t size) {        // IKBD_CMD_MEM_LOAD
     uint16_t addr = (data[1] << 8) | data[2];
     uint8_t count = data[3];
     if ((addr == 0) && (count == 0)) {
-        // eiffel is using this for flashing firmware
-        // consume all them bytes...
+        // eiffel is using this for flashing firmware, consume all them bytes...
         TRACE("Eiffel dummy prog");
         for (int i=0; i<8192; i++) {
             #ifdef DEBUG            
@@ -867,7 +867,7 @@ bool cmd_0x20(uint8_t* data, uint8_t size) {        // IKBD_CMD_MEM_LOAD
     }
     else
     {
-        // normal mem_load command.
+        // standard mem_load command
         uint8_t avail = rbuf_avail();
         if (avail >= count) {
             for (int i=0; i<count; i++) {
@@ -1171,6 +1171,7 @@ bool cmd_0x2A(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_READ_SETTIN
 bool cmd_0x2B(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_PROG_SETTING
     uint8_t idx = data[1];
     uint8_t val = data[2];
+    //TRACE("cmd2B: %02x %02x", idx, val);
     if (idx == 0xFF) {
         if (val == 0x5A) {
             InitSettings(true);     // ff,5A = restore to defaults
@@ -1202,12 +1203,14 @@ bool cmd_0x2E(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_RESET
     return true;
 }
 bool cmd_0x2F(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_POWER
+#if !defined(DISABLE_POWERSW)    
     uint8_t val = data[1];
     if (val == 0) {
         // todo: system reset
     } else {
         // todo: system power off
     }
+#endif    
     return true;
 }
 

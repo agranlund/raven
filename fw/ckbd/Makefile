@@ -1,37 +1,82 @@
-BOARD_TYPE  	= BOARD_PROTO
-#BOARD_TYPE		= BOARD_RAVEN_A1
-#BOARD_TYPE		= BOARD_RAVEN_A2
 
-BOARD_CONF		= CONF_RAVEN
-#BOARD_CONF		= CONF_EIFFEL
 
-OSC_TYPE 		= OSC_INTERNAL
-#OSC_TYPE 		= OSC_EXTERNAL
-
+# base settings, should not need to change these
 FREQ_SYS 		= 48000000
 XRAM_SIZE 		= 0x1600
 XRAM_LOC 		= 0x0200
 #CODE_SIZE 		= 0xEFFF
 CODE_SIZE 		= 0xE7FF
 
+# internal or external oscillator
+# todo: remove and replace with runtime detect
+OSC_TYPE 		= OSC_INTERNAL
+#OSC_TYPE 		= OSC_EXTERNAL
+
+
+# baudrate for debug port (UART0)
 BAUD_DEBUG		= 115200
+
+# baudrate for ikbd connection (UART1)
 BAUD_IKBD		= 7812
+
+# board layout
+BOARD_TYPE  	= BOARD_PROTO
+#BOARD_TYPE		= BOARD_RAVEN_A1
+#BOARD_TYPE		= BOARD_RAVEN_A2
+
+# Feature defines
+# To use the RAVEN_A1 board as a pure Eiffel replacement you may want to disable
+# TEMP2 and POWERSW as these share the pins for Eiffel-LCD.
+#  -DDISABLE_TEMPS
+#  -DDISABLE_PS2
+#  -DDISABLE_TEMP2
+#  -DDISABLE_POWERSW
+
+# Common defines
+#  -DDEBUG
+
+
+# proto : prototype pcb for raven.a1
+ifeq ($(target),proto)
+BOARD_TYPE = BOARD_PROTO
+CONF_FLAGS = 
+
+# a1 : standalone eiffel replacement for raven.a1
+else ifeq ($(target),a1)
+BOARD_TYPE = BOARD_RAVEN_A1
+CONF_FLAGS = 
+
+# a2 : raven.a2 motherboard
+else ifeq ($(target),a2)
+BOARD_TYPE = BOARD_RAVEN_A2
+CONF_FLAGS = -DDISABLE_PS2
+
+# default : raven.a1 board used in non-raven situations
+else
+BOARD_TYPE = BOARD_RAVEN_A1
+CONF_FLAGS = -DISABLE_TEMP2 -DDISABLE_POWERSW
+endif
+
+ifeq ($(debug),)
+debug = 0
+endif
+ifeq ($(debug),1)
+CONF_FLAGS += -DDEBUG
+endif
+
 
 BUILD_DATE_HEX	:= $(shell date +%Y%m%d)
 BUILD_DATE_DEC	:= $(shell printf %d 0x$(BUILD_DATE_HEX))
-
 
 BOARD_FLAGS	= \
 	-DFREQ_SYS=$(FREQ_SYS) \
 	-D$(OSC_TYPE) \
 	-D$(BOARD_TYPE) \
-	-D$(BOARD_CONF) \
+	$(CONF_FLAGS) \
 	-DBUILD_VERSION=$(BUILD_DATE_DEC) \
 	-DBAUD_DEBUG=$(BAUD_DEBUG) \
-	-DBAUD_IKBD=$(BAUD_IKBD) \
-#    -DDISABLE_PS2 \
+	-DBAUD_IKBD=$(BAUD_IKBD)
 	#end
-
 
 
 CC = sdcc
@@ -50,8 +95,6 @@ TARGET = chkbd
 
 OBJDIR = ./build
 SRCDIR = ./src
-
-EXTRA_FLAGS = -DDEBUG
 
 OBJS = \
 	$(OBJDIR)/main.rel \
@@ -75,7 +118,7 @@ CFLAGS := -V -mmcs51 --model-large --stack-auto \
 	--disable-warning 85 \
 	--disable-warning 110 \
 	--xram-size $(XRAM_SIZE) --xram-loc $(XRAM_LOC) --code-size $(CODE_SIZE) \
-	-I/ -I$(SRCDIR) $(BOARD_FLAGS) $(EXTRA_FLAGS) \
+	-I/ -I$(SRCDIR) $(BOARD_FLAGS) \
 	-Wl -bCSEG=0x0800 -Wl -bCSEG_ISP=0x0400
 
 LFLAGS := $(CFLAGS)
@@ -120,7 +163,25 @@ else
 	make flash_wchisp
 endif
 
-.DEFAULT_GOAL := all
+.DEFAULT_GOAL := info
+
+info:
+	@echo 'usage: make <target> (debug=0/1) where target can be:'
+	@echo '  proto     : Raven.A1 expansion board (proto)'
+	@echo '  a1        : Raven.A1 expansion board'
+	@echo '  a2        : Raven.A2 motherboard'
+	@echo '  clean     : clean everything'
+
+proto:
+	make all target=proto debug=$(debug)
+
+a1:
+	make all target=a1 debug=$(debug)
+
+a2:
+	make all target=a2 debug=$(debug)
+
+
 all: $(OBJDIR)/$(TARGET).bin $(OBJDIR)/$(TARGET).hex size
 
 clean:

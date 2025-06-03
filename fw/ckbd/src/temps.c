@@ -8,8 +8,6 @@
 #include "settings.h"
 #include "temps.h"
 
-//#define DISABLE_TEMPS
-
 #if defined(DISABLE_TEMPS)
 
 void InitTemps(void) { }
@@ -34,13 +32,16 @@ void SetFanState(uint8_t idx, bool enable) {
         } else {
             status &= ~TEMP_STATUS_FAN0;
         }
-    } else if (idx == 1) {
+    }
+#if !defined(DISABLE_TEMP2)
+    else if (idx == 1) {
         if (enable) {
             status |= TEMP_STATUS_FAN1;
         } else {
             status &= ~TEMP_STATUS_FAN1;
         }
     }
+#endif
 }
 
 static uint16_t ReadTempSensorRaw(uint8_t idx) {
@@ -69,7 +70,11 @@ static uint16_t ReadTempSensorAvg(int idx) {
 
 static void UpdateTempSensors(void) {
     adc[0][pos] = ReadTempSensorRaw(0);
+#if !defined(DISABLE_TEMP2)
     adc[1][pos] = ReadTempSensorRaw(1);
+#else
+    adc[1][pos] = 0;
+#endif
     pos = (pos + 1) & tempsensor_avgmask;
 }
 
@@ -101,10 +106,10 @@ static bool GetBoardTemperature(uint16_t* adc_out, uint8_t* res_out, uint8_t* de
     float vf = ((float)adc / 2047.0f) * 3.3f;
 
     // calculate thermistor resistance
-#if defined(BOARD_RAVEN_A1) || defined(BOARD_PROTO)
-    float rf = ((-20.0f * vf) / ((4.0f * vf) - 10.0f));
-#else
+#if defined(BOARD_RAVEN_A2)
     float rf = 10.0f / (3.3f - vf);
+#else
+    float rf = ((-20.0f * vf) / ((4.0f * vf) - 10.0f));
 #endif
 
     // fit in byte as ohm/100 so that we act like eiffel does
@@ -148,10 +153,10 @@ static bool GetCoreTemperature(uint16_t* adc_out, uint8_t* res_out, uint8_t* deg
     //    gnd
     //
 
-#if defined(BOARD_RAVEN_A1) || defined(BOARD_PROTO)
-    uint16_t adc = 0x7ff;
-#else
+#if !defined(DISABLE_TEMP2)
     uint16_t adc = ReadTempSensorAvg(1);
+#else
+    uint16_t adc = 0x7ff;
 #endif
     if (*adc_out) { *adc_out = adc; }
     if ((adc >= 0x07f0) || (adc < 0x0010)) {
@@ -185,7 +190,11 @@ bool GetTemps(uint8_t idx, uint8_t* status_out, uint16_t* adc_out, uint8_t* res_
 
 void InitTemps(void) {
     uint16_t t;
+#if !defined(DISABLE_TEMP2)
     P1_IE &= ~0b00111111;                           // enable AIN0 + AIN1
+#else
+    P1_IE &= ~0b01111111;                           // enable AIN0
+#endif    
     ADC_SETUP = bADC_POWER_EN | bADC_EXT_SW_EN;     // power enable + extended mode
     ADC_EX_SW = bADC_RESOLUTION;                    // 11bit resolution
     ADC_CK_SE = 16;                                 // clock division (must be between 1 and 12 mhz)
@@ -227,8 +236,9 @@ void ProcessTemps(void) {
             }
         }
     }
-    
+
     // core temperature, fan control and auto shutdown
+#if !defined(DISABLE_TEMP2)
     if ((Settings.FanControl1 == FANCONTROL_AUTO) || (Settings.CoreTempShutdown & 0x80))
     {
         uint16_t adc; uint8_t res, deg;
@@ -256,9 +266,7 @@ void ProcessTemps(void) {
     } else if (Settings.FanControl1 == FANCONTROL_ON) {
         SetFanState(1, true);
     }
-    
-    // todo: drive fan pins
-
+#endif    
 
     last = msnow;
 }
