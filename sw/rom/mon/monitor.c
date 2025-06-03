@@ -255,7 +255,7 @@ static void cmdVga(int args, char* argv[])
     if (args < 2) {
         puts(   "Commands:\n"
                 "  vga init\n"
-                "  vga test\n" );
+                "  vga test" );
     } else {
         if (strcmp(argv[1], "init") == 0) {
             vga_Init();
@@ -271,31 +271,43 @@ static void cmdVga(int args, char* argv[])
 //-----------------------------------------------------------------------
 static void cmdKbd(int args, char* argv[])
 {
+    bool ckbd = (ikbd_Version() & 0xF0) ? true : false;
     if (args < 2) {
+        // all controllers
         puts(   "Commands:\n"
                 "  kbd info\n"
+                "  kbd reset");
+                // ckbd specifics
+        if (ckbd) {
+        puts(   "  kbd hardreset\n"
+                "  kbd prog\n"
                 "  kbd get <idx>\n"
                 "  kbd set <idx> <val>\n"
-                "  kbd clear\n"
-                "  kbd reset\n"
-                "  kbd hardreset\n"
-                "  kbd prog\n"
-        );
+                "  kbd save\n"
+                "  kbd clear");
+        }
     } else {
+        // all controllers
         if (strcmp(argv[1], "info") == 0) {
             ikbd_Info();
-        } else if ((strcmp(argv[1], "get") == 0) && (args > 2)){
-            ikbd_ReadSetting(strtoi(argv[2]));
-        } else if ((strcmp(argv[1], "set") == 0) && (args > 3)){
-            ikbd_WriteSetting(strtoi(argv[2]), strtoi(argv[3]));
         } else if (strcmp(argv[1], "reset") == 0) {
             ikbd_Reset(0);
-        } else if (strcmp(argv[1], "hardreset") == 0) {
-            ikbd_HardReset(false);
-        } else if (strcmp(argv[1], "clear") == 0) {
-            ikbd_ClearSettings();
-        } else if (strcmp(argv[1], "prog") == 0) {
-            ikbd_HardReset(true);
+        }
+        // ckbd specifics
+        if (ckbd) {
+            if (strcmp(argv[1], "hardreset") == 0) {
+                ikbd_HardReset(false);
+            } else if (strcmp(argv[1], "prog") == 0) {
+                ikbd_HardReset(true);
+            } else if ((strcmp(argv[1], "get") == 0) && (args > 2)) {
+                ikbd_ReadSetting(strtoi(argv[2]));
+            } else if ((strcmp(argv[1], "set") == 0) && (args > 3)){
+                ikbd_WriteSetting(strtoi(argv[2]), strtoi(argv[3]));
+            } else if (strcmp(argv[1], "save") == 0) {
+                ikbd_SaveSettings();
+            } else if (strcmp(argv[1], "clear") == 0) {
+                ikbd_ClearSettings();
+            }
         }
     }
 }

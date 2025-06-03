@@ -26,8 +26,10 @@ uint16_t    ikbd_sendbuf(uint8_t* data, uint16_t count);
 bool        ikbd_send(uint8_t data);
 uint8_t     ikbd_recv();
 
+uint32_t    ikbd_Version();
 uint32_t    ikbd_Info();
 void        ikbd_Reset();
+uint8_t     ikbd_Baud();
 
 // --- ckbd only ---
 void        ikbd_HardReset(bool bootloader);

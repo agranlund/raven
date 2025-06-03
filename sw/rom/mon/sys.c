@@ -29,6 +29,13 @@ extern uint8_t __data_start;
 extern uint8_t __data_end;
 extern uint8_t __bss_start;
 extern uint8_t __bss_end;
+extern uint8_t __stack_top;
+
+#define resmagic0   0x752019f3
+#define resmagic1   0x237698aa
+#define resmagic2   0x1357bd13
+#define resmagic3   0x31415926
+
 
 //-----------------------------------------------------------------------
 const char * const cpuNames[] = {
@@ -80,6 +87,20 @@ bool sys_Init()
         }
     }
 
+    // determine if this is a warm or cold boot
+    // top 16 bytes of stack area is reserved for persistent variables
+    bool coldboot = true;
+    uint32_t* magics = (uint32_t*)(((uint32_t)&__stack_top)-16);
+    if ((magics[0] == resmagic0) && (magics[1] == resmagic1) && (magics[2] == resmagic2) && (magics[3] == resmagic3)) {
+        coldboot = false;
+    } else {
+        magics[0] = resmagic0;
+        magics[1] = resmagic1;
+        magics[2] = resmagic2;
+        magics[3] = resmagic3;
+    }
+    uint8_t ikbdbaud = coldboot ? IKBD_BAUD_7812 : ikbd_Baud();
+
     // clear bios bss area & copy data
     memset(&__bss_start, 0, &__bss_end - &__bss_start);
     memcpy(&__data_start, &__data_load, &__data_end - &__data_start);
@@ -104,6 +125,8 @@ bool sys_Init()
     putchar('\n');
 
     const bool safemode = false;
+
+    initprint(safemode ? "Safemode" : coldboot ? "Coldboot" : "Warmboot");
 
     initprint("InitHeap");
     mem_Init();
@@ -141,7 +164,30 @@ bool sys_Init()
     if (!safemode)
     {
         initprint("IkbdConnect");
-        ikbd_Connect(IKBD_BAUD_7812);
+        // connect with default or warmboot baudrate
+        uint32_t ikbdversion = ikbd_Connect(ikbdbaud);
+        if ((ikbdversion == 0) && (ikbdbaud != IKBD_BAUD_7812)) {
+            // retry with default baudrate if nondefault failed
+            sys_Delay(100);
+            ikbdbaud = IKBD_BAUD_7812;
+            ikbdversion = ikbd_Connect(ikbdbaud);
+        }
+
+        // negotiate higher connection speed if we are connected with a CKBD at 7812bps
+        uint8_t ikbdcfgbaud = 7 & ((uint8_t) cfg_GetValue(cfg_Find("ikbd_baud")));
+        if ((ikbdversion & 0xF0) && (ikbdbaud == IKBD_BAUD_7812) && (ikbdcfgbaud != IKBD_BAUD_7812))  {
+            // ask ckbd to change its baudrate
+            sys_Delay(100);
+            ikbd_WriteSetting(0xFE, ikbdcfgbaud);
+            sys_Delay(100);
+            // reconnect at higher speed
+            if (!ikbd_Connect(ikbdcfgbaud)) {
+                // retry with default speed if the higher one failed
+                sys_Delay(100);
+                ikbd_Connect(IKBD_BAUD_7812);
+            }
+        }
+        ikbd_Info();
 
         initprint("InitAtari");
         atari_Init();

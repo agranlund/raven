@@ -84,6 +84,7 @@ start:
 
     // setup stack
     move.l  #__stack_top,%sp
+    sub.l   #16,%sp                                 // make room for hidden variables
 
     // setup uart2
     move.l  #RV_PADDR_UART2,%a5

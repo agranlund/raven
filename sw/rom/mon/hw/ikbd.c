@@ -35,7 +35,7 @@ const ikbd_baud_regs_t ikbd_baud_regs[8] =
 };
 
 static uint8_t ikbd_baud;       // according to table above
-static uint32_t ikbd_version;   // yymmddtt (tt = Ex for Eiffel, Cx for Ckbd)
+static uint32_t ikbd_version;   // ckbd: YYMMDDXX, eiffel: 00000001
 
 static inline uint32_t ckbd_version(void) {
     return ((ikbd_version & 0xf0) != 0) ? ikbd_version : 0;
@@ -168,7 +168,6 @@ uint32_t ikbd_Connect(uint8_t baud)
     } else {
         ikbd_version = (infodata[21] << 24) | (infodata[22] << 16) | (infodata[23] << 8) | (infodata[18] << 0);
     }
-    ikbd_Info();
     return ikbd_version;
 }
 
@@ -239,6 +238,11 @@ uint8_t ikbd_recv()
 
 
 //-----------------------------------------------------------------------
+uint32_t ikbd_Version(void) {
+    return ckbd_version();
+}
+
+//-----------------------------------------------------------------------
 uint32_t ikbd_Info(void)
 {
     if (ckbd_version()) {
@@ -249,6 +253,10 @@ uint32_t ikbd_Info(void)
         printf("Unknown IKBD\n");
     }
     return ikbd_version;
+}
+
+uint8_t ikbd_Baud(void) {
+    return ikbd_baud;
 }
 
 void ikbd_Reset(void)
@@ -265,6 +273,8 @@ void ikbd_HardReset(bool bootloader)
     } else {
         ikbd_send(0x2E);
         ikbd_send(bootloader ? 0x5A : 0x00);
+        sys_Delay(100);
+        ikbd_SetBaud(IKBD_BAUD_7812);
     }
 }
 
