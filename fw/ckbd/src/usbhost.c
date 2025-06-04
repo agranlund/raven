@@ -811,20 +811,6 @@ BOOL QuerySubHubPort(UINT8 port)
             forceEnumerate = true;
         }
     }
-
-    #if 0
-
-    for (i = 0; i < hubPortNum; i++) {
-        if (SubHubPort[port][i].HubPortStatus == PORT_DEVICE_ENUM_SUCCESS)
-        {
-            // check for disconnect
-        }
-        else
-        {
-            // check for connect
-        }
-    }
-    #endif
     return true;
 }
 

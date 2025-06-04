@@ -106,32 +106,6 @@ int main(void)
     }
 }
 
-
-// ---------------------------------------------------------------------------------
-// gpio interrupt
-// ---------------------------------------------------------------------------------
-#if 0
-void mGpioInterrupt(void) __interrupt(INT_NO_GPIO)
-{
-    unsigned char b = P4_IN;
-
-    if (!(b & (1<<1))) {
-        int delta = (b & 1) ? 1 : -1;
-        unsigned char t1 = GPIO_IE;
-        TRACE("b = $%x : t1=$%x : d=%d", b, t1, delta);
-    }
-#if 0
-    b = P4_IN & 0b00000011;
-    if (b == 0) {
-        TRACE("-1")
-    } else if (b == 1) {
-        TRACE("+1")
-    }
-#endif    
-}
-#endif
-
-
 // ---------------------------------------------------------------------------------
 // timer0 : 60khz : 48MHz divided by (0xFFFF - (TH0TL0))
 // ---------------------------------------------------------------------------------
@@ -143,9 +117,6 @@ void mTimer0Interrupt(void) __interrupt(INT_NO_TMR0)
 	if (++tm0counter == 60) {
 		tm0counter = 0;
         msnow++;
-
-        // every millisecond
-
 
         // Soft watchdog is to get around the fact that the real watchdog runs too fast
         SoftWatchdog++;
@@ -169,4 +140,3 @@ void mTimer0Interrupt(void) __interrupt(INT_NO_TMR0)
         UsbUpdateCounter++;
 	}
 }
-
