@@ -23,6 +23,30 @@ static bool detectTos() {
     return atari_DetectTos();
 }
 
+static uint32_t getSerialFile(uint8_t* data) {
+    uint32_t data_start = (uint32_t)data;
+    printf("Waiting for serial transfer...\n");
+    *data++ = uart_recv();
+    printf("Receiving file");
+    uint32_t silent = 0;
+    uint32_t period = 0;
+    uint32_t timeout = 1000000;
+    while (silent < timeout) {
+        int v = uart_recvChar();
+        silent++;
+        if (v >= 0) {
+            silent = 0;
+            *data++ = (uint8_t) (v & 0xff);
+            period = (period + 1) & ((16 * 1024) - 1);
+            if (period == 0) { putchar('.'); }
+        }
+    }
+
+    uint32_t size = (uint32_t)data - (uint32_t)data_start;
+    printf("\nReceived %d bytes\n", size);
+    while(uart_recvChar() >= 0) {}
+    return size;
+}
 
 //-----------------------------------------------------------------------
 // reset
@@ -281,6 +305,7 @@ static void cmdKbd(int args, char* argv[])
         if (ckbd) {
         puts(   "  kbd hardreset\n"
                 "  kbd prog\n"
+                "  kbd flash\n"
                 "  kbd get <idx>\n"
                 "  kbd set <idx> <val>\n"
                 "  kbd save\n"
@@ -299,6 +324,15 @@ static void cmdKbd(int args, char* argv[])
                 ikbd_HardReset(false);
             } else if (strcmp(argv[1], "prog") == 0) {
                 ikbd_HardReset(true);
+            } else if (strcmp(argv[1], "flash") == 0) {
+                uint32_t ipl = cpu_SetIPL(7);
+                uint8_t* data = (uint8_t*)0x00600000;
+                uint32_t size = getSerialFile(data);
+                size = (size + 1023) & ~1023;
+                if (size > 0) {
+                    ikbd_Flash(data, size);
+                }
+                cpu_SetIPL(ipl);
             } else if ((strcmp(argv[1], "get") == 0) && (args > 2)) {
                 ikbd_ReadSetting(strtoi(argv[2]));
             } else if ((strcmp(argv[1], "set") == 0) && (args > 3)){
@@ -312,40 +346,18 @@ static void cmdKbd(int args, char* argv[])
     }
 }
 
-
 //-----------------------------------------------------------------------
 // flash
 //-----------------------------------------------------------------------
 static void cmdFlash(int args, char* argv[])
 {
-    uint32_t data_start = 0x00600000;
-    uint8_t* data = (uint8_t*)data_start;
     uint32_t ipl = cpu_SetIPL(7);
-
-    printf("Waiting for serial transfer...\n");
-    *data++ = uart_recv();
-
-    printf("Receiving rom image");
-    uint32_t silent = 0;
-    uint32_t period = 0;
-    uint32_t timeout = 1000000;
-    while (silent < timeout) {
-        int v = uart_recvChar();
-        silent++;
-        if (v >= 0) {
-            silent = 0;
-            *data++ = (uint8_t) (v & 0xff);
-            period = (period + 1) & ((16 * 1024) - 1);
-            if (period == 0) { putchar('.'); }
-        }
-    }
-
-    uint32_t size = (uint32_t)data - (uint32_t)data_start;
-    printf("\nReceived %d bytes\n", size);
-    while(uart_recvChar() >= 0) {}
-
+    uint8_t* data = (uint8_t*)0x00600000;
+    uint32_t size = getSerialFile(data);
     size = (size + 3) & ~3;
-    flash_Program((void*)data_start, size);
+    if (size > 0) {
+        flash_Program(data, size);
+    }
     cpu_SetIPL(ipl);
 }
 

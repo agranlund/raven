@@ -171,6 +171,30 @@ uint32_t ikbd_Connect(uint8_t baud)
     return ikbd_version;
 }
 
+uint32_t ikbd_ConnectEx(uint8_t default_baud, uint8_t ideal_baud)
+{
+    // connect with default or warmboot baudrate
+    ikbd_Connect(default_baud);
+    if ((ikbd_version == 0) && (default_baud != IKBD_BAUD_7812)) {
+        // retry with standard rate if default failed
+        sys_Delay(100);
+        default_baud = IKBD_BAUD_7812;
+        ikbd_Connect(default_baud);
+    }
+
+    // negotiate higher connection speed if we are connected with a CKBD at 7812bps
+    if ((ikbd_version & 0xF0) && (default_baud != ideal_baud)) {
+        sys_Delay(100);
+        ikbd_WriteSetting(0xFE, ideal_baud);
+        sys_Delay(100);
+        if (!ikbd_Connect(ideal_baud)) {
+            sys_Delay(100);
+            ikbd_Connect(default_baud);
+        }
+    }
+    return ikbd_version;
+}
+
 
 //-----------------------------------------------------------------------
 void ikbd_GPO(uint8_t bit, bool enable)
@@ -270,26 +294,44 @@ void ikbd_HardReset(bool bootloader)
 {
     if (!ckbd_version()) {
         printf("requires ckbd controller\n");
-    } else {
+    } else if (bootloader) {
+        ikbd_send(0x13);
+        while(ikbd_rxrdy()) { ikbd_recv(); }
         ikbd_send(0x2E);
-        ikbd_send(bootloader ? 0x5A : 0x00);
-        sys_Delay(100);
+        ikbd_send(0x5A);
+        sys_Delay(1000);
+        uint32_t prevbaud = ikbd_baud;
         ikbd_SetBaud(IKBD_BAUD_7812);
+        ikbd_recv();
+        ikbd_ConnectEx(IKBD_BAUD_7812, prevbaud);
+        ikbd_Info();
+    } else {
+        ikbd_send(0x13);
+        ikbd_send(0x2E);
+        ikbd_send(0x00);
+        sys_Delay(100);
+        uint32_t prevbaud = ikbd_baud;
+        ikbd_SetBaud(IKBD_BAUD_7812);
+        sys_Delay(1000);
+        ikbd_ConnectEx(IKBD_BAUD_7812, prevbaud);
+        ikbd_Info();
     }
 }
 
 void ikbd_WriteSetting(uint8_t idx, uint8_t val) {
-    if (ckbd_version()) {
+    if (!ckbd_version()) {
+        printf("requires ckbd controller\n");
+    } else {
         ikbd_send(0x2B);
         ikbd_send(idx);
         ikbd_send(val);
-    } else {
-        printf("requires ckbd controller\n");
     }
 }
 
 void ikbd_ReadSetting(uint8_t idx) {
-    if (ckbd_version()) {
+    if (!ckbd_version()) {
+        printf("requires ckbd controller\n");
+    } else {
         // pause ikbd and wait for silence
         ikbd_send(0x13);
         sys_Delay(100);
@@ -324,8 +366,6 @@ void ikbd_ReadSetting(uint8_t idx) {
         } else {
             printf("fail [%02x%02x%02x%02x%02x%02x%02x%02x]\n", infodata[0], infodata[1], infodata[2], infodata[3], infodata[4], infodata[5], infodata[6], infodata[7]);
         }
-    } else {
-        printf("requires ckbd controller\n");
     }
 }
 
@@ -344,3 +384,54 @@ void ikbd_TargetBaud(uint8_t baud)
     ikbd_WriteSetting(0xFE, baud&7);
 }
 
+void ikbd_Flash(uint8_t* data, uint32_t size)
+{
+    if (!ckbd_version()) {
+        printf("requires ckbd controller\n");
+        return;
+    }
+
+    uint16_t block_count = ((size+1023) >> 10);
+    if (block_count > 64) {
+        printf("image too large (%d / 64 blocks)\n", block_count, 64);
+        return;
+    }
+
+    printf("flashing %d blocks\n", block_count);
+    ikbd_send(0x13);    // pause output
+    sys_Delay(1000);
+    while (ikbd_rxrdy()) {
+        ikbd_recv();
+    }
+
+    // flash start
+    ikbd_send(0x2C);
+    ikbd_send(0x55);
+    ikbd_send(0xAA);
+    ikbd_send(0x00);
+    ikbd_send(0x00);
+
+    while(1) {
+        // wait for request
+        uint16_t block = (uint16_t)ikbd_recv();
+        if (block >= block_count) {
+            ikbd_send(0xFF);
+            break;
+        }
+        // acknowledge
+        ikbd_send((uint8_t)block);
+        // wait for ready
+        ikbd_recv();
+        // send all the bytes
+        for (int j=0; j<1024; j++) {
+            ikbd_send(data[(block<<10)+j]);
+        }
+        printf(".");
+    }
+
+    // wait for ckbd to reset and reconnect
+    printf("\ndone\n");
+    sys_Delay(1000);
+    ikbd_ConnectEx(IKBD_BAUD_7812, ikbd_baud);
+    ikbd_Info();
+}

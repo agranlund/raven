@@ -17,6 +17,7 @@
 
 bool        ikbd_Init();
 uint32_t    ikbd_Connect(uint8_t baud);
+uint32_t    ikbd_ConnectEx(uint8_t default_baud, uint8_t ideal_baud);
 void        ikbd_GPO(uint8_t bit, bool enable);
 bool        ikbd_GPI(uint8_t bit);
 
@@ -37,6 +38,7 @@ void        ikbd_ClearSettings();
 void        ikbd_SaveSettings();
 void        ikbd_ReadSetting(uint8_t idx);
 void        ikbd_WriteSetting(uint8_t idx, uint8_t val);
+void        ikbd_Flash(uint8_t* data, uint32_t size);
 
 #endif //!__ASM__
 #endif // _IKBD_H_

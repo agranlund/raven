@@ -164,29 +164,8 @@ bool sys_Init()
     if (!safemode)
     {
         initprint("IkbdConnect");
-        // connect with default or warmboot baudrate
-        uint32_t ikbdversion = ikbd_Connect(ikbdbaud);
-        if ((ikbdversion == 0) && (ikbdbaud != IKBD_BAUD_7812)) {
-            // retry with default baudrate if nondefault failed
-            sys_Delay(100);
-            ikbdbaud = IKBD_BAUD_7812;
-            ikbdversion = ikbd_Connect(ikbdbaud);
-        }
-
-        // negotiate higher connection speed if we are connected with a CKBD at 7812bps
         uint8_t ikbdcfgbaud = 7 & ((uint8_t) cfg_GetValue(cfg_Find("ikbd_baud")));
-        if ((ikbdversion & 0xF0) && (ikbdbaud == IKBD_BAUD_7812) && (ikbdcfgbaud != IKBD_BAUD_7812))  {
-            // ask ckbd to change its baudrate
-            sys_Delay(100);
-            ikbd_WriteSetting(0xFE, ikbdcfgbaud);
-            sys_Delay(100);
-            // reconnect at higher speed
-            if (!ikbd_Connect(ikbdcfgbaud)) {
-                // retry with default speed if the higher one failed
-                sys_Delay(100);
-                ikbd_Connect(IKBD_BAUD_7812);
-            }
-        }
+        ikbd_ConnectEx(ikbdbaud, ikbdcfgbaud);
         ikbd_Info();
 
         initprint("InitAtari");
