@@ -167,25 +167,6 @@ void mTimer0Interrupt(void) __interrupt(INT_NO_TMR0)
             UsbUpdateCounter = 0;
         }
         UsbUpdateCounter++;
-
-        // blink debug led
-        #if defined(DEBUG)
-        static uint16_t tm0counter_ms = 0;
-        if (++tm0counter_ms == 500) {
-            tm0counter_ms = 0;
-            {
-                static uint8_t blink = 0;
-                DEBUGLED(1, ++blink);
-
-                if (blink & 1) {
-                    SetKeyboardLedStatus(HID_KEY_LED_SCROLLLOCK);
-                } else {
-                    SetKeyboardLedStatus(HID_KEY_LED_CAPSLOCK);
-                }
-
-            }
-        }
-        #endif
 	}
 }
 

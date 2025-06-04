@@ -210,9 +210,6 @@ void reset(bool bootloader)
     GLOBAL_CFG &= ~bWDOG_EN;
     WDOG_COUNT = 0;
 
-    DEBUGLED(0,0);
-    DEBUGLED(1,0);
-
     if (bootloader) {
         static void(* __data CH559BootLoader)(void) = 0xF400;
         CH559BootLoader();
