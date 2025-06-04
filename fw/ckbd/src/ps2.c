@@ -1,7 +1,7 @@
-//---------------------------------------------------------------------
+//-------------------------------------------------------------------------
 // ps2.c
 // keyboard and mouse in ps2 port
-//
+//-------------------------------------------------------------------------
 // todo: reset rdwrbuffer on device connect/disconnect
 // and probably errors which throws the stream out of sync too
 //
@@ -10,8 +10,10 @@
 //
 // likewise for keyboard if we are stuck with only an E0 or E1
 // for too long.
-//---------------------------------------------------------------------
+//-------------------------------------------------------------------------
 #if !defined(DISABLE_PS2)
+
+#define NODEBUG
 
 #include <stdio.h>
 #include <string.h>
@@ -123,7 +125,7 @@ void PS2Interrupt0(void) __interrupt(INT_NO_INT0) {
     if (reg & 1) {
         // verify parity, start and stop bit
         if (parity || (reg & 2) || !((reg & (1 << 11)))) {
-            TRACE("ps2 mouse err: %02x p:%d start:%d stop:%d", (reg >> 2) & 0xff, parity, (reg >> 1) & 1, (reg >> 11) & 1);
+            TRACE("ps2 mouse err: $%x p:%d start:%d stop:%d", (reg >> 2) & 0xff, parity, (reg >> 1) & 1, (reg >> 11) & 1);
             err = msnow;
         } else {
             // store in mouse stream
@@ -167,7 +169,7 @@ void PS2Interrupt1(void) __interrupt(INT_NO_INT1) {
     if (reg & 1) {
         // verify parity, start and stop bit
         if (parity || (reg & 2) || !((reg & (1 << 11)))) {
-            TRACE("err: %02x p:%d start:%d stop:%d", (reg >> 2) & 0xff, parity, (reg >> 1) & 1, (reg >> 11) & 1);
+            TRACE("err: $%x p:%d start:%d stop:%d", (reg >> 2) & 0xff, parity, (reg >> 1) & 1, (reg >> 11) & 1);
             err = msnow;
         } else {
             // store in keyboard stream
@@ -343,7 +345,7 @@ static void InitMouse(void) {
     }
 
     if (id != 0xFF) {
-        TRACE("ps2 mouse connected: $%02x%02x", ps2m_type, id);
+        TRACE("ps2 mouse connected: $$%x$%x", ps2m_type, id);
         ps2m_state = PS2_STATE_IDLE;
         ps2mouse_send(PS2M_CMD_STREAM);
         if (ps2mouse_send(PS2M_CMD_RES) == PS2_REPLY_ACK) {
@@ -400,7 +402,7 @@ static bool ParseMouse(void) {
     }
 
     /*
-    TRACE("ps2m: %d : [%02x:%02x:%02x:%02x] %d %d %d %02x", 
+    TRACE("ps2m: %d : [$%x:$%x:$%x:$%x] %d %d %d $%x", 
         ps2m_type, data[0], data[1], data[2], data[3],
         mouse.x, mouse.y, mouse.z, mouse.b);
     */
@@ -476,7 +478,7 @@ static bool ParseKeyboard(void) {
         bool ignore = make && repeated;
         ps2k_packet.repeat = make ? code : repeated ? 0 : ps2k_packet.repeat;
         if (!ignore) {
-            //TRACE("ps2k: %02x:%02x : %04x", ps2k_packet.code, ps2k_packet.flag, code);
+            //TRACE("ps2k: $%x:$%x : $%x", ps2k_packet.code, ps2k_packet.flag, code);
             if (make) {
                 ikbd_Ps2KeyDown(code);
             } else {
@@ -513,7 +515,7 @@ static void InitKeyboard(void) {
             id0 = ps2keyb_recv();
             id1 = ps2keyb_recv();
         }
-        TRACE("ps2 keyboard connected: $%02x%02x", id0, id1);
+        TRACE("ps2 keyboard connected: $$%x$%x", id0, id1);
 #endif
         if (ps2keyb_send(PS2K_CMD_LED) == PS2_REPLY_ACK) {  // set leds
             ps2keyb_send(ps2k_curleds);

@@ -1397,16 +1397,4 @@ typedef unsigned short  ushort;
 typedef unsigned int    uint;
 typedef unsigned long   ulong;
 
-/*------------------------------------------------------------------------*/
-#if defined(DEBUG)
-extern void CH559UART0Init(UINT32 bps);
-extern UINT8 CH559UART0RcvByte(void);
-extern void CH559UART0SendByte(UINT8 SendDat);
-#endif
-extern void CH559UART1Init(UINT32 bps);
-UINT8 CH559UART1RcvByte(void);
-void CH559UART1SendByte(UINT8 SendDat);
-extern UINT8 CH559EraseDataFlash(UINT16 Addr);
-extern UINT8 CH559WriteDataFlash(UINT16 Addr,PUINT8 buf,UINT16 len);
-
 #endif  // __CH559_H__

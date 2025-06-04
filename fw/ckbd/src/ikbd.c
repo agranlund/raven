@@ -1,6 +1,7 @@
-//---------------------------------------------------------------------
+//-------------------------------------------------------------------------
 // ikbd.c
 // eiffel and ikbd emulation
+//-------------------------------------------------------------------------
 //
 //  Assumes input in the following formats:
 //      Keyboard: PS2 (set2)
@@ -21,7 +22,7 @@
 //
 // TT/MSTe : mouse pin 5 (button3) is connected to joy1-up
 //
-//---------------------------------------------------------------------
+//-------------------------------------------------------------------------
 #include <stdio.h>
 #include <string.h>
 #include "system.h"
@@ -144,11 +145,11 @@ static inline void      wbuf_put(uint8_t b)     { eventqueue[eventqueue_pos++] =
 
 //---------------------------------------------------------------------
 static inline void ikbd_Send(unsigned char b) {
-    CH559UART1SendByte(b);
+    uart1send(b);
 }
 
 void ikbd_QueueKey(uint8_t b) {
-    //TRACE("qkey: %02x", b);
+    //TRACE("qkey: $%x", b);
     if (wbuf_avail(1)) {
         wbuf_put(b);
     }
@@ -255,7 +256,7 @@ void InitIkbdState(void)
 void InitIkbdEx(uint32_t baud) {
     TRACE("InitIkbdEx %ld", baud);
     InitIkbdState();
-    CH559UART1Init(baud);
+    uart1init(baud);
     uint8_t lcr = SER1_LCR;         // unlock ier register
     SER1_LCR &= ~bLCR_DLAB;
     SER1_IER |= bIER_RECV_RDY;      // interrupt on recieve
@@ -322,7 +323,7 @@ void ProcessHostCommands(void)
                 packet[i] = rbuf_get();
             }
             // call command handler
-            //TRACE("cmd %02x %02x", cmd, size);
+            //TRACE("cmd $%x $%x", cmd, size);
             ikbd.paused = 0;    // any command received implicitly resumes
             if (!desc->func(packet, size)) {
                 // bail out if there's not enough data for variable length commands
@@ -353,14 +354,14 @@ void ProcessJoysticks(void) {
     else if (ikbd.joy.mode == JOYSTICK_MODE_EVENT) {
         if (joy_state[0] != joy_state_old[0]) {
             if (wbuf_avail(2)) {
-                TRACE("queue %02x %02x", IKBD_REPORT_JOY0, joy_state[0]);
+                TRACE("queue $%x $%x", IKBD_REPORT_JOY0, joy_state[0]);
                 wbuf_put(IKBD_REPORT_JOY0);
                 wbuf_put(joy_state[0]);
             }
         }
         if (joy_state[1] != joy_state_old[1]) {
             if (wbuf_avail(2)) {
-                TRACE("queue %02x %02x", IKBD_REPORT_JOY1, joy_state[1]);
+                TRACE("queue $%x $%x", IKBD_REPORT_JOY1, joy_state[1]);
                 wbuf_put(IKBD_REPORT_JOY1);
                 wbuf_put(joy_state[1]);
             }
@@ -480,7 +481,7 @@ void ProcessMouse(void) {
                 if (wbuf_avail(3))
                 {
                     uint8_t cmd = 0b11111000 | ((btns & 1) << 1) | ((btns >> 1) & 1);
-                    TRACE("queue %02x %ld %ld", cmd, xticks, yticks);
+                    TRACE("queue $%x %ld %ld", cmd, xticks, yticks);
                     wbuf_put(cmd);
                     wbuf_put(xticks);
                     wbuf_put(yticks);
@@ -645,7 +646,7 @@ void ikbd_AtariKey(uint8_t key) {
         return;
     }
 
-    TRACE("ikbd: st %02x", key);
+    TRACE("ikbd: st $%x", key);
     if (wbuf_avail(1)) {
         wbuf_put(key);
     }
@@ -687,7 +688,7 @@ uint8_t ikbd_Ps2ToAtariKey(uint16_t ps2key) {
         atarikey = ps2keymap[tablepos].key;
     }
 
-    TRACE("ikbd: ps2 %04x offs %04x key %02x", ps2key, tablepos, atarikey);
+    TRACE("ikbd: ps2 $%x offs $%x key $%x", ps2key, tablepos, atarikey);
     return atarikey;
 }
 
@@ -856,7 +857,7 @@ bool cmd_0x20(uint8_t* data, uint8_t size) {        // IKBD_CMD_MEM_LOAD
         TRACE("Eiffel dummy prog");
         for (int i=0; i<8192; i++) {
             #ifdef DEBUG            
-            if ((i & 255) == 0) { TRACE("%04x", i); }
+            if ((i & 255) == 0) { TRACE("$%x", i); }
             #endif            
             rbuf_getblocking();
         }
@@ -1171,7 +1172,6 @@ bool cmd_0x2A(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_READ_SETTIN
 bool cmd_0x2B(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_PROG_SETTING
     uint8_t idx = data[1];
     uint8_t val = data[2];
-    //TRACE("cmd2B: %02x %02x", idx, val);
     if (idx == 0xFF) {
         if (val == 0x5A) {
             InitSettings(true);     // ff,5A = restore to defaults
@@ -1190,8 +1190,10 @@ bool cmd_0x2B(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_PROG_SETTIN
     return true;
 }
 bool cmd_0x2C(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_PROG_FIRMWARE
-    // todo: we could possibly hook into eiffels
-    // method for consistency
+    if ((data[1] == 0x55) && (data[2] == 0xAA)) {
+        extern void IspMain(void);
+        IspMain();
+    }
     return true;
 }
 bool cmd_0x2E(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_RESET
@@ -1286,7 +1288,7 @@ const ikbd_cmd_t hostcommands_0x20[16] = {
     {0, cmd_null},      // 0x29 : 
     {1, cmd_0x2A},      // 0x2A : IKBD_CMD_CKBD_READ_SETTING
     {2, cmd_0x2B},      // 0x2B : IKBD_CMD_CKBD_PROG_SETTING
-    {0, cmd_0x2C},      // 0x2C : IKBD_CMD_CKBD_PROG_FIRMWARE
+    {4, cmd_0x2C},      // 0x2C : IKBD_CMD_CKBD_PROG_FIRMWARE
     {0, cmd_null},      // 0x2D :
     {1, cmd_0x2E},      // 0x2E : IKBD_CMD_CKBD_RESET
     {1, cmd_0x2F},      // 0x2F : IKBD_CMD_CKBD_POWER

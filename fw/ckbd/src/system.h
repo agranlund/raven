@@ -41,12 +41,19 @@ typedef unsigned char halIntState_t;
 extern __xdata volatile uint32_t msnow;
 extern __xdata volatile uint16_t SoftWatchdog;
 
-
 int getchar(void);
 int putchar(int c);
 void delayus(UINT16 n);
 void delayms(UINT16 n);
 void reset(bool bootloader);
+#if defined(DEBUG)
+void uart0init(uint32_t bps);
+void uart0send(uint8_t c);
+uint8_t uart0recv(void);
+#endif
+void uart1init(uint32_t bps);
+void uart1send(uint8_t c);
+uint8_t uart1recv(void);
 
 #if 1
 uint32_t elapsed(uint32_t from);
@@ -58,13 +65,19 @@ uint32_t elapsed(uint32_t from);
 //static inline uint32_t elapsed(uint32_t from) { return (msnow - from); }
 #endif
 
+#if defined(NODEBUG)
+#if defined(DEBUG)
+#undef DEBUG
+#endif
+#endif
+
 #if defined(DEBUG)
     #define STRINGIZE(x) STRINGIZE2(x)
     #define STRINGIZE2(x) #x
     #define __LINE_STR__ STRINGIZE(__LINE__)
 
     #include <stdio.h>
-    #define dbg_printf(...) { printf(__VA_ARGS__); printf("\n"); }
+    #define dbg_printf(...) { printf_small(__VA_ARGS__); putchar('\n'); }
     #define dbg_trace(...)  { dbg_printf(__FILE__ ":" __LINE_STR__ ": "__VA_ARGS__); }
 #else
     #define dbg_printf(...) { }
@@ -72,14 +85,6 @@ uint32_t elapsed(uint32_t from);
 #endif
 
 #define TRACE(...)      { dbg_printf(__VA_ARGS__); }
-
-
-#if defined(DEBUG) && defined(BOARD_DEVKIT)
-    extern void dbg_led(UINT8 led, UINT8 onoff);
-    #define DEBUGLED(x,y)   { dbg_led((UINT8)(x),(UINT8)(y)); }
-#else
-    #define DEBUGLED(x,y)   { }
-#endif
 
 #endif /* SYS_H_ */
 

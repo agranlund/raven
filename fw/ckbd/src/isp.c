@@ -1,76 +1,74 @@
-//---------------------------------------------------------------------
+//-------------------------------------------------------------------------
 // isp.c
 // in-system programming
+//-------------------------------------------------------------------------
 //
-// 1kb code block at location 0x400-0x800
+// IspMain() lives in the normal code area and is called first.
+// Here we flash the 1kb ISP area at $400
+//
+// Once done, we jump to IspMain1() which is located at $400
+// This takes care of flashing the rest of the rom.
+// When everything is done we perform a hard reset.
+//
 // Do not call code outside of this file during or after flashing.
 // It is ok to trash memory since we will reset after.
-//---------------------------------------------------------------------
+//
+// Be careful that no standard library stuff is called on accident
+// double check the assembly output if in doubt.
+//
+//-------------------------------------------------------------------------
 #include <stdio.h>
 #include <string.h>
 #include "system.h"
 
-// port1 is connected to host
-// port0 is debug port
-#if defined(BOARD_DEVKIT)
-#define ISP_DEBUG_PORT   1
-#else
-#define ISP_DEBUG_PORT   0
-#endif
-
-#if 1
 extern __xdata uint8_t MemPool[];
 #define isp_flash_buffer ((__xdata uint8_t*)&MemPool[0])
+
+static uint8_t IspRecvUart(void);
+static void IspSendUart(uint8_t b);
+static bool IspFlashBlock(uint16_t block);
+
+#if defined(DEBUG)
+#define IspPut(c) { while (!TI); TI = 0; SBUF = c; }
 #else
-__at(0x400) __xdata uint8_t isp_flash_buffer[1024];
+#define IspPut(...) { }
 #endif
 
-extern void IspDelayUs(uint16_t n);
-extern void IspDelayMs(uint16_t n);
-
-
-static inline bool IspPeekUart(void) {
-    return ((SER1_LSR & bLSR_DATA_RDY) != 0);
-}
-
-static inline uint8_t IspRecvUart(void) {
-    while (!IspPeekUart());
-    return SER1_RBR;
-}
-
-static inline void IspSendUart(uint8_t b) {
-    while ((SER1_LSR & bLSR_T_ALL_EMP) == 0);
-    SER1_THR = b;
-}
-
-
-#ifdef TRACE
-#undef TRACE
-#endif
-#if defined(ISP_DEBUG_PORT) && ((ISP_DEBUG_PORT == 0) || (ISP_DEBUG_PORT == 1))
-void IspPrint(const char* str) {
-    while (1) {
-        uint8_t b = *str++;
-        if (b == 0) {
-            return;
+//-------------------------------------------------------------------
+// Entry point for second stage inside ISP area
+// IspMain1() must be the first code and located at addess $400
+//-------------------------------------------------------------------
+#if defined(ISPCODE)
+void IspMain1(void)
+{
+    for (uint16_t block = 0; block <= 64; block++) {
+        if (block != 1) {   // ignore our own block
+            if (!IspFlashBlock(block)) {
+                break;
+            }
         }
-#if (ISP_DEBUG_PORT == 0)
-        while (!TI);
-        TI = 0;
-        SBUF = b;
-#elif (ISP_DEBUG_PORT == 1)
-        while ((SER1_LSR & bLSR_T_ALL_EMP) == 0 );
-        SER1_THR = b;
-#endif        
     }
+    IspPut('\n'); IspPut('d'); IspPut('o'); IspPut('n'); IspPut('e'); IspPut('\n');
+
+    // write protect code area
+    SAFE_MOD = 0x55;
+    SAFE_MOD = 0xAA;
+    GLOBAL_CFG &= ~(bCODE_WE | bDATA_WE);
+    SAFE_MOD = 0x00;
+
+    // hard reset
+    SAFE_MOD = 0x55;
+    SAFE_MOD = 0xAA;
+    GLOBAL_CFG |= bSW_RESET;
+    SAFE_MOD = 0x00;
 }
-#define TRACE(...) IspPrint(__VA_ARGS__)
-#else
-#define TRACE(...) { }
 #endif
 
 
-
+//-------------------------------------------------------------------
+// Entry point in regular code area, can be anywhere >= $800
+//-------------------------------------------------------------------
+#if !defined(ISPCODE)
 void IspMain(void)
 {
     // disable all interrupts
@@ -83,110 +81,72 @@ void IspMain(void)
     GLOBAL_CFG &= ~bWDOG_EN;
     WDOG_COUNT = 0;
 
-    // disable uart fifo
+    // disable and clear uart fifo
     SER1_FCR &= ~bFCR_FIFO_EN;
     SER1_FCR |= bFCR_T_FIFO_CLR | bFCR_R_FIFO_CLR;
 
-    TRACE("\n\n--[ IspMain ]--\n");
-
-    // loop
-        // send "get" message
-        // get "put" message
-            // get 1kb from uart
-            // (ignore if block 0x400-0x7ff)
-            // erase block
-            // flash block
-            // verify
-        // until "done" or timeout            
-
-    // send "done" message
-    
-    // reset
+    // write enable code area
     SAFE_MOD = 0x55;
     SAFE_MOD = 0xAA;
-    GLOBAL_CFG |= bSW_RESET;
-}
+    GLOBAL_CFG |= (bCODE_WE | bDATA_WE);
+    SAFE_MOD = 0x00;
 
+    IspPut('\n'); IspPut('I'); IspPut('S'); IspPut('P'); IspPut('\n');
 
-void IspDelayUs(uint16_t n)
-{
-	while (n)
-	{				// total = 12~13 Fsys cycles, 1uS @Fsys=12MHz
-		++SAFE_MOD; // 2 Fsys cycles, for higher Fsys, add operation here
-#if FREQ_SYS >= 14000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 16000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 18000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 20000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 22000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 24000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 26000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 28000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 30000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 32000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 34000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 36000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 38000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 40000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 42000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 44000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 46000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 48000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 50000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 52000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 54000000
-		++SAFE_MOD;
-#endif
-#if FREQ_SYS >= 56000000
-		++SAFE_MOD;
-#endif
-		--n;
-	}
-}
-
-void IspDelayMs(uint16_t n)
-{
-    while (n) {
-        IspDelayUs(1000);
-        --n;
+    // first we flash the isp area
+    if (!IspFlashBlock(1)) {
+        return;
     }
+
+    // then we run the isp code to flash all other areas of the rom
+    extern void IspMain1();
+    IspMain1();
 }
+#endif
+
+
+//-------------------------------------------------------------------
+// shared code, must be static so isp0.rel and isp1.rel
+// both get their own unique copies of these functions
+//-------------------------------------------------------------------
+static uint8_t IspRecvUart(void) {
+    while ((SER1_LSR & bLSR_DATA_RDY) == 0);
+    return SER1_RBR;
+}
+
+static void IspSendUart(uint8_t b) {
+    while ((SER1_LSR & bLSR_T_ALL_EMP) == 0);
+    SER1_THR = b;
+}
+
+static bool IspFlashBlock(uint16_t block) {
+    IspPut('.');
+    // send request
+    IspSendUart((uint8_t)block);
+    if (block != (uint16_t)IspRecvUart()) {
+        return false;
+    }
+    // send ack
+    IspSendUart((uint8_t)block);
+    // and receive the data
+    __xdata uint8_t* buf = isp_flash_buffer;
+    for (int i=0; i<1024; i++) {
+        buf[i] = IspRecvUart();
+    }
+
+    // erase block
+    ROM_ADDR = (block << 10);
+    ROM_CTRL = ROM_CMD_ERASE;
+    while (!(ROM_STATUS & bROM_ADDR_OK));
+    // program block
+    for (int i=0; i<1024; i+=2) {
+        uint16_t w = buf[i+1];
+        w <<= 8; w += buf[i];
+        ROM_ADDR = (block << 10) + i;
+        ROM_DATA = w;
+        ROM_CTRL = ROM_CMD_PROG;
+        while (!(ROM_STATUS & bROM_ADDR_OK));
+    }
+    return true;
+}
+

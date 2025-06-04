@@ -1,8 +1,8 @@
-//---------------------------------------------------------------------
+//-------------------------------------------------------------------------
 // usbreport.c
 // Handles the higher-level parts of the PS/2 protocol
 // HID conversion, responding to host commands
-//---------------------------------------------------------------------
+//-------------------------------------------------------------------------
 #include <stdio.h>
 #include <string.h>
 #include "system.h"
@@ -208,13 +208,13 @@ bool ParseReport(__xdata INTERFACE *interface, uint32_t len, __xdata uint8_t *re
 						if (descReport->KeyboardKeyMap[d] & (1 << c)) // set in current but not prev
 						{
                             // Make
-                            //TRACE("UsbKeyMake  %02x %04x", hidcode, HIDtoSET2[hidcode]);
+                            //TRACE("UsbKeyMake  $%x $%x", hidcode, HIDtoSET2[hidcode]);
                             ikbd_Ps2KeyDown(ps2code);
 						}
 						else // set in prev but not current
 						{
                             // break
-                            //TRACE("UsbKeyBreak %02x %04x", hidcode, HIDtoSET2[hidcode]);
+                            //TRACE("UsbKeyBreak $%x $%x", hidcode, HIDtoSET2[hidcode]);
                             ikbd_Ps2KeyUp(ps2code);
 						}
 					}

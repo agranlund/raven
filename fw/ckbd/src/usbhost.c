@@ -1,10 +1,8 @@
-//---------------------------------------------------------------------
+//-------------------------------------------------------------------------
 // usbhost.c
 // core usb functionality
-//---------------------------------------------------------------------
-#ifdef DEBUG
-#undef DEBUG
-#endif
+//-------------------------------------------------------------------------
+#define NODEBUG
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,13 +19,13 @@
 void DumpHex(PUINT8 buffa, UINT16 len)
 {
 	for (UINT16 cnt = 0; cnt < len; cnt++) {
-		printf("%02X ", buffa[cnt]);
+		dbg_printf("$%x ", buffa[cnt]);
 		if ((cnt & 0x000F) == 0x000F) {
-			printf("\n");
+			dbg_printf("\n");
         }
 	}
     if (len & 0x000F) {
-        printf("\n");
+        dbg_printf("\n");
     }
 }
 uint8_t DumpHID(INTERFACE *pInterface) {
@@ -286,20 +284,20 @@ UINT8 USBHostTransact(UINT8 endp_pid, UINT8 tog, UINT16 timeout)
 			}
 
 #if 0
-			TRACE("endp_pid=%02X", (UINT16)endp_pid);
-			TRACE("USB_INT_FG=%02X", (UINT16)USB_INT_FG);
-			TRACE("USB_INT_ST=%02X", (UINT16)USB_INT_ST);
-			TRACE("USB_MIS_ST=%02X", (UINT16)USB_MIS_ST);
-			TRACE("USB_RX_LEN=%02X", (UINT16)USB_RX_LEN);
-			TRACE("UH_TX_LEN=%02X", (UINT16)UH_TX_LEN);
-			TRACE("UH_RX_CTRL=%02X", (UINT16)UH_RX_CTRL);
-			TRACE("UH_TX_CTRL=%02X", (UINT16)UH_TX_CTRL);
-			TRACE("UHUB0_CTRL=%02X", (UINT16)UHUB0_CTRL);
-			TRACE("UHUB1_CTRL=%02X", (UINT16)UHUB1_CTRL);
+			TRACE("endp_pid=$%x", (UINT16)endp_pid);
+			TRACE("USB_INT_FG=$%x", (UINT16)USB_INT_FG);
+			TRACE("USB_INT_ST=$%x", (UINT16)USB_INT_ST);
+			TRACE("USB_MIS_ST=$%x", (UINT16)USB_MIS_ST);
+			TRACE("USB_RX_LEN=$%x", (UINT16)USB_RX_LEN);
+			TRACE("UH_TX_LEN=$%x", (UINT16)UH_TX_LEN);
+			TRACE("UH_RX_CTRL=$%x", (UINT16)UH_RX_CTRL);
+			TRACE("UH_TX_CTRL=$%x", (UINT16)UH_TX_CTRL);
+			TRACE("UHUB0_CTRL=$%x", (UINT16)UHUB0_CTRL);
+			TRACE("UHUB1_CTRL=$%x", (UINT16)UHUB1_CTRL);
 #endif
 
 			UINT8 r = USB_INT_ST & MASK_UIS_H_RES;
-			//TRACE("r:0x%02X", (UINT16)r);
+			//TRACE("r:$%x", (UINT16)r);
 
 			if (r == USB_PID_STALL) {
 				TRACE("fail");
@@ -688,7 +686,7 @@ UINT8 HIDDataTransferReceive(USB_HUB_PORT *pUsbDevice)
 #if 0
                         // todo: disconnect after x amount of errors?
                         if (s == ERR_USB_TRANSFER) {
-                            TRACE("interface %d err %02x", (UINT16)i, s);
+                            TRACE("interface %d err $%x", (UINT16)i, s);
                             pUsbDevice->HubPortStatus = PORT_DEVICE_ENUM_FAILED;
                         }
 #endif                        
@@ -744,7 +742,7 @@ BOOL EnumerateHubPort(__xdata USB_HUB_PORT *pUsbHubPort, UINT8 addr)
 	DumpHex(ReceiveDataBuffer, len);
 
 	ParseDeviceDescriptor((USB_DEV_DESCR *)ReceiveDataBuffer, len, pUsbDevice);
-	TRACE("0x%04X 0x%04X 0x%04X", pUsbDevice->VendorID, pUsbDevice->ProductID, pUsbDevice->bcdDevice);
+	TRACE("$%x $%x $%x", pUsbDevice->VendorID, pUsbDevice->ProductID, pUsbDevice->bcdDevice);
 
 	//get configure descriptor for the first time
 	cfgDescLen = sizeof(USB_CFG_DESCR);
@@ -807,9 +805,9 @@ BOOL QuerySubHubPort(UINT8 port)
         SelectHubPort(port, EXHUB_PORT_NONE);
         UINT16 hubPortStatus, hubPortChange;
         uint8_t s = GetHubPortStatus(pUsbDevice, i + 1, &hubPortStatus, &hubPortChange);
-        //TRACE("%d/%d : %04x %04x", i, hubPortNum, hubPortStatus, hubPortChange);
+        //TRACE("%d/%d : $%x $%x", i, hubPortNum, hubPortStatus, hubPortChange);
         if (hubPortChange & 0x0001) {
-            TRACE("%d:%d changed: %04x %04x", port, hubPortNum, hubPortStatus, hubPortChange);
+            TRACE("%d:%d changed: $%x $%x", port, hubPortNum, hubPortStatus, hubPortChange);
             forceEnumerate = true;
         }
     }
@@ -975,7 +973,7 @@ BOOL EnumerateRootHubPort(UINT8 port)
 						TRACE("GetHubPortStatus port:%d failed", (UINT16)(i + 1));
 						return FALSE;
 					}
-					TRACE("ps- 0x%02X pc- 0x%02X", hubPortStatus, hubPortChange);
+					TRACE("ps- $%x pc- $%x", hubPortStatus, hubPortChange);
 
 					if ((hubPortStatus & 0x0001) && (hubPortChange & 0x0001)) {
 						//device attached
@@ -1110,8 +1108,8 @@ void regrabinterfaces(__xdata USB_HUB_PORT *pUsbHubPort)
 			TRACE("");
 			//INTERFACE *pInterface = &pUsbDevice->Interface[i];		
 			INTERFACE *pInterface = (INTERFACE *)UsbListGetData(pUsbDevice->Interfaces, i);
-			TRACE("InterfaceClass=0x%02X", (UINT16)pInterface->InterfaceClass);
-			TRACE("InterfaceProtocol=0x%02X", (UINT16)pInterface->InterfaceProtocol);
+			TRACE("InterfaceClass=$%x", (UINT16)pInterface->InterfaceClass);
+			TRACE("InterfaceProtocol=$%x", (UINT16)pInterface->InterfaceProtocol);
 
 			if (pInterface->InterfaceClass == USB_DEV_CLASS_HID) {
 				s = SetIdle(pUsbDevice, 0, 0, i);
@@ -1255,7 +1253,7 @@ void InterruptProcessRootHubPort(UINT8 port)
                 uint8_t s = GetHubPortStatus(pUsbHubPort, i + 1, &hubPortStatus, &hubPortChange);
                 if (hubPortChange & 0x0001)
                 {
-                    TRACE("port %d:%d changed: %04x %04x", port, exHubPortNum, hubPortStatus, hubPortChange);
+                    TRACE("port %d:%d changed: $%x $%x", port, exHubPortNum, hubPortStatus, hubPortChange);
                     forceEnumerate = true;
                     return;
                 }

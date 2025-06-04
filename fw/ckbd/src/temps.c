@@ -1,7 +1,7 @@
-//---------------------------------------------------------------------
+//-------------------------------------------------------------------------
 // temps.c
 // temperature and fan control
-//---------------------------------------------------------------------
+//-------------------------------------------------------------------------
 #include <stdio.h>
 #include <string.h>
 #include "system.h"
@@ -210,7 +210,7 @@ void InitTemps(void) {
     }
     status = GetBoardTemperature(0, 0, 0) ? TEMP_STATUS_ADC0 : 0;// TEMP_STATUS_FAN0;
     status |= GetCoreTemperature(0, 0, 0) ? TEMP_STATUS_ADC1 : 0; //TEMP_STATUS_FAN1;
-    TRACE("sensor status = %02x", status);
+    TRACE("sensor status = $%x", status);
 }
 
 void ProcessTemps(void) {

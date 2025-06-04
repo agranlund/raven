@@ -91,15 +91,15 @@ ifeq ($(FLASHTOOL),)
 FLASHTOOL = $(CH55XTOOL)
 endif
 
-TARGET = chkbd
+TARGET = ckbd
 
 OBJDIR = ./build
 SRCDIR = ./src
 
 OBJS = \
 	$(OBJDIR)/main.rel \
-	$(OBJDIR)/isp.rel \
-	$(OBJDIR)/ch559.rel \
+	$(OBJDIR)/isp0.rel \
+	$(OBJDIR)/isp1.rel \
 	$(OBJDIR)/system.rel \
 	$(OBJDIR)/settings.rel \
 	$(OBJDIR)/ikbd.rel \
@@ -128,8 +128,11 @@ print-%  : ; @echo $* = $($*)
 makebuilddir:
 	@-mkdir build
 
-$(OBJDIR)/isp.rel : $(SRCDIR)/isp.c
-	$(CC) --codeseg=CSEG_ISP -c $(CFLAGS) -o $@ $<
+$(OBJDIR)/isp0.rel : $(SRCDIR)/isp.c
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+$(OBJDIR)/isp1.rel : $(SRCDIR)/isp.c
+	$(CC) -DISPCODE --codeseg=CSEG_ISP -c $(CFLAGS) -o $@ $<
 
 $(OBJDIR)/%.rel : $(SRCDIR)/%.c
 	$(CC) -c $(CFLAGS) -o $@ $<

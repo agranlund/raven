@@ -3,7 +3,7 @@
 
 ## **** WIP and not ready for general use ****
 
-CHKBD aims to be fairly compatible with Eiffel and allows the use of the following devices:
+CKBD aims to be fairly compatible with Eiffel and allows the use of the following devices:
 * USB Keyboard and mouse
 * PS2 Keyboard and mouse
 * Atari joystick(s)
@@ -17,14 +17,16 @@ Two USB ports are then exposed on an internal header.
 
 ## Technical description
 
-CHKBD is based around the CH559 microcontroller from WCH.
-The sourecode is based on HIDman: https://github.com/rasteri/HIDman
-Which in turn was based on CH559sdccUSBHost: https://github.com/atc1441/CH559sdccUSBHost
-
+CKBD is based around the CH559 microcontroller from WCH.
+Some parts of this sourcecode is based on HIDman by Rasteri (https://github.com/rasteri/HIDman)
+which is turn was based on CH559sdccUSBHost by atc114 (https://github.com/atc1441/CH559sdccUSBHost)
 
 # Firmware Update
 
 todo: proper instructions...
+
+todo: instructions on first time programming vs in-system programming
+
 
 ## Common
 1. Power off Raven

@@ -7,6 +7,7 @@
 #include "system.h"
 #include "settings.h"
 #include "ps2.h"
+#include "joyport.h"
 #include "temps.h"
 #include "ikbd.h"
 #include "usbhost.h"
@@ -27,12 +28,6 @@ int main(void)
     P4_OUT  = 0b00000000;
     PORT_CFG = bP1_OC | bP2_OC/* | bP3_OC*/;
 
-
-#if defined(BOARD_DEVKIT) && defined(DEBUG)
-    // debug leds
-    P4_DIR  |= 0b00010001;   // led5, led4
-#endif
-
     // clock setup
 	SAFE_MOD = 0x55;
 	SAFE_MOD = 0xAA;
@@ -47,7 +42,7 @@ int main(void)
 
     // serial debug on uart0
 #if defined(DEBUG)
-    CH559UART0Init(BAUD_DEBUG);
+    uart0init(BAUD_DEBUG);
     TRACE("\n\n--[ CKBD ]--\n");
 #endif
 
@@ -89,19 +84,12 @@ int main(void)
 
     // enable interrupts
     TRACE("Gotime!");
-	EA = 1;         // enable interrupts
+	EA = 1;
 
     while(1)
     {
         // keepalive
         SoftWatchdog = 0;
-
-#if defined(BOARD_DEVKIT) && defined(OSC_EXTERNAL)
-        // check program button
-        if ((P4_IN & 0b01000000) == 0) {
-            reset(true);
-        }
-#endif
 
         // handle all inputs
 		ProcessUsbHostPort();
@@ -130,7 +118,7 @@ void mGpioInterrupt(void) __interrupt(INT_NO_GPIO)
     if (!(b & (1<<1))) {
         int delta = (b & 1) ? 1 : -1;
         unsigned char t1 = GPIO_IE;
-        TRACE("b = %02x : t1=%02x : d=%d", b, t1, delta);
+        TRACE("b = $%x : t1=$%x : d=%d", b, t1, delta);
     }
 #if 0
     b = P4_IN & 0b00000011;

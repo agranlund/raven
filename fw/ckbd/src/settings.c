@@ -1,7 +1,7 @@
-//---------------------------------------------------------------------
+//-------------------------------------------------------------------------
 // settings.c
 // user settings stored in flash
-//---------------------------------------------------------------------
+//-------------------------------------------------------------------------
 #include <stdio.h>
 #include <string.h>
 #include "system.h"
@@ -44,16 +44,55 @@ bool SyncSettings(bool force)
         }
     }
 
+    // disable all interrupts
+    EA = 0;
+
+    // unlock data area
+    SAFE_MOD = 0x55;
+	SAFE_MOD = 0xAA;
+	GLOBAL_CFG |= bDATA_WE;
+    SAFE_MOD = 0x00;
+
+    // erase
     TRACE("Erasing flash");
-    if(CH559EraseDataFlash(FlashAddress) != 0) {
-        TRACE("Flash erase failed");
+    uint16_t written = 0;
+	ROM_ADDR = FlashAddress;
+    if (ROM_STATUS & bROM_ADDR_OK) {
+        ROM_CTRL = ROM_CMD_ERASE;
+        if (((ROM_STATUS ^ bROM_ADDR_OK) & 0x7F) == 0) {
+            // program
+            TRACE("Programming flash");
+            uint8_t* buf = (uint8_t*)&Settings;
+            for(int i=0; i<sizeof(settings_t); i+=2)
+            {
+                uint16_t w = buf[i+1];
+                w <<= 8; w += buf[i];
+                ROM_ADDR = FlashAddress + i;
+                ROM_DATA = w;
+                if (ROM_STATUS & bROM_ADDR_OK) {
+                    ROM_CTRL = ROM_CMD_PROG;
+                    if (((ROM_STATUS ^ bROM_ADDR_OK) & 0x7F) == 0) {
+                        written += 2;
+                    }
+                }
+            }
+        }
+    }
+
+    // lock data area
+    SAFE_MOD = 0x55;
+	SAFE_MOD = 0xAA;
+	GLOBAL_CFG &= ~bDATA_WE;
+    SAFE_MOD = 0x00;
+
+    // enable interrupts
+    EA = 1;
+
+    if (written < sizeof(settings_t)) {
+        TRACE("Failed (%d / %d)", written, sizeof(settings_t));
         return false;
     }
-    TRACE("Writing flash : %d bytes", sizeof(settings_t));
-    if (CH559WriteDataFlash(FlashAddress, (uint8_t *)&Settings, sizeof(settings_t)) != 0) {
-        TRACE("Flash write failed");
-        return false;
-    }
+    TRACE("Done");
     return true;
 }
 
