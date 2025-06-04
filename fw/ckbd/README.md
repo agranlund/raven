@@ -18,7 +18,9 @@ Two USB ports are then exposed on an internal header.
 ## Technical description
 
 CKBD is based around the CH559 microcontroller from WCH.
+
 Some parts of this sourcecode is based on HIDman by Rasteri (https://github.com/rasteri/HIDman)
+
 which is turn was based on CH559sdccUSBHost by atc114 (https://github.com/atc1441/CH559sdccUSBHost)
 
 # Firmware Update
