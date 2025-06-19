@@ -20,8 +20,8 @@ BAUD_DEBUG		= 115200
 BAUD_IKBD		= 7812
 
 # board layout
-BOARD_TYPE  	= BOARD_PROTO
-#BOARD_TYPE		= BOARD_RAVEN_A1
+#BOARD_TYPE  	= BOARD_PROTO
+BOARD_TYPE		= BOARD_RAVEN_A1
 #BOARD_TYPE		= BOARD_RAVEN_A2
 
 # Feature defines
@@ -91,7 +91,7 @@ ifeq ($(FLASHTOOL),)
 FLASHTOOL = $(CH55XTOOL)
 endif
 
-TARGET = ckbd
+TARGET = ckbd_$(target)
 
 OBJDIR = ./build
 SRCDIR = ./src
