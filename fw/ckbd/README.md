@@ -25,7 +25,7 @@ which is turn was based on CH559sdccUSBHost by atc114 (https://github.com/atc144
 # First time programming: Windows
 - Install WCHISPTool tool: https://www.wch.cn/downloads/WCHISPTool_Setup_exe.html
 - Connect CKBD to your computer using a USB cable connected to the USB0 port.
-- Select "File -> Load UI Config" and pick "ckbd_a1.ini"
+- Select "File -> Load UI Config" and pick "ckbd_wch.ini"
 - Under the "Download File" section pick "ckbd_a1.bin" as Object File 1
 - Press Download to program the firmware
 
@@ -42,7 +42,7 @@ Flashing with WCHISPTool_Cmd:
 - Install WCHISPTool_Cmd
 - Read the documentation (especially if you are on MacOS)
 - Connect CKBD to your computer using a USB cable connected to the USB0 port.
-- run "WCHISPTool_CMD -p <devid> -c ckbd_wchisp.ini -o program -f ckbd_a1.bin"
+- run "WCHISPTool_CMD -p <devid> -c ckbd_wch.ini -o program -f ckbd_a1.bin"
   (you did read the manual regarding finding your value for <devid>, right?)
 
 
