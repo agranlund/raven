@@ -42,7 +42,7 @@ Flashing with WCHISPTool_Cmd:
 - Install WCHISPTool_Cmd
 - Read the documentation (especially if you are on MacOS)
 - Connect CKBD to your computer using a USB cable connected to the USB0 port.
-- run "WCHISPTool_CMD -p <devid> -c ckbd_a1.ini -o program -f ckbd_a1.bin"
+- run "WCHISPTool_CMD -p <devid> -c ckbd_wchisp.ini -o program -f ckbd_a1.bin"
   (you did read the manual regarding finding your value for <devid>, right?)
 
 
