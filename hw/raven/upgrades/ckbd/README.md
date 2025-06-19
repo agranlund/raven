@@ -1,6 +1,5 @@
 
 # Eiffel upgrade module for Raven.A1
-### *** WIP. This particular version has not yet been built and firmware is still in development ***
 
 - Plugs into the Eiffel socket instead of Eiffel.
 - Retains support for PS/2 mouse+keyboard, joystick and motherboard temperature sensor.
