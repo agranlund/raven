@@ -91,8 +91,13 @@ ifeq ($(FLASHTOOL),)
 FLASHTOOL = $(CH55XTOOL)
 endif
 
+ifeq ($(target),)
+TARGET = ckbd
+else
 TARGET = ckbd_$(target)
+endif
 
+BINDIR = ./
 OBJDIR = ./build
 SRCDIR = ./src
 
@@ -125,6 +130,8 @@ LFLAGS := $(CFLAGS)
 
 print-%  : ; @echo $* = $($*)
 
+.PHONY: flash flash_ch55xtool flash_wchispcmd makebuilddir
+
 makebuilddir:
 	@-mkdir build
 
@@ -143,8 +150,8 @@ $(OBJDIR)/$(TARGET).ihx: makebuilddir $(OBJS)
 $(OBJDIR)/$(TARGET).hex: $(OBJDIR)/$(TARGET).ihx
 	$(PACK_HEX) $(OBJDIR)/$(TARGET).ihx > $(OBJDIR)/$(TARGET).hex
 
-$(OBJDIR)/$(TARGET).bin: $(OBJDIR)/$(TARGET).ihx
-	$(OBJCOPY) -I ihex -O binary $(OBJDIR)/$(TARGET).ihx $(OBJDIR)/$(TARGET).bin
+$(BINDIR)/$(TARGET).bin: $(OBJDIR)/$(TARGET).ihx
+	$(OBJCOPY) -I ihex -O binary $(OBJDIR)/$(TARGET).ihx $(BINDIR)/$(TARGET).bin
 
 size: $(OBJDIR)/$(TARGET).ihx
 	@echo '---------- Segments ----------'
@@ -152,14 +159,14 @@ size: $(OBJDIR)/$(TARGET).ihx
 	@echo '---------- Memory ----------'
 	@egrep 'available|EXTERNAL|FLASH' $(OBJDIR)/$(TARGET).mem
 
-flash_ch55xtool: $(OBJDIR)/$(TARGET).bin
-	python3 $(CH55XTOOL) -f $(OBJDIR)/$(TARGET).bin -r
+flash_ch55xtool:
+	python3 $(CH55XTOOL) -f $(BINDIR)/$(TARGET).bin -r
 
-flash_wchispcmd: $(OBJDIR)/$(TARGET).bin
+flash_wchispcmd:
 	chmod +x $(WCHISPCMD)
-	$(WCHISPCMD) -p $(WCHISPDEV) -c ./tools/wchisp.ini -o program -f $(OBJDIR)/$(TARGET).bin
+	$(WCHISPCMD) -p $(WCHISPDEV) -c ./ckbd_wch.ini -o program -f $(BINDIR)/$(TARGET).bin
 
-flash: $(OBJDIR)/$(TARGET).bin
+flash:
 ifeq ($(FLASHTOOL),$(CH55XTOOL))
 	make flash_ch55xtool
 else
@@ -185,7 +192,7 @@ a2:
 	make all target=a2 debug=$(debug)
 
 
-all: $(OBJDIR)/$(TARGET).bin $(OBJDIR)/$(TARGET).hex size
+all: $(BINDIR)/$(TARGET).bin $(OBJDIR)/$(TARGET).hex size
 
 clean:
 	-rm -f $(OBJDIR)/*
