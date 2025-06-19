@@ -8,6 +8,12 @@
 #include "hw/uart.h"
 #include "hw/ikbd.h"
 
+void sys_Delay(uint32_t c) {
+    for (uint32_t i = 0; i < (c * 1000); i++) {
+        nop();
+    }
+}
+
 void main(void)
 {
     uint8_t recv[8];
@@ -55,7 +61,7 @@ void main(void)
                 recv[6] = ikbd_recv();
                 recv[7] = ikbd_recv();
                 printf("ikbd: %02x %02x %02x %02x %02x %02x %02x %02x\n", recv[0], recv[1], recv[2], recv[3], recv[4], recv[5], recv[6], recv[7]);
-                if (recv[1] == 0x2C) {
+                if (recv[1] == 0x2B) {
                     // got version info
                     ckbd_version = recv[7] | (recv[6] << 8) | (recv[5] << 16) | (recv[4] << 24);
                     break;
@@ -84,7 +90,7 @@ void main(void)
     while(1) {
         while (uart_rxrdy()) {
             recv[0] = uart_recv();
-#if 0
+#if 1
             printf("uart: %02x\n", recv[0]);
 #endif            
             if (recv[0] == 0x1B) {      // esc = quit
@@ -105,7 +111,7 @@ void main(void)
         while (ikbd_rxrdy()) {
             recv[0] = ikbd_recv();
 
-            if (recv[0] == 0xF6) {      // relative mouse
+            if (recv[0] == 0xF6) {      // status frame
                 recv[1] = ikbd_recv();
                 recv[2] = ikbd_recv();
                 recv[3] = ikbd_recv();
@@ -122,6 +128,11 @@ void main(void)
                 recv[4] = ikbd_recv();
                 recv[5] = ikbd_recv();
                 printf("ikbd: %02x %02x, %d, %d\n", recv[0], recv[1], (recv[2] << 8) | recv[3], (recv[4] << 8) | recv[5]);
+            }
+            else if ((recv[0] >= 0xF8) && (recv[0] <= 0xFB)) { // relatiev mouse
+                recv[1] = ikbd_recv();
+                recv[2] = ikbd_recv();
+                printf("ikbd: %02x, %d, %d\n", recv[0], recv[1], recv[2]);
             }
             else
             {
