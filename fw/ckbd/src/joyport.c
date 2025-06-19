@@ -67,7 +67,7 @@ void JoyportInterrupt(void) {
         jmouse_yrel += decodeQuadrature[yaxis & 0b00001111];
     }
 #else
-    uint8_t p4 = ~P4;
+    uint8_t p4 = ~P4_IN;
     if (Settings.LegacyMouseAmiga) {
         xaxis = (xaxis << 2) | ((p4 & 0b00000001) | ((p4 & 0b00000100) >> 1));
         yaxis = (yaxis << 2) | ((p4 & 0b00000010) | ((p4 & 0b00001000) >> 3));
@@ -79,8 +79,7 @@ void JoyportInterrupt(void) {
         jmouse_xrel -= decodeQuadrature[xaxis & 0b00001111];
         jmouse_yrel -= decodeQuadrature[yaxis & 0b00001111];
     }
-#endif    
-
+#endif
 }
 
 void InitJoyport(void) {
