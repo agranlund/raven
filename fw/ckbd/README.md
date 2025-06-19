@@ -67,7 +67,7 @@ If the ckbd is bricked and won't respond to updating firmware the normal way the
 # Compiling
 Compiles with SDCC: https://sdcc.sourceforge.net/
 
-If you are building and working on the firmware yourself you can use "make flash" or "make flash_wchispcmd" to flash using the bundled ch552tool or wchisptool.
+If you are building and working on the firmware yourself you can use "make target=a1 flash" or "make target=a1 flash_wchispcmd" to flash using the bundled ch552tool or wchisptool.
 When using wchisptool you'll need to modify the WCHISPDEV variable in the makefile.
 
 Executing "kbd prog" from the Raven monitor will put the CH559 into bootloader mode so it can be programmed with these tools (ie; you don't need to jumper it to start in bootloader mode)
