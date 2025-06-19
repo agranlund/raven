@@ -1,7 +1,6 @@
 # CKBD
 ## Eiffel replacement for Raven
-
-## **** WIP and not ready for general use ****
+## This is a work in progress and may contain yet to be discovered incompatibilities
 
 CKBD aims to be fairly compatible with Eiffel and allows the use of the following devices:
 * USB Keyboard and mouse
@@ -23,35 +22,52 @@ Some parts of this sourcecode is based on HIDman by Rasteri (https://github.com/
 
 which is turn was based on CH559sdccUSBHost by atc114 (https://github.com/atc1441/CH559sdccUSBHost)
 
-# Firmware Update
+# First time programming: Windows
+- Install WCHISPTool tool: https://www.wch.cn/downloads/WCHISPTool_Setup_exe.html
+- Connect CKBD to your computer using a USB cable connected to the USB0 port.
+- Select "File -> Load UI Config" and pick "ckbd_wch.ini"
+- Under the "Download File" section pick "ckbd_a1.bin" as Object File 1
+- Press Download to program the firmware
 
-todo: proper instructions...
+# First time programming: MacOS/Linux
+There are several tools for flashing CH559, including an official one from WCH.
+I am using ch552tool from MarsTechHAN (https://github.com/MarsTechHAN/ch552tool)
 
-todo: instructions on first time programming vs in-system programming
+Flashing with ch552tool:
+- install ch552tool, libusb and pyusb
+- Connect CKBD to your computer using a USB cable connected to the USB0 port.
+- run "python3 ch55xtool.py -f ckbd_a1.bin -r"
+
+Flashing with WCHISPTool_Cmd:
+- Install WCHISPTool_Cmd
+- Read the documentation (especially if you are on MacOS)
+- Connect CKBD to your computer using a USB cable connected to the USB0 port.
+- run "WCHISPTool_CMD -p <devid> -c ckbd_wch.ini -o program -f ckbd_a1.bin"
+  (you did read the manual regarding finding your value for <devid>, right?)
 
 
-## Common
-1. Power off Raven
-1. Disconnect all USB devices
-3. Connect LOWER USB port to your PC
-2. Short the programming header
-4. Power on Raven
-5. Perform programming as per instructions below
-6. Power off Raven
-7. Disconnect USB cable and reconnect your USB devices
-7. Unshort the programming header
-9. Power on Raven
+## Firmware update
+With the CBKD installed in Raven:
+   - press the NMI button to enter the monitor
+   - run "kbd flash"
+   - send the ckbd firmware binary with your serial terminal
+   - run "reset" to reset Raven
 
-## Windows:
-Install WCH's ISP tool: https://www.wch.cn/downloads/WCHISPTool_Setup_exe.html
-todo: instructions
-
-## Mac/Linux:
-
-todo: instructions
+If the ckbd is bricked and won't respond to updating firmware the normal way then:
+  - make sure Raven is powered off
+  - disconnect all usb devices
+  - jumper the two middle pins of CKBD header J104
+  - power on Raven
+  - perform the same steps as when you did the first time programming
+  - power off Raven
+  - remove jumper from J104 and your USB programming cable
+  - reconnect your devices and power on Raven
 
 
 # Compiling
-
 Compiles with SDCC: https://sdcc.sourceforge.net/
 
+If you are building and working on the firmware yourself you can use "make target=a1 flash" or "make target=a1 flash_wchispcmd" to flash using the bundled ch552tool or wchisptool.
+When using wchisptool you'll need to modify the WCHISPDEV variable in the makefile.
+
+Executing "kbd prog" from the Raven monitor will put the CH559 into bootloader mode so it can be programmed with these tools (ie; you don't need to jumper it to start in bootloader mode)

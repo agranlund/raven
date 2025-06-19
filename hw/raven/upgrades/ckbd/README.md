@@ -1,6 +1,5 @@
 
 # Eiffel upgrade module for Raven.A1
-### *** WIP. This particular version has not yet been built and firmware is still in development ***
 
 - Plugs into the Eiffel socket instead of Eiffel.
 - Retains support for PS/2 mouse+keyboard, joystick and motherboard temperature sensor.
@@ -56,6 +55,4 @@ https://www.exxosforum.co.uk/atari/store2/#0158
 
 (3) 74LVC1G34 is optional.
 It is for an option to drive CH559 from an external oscillator rather than the internal one.
-The internal oscillator has been working well for me.
-
-
+This feature is currently unimplemented as the internal oscillator has been working well for me.
