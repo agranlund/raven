@@ -1,9 +1,18 @@
 Raven.A1
 Hardware and software binary release
 
+20250620
+  rom:      ckbd support
+  rom:      eiffel key-repeat fix
+  rom:      autorun srec programs after upload
+  firmware: (ckbd) added ckbd firmware binary
+  firmware: (nessi) reversed order of ram slots
+  rvbios:   ET4000/W32i memory interleave setting
+  rvnova:   ET4000/W32i memory interleave support
+
 20250321
   rom:      fixed software reset from tos/mint
-  firmware: eiffel defaults to scancode set 2
+  firmware: (eiffel) default to scancode set 2
 
 20250317
   drivers:  added US-ANSI keyboard table for Eiffel

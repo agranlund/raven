@@ -2,9 +2,10 @@
 BOARD		= a1
 DATE		= $(shell date +%Y%m%d)
 
-FW_NESSI	= nessi_240901.jed
+FW_NESSI	= nessi_250620.jed
 FW_NARNIA	= narnia_240422.jed
 FW_IKSI		= iksi_240418.jed
+FW_CKBD		= ckbd_a1.bin
 FW_EIFFEL	= eiffel_1.10.2-raven_A1.hex
 FW_SIMMPROG	= ravenprog.uf2
 
@@ -76,6 +77,8 @@ copyfw:
 	$(COPY) $(ROOTDIR)/fw/$(BOARD)/Nessi/$(FW_NESSI) $(FWDIR)/
 	$(COPY) $(ROOTDIR)/fw/$(BOARD)/Narnia/$(FW_NARNIA) $(FWDIR)/
 	$(COPY) $(ROOTDIR)/fw/$(BOARD)/Iksi/$(FW_IKSI) $(FWDIR)/
+	$(COPY) $(ROOTDIR)/fw/ckbd/$(FW_CKBD) $(FWDIR)/
+	$(COPY) $(ROOTDIR)/fw/ckbd/ckbd_wch.ini $(FWDIR)/
 	make -C $(ROOTDIR)/fw/eiffel
 	$(COPY) $(ROOTDIR)/fw/eiffel/$(FW_EIFFEL) $(FWDIR)/eiffel.hex
 	$(COPY) $(ROOTDIR)/hw/simm/programmer/firmware/build/$(FW_SIMMPROG) $(FWDIR)/
