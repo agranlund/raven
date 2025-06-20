@@ -1,7 +1,7 @@
 
 # Eiffel upgrade module for Raven.A1
 
-- Plugs into the Eiffel socket instead of Eiffel.
+- Plugs into the Eiffel socket instead of the Eiffel PIC.
 - Retains support for PS/2 mouse+keyboard, joystick and motherboard temperature sensor.
 - Adds USB mouse and keyboard support on an internal USB header.
 - Adds support for legacy Atari and Amiga mice (*)
