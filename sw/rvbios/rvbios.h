@@ -24,7 +24,7 @@
 #include <stdbool.h>
 #include "raven.h"
 
-#define RVBIOS_VERSION	0x00241225UL
+#define RVBIOS_VERSION	0x00250620UL
 
 /*
 	main.c

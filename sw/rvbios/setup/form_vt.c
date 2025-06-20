@@ -137,7 +137,7 @@ void vt_displayForm_idx(form_t *form, int start, int count)
 					Cconws(form->text);
 					break;
 
-				default:
+				case FORM_TEXT:
 					vt_setFgColor(COL_FORM_FG);
 					vt_setCursorPos(FORM_X+form->posx, FORM_Y+form->posy);
 					Cconws(form->text);
@@ -164,62 +164,74 @@ void vt_initSettings(const form_setting_t *settings)
 
 void vt_setting_prev(void)
 {
-	if (!form_settings) {
+    int newselection;
+	if (!form_settings || (vt_selected == 0)) {
 		return;
-	}
+    }
 
-	if (vt_selected>0) {
-		--vt_selected;
-	}
+    for (newselection = (vt_selected - 1); newselection >= 0; newselection--) {
+        if (form_settings[newselection].input != SETTING_HIDDEN) {
+            vt_selected = newselection;
+            return;
+        }
+    }
 }
 
 void vt_setting_next(void)
 {
+    int newselection;
 	if (!form_settings) {
 		return;
 	}
 
-	if (form_settings[vt_selected+1].input == SETTING_END) {
-		return;
-	}
-
-	++vt_selected;
+    newselection = vt_selected + 1;
+    while (1) {
+        if (form_settings[newselection].input == SETTING_END) {
+            return;
+        }
+        else if (form_settings[newselection].input != SETTING_HIDDEN) {
+            vt_selected = newselection;
+            return;
+        }
+        newselection++;
+    }
 }
 
 void vt_setting_prevRow(void)
 {
-	int cur_row;
-
-	if (!form_settings) {
+    int cur_row, newselection;
+	if (!form_settings || (vt_selected == 0)) {
 		return;
 	}
 
-	cur_row = form_settings[vt_selected].posy;
-	while (form_settings[vt_selected].posy == cur_row) {
-		if (vt_selected==0) {
-			break;
-		}
-
-		--vt_selected;
-	}
+    cur_row = form_settings[vt_selected].posy;
+    for (newselection = (vt_selected - 1); newselection >= 0; newselection--) {
+        if ((form_settings[newselection].posy != cur_row) && (form_settings[newselection].input != SETTING_HIDDEN)) {
+            vt_selected = newselection;
+            return;
+        }
+    }
 }
 
 void vt_setting_nextRow(void)
 {
-	int cur_row;
-
-	if (!form_settings) {
+	int cur_row, newselection;
+    if (!form_settings) {
 		return;
 	}
 
 	cur_row = form_settings[vt_selected].posy;
-	while (form_settings[vt_selected].posy == cur_row) {
-		if (form_settings[vt_selected+1].input == SETTING_END) {
-			break;
-		}
-
-		++vt_selected;
-	}
+    newselection = vt_selected + 1;
+    while (1) {
+        if (form_settings[newselection].input == SETTING_END) {
+            return;
+        }
+        else if ((form_settings[newselection].posy != cur_row) && (form_settings[newselection].input != SETTING_HIDDEN)) {
+            vt_selected = newselection;
+            return;
+        }
+        newselection++;
+    }
 }
 
 int vt_setting_getType(void)

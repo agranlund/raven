@@ -42,7 +42,9 @@
 #define COL_FG			COL_BLACK
 #define COL_BG			COL_WHITE
 
-
+/*
+#define C__MCH_RAVEN    0x00070000UL
+*/
 #define MIN_ROM_VERSION 0x00241225UL
 
 
@@ -147,6 +149,9 @@ void InstallCookies(void)
 #endif
 	
 	Setcookie(C_RAVN, (uint32_t)raven());
+#if defined(C__MCH_RAVEN)
+	Setcookie(C__MCH, C__MCH_RAVEN);
+#endif    
 }
 
 /*----------------------------------------
@@ -300,6 +305,7 @@ long supermain()
 	return 1;
 }
 
+unsigned long _StkSize = 4096;
 long main()
 {
 	if (Supexec(supermain)) {

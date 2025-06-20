@@ -7,7 +7,7 @@ PRJ = $(NAME).prj
 INSTALL_ROOT = c:/auto
 INSTALL_BINS = $(BIN)
 
-OBJS = main.o rvnova.o
+OBJS = main.o rvnova.o lowlevel.o
 # xcb.o
 
 ROOTDIR = ..

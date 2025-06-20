@@ -23,6 +23,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define FLG_W32I_INTERLEAVE     (1<<0)
+
 typedef struct
 {
 	uint16_t	w,h;
@@ -50,6 +52,7 @@ typedef struct
 	res_t			drv_res;
 	res_t			vdi_res;
 	char			drvpath[14];
+    uint8_t         flags;
 } rvnova_menuinf_t;
 
 typedef struct

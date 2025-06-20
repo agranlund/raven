@@ -51,7 +51,8 @@ enum {
 	FORM_END=0,
 	FORM_TITLE,
 	FORM_FOOTER,
-	FORM_TEXT
+	FORM_TEXT,
+    FORM_HIDDEN
 };
 
 /* Form input type */
@@ -61,7 +62,8 @@ enum {
 	SETTING_INPUT,
 	SETTING_LIST,
 	SETTING_FUNC,
-	SETTING_UPDOWN
+	SETTING_UPDOWN,
+    SETTING_HIDDEN
 };
 
 enum {

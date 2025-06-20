@@ -28,7 +28,8 @@
 
 #include "rvnova.h"
 
-extern void xcb_create(void);
+/*extern void xcb_create(void);*/
+extern bool w32i_EnableInterleaveMode(void);
 
 static const char* path_root   		= "c:";
 static const char* path_vdibib 		= "auto\\sta_vdi.bib";
@@ -58,6 +59,10 @@ static void screen_restore(void) {
 	(void)Cconws("\033E");              /* clear screen */
 	(void)Cconws(tmp);
 #endif
+}
+
+static void screen_clear(void) {
+	(void)Cconws("\033E");              /* clear screen */
 }
 
 
@@ -133,6 +138,17 @@ long supermain()
 		}
 	}
 
+    /* Card specific hackery after the driver has loaded */
+
+    /* ET4000/W32i interleaved memory mode */
+    if (strcmp(inf.drvpath, "ET4000.W32") == 0) {
+        if (inf.flags & FLG_W32I_INTERLEAVE) {
+            screen_clear();
+            w32i_EnableInterleaveMode();
+            screen_clear();
+        }
+    }
+
     /* Mach32 cookie hackery */
 #if 0
     if (strncmp(inf.drvpath, "MACH", 4) == 0) {
@@ -143,7 +159,7 @@ long supermain()
 	return 1;
 }
 
-
+unsigned long _StkSize = 4096;
 int main()
 {
 	if (Supexec(supermain)) {
@@ -151,4 +167,3 @@ int main()
 	}
 	return 0;
 }
-
