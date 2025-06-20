@@ -37,6 +37,7 @@ It is easy to make misstakes during assembly and such skills can be vital for fi
 - Max 48MB RAM
 - Max 16MB ROM
 - PS/2 Mouse & Keyboard
+- USB Mouse & Keyboard (with upgrade module)
 - 1Mbps serial port
 - Legacy Atari serial port
 - Legacy Atari parallel port
@@ -54,15 +55,17 @@ It is easy to make misstakes during assembly and such skills can be vital for fi
 ## Required or recommended parts
 - Raven motherboard
     - [Revision.A1](hw/raven/a1/)
-    - [Revision.A0](hw/raven/a0/)
+    - ~~[Revision.A0](hw/raven/a0/)~~
 - RAM modules
     - [16MB 55ns](hw/simm/ram_16M55/)
     - ~~[8MB 10ns](hw/simm/ram_8M10/)~~
 - ROM module
     - [55ns SMD](hw/simm/rom_SMD/)
     - [55ns PLCC](hw/simm/rom_PLCC/)
+- USB upgrade module
+    - [ckbd rev.c](hw/raven/upgrades/ckbd/)
 - ATX power supply
-- PS/2 Keyboard and mouse
+- PS/2 Keyboard and mouse, or USB if using the USB upgrade module.
 - Some kind of suitable 44pin IDE->CF adapter
 - ISA graphics card supported by Atari drivers (ET4000 / ATI Mach32)
 - RS232<->USB cable capable of 1Mbps
