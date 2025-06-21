@@ -42,11 +42,8 @@
 #define COL_FG			COL_BLACK
 #define COL_BG			COL_WHITE
 
-/*
 #define C__MCH_RAVEN    0x00070000UL
-*/
 #define MIN_ROM_VERSION 0x00241225UL
-
 
 static bool RomVersionValid() {
     return ((raven()->version & 0x00ffffffUL) >= MIN_ROM_VERSION) ? true : false;

@@ -1,6 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+20250621
+  rvbios:   _MCH cookie for Raven is now 0x00070000
+
 20250620
   rom:      ckbd support
   rom:      eiffel key-repeat fix
