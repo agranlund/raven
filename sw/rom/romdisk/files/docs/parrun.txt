@@ -1,0 +1,52 @@
+PARRUN 1.3 - directly receive into and execute from RAM via PARCP-USB
+by Daniel Illgen (insane.tscc.de)
+based upon PARCP by Petr Stehlik
+
+PARRUN allows you to transfer an Atari TOS executable into the Atari's Memory
+and directly execute it from there without needing any RAM-DISK or Disk Access
+
+to use it run PARRUN.TOS on the ATARI (the server side)
+the client side has only been tested under linux
+
+you need libhidapi-libusb as well as libusb installed
+(apt-get install libhidapi-libusb0 libusb-1.0-0 under Debian/Ubuntu)
+
+usage:
+$ parrun [st-directory] file
+
+examples:
+$ parrun wip.tos 
+- transfers >wip.tos< to the ST's memory and runs it
+
+$ parrun d:/tmp wip.tos
+- changes the ST directory to D:\TMP, transfers WIP.TOS to RAM and runs it
+- useful for programs which load data from the ST's disk
+
+This allows you to test your programs on floppy disk-only systems as well as
+saving the write cycles of e.g. Compact-Flash Media.
+
+This program uses the transfer routines as well as the handshaking logic of
+PARallel CoPy - which is available under http://joy.sophics.cz/parcp/
+
+A huge THANK YOU to Petr for developing PARCP as well as PARCP-USB and
+releasing the source code to PARCP which made this possible
+
+- What's new in v1.3?
+* Win32 Version doesn't need DLLs anylonger
+* 77kB/s for PARRUNF
+* fix BSS clear error
++ add TOS 1.00 version (doesn't support directory changes)
++ add autoboot disk image file
+
+- What's new in v1.2?
+* 72kB/s for PARRUNF
+
+- What's new in v1.1?
+* Buffer-size increased from 16k to 64k
++ PARRUNF added
+-> fast version for standard ST(E); no timeouts, direct ym2149 chip writing 
+   (without querying the ym2149 ports) - ONLY FOR USAGE UNDER TOS!
+   NOT FOR MINT OR MAGIC OR OTHER MULTITASKING OS
+   Allows 64kB/s - same speed as 16MHz MegaSTE
+
+Daniel Illgen 14.01.2021 - insane.tscc.de

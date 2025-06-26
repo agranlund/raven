@@ -1,0 +1,25 @@
+PARCP Quick start guide:
+========================
+
+You've got two computers. One will be PARCP Client (usually the one you
+want to work on) and the other one will be PARCP Server (you don't need
+its monitor nor keyboard as it will work unattended).
+
+A) Atari users (TOS/MiNT/MagiC):
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1) start PAR_IN.PRG (not required when using PARCP-USB adapter)
+2) connect PARCP cable or the PARCP-USB adapter to parallel port
+3) start PARCP.TTP (or PARSERVE.TOS if Atari is to be the Server)
+
+B) Apple or PC users (DOS/Windows/Linux/Raspbian):
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1) start PAR_IN (not required when using PARCP-USB adapter)
+2) connect PARCP or USB cable (from the PARCP-USB adapter) to your PC
+3) start PARCP (or PARSERVE if PC is to be the Server)
+
+This should start PARCP in its fullscreen interface for easy copying
+of files. But that's not the top of PARCP features! PARCP is able to copy
+by simple drag&drop of files onto PARCP Client icon, or even
+work fully automatically driven by commands in script files.
+
+Please read PARCP.HTML for more information.
