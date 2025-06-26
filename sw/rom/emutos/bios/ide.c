@@ -369,7 +369,7 @@ static void set_packet_size(WORD dev,UWORD config);
  * we do not check for the FireBee, since there are always exactly
  * two interfaces, or for non-Atari hardware.
  */
-#if CONF_ATARI_HARDWARE && !defined(MACHINE_FIREBEE)
+#if (CONF_ATARI_HARDWARE && !defined(MACHINE_FIREBEE)) || defined(MACHINE_RAVEN)
 
 /* used by duplicate interface detection logic */
 #define SECNUM_MAGIC    0xcc
@@ -458,7 +458,11 @@ enum ide_if_status
 static int ide_interface_exists(WORD ifnum, LONG timeout)
 {
     volatile struct IDE *regular_iface = ifinfo[ifnum].base_address;
+#if defined(MACHINE_RAVEN)    
+    volatile struct IDE *twisted_iface = (volatile struct IDE *)(((ULONG)ifinfo[ifnum].base_address)+1);
+#else
     volatile struct IDE *twisted_iface = (volatile struct IDE *)(((ULONG)ifinfo[ifnum].base_address)-1);
+#endif    
     enum ide_if_status regular_iface_status = IDE_IF_NOTCHECKED;
     enum ide_if_status twisted_iface_status = IDE_IF_NOTPRESENT;
     BOOL allow_twisted = check_read_byte((long)&twisted_iface->control);
@@ -585,7 +589,7 @@ void ide_init(void)
     if (!has_ide)
         return;
 
-#if CONF_ATARI_HARDWARE && !defined(MACHINE_FIREBEE)
+#if (CONF_ATARI_HARDWARE && !defined(MACHINE_FIREBEE)) || defined(MACHINE_RAVEN)
     /* Reject 'ghost' interfaces & detect twisted cables.
      * We wait a max time for BSY to drop on all IDE interface
      * since this is called during initialisation, which can be
