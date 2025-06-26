@@ -71,6 +71,12 @@ $(EMUTOS_IMG_ST): $(DEPS)
 .PHONY: $(ROMDISK_IMG)
 $(ROMDISK_IMG): $(wildcard $(ROMDISK_DIR)/files/*) $(ROMDISK_DIR)/romdisk.sh $(DEPS)
 	rm -f $@
+	make -C ../tools/mon
+	cp ../tools/mon/mon.tos $(ROMDISK_DIR)/files/
+	cp ../tools/mon/readme.txt $(ROMDISK_DIR)/files/docs/mon.txt
+	make -C ../tools/ymodem
+	cp ../tools/ymodem/ymodem.tos $(ROMDISK_DIR)/files/
+	cp ../tools/ymodem/readme.txt $(ROMDISK_DIR)/files/docs/ymodem.txt
 	$(ROMDISK_DIR)/romdisk.sh --diskfile $@ $(ROMDISK_DIR)/files/*
 
 clean:
