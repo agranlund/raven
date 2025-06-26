@@ -1,7 +1,8 @@
 
 # IDE Byteswap adapter
 
-- Converts an IDE interface between Intel and Motorola format (swaps high and low bytes)
+Converts an IDE interface between Intel and Motorola format (swaps high and low bytes)
+
 Can be useful if you want Raven to have a legacy Atari (Motorola) IDE interface rather than the standard Intel interface it has now.
 
 ![Alt text](ideswap.png?raw=true "")
