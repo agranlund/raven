@@ -147,6 +147,9 @@ copysw:
 	make -C $(ROOTDIR)/sw/tools
 	$(COPY) $(ROOTDIR)/sw/tools/thingpal/thingpal.tos $(SWDIR_TOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/mon/mon.tos $(SWDIR_RTOOLS)/
+	$(COPY) $(ROOTDIR)/sw/tools/mon/readme.txt $(SWDIR_RTOOLS)/mon.txt
+	$(COPY) $(ROOTDIR)/sw/tools/ymodem/ymodem.tos $(SWDIR_RTOOLS)/
+	$(COPY) $(ROOTDIR)/sw/tools/ymodem/readme.txt $(SWDIR_RTOOLS)/ymodem.txt
 	$(COPY) $(ROOTDIR)/sw/tools/cacheon/cacheon.prg $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/cacheoff/cacheoff.prg $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/resetnvm/resetnvm.prg $(SWDIR_RTOOLS)/

@@ -1,6 +1,12 @@
 Raven.A1
 Hardware and software binary release
 
+20250626
+  rom:      support for ide byteswap adapter
+  rom:      updated romdisk software
+  rom:      create ramdisk when no hdd partition exist
+  software: added ymodem serial transfer program
+
 20250621
   rvbios:   _MCH cookie for Raven is now 0x00070000
 

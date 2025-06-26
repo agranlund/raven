@@ -82,11 +82,12 @@ raven/drivers       : hardware drivers
 raven/cacheon       : enable cpu caches
 raven/cacheoff      : disable cpu caches
 raven/castaway      : Atari ST emulation
-raven/eiffel        : Configuration software for keyboard/mouse/fan
+raven/eiffel        : configuration software for keyboard/mouse/fan
 raven/flash         : ROM flash utility
 raven/fpemu         : FPU emulator for 68LC060 users
 raven/mon           : raven monitor/debugger
 raven/resetnvm      : reset NVRAM
+raven/ymodem        : serial port file transfer
 
 tools/autoexec      : autoexec with support for commandline parameters
 tools/autosort      : utility to set file order in auto folder
@@ -145,6 +146,12 @@ NOVA drivers and utilities
 (c) Idek Tramielski
 https://silicon-heaven.org/atari/nova/
 
+parserve (c) Petr Stehlik
+https://github.com/joysfera/parcp
+
+parrun (c) Daniel Illgen
+https://insane.tscc.de/
+
 pcmake
 (c) Thorsten Otto:
 https://github.com/th-otto/pcmake
@@ -165,6 +172,10 @@ setflags
 (c) 1993-2012 Uwe Seimet
 https://www.seimet.de/atari/de/
 
+TrueDisk v2.2
+(c) 1989-1994 Christoph Zwerschke
+Public Domain and free for use in non commercial scale.
+
 uip-tools
 (c) 2001, Adam Dunkels
 https://bitbucket.org/sqward/uip-tools/src/master/
@@ -176,4 +187,10 @@ x86emu
 (c) 2007 Joerg Sonnenberger
 https://github.com/firebee-org/BaS_gcc
 
+ymodem
+(c) 2025 Anders Granlund
+rtdsr (c) 2011 Pete B. <xtreamerdev@gmail.com>
+ymodem.c for reimage, copyright (c) 2009 Rich M Legrand
+ymodem.c for bootldr, copyright (c) 2001 John G Dorsey
+crc16 function from PIC CRC16, by Ashley Roll & Scott Dattalo
 
