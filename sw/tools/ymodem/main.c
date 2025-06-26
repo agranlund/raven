@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------
- * ramdisk
- * simple ramdisk utility
+ * ymodem
+ * simple ymodem file transfer program
  * (c)2025 Anders Granlund
  *-------------------------------------------------------------------------------
  * This file is free software  you can redistribute it and/or modify
