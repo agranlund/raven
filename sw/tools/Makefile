@@ -10,7 +10,8 @@ FOLDERS = \
 	resetnvm \
 	thingpal \
 	fpu_emu \
-	serial.cpx
+	serial.cpx \
+	ymodem
 
 all:
 	for dir in $(FOLDERS); do \
