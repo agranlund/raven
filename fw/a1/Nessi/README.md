@@ -1,6 +1,9 @@
 
 # Nessi : Main bus logic
 
+- nessi_250627
+    - fix for certain 8bit reads from ISA ram, 16-color vga modes now work.
+
 - nessi_250620
     - reversed order of the ram slots, ram0 is now ram2 and vice versa.
 
