@@ -132,7 +132,7 @@ struct IDE
 #endif /* MACHINE_M548X */
 
 /* the data register is naturally byteswapped on some hardware */
-#if defined(MACHINE_AMIGA) || defined(MACHINE_RAVEN)
+#if defined(MACHINE_AMIGA)
 #define IDE_DATA_REGISTER_IS_BYTESWAPPED TRUE
 #else
 #define IDE_DATA_REGISTER_IS_BYTESWAPPED FALSE
@@ -157,7 +157,7 @@ struct IDE
 #define ide_put_and_incr(src,dst) asm volatile("move.w (%0)+,(%1)" : "=a"(src): "a"(dst), "0"(src));
 #endif
 
-#if CONF_ATARI_HARDWARE
+#if CONF_ATARI_HARDWARE || defined(MACHINE_RAVEN)
 
 #ifdef MACHINE_FIREBEE
 #define NUM_IDE_INTERFACES  2
@@ -458,11 +458,7 @@ enum ide_if_status
 static int ide_interface_exists(WORD ifnum, LONG timeout)
 {
     volatile struct IDE *regular_iface = ifinfo[ifnum].base_address;
-#if defined(MACHINE_RAVEN)    
-    volatile struct IDE *twisted_iface = (volatile struct IDE *)(((ULONG)ifinfo[ifnum].base_address)+1);
-#else
     volatile struct IDE *twisted_iface = (volatile struct IDE *)(((ULONG)ifinfo[ifnum].base_address)-1);
-#endif    
     enum ide_if_status regular_iface_status = IDE_IF_NOTCHECKED;
     enum ide_if_status twisted_iface_status = IDE_IF_NOTPRESENT;
     BOOL allow_twisted = check_read_byte((long)&twisted_iface->control);
@@ -541,9 +537,7 @@ BOOL detect_ide(void)
     has_ide = 0x01;
 #elif defined(MACHINE_FIREBEE)
     has_ide = 0x03;
-#elif defined(MACHINE_RAVEN)
-    has_ide = 0x01;	
-#elif CONF_ATARI_HARDWARE
+#elif CONF_ATARI_HARDWARE || defined(MACHINE_RAVEN)
 
     /*
      * see if the IDE registers for possible interfaces are accessible.

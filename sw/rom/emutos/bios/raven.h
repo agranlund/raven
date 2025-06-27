@@ -22,47 +22,6 @@
 
 #ifndef __RAVEN__ASM__
 
-#if (RAVEN_BOARD_REV > 0xA0)
-#define RAVEN_IDE_W  4
-#else
-#define RAVEN_IDE_W  2
-#endif
-
-struct IDE
-{
-    UWORD data;             /* 0   ATA & ATAPI: data transfer */
-#if (RAVEN_IDE_W == 4)
-    UBYTE filler00[2];
-#endif    
-    UBYTE features;         /* 2   ATA & ATAPI: Read: error / Write: features */
-    UBYTE filler02[RAVEN_IDE_W-1];
-    UBYTE sector_count;     /* 4   ATAPI: Read: ATAPI Interrupt Reason Register / Write: unused */
-    UBYTE filler04[RAVEN_IDE_W-1];
-    UBYTE sector_number;    /* 6  ATAPI: reserved */
-    UBYTE filler06[RAVEN_IDE_W-1];
-    UBYTE cylinder_low;     /* 8  ATAPI: Byte Count Register (bits 0-7) */
-    UBYTE filler08[RAVEN_IDE_W-1];
-    UBYTE cylinder_high;    /* 10 ATAPI: Byte Count Register (bits 8-15) */
-    UBYTE filler10[RAVEN_IDE_W-1];
-    UBYTE head;             /* 12 ATAPI: Drive select */
-    UBYTE filler12[RAVEN_IDE_W-1];
-    UBYTE command;          /* 14 ATA & ATAPI: Read: status / Write: ATA command */
-    UBYTE filler14[RAVEN_IDE_W-1];
-#if (RAVEN_IDE_W == 2)
-    UBYTE filler16[RAVEN_IDE_W*8];
-#endif    
-    UBYTE filler32[RAVEN_IDE_W*6];
-    UBYTE control;          /* 32 + 12: ATA & ATAPI: Read: alternate status / Write: device control */
-    UBYTE filler44[RAVEN_IDE_W-1];
-    UBYTE address;          /* 32 + 14: unused */
-    UBYTE filler46[RAVEN_IDE_W-1];
-#if (RAVEN_IDE_W == 2)
-    UBYTE filler48[RAVEN_IDE_W*8];
-#endif    
-};
-
-#define ide_interface           ((volatile struct IDE *)0xfff00000)
-
 void raven_screen_init(void);
 void raven_kbd_init(void);
 void raven_init_keyboard_interrupt(void);
