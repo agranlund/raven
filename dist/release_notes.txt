@@ -1,6 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+20250627
+  firmware: (nessi) ISA fix: 16-color vga modes now work
+
 20250626
   rom:      support for ide byteswap adapter
   rom:      updated romdisk software

@@ -2,7 +2,7 @@
 BOARD		= a1
 DATE		= $(shell date +%Y%m%d)
 
-FW_NESSI	= nessi_250620.jed
+FW_NESSI	= nessi_250627.jed
 FW_NARNIA	= narnia_240422.jed
 FW_IKSI		= iksi_240418.jed
 FW_CKBD		= ckbd_a1.bin
