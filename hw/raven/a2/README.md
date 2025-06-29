@@ -1,6 +1,6 @@
 # Raven060 Rev.A2
 
-(c)2024 Anders Granlund
+(c)2025 Anders Granlund
 
 This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
