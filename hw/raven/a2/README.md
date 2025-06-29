@@ -5,14 +5,11 @@
 This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
 
-
 ## Status:
 - Work in progress, untested.
 
-
 ## Info:
 - Designed for JLCPCB Standard Service 6 layers
-
 
 ## Changelog:
 - Silkscreen: Fixed wrong pinout info for J305
@@ -26,21 +23,22 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - BOM: Changed C310 to 0.1uF (was 0.01uF)
 - Small pad for soldering top of Y402 to board
 - Added pullups on MC68150 data bus
+- Added pulldown on IDE:IRQ
+- Added i2c eprom with preprogrammed MAC address
+- Added i2c expansion header
+- Replaced Eiffel with CKBD
+- Replaced 2xPS2 connector with 2xUSB+Ethernet
+- CPU temperature sensor to CKBD
+- PowerOff control from CKBD
+- PowerSwitch status can be read through XR68M752
+- Changed IDE interface byte order from Intel to Atari big endian
 
 ## Planned:
-- replace 2xPS2 connector with 2xUSB+Ethernet
-- ch559 based eiffel replacement
 - 4 port usb hub for additional internal headers
 - w5100s ethernet controller
-- i2c eprom with preprogrammed mac address
-- i2c expansion header
 - get rid of old ym pins expansion header
 - vs1053 dsp, or suitable expansion header to allow it as expansion later
-- cpu temperature sensor
-- Status of power button can be read from cpu
-- software controlled power-off (gpio pin tbd)
 - separate cs signals for 68150 and buffers
-- (maybe) change IDE connector to big endian byte order
 
 ## Optional / non-critical:
 - Pushbuttons:     SW101, SW201, SW202
@@ -57,9 +55,7 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - RTC:             Y402, R402, U406, C413
 - CPU-Temp:        R123, R124, C129, U109
 
-
 ## Errata:
-
 
 ## Untested:
 
