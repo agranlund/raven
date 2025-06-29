@@ -11296,16 +11296,6 @@
 		)
 		(uuid dc2f3ea1-2144-4c95-a8ec-4f556c034eac)
 	)
-	(text "todo buffer cs"
-		(exclude_from_sim no)
-		(at 638.175 354.965 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "0a5f6144-b194-46c5-b625-41dded1fac63")
-	)
 	(text "8/16 bit bus sizer"
 		(exclude_from_sim no)
 		(at 667.385 22.86 0)
@@ -11746,28 +11736,6 @@
 		)
 		(uuid "d186c224-1000-4dbf-903c-e3095a107e92")
 	)
-	(text_box "TODO:\n\nDedicated /CS\nfor transcievers"
-		(exclude_from_sim no)
-		(at 517.525 170.18 0)
-		(size 21.59 17.145)
-		(margins 0.9525 0.9525 0.9525 0.9525)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type color)
-			(color 255 230 63 0.53)
-		)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(color 0 0 0 1)
-			)
-			(justify left top)
-		)
-		(uuid "e88202d8-46f6-4db6-a34d-1fbefc45e394")
-	)
 	(text_box "CT60 Documentation: (wrong?)\n\nThe 68060 contains a Die Temperature Sensor with two external pins\nTHERM0 & THERM1.\n\nThe sensor is done with a temperature sensitive resistor\nwhich has a 780 ohms value at 25°C and increases/decreases\nby steps of 2.8 ohms per °C unit.\n\nBy example, a 060 core at 80°C gives a resistance of 934 ohms\nbetween the two THERMx pins.\n"
 		(exclude_from_sim no)
 		(at 353.06 438.785 0)
@@ -11917,7 +11885,7 @@
 		(uuid "13f32efa-fa44-4676-8054-1dccfac1b607")
 	)
 	(junction
-		(at 20.32 370.84)
+		(at 20.32 353.06)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "14ba62c3-c3ad-43f5-a37c-6c3926f868ef")
@@ -11947,7 +11915,7 @@
 		(uuid "177655e8-8e77-4084-9822-aadd3ad88dc9")
 	)
 	(junction
-		(at 20.32 396.24)
+		(at 20.32 378.46)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "1837ac5d-a3c2-43a9-b1ce-794fabd5be0d")
@@ -11977,7 +11945,7 @@
 		(uuid "19a3aed6-f302-4236-904c-833c51466e25")
 	)
 	(junction
-		(at 20.32 378.46)
+		(at 20.32 360.68)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "19a4afcf-ed7f-46a6-875b-7705c612a4e8")
@@ -12007,7 +11975,7 @@
 		(uuid "1a3fd0da-19d0-473f-8316-6bf9f70631fa")
 	)
 	(junction
-		(at 20.32 368.3)
+		(at 20.32 350.52)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "1a424b94-c4da-4673-a8a2-f1a1c858eedb")
@@ -12421,7 +12389,7 @@
 		(uuid "5ff1d6d5-17da-4aa7-abd1-1cd9eabff29e")
 	)
 	(junction
-		(at 20.32 363.22)
+		(at 20.32 345.44)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "602a7af6-0928-434e-ba27-9d6a15e2e037")
@@ -12439,7 +12407,7 @@
 		(uuid "61da42eb-a6cf-46d8-aad6-23dfd6ba7d23")
 	)
 	(junction
-		(at 20.32 375.92)
+		(at 20.32 358.14)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "63e3aded-1626-487c-a883-bb9c13060fca")
@@ -12631,13 +12599,19 @@
 		(uuid "78dd82aa-a58b-4f4c-8089-596d420774b8")
 	)
 	(junction
+		(at 20.32 399.415)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "78fcccd5-ea44-4fae-90cd-c961f37cafb5")
+	)
+	(junction
 		(at 262.255 35.56)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "79b8c9dd-dfbf-4962-9e0a-6dd804946b27")
 	)
 	(junction
-		(at 20.32 373.38)
+		(at 20.32 355.6)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7aedd882-c218-4c10-8549-fb28155084a3")
@@ -12775,12 +12749,6 @@
 		(uuid "99dc8830-3653-48ae-9dec-e479198cedff")
 	)
 	(junction
-		(at 548.005 191.77)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "99e092de-cf86-49c8-9043-526930cb652e")
-	)
-	(junction
 		(at 20.32 417.83)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -12913,7 +12881,7 @@
 		(uuid "b434ff1e-fdfa-4580-8ed9-ab2229b811d6")
 	)
 	(junction
-		(at 20.32 365.76)
+		(at 20.32 347.98)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "b44234d0-1b2d-4889-81bc-e9468ff6a332")
@@ -13189,7 +13157,7 @@
 		(uuid "df99c0c3-30a3-4f02-a1b1-e59d67f55f63")
 	)
 	(junction
-		(at 20.32 401.32)
+		(at 20.32 383.54)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "dfd014fe-3fa1-418c-9afe-edc980cefc43")
@@ -13199,12 +13167,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "dff417bb-ebdc-46f0-a867-feac92d1ea2f")
-	)
-	(junction
-		(at 20.32 523.875)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "e0c99781-6827-4dbb-81e1-d15065231908")
 	)
 	(junction
 		(at 267.335 224.79)
@@ -13291,7 +13253,7 @@
 		(uuid "ef14fbae-fa52-4bcf-b360-a6fe40efadba")
 	)
 	(junction
-		(at 20.32 398.78)
+		(at 20.32 381)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "ef3a2afe-d055-4870-8d58-7ffd7cc66d1d")
@@ -13419,10 +13381,6 @@
 		(uuid "44f22e75-a961-444a-8d15-f94b464cfdaa")
 	)
 	(no_connect
-		(at 38.735 523.875)
-		(uuid "45748db5-7005-445f-9b2e-d2e9cfbd85d0")
-	)
-	(no_connect
 		(at 208.28 342.265)
 		(uuid "4ab51d07-0ca4-429a-8d0b-8b9f762a098f")
 	)
@@ -13479,20 +13437,12 @@
 		(uuid "bd993ae6-59c4-4e98-a5cb-3c5e438eb874")
 	)
 	(no_connect
-		(at 629.92 354.965)
-		(uuid "c13dfe7c-9ee4-43a7-834d-b0ba2bb634bc")
-	)
-	(no_connect
 		(at 349.25 337.185)
 		(uuid "cb9e22a9-d701-48b5-853a-3f65325ebbd2")
 	)
 	(no_connect
 		(at 38.735 521.335)
 		(uuid "df2dcab2-c621-4a6c-aec3-a4857d18bebe")
-	)
-	(no_connect
-		(at 38.735 526.415)
-		(uuid "e32dd878-c584-4f6a-b193-bbdf78af9b6f")
 	)
 	(no_connect
 		(at 38.735 511.175)
@@ -16170,7 +16120,7 @@
 	)
 	(wire
 		(pts
-			(xy 36.83 401.32) (xy 44.45 401.32)
+			(xy 36.83 383.54) (xy 44.45 383.54)
 		)
 		(stroke
 			(width 0)
@@ -16490,6 +16440,16 @@
 	)
 	(wire
 		(pts
+			(xy 20.32 394.97) (xy 20.32 399.415)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0cbf3df0-bc6a-4dec-9989-d2978778b2f5")
+	)
+	(wire
+		(pts
 			(xy 65.405 476.25) (xy 74.295 476.25)
 		)
 		(stroke
@@ -16570,7 +16530,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 373.38) (xy 29.21 373.38)
+			(xy 20.32 355.6) (xy 29.21 355.6)
 		)
 		(stroke
 			(width 0)
@@ -16710,7 +16670,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 523.875) (xy 29.21 523.875)
+			(xy 20.32 401.955) (xy 29.21 401.955)
 		)
 		(stroke
 			(width 0)
@@ -16730,7 +16690,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 358.775) (xy 20.32 363.22)
+			(xy 20.32 340.995) (xy 20.32 345.44)
 		)
 		(stroke
 			(width 0)
@@ -16750,7 +16710,7 @@
 	)
 	(wire
 		(pts
-			(xy 36.83 378.46) (xy 44.45 378.46)
+			(xy 36.83 360.68) (xy 44.45 360.68)
 		)
 		(stroke
 			(width 0)
@@ -16800,7 +16760,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 368.3) (xy 29.21 368.3)
+			(xy 20.32 350.52) (xy 29.21 350.52)
 		)
 		(stroke
 			(width 0)
@@ -17470,7 +17430,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 368.3) (xy 20.32 370.84)
+			(xy 20.32 350.52) (xy 20.32 353.06)
 		)
 		(stroke
 			(width 0)
@@ -17890,7 +17850,7 @@
 	)
 	(wire
 		(pts
-			(xy 36.83 523.875) (xy 38.735 523.875)
+			(xy 36.83 401.955) (xy 44.45 401.955)
 		)
 		(stroke
 			(width 0)
@@ -18037,16 +17997,6 @@
 			(type default)
 		)
 		(uuid "2a6dfc75-c153-4a82-adab-3f99ca8fe54c")
-	)
-	(wire
-		(pts
-			(xy 20.32 523.875) (xy 20.32 526.415)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2a714ca8-436d-487b-8d3c-ddca94229cb2")
 	)
 	(wire
 		(pts
@@ -18450,7 +18400,7 @@
 	)
 	(wire
 		(pts
-			(xy 36.83 381) (xy 44.45 381)
+			(xy 36.83 363.22) (xy 44.45 363.22)
 		)
 		(stroke
 			(width 0)
@@ -19080,7 +19030,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 381) (xy 29.21 381)
+			(xy 20.32 363.22) (xy 29.21 363.22)
 		)
 		(stroke
 			(width 0)
@@ -19150,7 +19100,7 @@
 	)
 	(wire
 		(pts
-			(xy 36.83 375.92) (xy 44.45 375.92)
+			(xy 36.83 358.14) (xy 44.45 358.14)
 		)
 		(stroke
 			(width 0)
@@ -19260,7 +19210,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 396.24) (xy 29.21 396.24)
+			(xy 20.32 378.46) (xy 29.21 378.46)
 		)
 		(stroke
 			(width 0)
@@ -19310,7 +19260,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 398.78) (xy 20.32 401.32)
+			(xy 20.32 381) (xy 20.32 383.54)
 		)
 		(stroke
 			(width 0)
@@ -19350,7 +19300,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 401.32) (xy 20.32 403.86)
+			(xy 20.32 383.54) (xy 20.32 386.08)
 		)
 		(stroke
 			(width 0)
@@ -19387,16 +19337,6 @@
 			(type default)
 		)
 		(uuid "42436bca-1f2c-4c25-bc62-0ad49f993c15")
-	)
-	(wire
-		(pts
-			(xy 548.005 179.705) (xy 548.005 180.34)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "42c99b94-fc50-4882-8c22-88028c170933")
 	)
 	(wire
 		(pts
@@ -19480,7 +19420,7 @@
 	)
 	(wire
 		(pts
-			(xy 548.005 191.77) (xy 600.075 191.77)
+			(xy 567.69 191.135) (xy 600.075 191.135)
 		)
 		(stroke
 			(width 0)
@@ -19760,6 +19700,16 @@
 	)
 	(wire
 		(pts
+			(xy 593.725 398.145) (xy 595.63 398.145)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "487cdaaa-5f10-4fbe-a149-5b8c90a50a45")
+	)
+	(wire
+		(pts
 			(xy 208.28 334.645) (xy 210.185 334.645)
 		)
 		(stroke
@@ -19990,7 +19940,7 @@
 	)
 	(wire
 		(pts
-			(xy 36.83 363.22) (xy 44.45 363.22)
+			(xy 36.83 345.44) (xy 44.45 345.44)
 		)
 		(stroke
 			(width 0)
@@ -20047,6 +19997,16 @@
 			(type default)
 		)
 		(uuid "4d637fc2-9d5c-4386-aafc-e7788b7c2240")
+	)
+	(wire
+		(pts
+			(xy 593.725 354.965) (xy 595.63 354.965)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4e79b601-7b80-4915-a183-8037c9a9223b")
 	)
 	(bus
 		(pts
@@ -20208,6 +20168,16 @@
 		)
 		(uuid "536e6a03-1d23-4092-af03-7a8fcd6a0b45")
 	)
+	(wire
+		(pts
+			(xy 20.32 399.415) (xy 20.32 401.955)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "53886be8-eec2-4b7c-93b4-8e0e4808413b")
+	)
 	(bus
 		(pts
 			(xy 708.66 65.405) (xy 708.66 62.865)
@@ -20320,7 +20290,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 378.46) (xy 20.32 381)
+			(xy 20.32 360.68) (xy 20.32 363.22)
 		)
 		(stroke
 			(width 0)
@@ -20390,7 +20360,7 @@
 	)
 	(wire
 		(pts
-			(xy 36.83 398.78) (xy 44.45 398.78)
+			(xy 36.83 381) (xy 44.45 381)
 		)
 		(stroke
 			(width 0)
@@ -20660,7 +20630,7 @@
 	)
 	(wire
 		(pts
-			(xy 36.83 365.76) (xy 44.45 365.76)
+			(xy 36.83 347.98) (xy 44.45 347.98)
 		)
 		(stroke
 			(width 0)
@@ -21650,7 +21620,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 370.84) (xy 29.21 370.84)
+			(xy 20.32 353.06) (xy 29.21 353.06)
 		)
 		(stroke
 			(width 0)
@@ -21680,7 +21650,7 @@
 	)
 	(wire
 		(pts
-			(xy 36.83 370.84) (xy 44.45 370.84)
+			(xy 36.83 353.06) (xy 44.45 353.06)
 		)
 		(stroke
 			(width 0)
@@ -21900,7 +21870,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 375.92) (xy 29.21 375.92)
+			(xy 20.32 358.14) (xy 29.21 358.14)
 		)
 		(stroke
 			(width 0)
@@ -23560,7 +23530,7 @@
 	)
 	(wire
 		(pts
-			(xy 29.21 526.415) (xy 20.32 526.415)
+			(xy 29.21 399.415) (xy 20.32 399.415)
 		)
 		(stroke
 			(width 0)
@@ -23780,7 +23750,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 365.76) (xy 20.32 368.3)
+			(xy 20.32 347.98) (xy 20.32 350.52)
 		)
 		(stroke
 			(width 0)
@@ -23857,16 +23827,6 @@
 			(type default)
 		)
 		(uuid "908cff53-ee21-4496-b7c7-67bbc4c21a42")
-	)
-	(wire
-		(pts
-			(xy 544.83 191.77) (xy 548.005 191.77)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "90996c8a-2ec9-4e3c-b37a-1e5f5ca38cec")
 	)
 	(bus
 		(pts
@@ -24130,7 +24090,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 398.78) (xy 29.21 398.78)
+			(xy 20.32 381) (xy 29.21 381)
 		)
 		(stroke
 			(width 0)
@@ -24210,7 +24170,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 378.46) (xy 29.21 378.46)
+			(xy 20.32 360.68) (xy 29.21 360.68)
 		)
 		(stroke
 			(width 0)
@@ -24410,7 +24370,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 363.22) (xy 29.21 363.22)
+			(xy 20.32 345.44) (xy 29.21 345.44)
 		)
 		(stroke
 			(width 0)
@@ -24720,7 +24680,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 391.795) (xy 20.32 396.24)
+			(xy 20.32 374.015) (xy 20.32 378.46)
 		)
 		(stroke
 			(width 0)
@@ -24860,7 +24820,7 @@
 	)
 	(wire
 		(pts
-			(xy 36.83 396.24) (xy 44.45 396.24)
+			(xy 36.83 378.46) (xy 44.45 378.46)
 		)
 		(stroke
 			(width 0)
@@ -25050,7 +25010,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 370.84) (xy 20.32 373.38)
+			(xy 20.32 353.06) (xy 20.32 355.6)
 		)
 		(stroke
 			(width 0)
@@ -25778,16 +25738,6 @@
 		)
 		(uuid "b3ccf311-4e17-460e-88cd-acaa21acd8f2")
 	)
-	(wire
-		(pts
-			(xy 548.005 187.96) (xy 548.005 191.77)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b427cb4f-4681-45af-bef1-94de81fefbdb")
-	)
 	(bus
 		(pts
 			(xy 521.97 418.465) (xy 521.97 421.005)
@@ -25820,7 +25770,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 373.38) (xy 20.32 375.92)
+			(xy 20.32 355.6) (xy 20.32 358.14)
 		)
 		(stroke
 			(width 0)
@@ -26290,7 +26240,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 403.86) (xy 29.21 403.86)
+			(xy 20.32 386.08) (xy 29.21 386.08)
 		)
 		(stroke
 			(width 0)
@@ -26350,7 +26300,7 @@
 	)
 	(wire
 		(pts
-			(xy 36.83 373.38) (xy 44.45 373.38)
+			(xy 36.83 355.6) (xy 44.45 355.6)
 		)
 		(stroke
 			(width 0)
@@ -26710,7 +26660,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 396.24) (xy 20.32 398.78)
+			(xy 20.32 378.46) (xy 20.32 381)
 		)
 		(stroke
 			(width 0)
@@ -27110,7 +27060,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 375.92) (xy 20.32 378.46)
+			(xy 20.32 358.14) (xy 20.32 360.68)
 		)
 		(stroke
 			(width 0)
@@ -27160,7 +27110,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 401.32) (xy 29.21 401.32)
+			(xy 20.32 383.54) (xy 29.21 383.54)
 		)
 		(stroke
 			(width 0)
@@ -27940,7 +27890,7 @@
 	)
 	(wire
 		(pts
-			(xy 600.075 139.065) (xy 600.075 191.77)
+			(xy 600.075 139.065) (xy 600.075 191.135)
 		)
 		(stroke
 			(width 0)
@@ -28220,7 +28170,7 @@
 	)
 	(wire
 		(pts
-			(xy 36.83 368.3) (xy 44.45 368.3)
+			(xy 36.83 350.52) (xy 44.45 350.52)
 		)
 		(stroke
 			(width 0)
@@ -28350,16 +28300,6 @@
 	)
 	(wire
 		(pts
-			(xy 593.725 354.965) (xy 629.92 354.965)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e831b090-74e1-427c-bf1b-4ab977fea4fc")
-	)
-	(wire
-		(pts
 			(xy 537.21 327.025) (xy 539.115 327.025)
 		)
 		(stroke
@@ -28420,7 +28360,7 @@
 	)
 	(wire
 		(pts
-			(xy 36.83 403.86) (xy 44.45 403.86)
+			(xy 36.83 386.08) (xy 44.45 386.08)
 		)
 		(stroke
 			(width 0)
@@ -28938,16 +28878,6 @@
 		)
 		(uuid "f3a61546-91e0-45db-aecb-6f7a0702e8ba")
 	)
-	(wire
-		(pts
-			(xy 595.63 398.145) (xy 593.725 398.145)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f3ab9d23-eaa2-4952-a83a-501f48fba83e")
-	)
 	(bus
 		(pts
 			(xy 608.965 86.36) (xy 608.965 83.82)
@@ -28990,7 +28920,7 @@
 	)
 	(wire
 		(pts
-			(xy 36.83 526.415) (xy 38.735 526.415)
+			(xy 36.83 399.415) (xy 44.45 399.415)
 		)
 		(stroke
 			(width 0)
@@ -29460,7 +29390,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 365.76) (xy 29.21 365.76)
+			(xy 20.32 347.98) (xy 29.21 347.98)
 		)
 		(stroke
 			(width 0)
@@ -29630,7 +29560,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 363.22) (xy 20.32 365.76)
+			(xy 20.32 345.44) (xy 20.32 347.98)
 		)
 		(stroke
 			(width 0)
@@ -33148,7 +33078,7 @@
 	)
 	(global_label "~{BGR}"
 		(shape output)
-		(at 44.45 378.46 0)
+		(at 44.45 360.68 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -33158,7 +33088,7 @@
 		)
 		(uuid "2dbd5c6b-0a2f-4354-b563-e78fe3ab200f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 51.2452 378.46 0)
+			(at 51.2452 360.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -33366,28 +33296,6 @@
 			)
 		)
 	)
-	(global_label "68150:~{CS}"
-		(shape input)
-		(at 544.83 191.77 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "3e4ab3ea-c5e5-4bf0-b582-a6d70fce2f58")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 532.713 191.77 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "~{IRQ_MFP}"
 		(shape input)
 		(at 216.535 60.96 180)
@@ -33412,7 +33320,7 @@
 	)
 	(global_label "~{BS0}"
 		(shape output)
-		(at 44.45 403.86 0)
+		(at 44.45 386.08 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -33422,7 +33330,7 @@
 		)
 		(uuid "40704e17-8fcc-44c0-a1f6-dc3e36ba2a29")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 51.1242 403.86 0)
+			(at 51.1242 386.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -33456,7 +33364,7 @@
 	)
 	(global_label "~{SAS}"
 		(shape output)
-		(at 44.45 370.84 0)
+		(at 44.45 353.06 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -33466,7 +33374,7 @@
 		)
 		(uuid "43565c35-fef3-47c0-be28-70f61a7dfce6")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 50.9428 370.84 0)
+			(at 50.9428 353.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -33478,7 +33386,7 @@
 	)
 	(global_label "~{TS}"
 		(shape output)
-		(at 44.45 365.76 0)
+		(at 44.45 347.98 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -33488,7 +33396,7 @@
 		)
 		(uuid "43e64337-d08d-4ec9-8d38-2ed651b22fbb")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 49.6123 365.76 0)
+			(at 49.6123 347.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -33610,7 +33518,7 @@
 	)
 	(global_label "~{CLA}"
 		(shape output)
-		(at 44.45 375.92 0)
+		(at 44.45 358.14 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -33620,7 +33528,7 @@
 		)
 		(uuid "49356953-3b30-45b8-b459-98ecd6831b8c")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 50.8219 375.92 0)
+			(at 50.8219 358.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -34092,6 +34000,28 @@
 			)
 		)
 	)
+	(global_label "68150:~{BUSCS}"
+		(shape input)
+		(at 567.69 191.135 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "6cf29d51-2c9f-44f8-a445-3859bf7867b5")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 551.763 191.135 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "~{CLKEN}"
 		(shape output)
 		(at 537.21 354.965 180)
@@ -34138,7 +34068,7 @@
 	)
 	(global_label "~{TIP}"
 		(shape output)
-		(at 44.45 368.3 0)
+		(at 44.45 350.52 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -34148,7 +34078,7 @@
 		)
 		(uuid "71163fc6-0318-4eea-8f2d-32cecd2b0898")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 50.2776 368.3 0)
+			(at 50.2776 350.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -34974,7 +34904,7 @@
 	)
 	(global_label "~{BS2}"
 		(shape output)
-		(at 44.45 398.78 0)
+		(at 44.45 381 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -34984,7 +34914,7 @@
 		)
 		(uuid "b01dd3a3-55e2-42ea-9578-f8249132914b")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 51.1242 398.78 0)
+			(at 51.1242 381 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -34996,7 +34926,7 @@
 	)
 	(global_label "~{BS1}"
 		(shape output)
-		(at 44.45 401.32 0)
+		(at 44.45 383.54 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -35006,7 +34936,7 @@
 		)
 		(uuid "b185bc5f-6f6b-4508-8fa1-317ad81dc9e3")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 51.1242 401.32 0)
+			(at 51.1242 383.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -35018,7 +34948,7 @@
 	)
 	(global_label "~{SNOOP}"
 		(shape output)
-		(at 44.45 373.38 0)
+		(at 44.45 355.6 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -35028,7 +34958,7 @@
 		)
 		(uuid "b186b45a-ab30-4ba3-9bac-3be42f6df147")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 53.9062 373.38 0)
+			(at 53.9062 355.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -35150,7 +35080,7 @@
 	)
 	(global_label "~{BS3}"
 		(shape output)
-		(at 44.45 396.24 0)
+		(at 44.45 378.46 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -35160,7 +35090,7 @@
 		)
 		(uuid "c381a83a-a3b3-4b76-ae2e-938c1ad89e21")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 51.1242 396.24 0)
+			(at 51.1242 378.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -35194,7 +35124,7 @@
 	)
 	(global_label "~{BB}"
 		(shape tri_state)
-		(at 44.45 363.22 0)
+		(at 44.45 345.44 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -35204,7 +35134,29 @@
 		)
 		(uuid "c49b11be-fb90-4756-80b5-cebc9bbbd315")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 51.0865 363.22 0)
+			(at 51.0865 345.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "68150:~{BUSCS}"
+		(shape output)
+		(at 44.45 401.955 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "cb41d022-3006-4463-b1ee-3fb3f1542880")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 60.377 401.955 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -35298,6 +35250,28 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "68150:~{CS}"
+		(shape output)
+		(at 44.45 399.415 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d3cd4ad5-14e9-4f6a-8a21-22e47b4b97cd")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 56.567 399.415 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -35436,7 +35410,7 @@
 	)
 	(global_label "R~{W}"
 		(shape output)
-		(at 44.45 381 0)
+		(at 44.45 363.22 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -35446,7 +35420,7 @@
 		)
 		(uuid "da641ed4-48a2-40bf-b1e7-35e6be3a1a42")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 50.1566 381 0)
+			(at 50.1566 363.22 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -35540,6 +35514,28 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "68150:~{BUSCS}"
+		(shape output)
+		(at 595.63 354.965 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e3c1a96e-3b82-4734-9ce7-81e17491841b")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 611.557 354.965 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -36164,7 +36160,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Network08_Split")
-		(at 33.02 403.86 90)
+		(at 33.02 386.08 90)
 		(unit 4)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -36172,7 +36168,7 @@
 		(dnp no)
 		(uuid "05b2840c-b242-43a5-910e-362e99cc35b8")
 		(property "Reference" "RN103"
-			(at 24.765 402.59 90)
+			(at 24.765 384.81 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36180,7 +36176,7 @@
 			)
 		)
 		(property "Value" "1K"
-			(at 33.02 403.86 90)
+			(at 33.02 386.08 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36188,7 +36184,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Array_SIP9"
-			(at 33.02 405.892 90)
+			(at 33.02 388.112 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36197,7 +36193,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.mouser.se/datasheet/2/414/TTRB_S_A0011800142_1-2565569.pdf"
-			(at 33.02 403.86 0)
+			(at 33.02 386.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36206,7 +36202,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 33.02 403.86 0)
+			(at 33.02 386.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36214,7 +36210,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "IRC / TT"
-			(at 33.02 403.86 0)
+			(at 33.02 386.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36223,7 +36219,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "L091S102LF"
-			(at 33.02 403.86 0)
+			(at 33.02 386.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36479,7 +36475,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Network08_Split")
-		(at 33.02 526.415 90)
+		(at 33.02 399.415 90)
 		(unit 8)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -36487,7 +36483,7 @@
 		(dnp no)
 		(uuid "076c9585-4efe-49fd-a95c-1d40fdcfc62a")
 		(property "Reference" "RN103"
-			(at 24.765 525.145 90)
+			(at 24.765 398.145 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36495,7 +36491,7 @@
 			)
 		)
 		(property "Value" "1K"
-			(at 33.02 526.415 90)
+			(at 33.02 399.415 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36503,7 +36499,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Array_SIP9"
-			(at 33.02 528.447 90)
+			(at 33.02 401.447 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36512,7 +36508,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.mouser.se/datasheet/2/414/TTRB_S_A0011800142_1-2565569.pdf"
-			(at 33.02 526.415 0)
+			(at 33.02 399.415 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36521,7 +36517,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 33.02 526.415 0)
+			(at 33.02 399.415 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36529,7 +36525,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "IRC / TT"
-			(at 33.02 526.415 0)
+			(at 33.02 399.415 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36538,7 +36534,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "L091S102LF"
-			(at 33.02 526.415 0)
+			(at 33.02 399.415 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39222,7 +39218,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Network08_Split")
-		(at 33.02 401.32 90)
+		(at 33.02 383.54 90)
 		(unit 4)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -39230,7 +39226,7 @@
 		(dnp no)
 		(uuid "2bd7fd41-a49e-4a91-82e1-225499a8f3e6")
 		(property "Reference" "RN102"
-			(at 24.765 400.05 90)
+			(at 24.765 382.27 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39238,7 +39234,7 @@
 			)
 		)
 		(property "Value" "1K"
-			(at 33.02 401.32 90)
+			(at 33.02 383.54 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39246,7 +39242,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Array_SIP9"
-			(at 33.02 403.352 90)
+			(at 33.02 385.572 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39255,7 +39251,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.mouser.se/datasheet/2/414/TTRB_S_A0011800142_1-2565569.pdf"
-			(at 33.02 401.32 0)
+			(at 33.02 383.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39264,7 +39260,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 33.02 401.32 0)
+			(at 33.02 383.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39272,7 +39268,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "IRC / TT"
-			(at 33.02 401.32 0)
+			(at 33.02 383.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39281,7 +39277,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "L091S102LF"
-			(at 33.02 401.32 0)
+			(at 33.02 383.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40993,92 +40989,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 548.005 184.15 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "3bc45712-b9b7-4da5-b729-5b08a6427ddb")
-		(property "Reference" "R116"
-			(at 548.005 186.055 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1K"
-			(at 546.1 185.42 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
-			(at 546.227 184.15 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 548.005 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 548.005 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" "Yageo"
-			(at 548.005 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part_Number" "RT1206FRE071KL"
-			(at 548.005 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "f938a54f-ede2-42c2-bc26-ffd1fbe1ed0d")
-		)
-		(pin "1"
-			(uuid "45a14864-06c2-49d3-8442-aacb68fed9d2")
-		)
-		(instances
-			(project "raven"
-				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "R116")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R_Network08_Split")
 		(at 78.105 491.49 90)
 		(unit 6)
@@ -41315,7 +41225,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Network08_Split")
-		(at 33.02 523.875 90)
+		(at 33.02 401.955 90)
 		(unit 7)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -41323,7 +41233,7 @@
 		(dnp no)
 		(uuid "3ebcc7a7-d1c9-4018-b0a9-d0702ea94722")
 		(property "Reference" "RN103"
-			(at 24.765 522.605 90)
+			(at 24.765 400.685 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41331,7 +41241,7 @@
 			)
 		)
 		(property "Value" "1K"
-			(at 33.02 523.875 90)
+			(at 33.02 401.955 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41339,7 +41249,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Array_SIP9"
-			(at 33.02 525.907 90)
+			(at 33.02 403.987 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41348,7 +41258,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.mouser.se/datasheet/2/414/TTRB_S_A0011800142_1-2565569.pdf"
-			(at 33.02 523.875 0)
+			(at 33.02 401.955 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41357,7 +41267,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 33.02 523.875 0)
+			(at 33.02 401.955 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41365,7 +41275,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "IRC / TT"
-			(at 33.02 523.875 0)
+			(at 33.02 401.955 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41374,7 +41284,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "L091S102LF"
-			(at 33.02 523.875 0)
+			(at 33.02 401.955 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41856,7 +41766,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Network08_Split")
-		(at 33.02 398.78 90)
+		(at 33.02 381 90)
 		(unit 5)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -41864,7 +41774,7 @@
 		(dnp no)
 		(uuid "44123e7c-4367-423d-b479-6befecf7cc64")
 		(property "Reference" "RN103"
-			(at 24.765 397.51 90)
+			(at 24.765 379.73 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41872,7 +41782,7 @@
 			)
 		)
 		(property "Value" "1K"
-			(at 33.02 398.78 90)
+			(at 33.02 381 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41880,7 +41790,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Array_SIP9"
-			(at 33.02 400.812 90)
+			(at 33.02 383.032 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41889,7 +41799,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.mouser.se/datasheet/2/414/TTRB_S_A0011800142_1-2565569.pdf"
-			(at 33.02 398.78 0)
+			(at 33.02 381 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41898,7 +41808,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 33.02 398.78 0)
+			(at 33.02 381 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41906,7 +41816,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "IRC / TT"
-			(at 33.02 398.78 0)
+			(at 33.02 381 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41915,7 +41825,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "L091S102LF"
-			(at 33.02 398.78 0)
+			(at 33.02 381 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -43893,76 +43803,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+3.3V")
-		(at 548.005 179.705 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "61f335d0-fdf0-4466-babe-e1df71d6bede")
-		(property "Reference" "#PWR0129"
-			(at 548.005 183.515 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3.3V"
-			(at 548.005 175.895 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 548.005 179.705 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 548.005 179.705 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 548.005 179.705 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "3e7b900a-e254-43a8-aa68-8d7ea5ca1b07")
-		)
-		(instances
-			(project "68060-68000"
-				(path "/4e3917e0-8f6e-4503-ae46-0fe413b462be"
-					(reference "#PWR010")
-					(unit 1)
-				)
-			)
-			(project "raven"
-				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "#PWR0129")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_name "c_100nf_smd1206_1")
 		(lib_id "68k:c_100nf_smd1206")
 		(at 28.575 165.1 180)
@@ -45073,7 +44913,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Network08_Split")
-		(at 33.02 363.22 90)
+		(at 33.02 345.44 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -45081,7 +44921,7 @@
 		(dnp no)
 		(uuid "729bdb3a-e4dd-4332-af31-20ef6fade143")
 		(property "Reference" "RN101"
-			(at 24.765 361.95 90)
+			(at 24.765 344.17 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45089,7 +44929,7 @@
 			)
 		)
 		(property "Value" "1K"
-			(at 33.02 363.22 90)
+			(at 33.02 345.44 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45097,7 +44937,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Array_SIP9"
-			(at 33.02 365.252 90)
+			(at 33.02 347.472 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45106,7 +44946,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.mouser.se/datasheet/2/414/TTRB_S_A0011800142_1-2565569.pdf"
-			(at 33.02 363.22 0)
+			(at 33.02 345.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45115,7 +44955,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 33.02 363.22 0)
+			(at 33.02 345.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45123,7 +44963,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "IRC / TT"
-			(at 33.02 363.22 0)
+			(at 33.02 345.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45132,7 +44972,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "L091S102LF"
-			(at 33.02 363.22 0)
+			(at 33.02 345.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45524,7 +45364,7 @@
 	)
 	(symbol
 		(lib_id "power:+3.3V")
-		(at 20.32 358.775 0)
+		(at 20.32 340.995 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -45533,7 +45373,7 @@
 		(fields_autoplaced yes)
 		(uuid "7a06978c-e1d3-46b2-a8a6-e58b649b5db1")
 		(property "Reference" "#PWR0140"
-			(at 20.32 362.585 0)
+			(at 20.32 344.805 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45542,7 +45382,7 @@
 			)
 		)
 		(property "Value" "+3.3V"
-			(at 20.32 354.33 0)
+			(at 20.32 336.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45550,7 +45390,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 20.32 358.775 0)
+			(at 20.32 340.995 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45559,7 +45399,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 20.32 358.775 0)
+			(at 20.32 340.995 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45568,7 +45408,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 20.32 358.775 0)
+			(at 20.32 340.995 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -46889,7 +46729,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Network08_Split")
-		(at 33.02 381 90)
+		(at 33.02 363.22 90)
 		(unit 8)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -46897,7 +46737,7 @@
 		(dnp no)
 		(uuid "898b8370-8c80-4385-a0a9-a84870621c00")
 		(property "Reference" "RN101"
-			(at 24.765 379.73 90)
+			(at 24.765 361.95 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -46905,7 +46745,7 @@
 			)
 		)
 		(property "Value" "1K"
-			(at 33.02 381 90)
+			(at 33.02 363.22 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -46913,7 +46753,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Array_SIP9"
-			(at 33.02 383.032 90)
+			(at 33.02 365.252 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -46922,7 +46762,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.mouser.se/datasheet/2/414/TTRB_S_A0011800142_1-2565569.pdf"
-			(at 33.02 381 0)
+			(at 33.02 363.22 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -46931,7 +46771,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 33.02 381 0)
+			(at 33.02 363.22 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -46939,7 +46779,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "IRC / TT"
-			(at 33.02 381 0)
+			(at 33.02 363.22 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -46948,7 +46788,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "L091S102LF"
-			(at 33.02 381 0)
+			(at 33.02 363.22 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -47758,7 +47598,7 @@
 	)
 	(symbol
 		(lib_id "power:+3.3V")
-		(at 20.32 391.795 0)
+		(at 20.32 374.015 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -47767,7 +47607,7 @@
 		(fields_autoplaced yes)
 		(uuid "958d4fb2-ee9b-49fb-b651-4827ebe2befa")
 		(property "Reference" "#PWR0147"
-			(at 20.32 395.605 0)
+			(at 20.32 377.825 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -47776,7 +47616,7 @@
 			)
 		)
 		(property "Value" "+3.3V"
-			(at 20.32 387.35 0)
+			(at 20.32 369.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -47784,7 +47624,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 20.32 391.795 0)
+			(at 20.32 374.015 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -47793,7 +47633,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 20.32 391.795 0)
+			(at 20.32 374.015 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -47802,7 +47642,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 20.32 391.795 0)
+			(at 20.32 374.015 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49823,7 +49663,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Network08_Split")
-		(at 33.02 373.38 90)
+		(at 33.02 355.6 90)
 		(unit 5)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -49831,7 +49671,7 @@
 		(dnp no)
 		(uuid "ad1e2e20-d626-4d5a-9392-56ac0b1fed2a")
 		(property "Reference" "RN101"
-			(at 24.765 372.11 90)
+			(at 24.765 354.33 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49839,7 +49679,7 @@
 			)
 		)
 		(property "Value" "1K"
-			(at 33.02 373.38 90)
+			(at 33.02 355.6 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49847,7 +49687,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Array_SIP9"
-			(at 33.02 375.412 90)
+			(at 33.02 357.632 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49856,7 +49696,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.mouser.se/datasheet/2/414/TTRB_S_A0011800142_1-2565569.pdf"
-			(at 33.02 373.38 0)
+			(at 33.02 355.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49865,7 +49705,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 33.02 373.38 0)
+			(at 33.02 355.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49873,7 +49713,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "IRC / TT"
-			(at 33.02 373.38 0)
+			(at 33.02 355.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49882,7 +49722,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "L091S102LF"
-			(at 33.02 373.38 0)
+			(at 33.02 355.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -50138,7 +49978,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Network08_Split")
-		(at 33.02 375.92 90)
+		(at 33.02 358.14 90)
 		(unit 6)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -50146,7 +49986,7 @@
 		(dnp no)
 		(uuid "b41e02d2-b6a4-4c58-8f92-dcc1b6d43d18")
 		(property "Reference" "RN101"
-			(at 24.765 374.65 90)
+			(at 24.765 356.87 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -50154,7 +49994,7 @@
 			)
 		)
 		(property "Value" "1K"
-			(at 33.02 375.92 90)
+			(at 33.02 358.14 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -50162,7 +50002,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Array_SIP9"
-			(at 33.02 377.952 90)
+			(at 33.02 360.172 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -50171,7 +50011,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.mouser.se/datasheet/2/414/TTRB_S_A0011800142_1-2565569.pdf"
-			(at 33.02 375.92 0)
+			(at 33.02 358.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -50180,7 +50020,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 33.02 375.92 0)
+			(at 33.02 358.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -50188,7 +50028,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "IRC / TT"
-			(at 33.02 375.92 0)
+			(at 33.02 358.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -50197,7 +50037,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "L091S102LF"
-			(at 33.02 375.92 0)
+			(at 33.02 358.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -50882,7 +50722,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Network08_Split")
-		(at 33.02 396.24 90)
+		(at 33.02 378.46 90)
 		(unit 5)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -50890,7 +50730,7 @@
 		(dnp no)
 		(uuid "b9f681dd-4c42-41bf-8ede-aa7439a4c741")
 		(property "Reference" "RN102"
-			(at 24.765 394.97 90)
+			(at 24.765 377.19 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -50898,7 +50738,7 @@
 			)
 		)
 		(property "Value" "1K"
-			(at 33.02 396.24 90)
+			(at 33.02 378.46 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -50906,7 +50746,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Array_SIP9"
-			(at 33.02 398.272 90)
+			(at 33.02 380.492 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -50915,7 +50755,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.mouser.se/datasheet/2/414/TTRB_S_A0011800142_1-2565569.pdf"
-			(at 33.02 396.24 0)
+			(at 33.02 378.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -50924,7 +50764,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 33.02 396.24 0)
+			(at 33.02 378.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -50932,7 +50772,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "IRC / TT"
-			(at 33.02 396.24 0)
+			(at 33.02 378.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -50941,7 +50781,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "L091S102LF"
-			(at 33.02 396.24 0)
+			(at 33.02 378.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -50987,7 +50827,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Network08_Split")
-		(at 33.02 368.3 90)
+		(at 33.02 350.52 90)
 		(unit 3)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -50995,7 +50835,7 @@
 		(dnp no)
 		(uuid "ba3efb59-34f0-44a9-aed5-8e0c806618a3")
 		(property "Reference" "RN101"
-			(at 24.765 367.03 90)
+			(at 24.765 349.25 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -51003,7 +50843,7 @@
 			)
 		)
 		(property "Value" "1K"
-			(at 33.02 368.3 90)
+			(at 33.02 350.52 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -51011,7 +50851,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Array_SIP9"
-			(at 33.02 370.332 90)
+			(at 33.02 352.552 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -51020,7 +50860,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.mouser.se/datasheet/2/414/TTRB_S_A0011800142_1-2565569.pdf"
-			(at 33.02 368.3 0)
+			(at 33.02 350.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -51029,7 +50869,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 33.02 368.3 0)
+			(at 33.02 350.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -51037,7 +50877,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "IRC / TT"
-			(at 33.02 368.3 0)
+			(at 33.02 350.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -51046,7 +50886,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "L091S102LF"
-			(at 33.02 368.3 0)
+			(at 33.02 350.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -51993,7 +51833,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Network08_Split")
-		(at 33.02 378.46 90)
+		(at 33.02 360.68 90)
 		(unit 7)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -52001,7 +51841,7 @@
 		(dnp no)
 		(uuid "c3c7b419-ec4a-4c89-a44a-df27dcf25ad8")
 		(property "Reference" "RN101"
-			(at 24.765 377.19 90)
+			(at 24.765 359.41 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52009,7 +51849,7 @@
 			)
 		)
 		(property "Value" "1K"
-			(at 33.02 378.46 90)
+			(at 33.02 360.68 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52017,7 +51857,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Array_SIP9"
-			(at 33.02 380.492 90)
+			(at 33.02 362.712 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52026,7 +51866,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.mouser.se/datasheet/2/414/TTRB_S_A0011800142_1-2565569.pdf"
-			(at 33.02 378.46 0)
+			(at 33.02 360.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52035,7 +51875,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 33.02 378.46 0)
+			(at 33.02 360.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52043,7 +51883,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "IRC / TT"
-			(at 33.02 378.46 0)
+			(at 33.02 360.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52052,7 +51892,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "L091S102LF"
-			(at 33.02 378.46 0)
+			(at 33.02 360.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52882,7 +52722,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Network08_Split")
-		(at 33.02 365.76 90)
+		(at 33.02 347.98 90)
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -52890,7 +52730,7 @@
 		(dnp no)
 		(uuid "cdf5c9a8-2d1f-46ca-906d-1167ee21f338")
 		(property "Reference" "RN101"
-			(at 24.765 364.49 90)
+			(at 24.765 346.71 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52898,7 +52738,7 @@
 			)
 		)
 		(property "Value" "1K"
-			(at 33.02 365.76 90)
+			(at 33.02 347.98 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52906,7 +52746,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Array_SIP9"
-			(at 33.02 367.792 90)
+			(at 33.02 350.012 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52915,7 +52755,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.mouser.se/datasheet/2/414/TTRB_S_A0011800142_1-2565569.pdf"
-			(at 33.02 365.76 0)
+			(at 33.02 347.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52924,7 +52764,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 33.02 365.76 0)
+			(at 33.02 347.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52932,7 +52772,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "IRC / TT"
-			(at 33.02 365.76 0)
+			(at 33.02 347.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52941,7 +52781,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "L091S102LF"
-			(at 33.02 365.76 0)
+			(at 33.02 347.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -54311,6 +54151,70 @@
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
 					(reference "#PWR0123")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3.3V")
+		(at 20.32 394.97 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "e39cad1b-ad06-45dc-a8bd-c5baed36e3ab")
+		(property "Reference" "#PWR0165"
+			(at 20.32 398.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.3V"
+			(at 20.32 391.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 20.32 394.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 20.32 394.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 20.32 394.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "eabfe4a0-9710-461a-a503-9c4d3450ab42")
+		)
+		(instances
+			(project "raven"
+				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
+					(reference "#PWR0165")
 					(unit 1)
 				)
 			)
@@ -56086,7 +55990,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Network08_Split")
-		(at 33.02 370.84 90)
+		(at 33.02 353.06 90)
 		(unit 4)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -56094,7 +55998,7 @@
 		(dnp no)
 		(uuid "ee23aea7-194e-433a-ad83-b7ce85dcd061")
 		(property "Reference" "RN101"
-			(at 24.765 369.57 90)
+			(at 24.765 351.79 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56102,7 +56006,7 @@
 			)
 		)
 		(property "Value" "1K"
-			(at 33.02 370.84 90)
+			(at 33.02 353.06 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56110,7 +56014,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Array_SIP9"
-			(at 33.02 372.872 90)
+			(at 33.02 355.092 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56119,7 +56023,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.mouser.se/datasheet/2/414/TTRB_S_A0011800142_1-2565569.pdf"
-			(at 33.02 370.84 0)
+			(at 33.02 353.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56128,7 +56032,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 33.02 370.84 0)
+			(at 33.02 353.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56136,7 +56040,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "IRC / TT"
-			(at 33.02 370.84 0)
+			(at 33.02 353.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56145,7 +56049,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "L091S102LF"
-			(at 33.02 370.84 0)
+			(at 33.02 353.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
