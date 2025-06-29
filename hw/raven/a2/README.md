@@ -40,7 +40,6 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - w5100s ethernet controller
 - get rid of old ym pins expansion header
 - vs1053 dsp, or suitable expansion header to allow it as expansion later
-- separate cs signals for 68150 and buffers
 
 ## Optional / non-critical:
 - Pushbuttons:     SW101, SW201, SW202
