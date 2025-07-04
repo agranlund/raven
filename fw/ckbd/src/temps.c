@@ -164,6 +164,24 @@ static bool GetCoreTemperature(uint16_t* adc_out, uint8_t* res_out, uint8_t* deg
         if (deg_out) { *deg_out = 0; }
         return false;
     }
+
+#if 0    
+    // convert to voltage
+    float vf = ((float)adc / 2047.0f) * 3.3f;
+
+    // calculate THERM01 resistance
+    float rf = (vf * 1000) / (3.3f - vf);
+
+    float t0 = 25.0f + (1.2f * (rf - 400));
+    float t1 = 25.0f + (2.8f * (rf - 780));
+    TRACE("vf = %d, rf = %d", (int16_t)(vf*1000), (int16_t)rf);
+    TRACE("d0 = %d, d1 = %d", (int16_t)t0, (int16_t)t1);
+    TRACE("t1 %x %d %d %d\n", adc, adc_out ? *adc_out : 0, res_out ? *res_out : 0, deg_out ? *deg_out : 0);
+#endif
+
+    if (res_out) { *res_out = 0; }
+    if (deg_out) { *deg_out = 0; }
+    return true;
 }
 
 
