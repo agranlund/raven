@@ -1070,7 +1070,7 @@ bool cmd_0x03(uint8_t* data, uint8_t size) {        // IKBD_CMD_EIFFEL_GET_TEMP
 #else
     ikbd_Send(0x00);
 #endif
-    ikbd_Send(0x00);
+    ikbd_Send(0x00 | ((P0 << 5) & 0x80));
     ikbd_Send((BUILD_VERSION & 0xff000000) >> 24);
     ikbd_Send((BUILD_VERSION & 0x00ff0000) >> 16);
     ikbd_Send((BUILD_VERSION & 0x0000ff00) >>  8);
@@ -1207,10 +1207,15 @@ bool cmd_0x2E(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_RESET
 bool cmd_0x2F(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_POWER
 #if !defined(DISABLE_POWERSW)    
     uint8_t val = data[1];
-    if (val == 0) {
-        // todo: system reset
+    if (val == 0x5A) {
+        TRACE("poweroff");
+        P0 &= ~(1 << 2);
+        P0_DIR |= (1 << 2);
+        delayms(1000);
+        P0_DIR &= ~(1 << 2);
+        P0 |= (1 << 2);
     } else {
-        // todo: system power off
+        // todo: system reset
     }
 #endif    
     return true;
