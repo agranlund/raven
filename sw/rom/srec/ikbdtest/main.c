@@ -100,6 +100,10 @@ void main(void)
             else if (recv[0] == 0x08) { // backspace = ckbd bootloader
                 ikbd_send(0x26);
             }
+            else if (recv[0] == 0x8F) { // F12 = power off
+                ikbd_send(0x2F);
+                ikbd_send(0x5A);
+            }
             else if (recv[0] == 0x31) { // 1 = poll mouse
                 ikbd_send(0x0D);
             }
