@@ -18,7 +18,7 @@
 (*) Features marked with an asterix requires soldering patch wires on the motherboard.
 All solder points are available on through hole components and can be done on the underside of the motherboard.
 
-#### Support for right mouse button:
+#### Support for right mouse button on Legacy mice (not needed for USB or PS2)
 - J606:A9  <-> J606:B6 (mouse right button - joystick1 fire button)
 #### Support for CPU temperature readout
 - U107:M15 <-> U107:M16 (CPU Therm1 - GND)
