@@ -17,11 +17,13 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - Silkscreen: Clearer orientation for J204, J205, J206, J305
 - Silkscreen: Clearer orientation for U601
 - Silkscreen: Reversed order of RAM simms
-- Footprint:  Larger footprints for handsolder D201, D202, D203 
+- Silkscreen: Made pin1 marker more clear on some SMD footprints
+- Footprint:  Larger footprints for handsolder D201, D202, D203
 - BOM: Replaced PLCC64 socket for U104 with black part
 - BOM: Replaced PLCC84 socket for U108 with black part
 - BOM: Replaced buttons SW101,SW201,SW202 with black parts
 - BOM: Changed C310 to 0.1uF (was 0.01uF)
+- Replaced through-hole DS1818 with DS1818R (SMD version)
 - Small pad for soldering top of Y402 to board
 - Added 68150:BUSCS signal separate from 68150:CS
 - Added pullups on 68150 data bus
