@@ -9651,7 +9651,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "68k:DS1813"
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23-3"
 			(at 55.88 200.965 0)
 			(effects
 				(font
@@ -9689,7 +9689,7 @@
 				(hide yes)
 			)
 		)
-		(property "Mouser Part Number" "700-DS1818-10T&R"
+		(property "Mouser Part Number" "700-DS1818R-10T&R"
 			(at 55.88 600.965 0)
 			(effects
 				(font
@@ -9719,7 +9719,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "DS1818-10+T&R"
+		(property "Manufacturer_Part_Number" "DS1818R-10+T&R"
 			(at 55.88 900.965 0)
 			(effects
 				(font
