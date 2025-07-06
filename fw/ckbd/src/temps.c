@@ -4,6 +4,7 @@
 //-------------------------------------------------------------------------
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 #include "system.h"
 #include "settings.h"
 #include "temps.h"
@@ -19,25 +20,27 @@ void ProcessTemps(void) { }
 #define tempsensor_avgmask  (tempsensor_avgcount - 1)
 #define tempsensor_delay    5
 
-static uint8_t pos;
-static uint8_t status;
-static uint16_t adc[2][tempsensor_avgcount];
+static __xdata uint8_t pos;
+static __xdata uint8_t status;
+static __xdata uint16_t adc[2][tempsensor_avgcount];
 
 
-void SetFanState(uint8_t idx, bool enable) {
-    // todo: drive motor pin
+static void SetFanState(uint8_t idx, bool enable) {
     if (idx == 0) {
-        if (enable) {
+        if (enable && !(status & TEMP_STATUS_FAN0)) {
             status |= TEMP_STATUS_FAN0;
-        } else {
+            P3_DIR &= ~(1 << 5);
+        } else if (!enable && (status & TEMP_STATUS_FAN0)) {
             status &= ~TEMP_STATUS_FAN0;
+            P3_DIR |= (1 << 5);
         }
     }
 #if !defined(DISABLE_TEMP2)
+    // todo: drive pins
     else if (idx == 1) {
-        if (enable) {
+        if (enable && !(status & TEMP_STATUS_FAN1)) {
             status |= TEMP_STATUS_FAN1;
-        } else {
+        } else if (!enable && (status & TEMP_STATUS_FAN1)) {
             status &= ~TEMP_STATUS_FAN1;
         }
     }
@@ -46,6 +49,11 @@ void SetFanState(uint8_t idx, bool enable) {
 
 static uint16_t ReadTempSensorRaw(uint8_t idx) {
     uint16_t t = 0;
+#if defined(DISABLE_TEMP2)
+    if (idx != 0) {
+        return 0;
+    }
+#endif
     t = ADC_FIFO; t = ADC_FIFO;
     t = ADC_FIFO; t = ADC_FIFO;
     ADC_CHANN = (1 << idx);
@@ -68,16 +76,6 @@ static uint16_t ReadTempSensorAvg(int idx) {
     return (uint16_t) (ret / tempsensor_avgcount);
 }
 
-static void UpdateTempSensors(void) {
-    adc[0][pos] = ReadTempSensorRaw(0);
-#if !defined(DISABLE_TEMP2)
-    adc[1][pos] = ReadTempSensorRaw(1);
-#else
-    adc[1][pos] = 0;
-#endif
-    pos = (pos + 1) & tempsensor_avgmask;
-}
-
 static bool GetBoardTemperature(uint16_t* adc_out, uint8_t* res_out, uint8_t* deg_out) {
     //
     //  Standalone                    Raven.A2
@@ -95,7 +93,7 @@ static bool GetBoardTemperature(uint16_t* adc_out, uint8_t* res_out, uint8_t* de
 
     // get averaged adc value from pin
     uint16_t adc = ReadTempSensorAvg(0);
-    if (*adc_out) { *adc_out = adc; }
+    if (adc_out) { *adc_out = adc; }
     if ((adc >= 0x07f0) || (adc < 0x0010)) {
         if (res_out) { *res_out = 0; }
         if (deg_out) { *deg_out = 0; }
@@ -103,7 +101,7 @@ static bool GetBoardTemperature(uint16_t* adc_out, uint8_t* res_out, uint8_t* de
     }
    
     // convert to voltage
-    float vf = ((float)adc / 2047.0f) * 3.3f;
+    float vf = (3.3f * (float)adc) / 2048.0f;
 
     // calculate thermistor resistance
 #if defined(BOARD_RAVEN_A2)
@@ -134,6 +132,9 @@ static bool GetBoardTemperature(uint16_t* adc_out, uint8_t* res_out, uint8_t* de
             }
         }
     }
+
+    TRACE("t0 %d, rf = %d", (int16_t)(vf*1000), (int16_t)(rf*100));
+    TRACE("t0 %x %d %d %d\n", adc, adc_out ? *adc_out : 0, res_out ? *res_out : 0, deg_out ? *deg_out : 0);
     return true;
 }
 
@@ -153,35 +154,49 @@ static bool GetCoreTemperature(uint16_t* adc_out, uint8_t* res_out, uint8_t* deg
     //    gnd
     //
 
-#if !defined(DISABLE_TEMP2)
-    uint16_t adc = ReadTempSensorAvg(1);
+// MC68060DE.pdf
+// The nominal resistance and temperature coefficient of the internal die resistor connected
+// across the thermal sensing pins (THERM1, THERM0) as listed in the User's Manual (rev. 1)
+// on page 2-16 is incorrect. The correct value for the temperature coefficient is approximately
+// 2.8 ohms/ degree C. The correct value for the nominal resistance is approximately 780
+// ohms at 25 degrees C.
+
+
+#if defined(DISABLE_TEMP2)
+    if (adc_out) { *adc_out = 0; }
+    if (res_out) { *res_out = 0; }
+    if (deg_out) { *deg_out = 0; }
+    return false;
 #else
-    uint16_t adc = 0x7ff;
-#endif
-    if (*adc_out) { *adc_out = adc; }
+    uint16_t adc = ReadTempSensorAvg(1);
+    if (adc_out) { *adc_out = adc; }
     if ((adc >= 0x07f0) || (adc < 0x0010)) {
         if (res_out) { *res_out = 0; }
         if (deg_out) { *deg_out = 0; }
         return false;
     }
 
-#if 0    
+    // todo: use user defined calibration settings here,
+    // same as we do for board temperature.
+
+    const float rn = 870; //780.0f;
+    const float at = 2.8f;
+
     // convert to voltage
-    float vf = ((float)adc / 2047.0f) * 3.3f;
+    float vf = (3.3f * (float)adc) / 2048.0f;
 
     // calculate THERM01 resistance
-    float rf = (vf * 1000) / (3.3f - vf);
+    float rt = (vf * 1000) / (3.3f - vf);
 
-    float t0 = 25.0f + (1.2f * (rf - 400));
-    float t1 = 25.0f + (2.8f * (rf - 780));
-    TRACE("vf = %d, rf = %d", (int16_t)(vf*1000), (int16_t)rf);
-    TRACE("d0 = %d, d1 = %d", (int16_t)t0, (int16_t)t1);
-    TRACE("t1 %x %d %d %d\n", adc, adc_out ? *adc_out : 0, res_out ? *res_out : 0, deg_out ? *deg_out : 0);
-#endif
+    // calculate temperature
+    float t = 25.0f + ((rt - rn) / at);
 
-    if (res_out) { *res_out = 0; }
-    if (deg_out) { *deg_out = 0; }
+    TRACE("adc = %d, vf = %d, rt = %d, t = %d", adc, (int16_t)(vf*1000), (int16_t)rt, (int16_t)t);
+
+    if (res_out) { *res_out = (uint8_t) (rt / 100); }
+    if (deg_out) { *deg_out = (uint8_t) t; }
     return true;
+#endif    
 }
 
 
@@ -208,11 +223,19 @@ bool GetTemps(uint8_t idx, uint8_t* status_out, uint16_t* adc_out, uint8_t* res_
 
 void InitTemps(void) {
     uint16_t t;
+
+    // fans on by default
+    // todo: fan1
+    P3_DIR &= ~(1<<5);
+    P3_PU &= ~(1<<5);
+    P3 &= ~(1<<5);
+
+    // adc setup
 #if !defined(DISABLE_TEMP2)
-    P1_IE &= ~0b00111111;                           // enable AIN0 + AIN1
+    P1_IE &= 0b11111100;                           // enable AIN0 + AIN1
 #else
-    P1_IE &= ~0b01111111;                           // enable AIN0
-#endif    
+    P1_IE &= 0b11111110;                           // enable AIN0
+#endif
     ADC_SETUP = bADC_POWER_EN | bADC_EXT_SW_EN;     // power enable + extended mode
     ADC_EX_SW = bADC_RESOLUTION;                    // 11bit resolution
     ADC_CK_SE = 16;                                 // clock division (must be between 1 and 12 mhz)
@@ -224,68 +247,77 @@ void InitTemps(void) {
     pos = 0;                                        // prime averaging buffers
     status = TEMP_STATUS_ADC0 | TEMP_STATUS_ADC1;
     for (int i=0; i<tempsensor_avgcount; i++) {
-        UpdateTempSensors();
+        adc[0][pos] = ReadTempSensorRaw(0);
+        adc[1][pos] = ReadTempSensorRaw(1);
+        pos = (pos + 1) & tempsensor_avgmask;
     }
-    status = GetBoardTemperature(0, 0, 0) ? TEMP_STATUS_ADC0 : 0;// TEMP_STATUS_FAN0;
-    status |= GetCoreTemperature(0, 0, 0) ? TEMP_STATUS_ADC1 : 0; //TEMP_STATUS_FAN1;
+
+    // initial status
+    status =  (TEMP_STATUS_FAN0 | (GetBoardTemperature(0, 0, 0) ? TEMP_STATUS_ADC0 : 0));
+    status |= (TEMP_STATUS_FAN1 | (GetCoreTemperature(0, 0, 0)  ? TEMP_STATUS_ADC1 : 0));
     TRACE("sensor status = $%x", status);
 }
 
 void ProcessTemps(void) {
-    static uint32_t last = 0;
-    if (elapsed(last) < 1000) {
+    static __xdata uint32_t last = 0;
+    static __xdata uint8_t idx = 0;
+    if (elapsed(last) < 500) {
         return;
     }
-    UpdateTempSensors();
 
-    // board temperature and fan control
-    if (Settings.FanControl0 == FANCONTROL_OFF) {
-        SetFanState(0, false);
-    } else if (Settings.FanControl0 == FANCONTROL_ON) {
-        SetFanState(0, true);
-    } else if (Settings.FanControl0 == FANCONTROL_AUTO) {
-        uint16_t adc; uint8_t res, deg;
-        if (GetBoardTemperature(&adc, &res, &deg)) {
-            if ((status & TEMP_STATUS_FAN0) && (deg <= Settings.EiffelTemp[0].Low)) {
-                SetFanState(0, false);
-            }
-            else if (((status & TEMP_STATUS_FAN0) == 0) && (deg >= Settings.EiffelTemp[0].High)) {
-                SetFanState(0, true);
-            }
-        }
-    }
+    adc[idx][pos] = ReadTempSensorRaw(idx);
 
-    // core temperature, fan control and auto shutdown
-#if !defined(DISABLE_TEMP2)
-    if ((Settings.FanControl1 == FANCONTROL_AUTO) || (Settings.CoreTempShutdown & 0x80))
-    {
-        uint16_t adc; uint8_t res, deg;
-        if (GetCoreTemperature(&adc, &res, &deg)) {
-            TRACE("temp1 is %u, %u, %d", adc, res * 100, deg);
-
-            // cpu overheat protection
-            if ((Settings.CoreTempShutdown & (1 << 7)) && (deg > (Settings.CoreTempShutdown & 0x7f))) {
-                // todo
-            }
-
-            // auto fan control
-            if (Settings.FanControl1 == FANCONTROL_AUTO) {
-                if ((status & TEMP_STATUS_FAN1) && (deg <= Settings.EiffelTemp[1].Low)) {
-                    SetFanState(1, false);
+    if (idx == 0) {
+        // board temperature and fan control
+        if (Settings.FanControl0 == FANCONTROL_OFF) {
+            SetFanState(0, false);
+        } else if (Settings.FanControl0 == FANCONTROL_ON) {
+            SetFanState(0, true);
+        } else if (Settings.FanControl0 == FANCONTROL_AUTO) {
+            uint16_t adc; uint8_t res, deg;
+            if (GetBoardTemperature(&adc, &res, &deg)) {
+                if (deg <= Settings.EiffelTemp[0].Low) {
+                    SetFanState(0, false);
                 }
-                else if (((status & TEMP_STATUS_FAN1) == 0) && (deg >= Settings.EiffelTemp[1].High)) {
-                    SetFanState(1, true);
+                else if (deg >= Settings.EiffelTemp[0].High) {
+                    SetFanState(0, true);
                 }
             }
         }
-    }
-    if (Settings.FanControl1 == FANCONTROL_OFF) {
-        SetFanState(1, false);
-    } else if (Settings.FanControl1 == FANCONTROL_ON) {
-        SetFanState(1, true);
-    }
-#endif    
+    } else {
+        // core temperature, fan control and auto shutdown
+        #if !defined(DISABLE_TEMP2)
+        if ((Settings.FanControl1 == FANCONTROL_AUTO) || (Settings.CoreTempShutdown & 0x80))
+        {
+            uint16_t adc; uint8_t res, deg;
+            if (GetCoreTemperature(&adc, &res, &deg)) {
+                //TRACE("temp1 is %u, %u, %d", adc, res * 100, deg);
 
+                // cpu overheat protection
+                if ((Settings.CoreTempShutdown & (1 << 7)) && (deg > (Settings.CoreTempShutdown & 0x7f))) {
+                    // todo
+                }
+
+                // auto fan control
+                if (Settings.FanControl1 == FANCONTROL_AUTO) {
+                    if (deg <= Settings.EiffelTemp[1].Low) {
+                        SetFanState(1, false);
+                    }
+                    else if (deg >= Settings.EiffelTemp[1].High) {
+                        SetFanState(1, true);
+                    }
+                }
+            }
+        }
+        if (Settings.FanControl1 == FANCONTROL_OFF) {
+            SetFanState(1, false);
+        } else if (Settings.FanControl1 == FANCONTROL_ON) {
+            SetFanState(1, true);
+        }
+        #endif
+        pos = (pos + 1) & tempsensor_avgmask;
+    }
+    idx = (idx + 1) & 1;
     last = msnow;
 }
 

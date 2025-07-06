@@ -54,7 +54,7 @@ CONF_FLAGS = -DDISABLE_PS2
 # default : raven.a1 board used in non-raven situations
 else
 BOARD_TYPE = BOARD_RAVEN_A1
-CONF_FLAGS = -DISABLE_TEMP2 -DDISABLE_POWERSW
+CONF_FLAGS = -DDISABLE_TEMP2 -DDISABLE_POWERSW
 endif
 
 ifeq ($(debug),)
