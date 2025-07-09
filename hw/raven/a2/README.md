@@ -35,6 +35,7 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - CPU temperature sensor to CKBD
 - PowerOff control from CKBD
 - PowerSwitch status can be read through XR68M752
+- Replaced one 12V fan header with PWM + ARGB
 - Changed IDE interface byte order from Intel to Atari big endian
 
 ## Planned:
