@@ -68,7 +68,7 @@
 					(hide yes)
 				)
 			)
-			(property "Manufacturer_Part" "24AA02E48T-I/OT"
+			(property "Manufacturer_Part_Number" "24AA02E48T-I/OT"
 				(at 0 0 0)
 				(effects
 					(font
@@ -17284,7 +17284,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" "24AA02E48T-I/OT"
+		(property "Manufacturer_Part_Number" "24AA02E48T-I/OT"
 			(at 165.1 274.32 0)
 			(effects
 				(font

@@ -11173,19 +11173,6 @@
 		)
 		(uuid 7a791bc0-bb6d-40dc-9463-be8023f85c40)
 	)
-	(arc
-		(start 351.79 444.5)
-		(mid 348.6337 436.88)
-		(end 351.79 429.26)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type none)
-		)
-		(uuid 80a959e5-2148-4d14-bbdc-1aed8f635317)
-	)
 	(rectangle
 		(start 191.77 323.215)
 		(end 201.93 323.215)
@@ -11394,16 +11381,6 @@
 			(justify left bottom)
 		)
 		(uuid "6253f1d2-1097-49cd-b61d-8f4807fe7aa7")
-	)
-	(text "conflicting\ninformation"
-		(exclude_from_sim no)
-		(at 341.63 437.515 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "6f29a5dd-6162-4d21-afc9-3ce7bb9278fc")
 	)
 	(text "Clock"
 		(exclude_from_sim no)
@@ -11616,7 +11593,7 @@
 		)
 		(uuid "552ae3c1-e165-4d5b-aece-2e7c23261592")
 	)
-	(text_box "68060 USER MANUAL:\n\nTHERM1 and THERM0 are connected to an internal thermal resistor\nand provide information about the average temperature of the die.\n\nThe resistance across these two pins is proportional to the average\ntemperature of the die.\n\nThe temperature coefficient of the resistor is approximately\n1.2 Ω/°C with a nominal resistance of 400Ω at 25°C.\n"
+	(text_box "68060UM + Errata:\n\nTHERM1 and THERM0 are connected to an internal thermal resistor\nand provide information about the average temperature of the die.\n\nThe resistance across these two pins is proportional to the average\ntemperature of the die.\n\nThe temperature coefficient of the resistor is approximately\n2.8 Ω/°C with a nominal resistance of 780 ohm at 25°C.\n"
 		(exclude_from_sim no)
 		(at 353.06 419.735 0)
 		(size 62.865 17.78)
@@ -11735,26 +11712,6 @@
 			(justify left top)
 		)
 		(uuid "d186c224-1000-4dbf-903c-e3095a107e92")
-	)
-	(text_box "CT60 Documentation: (wrong?)\n\nThe 68060 contains a Die Temperature Sensor with two external pins\nTHERM0 & THERM1.\n\nThe sensor is done with a temperature sensitive resistor\nwhich has a 780 ohms value at 25°C and increases/decreases\nby steps of 2.8 ohms per °C unit.\n\nBy example, a 060 core at 80°C gives a resistance of 934 ohms\nbetween the two THERMx pins.\n"
-		(exclude_from_sim no)
-		(at 353.06 438.785 0)
-		(size 62.865 19.685)
-		(margins 0.75 0.75 0.75 0.75)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(fill
-			(type none)
-		)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left top)
-		)
-		(uuid "edbb3f13-2c5a-4fdb-b2d6-48101e38c187")
 	)
 	(text_box "TT1 TT0 Transfer Type\n0 0 Normal Access\n0 1 MOVE16 Access\n1 0 Alternate Logical Function Code Access, Debug Access\n1 1 Acknowledge Access (irq, bpoint, stop)"
 		(exclude_from_sim no)
