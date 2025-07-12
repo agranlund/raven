@@ -24,12 +24,15 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - BOM: Replaced buttons SW101,SW201,SW202 with black parts
 - BOM: Changed C310 to 0.1uF (was 0.01uF)
 - Replaced through-hole DS1818 with DS1818R (SMD version)
-- Small pad for soldering top of Y402 to board
+- Fixed RTC power delivery, now using ATX standby power 
+- Added small solderpad for securing Y402 to board
 - Added 68150:BUSCS signal separate from 68150:CS
 - Added pullups on 68150 data bus
 - Added pulldown on IDE:IRQ
 - Added i2c eprom with preprogrammed MAC address
 - Added i2c expansion header
+- Added internal USB header
+- Added W5100s ethernet controller
 - Replaced Eiffel with CKBD
 - Replaced 2xPS2 connector with 2xUSB+Ethernet
 - CPU temperature sensor to CKBD
@@ -39,10 +42,7 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - Changed IDE interface byte order from Intel to Atari big endian
 
 ## Planned:
-- 4 port usb hub for additional internal headers
-- w5100s ethernet controller
 - get rid of old ym pins expansion header
-- vs1053 dsp, or suitable expansion header to allow it as expansion later
 
 ## Optional / non-critical:
 - Pushbuttons:     SW101, SW201, SW202
