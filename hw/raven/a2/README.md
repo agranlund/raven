@@ -13,11 +13,9 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
 ## Changelog:
 - Silkscreen: Fixed wrong pinout info for J305
-- Silkscreen: Clearer orientation for J103 and J401
-- Silkscreen: Clearer orientation for J204, J205, J206, J305
-- Silkscreen: Clearer orientation for U601
 - Silkscreen: Reversed order of RAM simms
-- Silkscreen: Made pin1 marker more clear on some SMD footprints
+- Silkscreen: Clearer orientation for a bunch of headers
+- Silkscreen: Clearer pin1 markers for a bunch of SMD footprints
 - Footprint:  Larger footprints for handsolder D201, D202, D203
 - BOM: Replaced PLCC64 socket for U104 with black part
 - BOM: Replaced PLCC84 socket for U108 with black part
@@ -31,15 +29,15 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - Added pulldown on IDE:IRQ
 - Added i2c eprom with preprogrammed MAC address
 - Added i2c expansion header
-- Added internal USB header
+- Added internal two-port USB header
 - Added W5100s ethernet controller
 - Replaced Eiffel with CKBD
-- Replaced 2xPS2 connector with 2xUSB+Ethernet
+- Replaced 2xPS2 connector with 2xUSB + Ethernet
 - CPU temperature sensor to CKBD
 - PowerOff control from CKBD
 - PowerSwitch status can be read through XR68M752
 - Replaced one 12V fan header with PWM + ARGB
-- Changed IDE interface byte order from Intel to Atari big endian
+- Changed IDE interface to big endian as standard on Atari machines
 
 ## Planned:
 - get rid of old ym pins expansion header
