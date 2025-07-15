@@ -1,6 +1,9 @@
 
 # Nessi : Main bus logic
 
+- nessi_250714
+    - improved compatibility with slower cf-cards
+
 - nessi_250627
     - fix for certain 8bit reads from ISA ram, 16-color vga modes now work.
 
