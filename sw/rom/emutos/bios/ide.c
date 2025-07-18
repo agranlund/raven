@@ -139,7 +139,7 @@ struct IDE
 #endif
 
 /* set the following to 1 to use 32-bit data transfer */
-#if CONF_ATARI_HARDWARE
+#if CONF_ATARI_HARDWARE || defined(MACHINE_RAVEN)
 #define IDE_32BIT_XFER TRUE
 #else
 #define IDE_32BIT_XFER FALSE
