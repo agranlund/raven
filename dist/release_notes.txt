@@ -1,6 +1,10 @@
 Raven.A1
 Hardware and software binary release
 
+20250718
+  rom:      improved IDE speed (4.8 -> 7.9 MB/s)
+  firmware: (nessi) improved cf-card compatibility
+
 20250627
   firmware: (nessi) ISA fix: 16-color vga modes now work
 
