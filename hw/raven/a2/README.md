@@ -41,6 +41,7 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
 ## Planned:
 - get rid of old ym pins expansion header
+- route A6 instead of A5 to CPLD to generate BERR on SFP004 access
 
 ## Optional / non-critical:
 - Pushbuttons:     SW101, SW201, SW202
