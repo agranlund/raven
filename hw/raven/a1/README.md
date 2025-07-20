@@ -80,6 +80,7 @@ Tested with 48mhz oscillator for 96mhz CPU, 48mhz BUS speed.
 - PCB: Some kind of sign-of-life LEDs
 - PCB: Combining excs/exbusen was a misstake. Separate signals could allow faster synchronous termination.
 - PCB: A5 signal to CPLD is unused and the pin could potentially be freed up for something else
+- PCB: SFP004 detection cannot neatly be prevented in software, route A6 to CPLD for hardware berr generation.
 - PCB: Add hardware debounce the NMI switch
 - PCB: Add header for one of MFP2 timer-outs (for pc-speaker type applications)
 - PCB: Realtime clock should use +5VSB instead of +5V to reduce battery usage
