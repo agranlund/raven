@@ -17,16 +17,16 @@ de atarist
 fr atarist
 es atarist
 it atarist
-fi atarist
-nl atarist
+#fi atarist
+#nl atarist
 
-cs latin2
-hu latin2
-pl latin2
-ro latin2
+#cs latin2
+#hu latin2
+#pl latin2
+#ro latin2
 
-ru russian-atarist
+#ru russian-atarist
 
-gr cp737
+#gr cp737
 
-tr cp1254
+#tr cp1254
