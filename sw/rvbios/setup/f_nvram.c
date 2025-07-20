@@ -59,7 +59,7 @@
 #define SHIFT_TIME_HOUR	11
 
 #define NUM_LANG_TOS 6
-#define NUM_LANG_KBD 19
+#define NUM_LANG_KBD 18
 
 #define FORM_X0					2
 #define FORM_Y0					2
@@ -81,10 +81,10 @@ static const char *lang_tos[NUM_LANG_TOS+1]={
 
 static const char *lang_kbd[NUM_LANG_KBD+1]={
 	"US", "DE", "FR", "UK",
-	"ES", "IT", "SE", "CH",
-	"CD", "TR", "FI", "NO",
+	"ES", "IT", "SE", "SF",
+	"SG", "TR", "FI", "NO",
 	"DK", "SA", "NL", "CZ",
-	"HU", "SK", "GR",
+	"HU", "PL",
 	NULL
 };
 
