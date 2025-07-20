@@ -1,0 +1,16 @@
+Nessi:
+ pin changes:
+  34: A6 replaces A5
+  81: /ETH_CS replaces SPARE_J106_IN_81
+  73: /65150:BUSCS replaces SPARE_J106_IO_73
+
+ todo:
+  - generated BERR on SFP004 access (fffa40-fffa5f)
+  - trigger /68150:BUSCS
+  - decode and trigger /ETH_CS
+
+
+Iksi:
+
+Narnia:
+
