@@ -70,10 +70,6 @@
         [
           "lib_footprint_mismatch|114833400|57851200|4d26301b-ac81-4253-b7a5-b494880bb109|00000000-0000-0000-0000-000000000000",
           ""
-        ],
-        [
-          "lib_footprint_mismatch|127538400|73106200|5f2a7432-17fa-4ad8-a919-4ad9a632bc1a|00000000-0000-0000-0000-000000000000",
-          ""
         ]
       ],
       "meta": {
@@ -442,7 +438,7 @@
       "different_unit_net": "error",
       "duplicate_reference": "error",
       "duplicate_sheet_names": "error",
-      "endpoint_off_grid": "warning",
+      "endpoint_off_grid": "ignore",
       "extra_units": "error",
       "footprint_filter": "ignore",
       "footprint_link_issues": "warning",

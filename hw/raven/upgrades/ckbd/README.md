@@ -9,8 +9,8 @@
 - Adds support for software controlled shutdown (*)
 
 ### Firmware:
-* binary (todo link binary)
-* [sourcecode](../../../../fw/ckbd/) 
+Binary, sourcecode, and programming instructions can be found here:
+* [ckbd firmware](../../../../fw/ckbd/) 
 
 
 ![Alt text](ckbd.png?raw=true "")
@@ -27,22 +27,19 @@ All solder points are available on through hole components and can be done on th
 - SW201:2 <-> U301:25 (PWR switch - Eiffel:PwrOff)
 
 
-
-
 ## BOM
 
-| Manufacturer  | Part number       | Value     | Qty | Ref               | Note |
-|---------------|-------------------|-----------|-----|-------------------|------|
-| WCH           | CH559L            | CH559L    | 1   | U101              |      |
-| Yageo         | RT1206FRE0710KL   | 10K       | 3   | R103,R105,R106    |      |
-| Yageo         | RT1206FRE071KL    | 1K        | 3   | R101,R102,R104    |      |
-| Kemet         | C1206C105K4RACTU  | 1u        | 2   | C103,C104         |      |
-| Kemet         | C1206C104K5RACTU  | 0.1u      | 2   | C102,C105         |      |
-| Kemet         | C1206C334K5RACTU  | 0.33u     | 1   | C101              |      |
-| ?             | pinheader round   | 1x14      | 2   | J101,J102         | (1)  |
-| ?             | pinheader square  | 2x5       | 1   | J103              | (2)  |
-| ?             | pinheader square  | 1x4       | 1   | J104              | (2)  |
-| TI            | SN74LVC1G34DBVRG4 | 74LVC1G34 | 1   | U102              | (3)  |
+| Manufacturer  | Part number       | Value     | Qty | Ref                 | Note |
+|---------------|-------------------|-----------|-----|---------------------|------|
+| WCH           | CH559L            | CH559L    | 1   | U101                |      |
+| Yageo         | RT1206FRE0710KL   | 10K       | 3   | R103,R105,R106      |      |
+| Yageo         | RT1206FRE071KL    | 1K        | 3   | R101,R102,R104,R107 |      |
+| Kemet         | C1206C105K4RACTU  | 1u        | 2   | C103,C104           |      |
+| Kemet         | C1206C104K5RACTU  | 0.1u      | 2   | C102,C105           |      |
+| Kemet         | C1206C334K5RACTU  | 0.33u     | 1   | C101                |      |
+| ?             | pinheader round   | 1x14      | 2   | J101,J102           | (1)  |
+| ?             | pinheader square  | 2x5       | 1   | J103                | (2)  |
+| ?             | pinheader square  | 1x4       | 1   | J104                | (2)  |
 
 
 (1) J101,J102 needs to be round machined pins that can fit in a dip socket.
@@ -53,6 +50,11 @@ https://www.exxosforum.co.uk/atari/store2/#0132
 40-pin breakaway strips can be found here:
 https://www.exxosforum.co.uk/atari/store2/#0158
 
-(3) 74LVC1G34 is optional.
-It is for an option to drive CH559 from an external oscillator rather than the internal one.
-This feature is currently unimplemented as the internal oscillator has been working well for me.
+
+## Notes for older rev.c boards:
+
+The eiffel controlled fan does not work in the old version of this board.
+
+It can be fixed by soldering a ~1K resistor connecting pins FAN1 and +5V which are both found on the right row of the Eiffel connector.
+![Alt text](ckbd_revc_fix.png?raw=true "")
+
