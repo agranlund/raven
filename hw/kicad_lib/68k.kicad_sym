@@ -13812,6 +13812,524 @@
 		)
 		(embedded_fonts no)
 	)
+	(symbol "CH213K"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "CH213K"
+			(at 11.684 -9.398 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23-3"
+			(at 16.002 -17.018 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.wch-ic.com/downloads/CH213DS1.PDF.html?type=en"
+			(at 32.258 -19.812 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Ideal diode w. overcurrent, overtemp, short-circuit protection"
+			(at 29.972 -14.478 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "CH213K_0_1"
+			(rectangle
+				(start -1.27 -1.27)
+				(end 15.24 -8.255)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 5.715 -3.81) (xy 3.175 -3.81)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 7.62 -2.54) (xy 7.62 -5.08)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 7.62 -3.81) (xy 10.16 -3.81)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 7.62 -3.81) (xy 5.715 -2.54) (xy 5.715 -5.08) (xy 7.62 -3.81)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "CH213K_1_1"
+			(pin passive line
+				(at -3.81 -3.81 0)
+				(length 2.54)
+				(name "VI+"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -3.81 -6.35 0)
+				(length 2.54)
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 17.78 -3.81 180)
+				(length 2.54)
+				(name "VO-"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+	(symbol "CH334R"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "CH334R"
+			(at 15.494 -26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_SO:QSOP-16_3.9x4.9mm_P0.635mm"
+			(at 21.59 -37.338 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.wch-ic.com/downloads/CH334DS1_PDF.html"
+			(at 27.94 -39.878 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "USB Hub"
+			(at 4.064 -42.164 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "CH334R_0_1"
+			(rectangle
+				(start 0 -1.27)
+				(end 19.05 -25.4)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "CH334R_1_1"
+			(pin passive line
+				(at -2.54 -5.08 0)
+				(length 2.54)
+				(name "DMU"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "10"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -2.54 -7.62 0)
+				(length 2.54)
+				(name "DPU"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "11"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -2.54 -12.7 0)
+				(length 2.54)
+				(name "~{RST}/CDP"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "9"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -2.54 -17.78 0)
+				(length 2.54)
+				(name "XI"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "16"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -2.54 -22.86 0)
+				(length 2.54)
+				(name "XO"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "15"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 7.62 1.27 270)
+				(length 2.54)
+				(name "VDD33"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "13"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 10.16 -27.94 90)
+				(length 2.54)
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "14"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 12.7 1.27 270)
+				(length 2.54)
+				(name "V5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "12"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 21.59 -5.08 180)
+				(length 2.54)
+				(name "DM1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 21.59 -7.62 180)
+				(length 2.54)
+				(name "DP1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 21.59 -10.16 180)
+				(length 2.54)
+				(name "DM2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 21.59 -12.7 180)
+				(length 2.54)
+				(name "DP2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 21.59 -15.24 180)
+				(length 2.54)
+				(name "DM3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 21.59 -17.78 180)
+				(length 2.54)
+				(name "DP3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 21.59 -20.32 180)
+				(length 2.54)
+				(name "DM4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 21.59 -22.86 180)
+				(length 2.54)
+				(name "DP4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
 	(symbol "CH559L"
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -29720,7 +30238,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "ISA 16bit connector"
+		(property "Description" "ISA 8bit connector"
 			(at 0 0 0)
 			(effects
 				(font
@@ -74510,13 +75028,12 @@
 	(symbol "USB2Header"
 		(pin_names
 			(offset 1.016)
-			(hide yes)
 		)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "J"
-			(at 1.27 7.62 0)
+			(at 0 7.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -74524,15 +75041,15 @@
 			)
 		)
 		(property "Value" "USB2Header"
-			(at 1.27 -7.62 0)
+			(at 5.588 -9.652 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" ""
-			(at 0 0 0)
+		(property "Footprint" "68k:USB2Header"
+			(at 0 -1.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -74579,7 +75096,7 @@
 		(symbol "USB2Header_1_1"
 			(rectangle
 				(start -1.27 6.35)
-				(end 3.81 -6.35)
+				(end 11.43 -8.255)
 				(stroke
 					(width 0.254)
 					(type default)
@@ -74589,8 +75106,8 @@
 				)
 			)
 			(rectangle
-				(start -1.27 5.207)
-				(end 0 4.953)
+				(start -1.27 3.937)
+				(end 0 3.683)
 				(stroke
 					(width 0.1524)
 					(type default)
@@ -74600,8 +75117,8 @@
 				)
 			)
 			(rectangle
-				(start -1.27 2.667)
-				(end 0 2.413)
+				(start -1.27 1.397)
+				(end 0 1.143)
 				(stroke
 					(width 0.1524)
 					(type default)
@@ -74611,8 +75128,8 @@
 				)
 			)
 			(rectangle
-				(start -1.27 0.127)
-				(end 0 -0.127)
+				(start -1.27 -1.143)
+				(end 0 -1.397)
 				(stroke
 					(width 0.1524)
 					(type default)
@@ -74622,8 +75139,8 @@
 				)
 			)
 			(rectangle
-				(start -1.27 -2.413)
-				(end 0 -2.667)
+				(start -1.27 -3.683)
+				(end 0 -3.937)
 				(stroke
 					(width 0.1524)
 					(type default)
@@ -74633,8 +75150,8 @@
 				)
 			)
 			(rectangle
-				(start -1.27 -4.953)
-				(end 0 -5.207)
+				(start -1.27 -6.223)
+				(end 0 -6.477)
 				(stroke
 					(width 0.1524)
 					(type default)
@@ -74644,8 +75161,8 @@
 				)
 			)
 			(rectangle
-				(start 3.81 5.207)
-				(end 2.54 4.953)
+				(start 11.43 3.937)
+				(end 10.16 3.683)
 				(stroke
 					(width 0.1524)
 					(type default)
@@ -74655,8 +75172,8 @@
 				)
 			)
 			(rectangle
-				(start 3.81 2.667)
-				(end 2.54 2.413)
+				(start 11.43 1.397)
+				(end 10.16 1.143)
 				(stroke
 					(width 0.1524)
 					(type default)
@@ -74666,8 +75183,8 @@
 				)
 			)
 			(rectangle
-				(start 3.81 0.127)
-				(end 2.54 -0.127)
+				(start 11.43 -1.143)
+				(end 10.16 -1.397)
 				(stroke
 					(width 0.1524)
 					(type default)
@@ -74677,8 +75194,8 @@
 				)
 			)
 			(rectangle
-				(start 3.81 -2.413)
-				(end 2.54 -2.667)
+				(start 11.43 -3.683)
+				(end 10.16 -3.937)
 				(stroke
 					(width 0.1524)
 					(type default)
@@ -74688,8 +75205,8 @@
 				)
 			)
 			(rectangle
-				(start 3.81 -4.953)
-				(end 2.54 -5.207)
+				(start 11.43 -6.223)
+				(end 10.16 -6.477)
 				(stroke
 					(width 0.1524)
 					(type default)
@@ -74699,9 +75216,9 @@
 				)
 			)
 			(pin passive line
-				(at -5.08 5.08 0)
+				(at -5.08 3.81 0)
 				(length 3.81)
-				(name "Pin_1"
+				(name "+5V"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -74717,9 +75234,9 @@
 				)
 			)
 			(pin passive line
-				(at -5.08 2.54 0)
+				(at -5.08 1.27 0)
 				(length 3.81)
-				(name "Pin_3"
+				(name "DM0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -74735,9 +75252,9 @@
 				)
 			)
 			(pin passive line
-				(at -5.08 0 0)
+				(at -5.08 -1.27 0)
 				(length 3.81)
-				(name "Pin_5"
+				(name "DP0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -74753,9 +75270,9 @@
 				)
 			)
 			(pin passive line
-				(at -5.08 -2.54 0)
+				(at -5.08 -3.81 0)
 				(length 3.81)
-				(name "Pin_7"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -74771,9 +75288,9 @@
 				)
 			)
 			(pin passive line
-				(at 7.62 5.08 180)
+				(at 15.24 3.81 180)
 				(length 3.81)
-				(name "Pin_2"
+				(name "+5V"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -74789,9 +75306,9 @@
 				)
 			)
 			(pin passive line
-				(at 7.62 2.54 180)
+				(at 15.24 1.27 180)
 				(length 3.81)
-				(name "Pin_4"
+				(name "DM1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -74807,9 +75324,9 @@
 				)
 			)
 			(pin passive line
-				(at 7.62 0 180)
+				(at 15.24 -1.27 180)
 				(length 3.81)
-				(name "Pin_6"
+				(name "DP1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -74825,9 +75342,9 @@
 				)
 			)
 			(pin passive line
-				(at 7.62 -2.54 180)
+				(at 15.24 -3.81 180)
 				(length 3.81)
-				(name "Pin_8"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -74842,10 +75359,10 @@
 					)
 				)
 			)
-			(pin passive line
-				(at 7.62 -5.08 180)
+			(pin no_connect line
+				(at 15.24 -6.35 180)
 				(length 3.81)
-				(name "Pin_10"
+				(name "nc"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -75079,78 +75596,6 @@
 					)
 				)
 				(number "8"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at -6.35 -36.83 0)
-				(length 5.08)
-				(name "GPIO3/SDATA"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "10"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at -6.35 -39.37 0)
-				(length 5.08)
-				(name "GPIO2/DCLK"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "9"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at -6.35 -41.91 0)
-				(length 5.08)
-				(name "GPIO1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "34"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at -6.35 -44.45 0)
-				(length 5.08)
-				(name "GPIO0"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "33"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -75717,16 +76162,16 @@
 				)
 			)
 			(pin passive line
-				(at 53.34 -44.45 180)
+				(at 53.34 -43.18 180)
 				(length 5.08)
-				(name "RCAP"
+				(name "GPIO2/DCLK"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "44"
+				(number "9"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -75735,7 +76180,25 @@
 				)
 			)
 			(pin passive line
-				(at 53.34 -57.15 180)
+				(at 53.34 -45.72 180)
+				(length 5.08)
+				(name "GPIO3/SDATA"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "10"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 53.34 -48.26 180)
 				(length 5.08)
 				(name "GPIO6/I2S_SCLK"
 					(effects
@@ -75753,7 +76216,7 @@
 				)
 			)
 			(pin passive line
-				(at 53.34 -59.69 180)
+				(at 53.34 -50.8 180)
 				(length 5.08)
 				(name "GPIO7/I2S_SDATA"
 					(effects
@@ -75771,7 +76234,61 @@
 				)
 			)
 			(pin passive line
-				(at 53.34 -62.23 180)
+				(at 53.34 -53.34 180)
+				(length 5.08)
+				(name "GPIO5/I2S_MCLK"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "25"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 53.34 -55.88 180)
+				(length 5.08)
+				(name "GPIO0"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "33"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 53.34 -58.42 180)
+				(length 5.08)
+				(name "GPIO1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "34"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 53.34 -60.96 180)
 				(length 5.08)
 				(name "GPIO4/I2S_LROUT"
 					(effects
@@ -75789,16 +76306,16 @@
 				)
 			)
 			(pin passive line
-				(at 53.34 -64.77 180)
+				(at 53.34 -69.85 180)
 				(length 5.08)
-				(name "GPIO5/I2S_MCLK"
+				(name "RCAP"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "25"
+				(number "44"
 					(effects
 						(font
 							(size 1.27 1.27)

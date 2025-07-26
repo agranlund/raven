@@ -201,7 +201,7 @@
 		(layers "*.Cu" "*.Mask")
 		(uuid "e4b14e5c-2284-4a7b-9541-50e4ee7940f4")
 	)
-	(pad "1" thru_hole rect
+	(pad "1" thru_hole circle
 		(at -7.62 0)
 		(size 1.55 1.55)
 		(drill 1.02)

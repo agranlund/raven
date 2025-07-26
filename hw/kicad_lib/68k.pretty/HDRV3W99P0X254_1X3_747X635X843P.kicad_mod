@@ -195,7 +195,7 @@
 			)
 		)
 	)
-	(pad "1" thru_hole rect
+	(pad "1" thru_hole circle
 		(at 0 0)
 		(size 1.8 1.8)
 		(drill 1.2)
