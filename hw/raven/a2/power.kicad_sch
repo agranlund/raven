@@ -4408,28 +4408,6 @@
 		)
 		(uuid "56c97c4a-6557-4e35-8bee-91b077315ea8")
 	)
-	(text_box "TODO:\nSMD leds on motherboard?"
-		(exclude_from_sim no)
-		(at 147.32 27.305 0)
-		(size 31.115 11.43)
-		(margins 0.9525 0.9525 0.9525 0.9525)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type color)
-			(color 255 230 63 0.53)
-		)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(color 0 0 0 1)
-			)
-			(justify left top)
-		)
-		(uuid "6579bd44-d800-46ac-b3e0-d8957ae099e2")
-	)
 	(text_box "Reset circuit and switch"
 		(exclude_from_sim no)
 		(at 23.495 82.55 0)
@@ -6463,7 +6441,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "1f125d59-bf39-4ac4-a863-4fc39084451b")
-		(property "Reference" "R206"
+		(property "Reference" "R205"
 			(at 184.15 103.505 90)
 			(effects
 				(font
@@ -6534,7 +6512,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "R206")
+					(reference "R205")
 					(unit 1)
 				)
 			)
@@ -6550,7 +6528,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "1f7717d6-9342-4949-9c31-858d19bfb7bb")
-		(property "Reference" "#PWR0238"
+		(property "Reference" "#PWR0237"
 			(at 114.935 178.435 0)
 			(effects
 				(font
@@ -6599,7 +6577,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "#PWR0238")
+					(reference "#PWR0237")
 					(unit 1)
 				)
 			)
@@ -7078,7 +7056,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "39dd2021-2817-4b30-b9cb-a1d112f0cabc")
-		(property "Reference" "#PWR0228"
+		(property "Reference" "#PWR0227"
 			(at 150.495 114.3 0)
 			(effects
 				(font
@@ -7127,7 +7105,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "#PWR0228")
+					(reference "#PWR0227")
 					(unit 1)
 				)
 			)
@@ -7208,7 +7186,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "3ff09ca8-5742-43e3-ac6a-22cd3e2d154d")
-		(property "Reference" "R208"
+		(property "Reference" "R207"
 			(at 147.955 113.03 90)
 			(effects
 				(font
@@ -7280,7 +7258,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "R208")
+					(reference "R207")
 					(unit 1)
 				)
 			)
@@ -7938,7 +7916,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "639af933-1bc8-4d69-a103-01b47400b818")
-		(property "Reference" "#PWR0226"
+		(property "Reference" "#PWR0225"
 			(at 184.15 106.045 0)
 			(effects
 				(font
@@ -7987,7 +7965,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "#PWR0226")
+					(reference "#PWR0225")
 					(unit 1)
 				)
 			)
@@ -8068,7 +8046,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "676a332f-c754-4af6-9ae5-38909b7148ac")
-		(property "Reference" "R207"
+		(property "Reference" "R206"
 			(at 145.415 113.03 90)
 			(effects
 				(font
@@ -8139,7 +8117,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "R207")
+					(reference "R206")
 					(unit 1)
 				)
 			)
@@ -8414,7 +8392,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "82ad1f7a-dff4-43bd-b79f-ef4a35e2a0be")
-		(property "Reference" "#PWR0229"
+		(property "Reference" "#PWR0228"
 			(at 249.555 125.095 0)
 			(effects
 				(font
@@ -8463,7 +8441,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "#PWR0229")
+					(reference "#PWR0228")
 					(unit 1)
 				)
 			)
@@ -8602,7 +8580,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "8feca5b1-4dd0-484a-a6d5-2d121b359b4b")
-		(property "Reference" "#PWR0227"
+		(property "Reference" "#PWR0226"
 			(at 249.555 98.425 0)
 			(effects
 				(font
@@ -8651,7 +8629,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "#PWR0227")
+					(reference "#PWR0226")
 					(unit 1)
 				)
 			)
@@ -8667,7 +8645,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "901a3714-710b-44d3-b75f-0167c314ecfe")
-		(property "Reference" "#PWR0236"
+		(property "Reference" "#PWR0235"
 			(at 34.29 178.435 0)
 			(effects
 				(font
@@ -8716,7 +8694,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "#PWR0236")
+					(reference "#PWR0235")
 					(unit 1)
 				)
 			)
@@ -8795,7 +8773,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "9968336f-eb37-4fba-8852-446702d17ec9")
-		(property "Reference" "#PWR0235"
+		(property "Reference" "#PWR0234"
 			(at 114.935 164.465 0)
 			(effects
 				(font
@@ -8844,7 +8822,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "#PWR0235")
+					(reference "#PWR0234")
 					(unit 1)
 				)
 			)
@@ -9133,7 +9111,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "9f636a0e-b494-4db7-be84-078766ce812c")
-		(property "Reference" "R209"
+		(property "Reference" "R208"
 			(at 150.495 113.03 90)
 			(effects
 				(font
@@ -9205,7 +9183,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "R209")
+					(reference "R208")
 					(unit 1)
 				)
 			)
@@ -9220,7 +9198,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "a3540ff8-c389-4a1a-b41d-d2ce0052def5")
-		(property "Reference" "#PWR0233"
+		(property "Reference" "#PWR0232"
 			(at 34.29 164.465 0)
 			(effects
 				(font
@@ -9269,7 +9247,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "#PWR0233")
+					(reference "#PWR0232")
 					(unit 1)
 				)
 			)
@@ -10350,7 +10328,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "bb05cb52-0562-4483-8567-6133e5d5a27b")
-		(property "Reference" "#PWR0237"
+		(property "Reference" "#PWR0236"
 			(at 75.565 178.435 0)
 			(effects
 				(font
@@ -10399,7 +10377,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "#PWR0237")
+					(reference "#PWR0236")
 					(unit 1)
 				)
 			)
@@ -10415,7 +10393,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "bcf6f467-3b59-4fdc-b4f9-092c60eae305")
-		(property "Reference" "#PWR0230"
+		(property "Reference" "#PWR0229"
 			(at 116.205 130.175 0)
 			(effects
 				(font
@@ -10464,7 +10442,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "#PWR0230")
+					(reference "#PWR0229")
 					(unit 1)
 				)
 			)
@@ -10944,7 +10922,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "df0201d2-d4a6-4c5d-9867-291c69ea64ef")
-		(property "Reference" "#PWR0231"
+		(property "Reference" "#PWR0230"
 			(at 48.26 140.335 0)
 			(effects
 				(font
@@ -10993,7 +10971,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "#PWR0231")
+					(reference "#PWR0230")
 					(unit 1)
 				)
 			)
@@ -11009,7 +10987,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "e06cd2d8-0147-4fbf-938b-e30f0644da47")
-		(property "Reference" "#PWR0234"
+		(property "Reference" "#PWR0233"
 			(at 75.565 164.465 0)
 			(effects
 				(font
@@ -11058,7 +11036,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "#PWR0234")
+					(reference "#PWR0233")
 					(unit 1)
 				)
 			)
@@ -11074,7 +11052,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "e227a394-4430-40cc-8e38-a2d2f2e2ce70")
-		(property "Reference" "#PWR0232"
+		(property "Reference" "#PWR0231"
 			(at 80.645 140.335 0)
 			(effects
 				(font
@@ -11123,7 +11101,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "#PWR0232")
+					(reference "#PWR0231")
 					(unit 1)
 				)
 			)
