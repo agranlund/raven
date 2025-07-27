@@ -3,16 +3,15 @@
 
 ![Alt text](images/render.png?raw=true "")
 
-Chip suggestions for 1MB:
-* SST39LF400A
-* SST39LF401C  <-- tested
-* SST39LF402C
-
 Chip suggestions for 2MB:
 * SST39LF800A
 * SST39LF801C
 * SST39LF802C  <-- tested
 
+Chip suggestions for 1MB:
+* SST39LF400A
+* SST39LF401C  <-- tested
+* SST39LF402C
 
 TSOP48 nor flash from other manufacturers might also work but make sure to check the datasheet to establish pinout, timing and programming sequence is fully compatible with SST39.
 Board versions before 2025-07-27 does not support flash chips which have byte/word select on pin47. This has since been corrected and could in theory allow a larger variety of different flash chips to be used in the future.
