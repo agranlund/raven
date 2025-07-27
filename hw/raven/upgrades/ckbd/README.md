@@ -51,10 +51,10 @@ https://www.exxosforum.co.uk/atari/store2/#0132
 https://www.exxosforum.co.uk/atari/store2/#0158
 
 
-## Notes for older rev.c boards:
+## Notes for previous rev.c boards:
 
-The eiffel controlled fan does not work in the old version of this board.
+The eiffel controlled fan does not work in the previous version of this board.
 
-It can be fixed by soldering a ~1K resistor connecting pins FAN1 and +5V which are both found on the right row of the Eiffel connector.
+This can be fixed by soldering a ~1K resistor connecting pins FAN1 and +5V which are both found on the right row of the Eiffel connector.
 ![Alt text](ckbd_revc_fix.png?raw=true "")
 
