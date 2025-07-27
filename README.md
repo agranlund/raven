@@ -63,7 +63,7 @@ It is easy to make misstakes during assembly and such skills can be vital for fi
     - [55ns SMD](hw/simm/rom_SMD/)
     - [55ns PLCC](hw/simm/rom_PLCC/)
 - USB upgrade module
-    - [ckbd rev.c](hw/raven/upgrades/ckbd/)
+    - [ckbd rev.d](hw/raven/upgrades/ckbd/)
 - ATX power supply
 - PS/2 Keyboard and mouse, or USB if using the USB upgrade module.
 - Some kind of suitable 44pin IDE->CF adapter
