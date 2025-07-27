@@ -3,8 +3,6 @@
 
 ![Alt text](images/render.png?raw=true "")
 
-Current revision: [A0](a0/)
-
 Chip suggestions for 1MB:
 * SST39LF400A
 * SST39LF401C  <-- tested
