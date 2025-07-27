@@ -13,7 +13,7 @@ Chip suggestions for 1MB:
 Chip suggestions for 2MB:
 * SST39LF800A
 * SST39LF801C
-* SST39LF802C
+* SST39LF802C  <-- tested
 
 
 Only SST39LF401C has been tested. The other ones will _probably_ work.
