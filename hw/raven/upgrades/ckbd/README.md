@@ -33,7 +33,7 @@ All solder points are available on through hole components and can be done on th
 |---------------|-------------------|-----------|-----|---------------------|------|
 | WCH           | CH559L            | CH559L    | 1   | U101                |      |
 | Yageo         | RT1206FRE0710KL   | 10K       | 3   | R103,R105,R106      |      |
-| Yageo         | RT1206FRE071KL    | 1K        | 3   | R101,R102,R104,R107 |      |
+| Yageo         | RT1206FRE071KL    | 1K        | 4   | R101,R102,R104,R107 |      |
 | Kemet         | C1206C105K4RACTU  | 1u        | 2   | C103,C104           |      |
 | Kemet         | C1206C104K5RACTU  | 0.1u      | 2   | C102,C105           |      |
 | Kemet         | C1206C334K5RACTU  | 0.33u     | 1   | C101                |      |
