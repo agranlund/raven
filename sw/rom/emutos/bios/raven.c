@@ -463,13 +463,31 @@ void raven_nvram_detect(void)
 
 #if CONF_WITH_ROMDISK
 
-/* ROM is identity-mapped at 0x4000_0000, mon padded to 256k, emutos padded to 512k, romdisk follows */
-#define ROMDISK_SECTOR(_x)  ((const UBYTE *)(0x400c0000 + ((_x) * SECTOR_SIZE)))
-#define ROMDISK_SIZE        ((0x00200000 - 0x000c0000) / SECTOR_SIZE)
+static unsigned long ROMDISK_ADDR;
+static unsigned long ROMDISK_SIZE;
+#define ROMDISK_SECTOR(_x)  ((const UBYTE *)(ROMDISK_ADDR + ((_x) * SECTOR_SIZE)))
 
 void romdisk_init(WORD dev, LONG *devices_available)
 {
     UNIT * const u = &units[dev];
+
+    /* look for an 'RDSK' entry in rom image */
+    ROMDISK_ADDR = ROMDISK_SIZE = 0;
+    unsigned long* toc = (unsigned long*) (RAVEN_PADDR_ROM + 0x400UL);
+    if (toc[0] == 0x5F524F4DUL) {           /* '_ROM' */
+        while(toc) {
+            if (toc[0] == 0x5244534BUL) {   /* 'RDSK' */
+                ROMDISK_ADDR = toc[1];
+                ROMDISK_SIZE = toc[2];
+                break;
+            }
+            toc += 4;
+        }
+    }
+
+    if ((ROMDISK_ADDR == 0) || (ROMDISK_SIZE == 0)) {
+        return;
+    }
 
     /* look for FAT bootsector signature */
     if ((ROMDISK_SECTOR(0)[0x1fe] != 0x55) || (ROMDISK_SECTOR(0)[0x1ff] != 0xaa)) {
@@ -496,21 +514,23 @@ void romdisk_init(WORD dev, LONG *devices_available)
 
 LONG romdisk_ioctl(WORD dev, UWORD ctrl, void *arg)
 {
-    switch (ctrl) {
-    case GET_DISKINFO:
-        {
-            ULONG *info = (ULONG *)arg;
-            info[0] = ROMDISK_SIZE;
-            info[1] = SECTOR_SIZE;
+    if (ROMDISK_SIZE) {
+        switch (ctrl) {
+        case GET_DISKINFO:
+            {
+                ULONG *info = (ULONG *)arg;
+                info[0] = ROMDISK_SIZE;
+                info[1] = SECTOR_SIZE;
+                return E_OK;
+            }
+
+        case GET_DISKNAME:
+            strcpy(arg, "romdisk");
             return E_OK;
+
+        case GET_MEDIACHANGE:
+            return MEDIANOCHANGE;
         }
-
-    case GET_DISKNAME:
-        strcpy(arg, "romdisk");
-        return E_OK;
-
-    case GET_MEDIACHANGE:
-        return MEDIANOCHANGE;
     }
     return ERR;
 }

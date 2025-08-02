@@ -6,6 +6,7 @@ MON_DIR			= mon
 MON_IMG			= $(MON_DIR)/mon.bin
 
 EMUTOS_DIR		= emutos
+EMUTOS_RAW		= $(EMUTOS_DIR)/emutos.img
 EMUTOS_IMG		= $(EMUTOS_DIR)/emutos-raven.rom
 EMUTOS_IMG_CON	= $(EMUTOS_DIR)/emucon-raven.rom
 EMUTOS_IMG_DBG	= $(EMUTOS_DIR)/emudbg-raven.rom
@@ -20,33 +21,49 @@ ROM_EMUTOS_DBG	= rom_dbg.bin
 ROMDISK_DIR		= romdisk
 ROMDISK_IMG		= romdisk.bin
 
+MKROM			= ./mkrom
+
 DEPS			= $(MAKEFILE_LIST)
 
-all: tos mon
+all: mkrom tos mon
 mon: $(ROM_MON)
 tos: $(ROM_EMUTOS)
 tos-dbg: $(ROM_EMUTOS_DBG)
 tos-con: $(ROM_EMUTOS_CON)
 tos-st: $(EMUTOS_IMG_ST)
 
+.PHONY: $(MKROM)
+$(MKROM): mkrom.c $(DEPS)
+	gcc -o $(MKROM) mkrom.c
+
 .PHONY: $(ROM_EMUTOS)
-$(ROM_EMUTOS): $(EMUTOS_IMG) $(ROM_MON) $(ROMDISK_IMG) $(DEPS)
+$(ROM_EMUTOS): $(MKROM) $(EMUTOS_IMG) $(MON_IMG) $(ROMDISK_IMG) $(DEPS)
 	rm -f $@
-	cat $(ROM_MON) $(EMUTOS_IMG) $(ROMDISK_IMG) > $@
+	$(MKROM) $@ "BOOT" $(MON_IMG) 
+	$(MKROM) $@ "ETOS" $(EMUTOS_RAW)
+	$(MKROM) $@ "RDSK" $(ROMDISK_IMG)
 
 .PHONY: $(ROM_EMUTOS_CON)
-$(ROM_EMUTOS_CON): $(EMUTOS_IMG_CON) $(ROM_MON) $(ROMDISK_IMG) $(DEPS)
+$(ROM_EMUTOS_CON): $(MKROM) $(EMUTOS_IMG_CON) $(MON_IMG) $(ROMDISK_IMG) $(DEPS)
 	rm -f $@
-	cat $(ROM_MON) $(EMUTOS_IMG_CON) $(ROMDISK_IMG) > $@
+	$(MKROM) $@ "BOOT" $(MON_IMG) 
+	$(MKROM) $@ "ETOS" $(EMUTOS_RAW)
+	$(MKROM) $@ "RDSK" $(ROMDISK_IMG)
 
 .PHONY: $(ROM_EMUTOS_DBG)
-$(ROM_EMUTOS_DBG): $(EMUTOS_IMG_DBG) $(ROM_MON) $(ROMDISK_IMG) $(DEPS)
+$(ROM_EMUTOS_DBG): $(MKROM) $(EMUTOS_IMG_DBG) $(MON_IMG) $(ROMDISK_IMG) $(DEPS)
 	rm -f $@
-	cat $(ROM_MON) $(EMUTOS_IMG_DBG) $(ROMDISK_IMG) > $@
+	$(MKROM) $@ "BOOT" $(MON_IMG) 
+	$(MKROM) $@ "ETOS" $(EMUTOS_RAW)
+	$(MKROM) $@ "RDSK" $(ROMDISK_IMG)
 
 .PHONY: $(ROM_MON)
-$(ROM_MON): $(MON_IMG) $(DEPS)
-	cp $(MON_IMG) $@
+$(ROM_MON): $(MKROM) $(MON_IMG) $(DEPS)
+	rm -f $@
+	$(MKROM) $@ "BOOT" $(MON_IMG)
+
+
+
 
 .PHONY: $(MON_IMG)
 $(MON_IMG): $(DEPS)

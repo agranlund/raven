@@ -19,13 +19,13 @@ uint32_t dasm_old_addr;
 uint32_t dasm_old_size;
 
 static bool detectTos() {
-    extern bool atari_DetectTos();
+    extern uint32_t atari_DetectTos();
     return atari_DetectTos();
 }
 
 static uint32_t getSerialFile(uint8_t* data) {
     uint32_t data_start = (uint32_t)data;
-    printf("Waiting for serial transfer...\n");
+    printf("Waiting for serial upload @ %d bps...\n", uart_get_baud());
     *data++ = uart_recv();
     printf("Receiving file");
     uint32_t silent = 0;

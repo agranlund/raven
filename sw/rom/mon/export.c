@@ -46,12 +46,19 @@ static uint32_t b_flash_Program(void* data, uint32_t size) { return flash_Progra
 
 static struct X86EMU* b_x86() { return x86emu; }
 
-const raven_t ravenBios =
+extern uint8_t __toc_start;
+extern uint8_t __config_start;
+
+const raven_t ravenBios __attribute__((section(".export"))) =
 {
 //0x0000
-    C_RAVN,             // magic
-    VERSION,            // rom version
-    {0,0,0,0,0,0},
+    C_RAVN,                     // magic
+    VERSION,                    // rom version
+    REV,
+    {0,0},
+    (rvcfg_t*)&__toc_start,
+    (rvtoc_t*)&__config_start,
+    sys_Chipset,                  // chipset info
 //0x0020
     b_dbg_GPI,
     b_dbg_GPO,

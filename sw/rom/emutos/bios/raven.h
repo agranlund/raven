@@ -16,9 +16,10 @@
 #ifdef MACHINE_RAVEN
 
 #define RAVEN_BOARD_REV			0xA1
-#define RAVEN_PADDR_MFP2        0xa0000a00
-#define RAVEN_UART1_BASE        0x20000000
-#define RAVEN_UART2_BASE        0x20000020
+#define RAVEN_PADDR_ROM         0x40000000UL
+#define RAVEN_PADDR_MFP2        0xa0000a00UL
+#define RAVEN_UART1_BASE        0x20000000UL
+#define RAVEN_UART2_BASE        0x20000020UL
 
 #ifndef __RAVEN__ASM__
 

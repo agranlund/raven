@@ -94,7 +94,7 @@ static void exitFormNvram();
 
 static void reloadFromNvram(void);
 static void saveToNvram(void);
-static void confirmFormNvram(int num_setting, conf_setting_u confSetting);
+static void confirmFormNvram(int num_setting, conf_setting_u* confSetting);
 
 static void readClock(void);
 static void readNvram(void);
@@ -215,7 +215,7 @@ static void saveToNvram(void)
 	NVMaccess(NVM_WRITE, 0, 17, nvram);
 }
 
-static void confirmFormNvram(int num_setting, conf_setting_u confSetting)
+static void confirmFormNvram(int num_setting, conf_setting_u* confSetting)
 {
 	int i;
 	unsigned short sys_date, sys_time;
@@ -228,7 +228,7 @@ static void confirmFormNvram(int num_setting, conf_setting_u confSetting)
 
 	switch(num_setting) {
 		case FORM_SETTING_DATE:
-			i = strToInt(confSetting.input);
+			i = strToInt(confSetting->input);
 			if ((i>=1) && (i<=31)) {
 				sys_date &= ~(MASK_DATE_DAY<<SHIFT_DATE_DAY);
 				sys_date |= i<<SHIFT_DATE_DAY;
@@ -236,7 +236,7 @@ static void confirmFormNvram(int num_setting, conf_setting_u confSetting)
 			}
 			break;
 		case FORM_SETTING_DATE+1:
-			i = strToInt(confSetting.input);
+			i = strToInt(confSetting->input);
 			if ((i>=1) && (i<=12)) {
 				sys_date &= ~(MASK_DATE_MONTH<<SHIFT_DATE_MONTH);
 				sys_date |= i<<SHIFT_DATE_MONTH;
@@ -244,7 +244,7 @@ static void confirmFormNvram(int num_setting, conf_setting_u confSetting)
 			}
 			break;
 		case FORM_SETTING_DATE+2:
-			i = strToInt(confSetting.input);
+			i = strToInt(confSetting->input);
 			if ((i>=1980) && (i<=1980+127)) {
 				sys_date &= ~(MASK_DATE_YEAR<<SHIFT_DATE_YEAR);
 				sys_date |= (i-1980)<<SHIFT_DATE_YEAR;
@@ -252,7 +252,7 @@ static void confirmFormNvram(int num_setting, conf_setting_u confSetting)
 			}
 			break;
 		case FORM_SETTING_TIME:
-			i = strToInt(confSetting.input);
+			i = strToInt(confSetting->input);
 			if ((i>=0) && (i<=23)) {
 				sys_time &= ~(MASK_TIME_HOUR<<SHIFT_TIME_HOUR);
 				sys_time |= i<<SHIFT_TIME_HOUR;
@@ -260,7 +260,7 @@ static void confirmFormNvram(int num_setting, conf_setting_u confSetting)
 			}
 			break;
 		case FORM_SETTING_TIME+1:
-			i = strToInt(confSetting.input);
+			i = strToInt(confSetting->input);
 			if ((i>=0) && (i<=59)) {
 				sys_time &= ~((MASK_TIME_MINUTE<<SHIFT_TIME_MINUTE)|(MASK_TIME_SECOND<<SHIFT_TIME_SECOND));
 				sys_time |= i<<SHIFT_TIME_MINUTE;
@@ -268,18 +268,18 @@ static void confirmFormNvram(int num_setting, conf_setting_u confSetting)
 			}
 			break;
 		case FORM_SETTING_DELAY:
-			i = strToInt(confSetting.input);
+			i = strToInt(confSetting->input);
 			if ((i>=0) && (i<=255)) {
 				nvram[NVRAM_DELAY] = i;
 			}
 			refresh_nvram = 1;
 			break;
 		case FORM_SETTING_LANG:
-			nvram[NVRAM_LANGUAGE] = confSetting.num_list;
+			nvram[NVRAM_LANGUAGE] = confSetting->num_list;
 			refresh_nvram = 1;
 			break;
 		case FORM_SETTING_LANG+1:
-			nvram[NVRAM_KEYBOARD] = confSetting.num_list;
+			nvram[NVRAM_KEYBOARD] = confSetting->num_list;
 			refresh_nvram = 1;
 			break;
 	}

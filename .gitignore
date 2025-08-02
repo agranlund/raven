@@ -17,6 +17,7 @@ hw/simm/programmer/firmware/build/*
 sw/rom/mon/*.bin
 sw/rom/mon/*.ram
 sw/rom/*.bin
+sw/rom/mkrom
 dist/raven/*
 dist/*.zip
 get_atari.sh

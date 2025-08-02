@@ -3,7 +3,6 @@
 #
 BOARD_REV	 	= 0xA1
 BIOS_ROM	 	= 0x40000000
-BIOS_ROM_END	= 0x40040000
 BIOS_EMU	 	= 0x00500000
 
 # Tools
@@ -74,7 +73,7 @@ $(MON_ELF): $(OFILES) $(DEPS)
 	$(CC) $(LDFLAGS_MON) $(OFILES) -o $@
 
 $(ROM_MON): $(MON_ELF)
-	$(OBJCOPY) -O binary --set-start $(BIOS_ROM) --pad-to $(BIOS_ROM_END) --gap-fill 0xff $(MON_ELF) $@
+	$(OBJCOPY) -O binary --set-start $(BIOS_ROM) --gap-fill 0xff $(MON_ELF) $@
 
 $(MON_SREC): $(MON_ELF)
 	$(OBJCOPY) -O srec --srec-forceS3 $(MON_ELF) $@

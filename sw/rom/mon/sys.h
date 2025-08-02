@@ -19,6 +19,10 @@ static inline void nop() {
 bool sys_Init();
 void sys_Delay(uint32_t d);
 
+uint32_t sys_Chipset(void);
+rvtoc_t* sys_GetToc(uint32_t id);
+rvcfg_t* sys_GetCfg(uint32_t id);
+
 uint32_t mem_Alloc(uint32_t size, uint32_t align);
 
 uint32_t strtoi(char* s);

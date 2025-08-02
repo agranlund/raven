@@ -8,7 +8,7 @@ Important:
 #define _RAVEN_H_
 
 /*--------------------------------------------------------------------------------*/
-#define C_RAVN_VER          0x20250307UL
+#define C_RAVN_VER          0x202507297UL
 #define C_RAVN_PTR          0x40000000UL
 #ifndef C_RAVN
 #define C_RAVN              0x5241564EUL
@@ -30,7 +30,6 @@ Important:
 #define RV_PADDR_ISA_RAM16  0x82000000UL
 #define RV_PADDR_ISA_IO16   0x83000000UL
 
-
 /*--------------------------------------------------------------------------------*/
 #if !defined(__ASM__)
 #if defined(__GNUC__)
@@ -46,12 +45,42 @@ Important:
 #endif
 
 /*--------------------------------------------------------------------------------*/
+#define RV_TOC__ROM         0x5F524F4D  /* '_ROM' */
+#define RV_TOC__API         0x5F415049  /* '_API' */
+#define RV_TOC__CFG         0x5F434647  /* '_CFG' */
+#define RV_TOC_BOOT         0x424F4F54  /* 'BOOT' */
+#define RV_TOC_ETOS         0x45544F53  /* 'ETOS' */
+#define RV_TOC_RSDK         0x5244534B  /* 'RDSK' */
+
+typedef struct
+{
+    uint32_t id;
+    uint32_t start;
+    uint32_t size;
+    uint32_t flags;
+} rvtoc_t;
+
+/*--------------------------------------------------------------------------------*/
+#define RV_CFG_ROOT         0x5F434647  /* '_CFG' */
+
+typedef struct
+{
+    uint32_t id;
+    uint32_t size;
+    // data follows
+} rvcfg_t;
+
+/*--------------------------------------------------------------------------------*/
 typedef struct
 {
 /* 0x0000 */
     uint32_t    magic;
     uint32_t    version;
-    uint32_t    reserved0000[6];
+    uint32_t    variant;
+    uint32_t    reserved0000[2];
+    rvcfg_t*    cfgptr;
+    rvtoc_t*    tocptr;
+    uint32_t    _RVAPI (*chipset)(void);
 
 /* 0x0020 */
     uint32_t    _RVAPI (*dbg_GPI)(uint32_t num);

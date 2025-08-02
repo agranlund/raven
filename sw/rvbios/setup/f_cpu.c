@@ -139,7 +139,7 @@ form_setting_t form_setting_cpu[]={
 
 static void exitFormCpu(void);
 static void initFormCpu(void);
-static void confirmFormCpu(int num_setting, conf_setting_u confSetting);
+static void confirmFormCpu(int num_setting, conf_setting_u* confSetting);
 
 
 const form_menu_t form_menu_cpu={
@@ -303,8 +303,8 @@ void initFormCpu(void)
 	}
 	tos = *((unsigned short*)0x00E00002L) & 0xffff;
 
-	/* temp */
-	rev = 0xA1;
+	/* chipset */
+	rev = raven()->chipset ? (raven()->chipset() & 0xFF) : 0xA1;
 
 	format_number_hex(&form_cpu[FORM_CHIPSET].text[FORM_TEXTPOS], rev, 2, 0);
 	format_number_hex(&form_cpu[FORM_XBIOS].text[FORM_TEXTPOS], RVBIOS_VERSION & 0x00ffffffUL, 6, 0);
@@ -335,7 +335,7 @@ void updateFormCpu(void)
 {
 }
 
-static void confirmFormCpu(int num_setting, conf_setting_u confSetting)
+static void confirmFormCpu(int num_setting, conf_setting_u* confSetting)
 {
 	(void)confSetting;
 

@@ -8,9 +8,13 @@
 #include "flash.h"
 
 #define APP_NAME    "Raven ROM programmer"
-#define APP_VER     "0.2A"
-
+#define APP_VER     "20250731"
+#define HDR_MAGIC   0x5241564E      /* 'RAVN' */
+#define CFG_MAGIC   0x434F4E46      /* 'CONF' */
 #define GPIO_LED    25
+
+#define cfgbuflen 4096
+char cfgbuf[cfgbuflen];
 
 #define iobuflen 512
 char iobuf[iobuflen];
@@ -22,9 +26,8 @@ void cmd_help()
            " [h]elp\n"
            " [i]nfo\n"
            " [d]ump {offset} {len}\n"
-           " [p]rog {offset}\n"
-           " [e]rase\n"
-           "  or start sending S-records\n");
+           " [p]rog\n"
+           " [e]rase\n");
 }
 
 void cmd_info()
@@ -34,6 +37,11 @@ void cmd_info()
     const char* midstring = flash_ManufacturerString(mid);
     const char* didstring = flash_DeviceString(mid, did);
     printf("[$%04x:$%04x] %s : %s  \n", mid, did, midstring, didstring, mid);
+}
+
+char printable_char(char c)
+{
+    return (c >= 32) ? c : '.';
 }
 
 void cmd_dump(uint addr, uint len)
@@ -57,27 +65,61 @@ void cmd_dump(uint addr, uint len)
         *pd1 = flash_Read(addr +  4);
         *pd2 = flash_Read(addr +  8);
         *pd3 = flash_Read(addr + 12);
-        printf(" %08x : %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+
+        printf(" %08x : %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x  %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",
             addr,
             iobuf[ 3], iobuf[ 2], iobuf[ 1], iobuf[ 0], iobuf[ 7], iobuf[ 6], iobuf[ 5], iobuf[ 4],
-            iobuf[11], iobuf[10], iobuf[ 9], iobuf[ 8], iobuf[15], iobuf[14], iobuf[13], iobuf[12]);
+            iobuf[11], iobuf[10], iobuf[ 9], iobuf[ 8], iobuf[15], iobuf[14], iobuf[13], iobuf[12],
+            printable_char(iobuf[ 3]), printable_char(iobuf[ 2]), printable_char(iobuf[ 1]), printable_char(iobuf[ 0]),
+            printable_char(iobuf[ 7]), printable_char(iobuf[ 6]), printable_char(iobuf[ 5]), printable_char(iobuf[ 4]),
+            printable_char(iobuf[11]), printable_char(iobuf[10]), printable_char(iobuf[ 9]), printable_char(iobuf[ 8]),
+            printable_char(iobuf[15]), printable_char(iobuf[14]), printable_char(iobuf[13]), printable_char(iobuf[12]));
         addr += 16;
     }
 }
 
+uint swap32(uint d) {
+    return  ((d & 0xFF000000) >> 24) | ((d & 0x00FF0000) >> 8) | ((d & 0x0000FF00) << 8) | ((d & 0x000000FF) << 24);
+}
+
+uint save_cfg(void) {
+    memset(cfgbuf, 0, cfgbuflen);
+    if (flash_Read(0x400 + 0) == 0x5F524F4D) {                      // '_ROM'
+        if (flash_Read(0x400 + 32) == 0x5F434647) {                 // '_CFG'
+            uint size = flash_Read(0x400 + 32 + 8);                 // size
+            uint addr = flash_Read(0x400 + 32 + 4) & 0x00ffffff;    // addr
+            if (addr && size && (size <= cfgbuflen)) {
+                for (uint i=0; i<size; i+=4) {
+                    *((uint*)(&cfgbuf[i])) = flash_Read(addr + i);
+                }
+                return size;
+            }
+        }
+    }
+    return 0;
+}
+
 void cmd_prog(uint addr)
 {
+    printf("Backup config space...");
+    uint cfgsave_size = save_cfg();
+    printf(" %d bytes\n", cfgsave_size);
+
     printf("Erasing flash...\n");
     flash_Erase();
-
-    addr &= ~3UL;
-    printf("Receive file at $%08x\n", addr);
 
     uint size = 0;
     uint counter = 0;
     bool started = false;
     bool finished = false;
     uint oldsec = 0xffffffff;
+
+    uint rvhdr_addr = 0;
+    uint cfgdata_addr = 0;
+    uint cfgdata_size = 0;
+
+    addr &= ~3UL;
+    printf("Receive file at $%08x\n", addr);
 
     while(!finished)
     {
@@ -101,36 +143,38 @@ void cmd_prog(uint addr)
 
         if (started && !finished)
         {
-            int written = 0;
+            if ((size == 0x400) && cfgsave_size) {
+                if (swap32(*((uint*)&iobuf[0])) == 0x5F524F4D) { // '_ROM'
+                    if (swap32(*((uint*)&iobuf[32+0])) == 0x5F434647) { // '_CFG'
+                        cfgdata_addr = swap32(*((uint*)&iobuf[32+4])) & 0x00ffffff;
+                        cfgdata_size = swap32(*((uint*)&iobuf[32+8]));
+                    printf("Config space at $%08x (%d bytes)", cfgdata_addr, cfgdata_size);
+                    }
+                }
+            }
+
             for (int i=0; i<512; i+=4)
             {
-#if 0                
-                uint newsec = flash_GetSector(addr + size + i);
-                if (newsec != oldsec)
+                uint cfgoffs = ((size + i) >= cfgdata_addr) ? ((size + i) - cfgdata_addr) : 0x0fffffff;
+                if ((cfgoffs < cfgdata_size) && (cfgoffs < cfgsave_size))
                 {
-                    flash_EraseSector(newsec);
-                    oldsec = newsec;
+                    // rewrite previous config data
+                    flash_Write(addr + size + i, *((uint*)&cfgbuf[cfgoffs]));
                 }
-#endif
-                uint dataLE = *((uint*)&iobuf[i]);
-                if (dataLE != 0xffffffff)
+                else
                 {
-                    uint dataBE =
-                        ((dataLE & 0xff000000) >> 24) |
-                        ((dataLE & 0x00ff0000) >>  8) |
-                        ((dataLE & 0x0000ff00) <<  8) |
-                        ((dataLE & 0x000000ff) << 24);
-
-                    flash_Write(addr + size + i, dataBE);
-                    written++;
+                    // write new data
+                    uint data = *((uint*)&iobuf[i]);
+                    if (data != 0xffffffff)
+                    {
+                        flash_Write(addr + size + i, swap32(data));
+                    }
                 }
             }
 
             size += pos;
             counter++;
-            if (written != 0) {
-                gpio_put_masked(1<<GPIO_LED, counter & 1 ? 0xffffffff : 0x00000000);
-            }
+            gpio_put_masked(1<<GPIO_LED, counter & 4 ? 0xffffffff : 0x00000000);
         }
     }
 
@@ -143,238 +187,6 @@ void cmd_erase()
     printf("Erase...");
     flash_Erase();
     printf("Done\n");
-}
-
-static int srec_byte(const char *buf, int index)
-{
-    unsigned int v;
-
-    if (sscanf(buf + (index * 2), "%2x", &v) == 1) {
-        return v;
-    }
-    return -1;
-}
-
-typedef struct
-{
-    uint32_t        address;
-    uint32_t        data_len;
-    const char      *data;
-} srec_info_t;
-
-static int srec_validate(const char *buf, int buf_len, srec_info_t *info)
-{
-    /* header sanity */
-    if (buf_len < 9)
-    {
-        if (info != NULL)
-            printf("srec: buffer too short\n");
-        return -1;
-    }
-    if (buf[0] != 'S')
-    {
-        if (info != NULL)
-            printf("srec: not 'S'\n");
-        return -1;
-    }
-
-    /* get/validate length byte */
-    int srec_len = srec_byte(buf, 1);
-    if (srec_len < 3)
-    {
-        printf("srec: len too short\n");
-        return -1;
-    }
-    if ((srec_len * 2 + 4) > buf_len)
-    {
-        printf("srec: len too long\n");
-        return -1;
-    }
-
-    /* validate checksum */
-    int sum = 0;
-    for (int i = 0; i <= srec_len; i++) 
-    {
-        sum += srec_byte(buf + 2, i);
-    }
-    if ((sum & 0xff) != 0xff)
-    {
-        printf("srec: sum mismatch\n");
-        return -1;
-    }
-
-    /* type-specific validation */
-    const char *afmt = NULL;
-    int asize = 0;
-    int type = buf[1] - '0';
-    switch (type)
-    {
-    case 0:
-        afmt = "%4x";
-        asize = 4;
-        break;
-    case 3:
-        afmt = "%8x";
-        asize = 8;
-        break;
-    case 7:
-        afmt = "%8x";
-        asize = 0;
-        break;
-    default:
-        printf("srec: bad type\n");
-        return -1;
-    }
-    if (srec_len < ((asize / 2) + 1)) {
-        printf("srec: len wrong for type\n");
-        return -1;
-    }
-    if (info)
-    {
-        if (sscanf(buf + 4, afmt, &info->address) != 1)
-        {
-            printf("srec: can't parse address");
-            return -1;
-        }
-        info->data_len = srec_len - (asize / 2) - 1;
-        info->data = buf + 4 + asize;
-    }
-
-    return type;
-}
-
-static void srec_flash(uint8_t *buf, uint32_t address, int len)
-{
-    if (len > 0)
-    {
-        /* pad to 4B multiple */
-        while (len % 4)
-            buf[len++] = 0xff;
-
-        /* write to flash, swizzle to suit layout (XXX shouldn't the flash code do this?) */
-        const uint32_t *p = (const uint32_t *)buf;
-        for (int i = 0;
-             i < len;
-             p++, i += 4)
-        {
-            flash_Write(address + i, __builtin_bswap32(*p));
-        }
-    }
-}
-
-static void cmd_srecord()
-{
-    /* we are here because a valid S0 record was received */
-    printf("S-record upload, erasing flash...");
-    flash_Erase();
-    printf("receiving data...\n");
-
-    /* set initial buffer state */
-    uint32_t iobuf_base = 0;
-    uint32_t iobuf_len = 0;
-
-    /* receive S-records */
-    for (;;) {
-        char linebuf[128];
-        int linelen = 0;
-
-        /* receive one S-record */
-        for (;;)
-        {
-            /* receive bytes, quit when upload stops */
-            int v = getchar_timeout_us(2000000);
-            if (v == PICO_ERROR_TIMEOUT)
-            {
-                /* we expect S7 at the end to flush, so buffer should be empty */
-                if (iobuf_len == 0) {
-                    printf("done.%s\n",
-                           flash_ReadbackError ? " - WARNING, flash readback error during programming" : "");
-                }
-                else
-                {
-                    printf("\nERROR: S-record upload timeout\n");
-                }
-                return;
-            }
-
-            /* end of record? */
-            if ((v == '\r') || (v == '\n'))
-            {
-                /* non-empty line, process */
-                if (linelen > 0)
-                {
-                    linebuf[linelen] = '\0';
-                    break;
-                }
-                /* empty line, ignore */
-                continue;
-            }
-
-            /* accumulate bytes */
-            if (linelen < (sizeof(linebuf) - 2))
-            {
-                linebuf[linelen++] = v;
-            } else {
-                printf("ERROR: S-record too long\n");
-                return;
-            }
-        }
-
-        srec_info_t sinfo;
-        switch (srec_validate(linebuf, linelen, &sinfo))
-        {
-            case 0:
-                /* ignore additional S0 records, probably concatenated uploads */
-                continue;
-            case 3:
-                /* process S3 record below */
-                break;
-            case 7:
-                /* entrypoint, usually last, clean any buffer contents ready for completion */
-                srec_flash(iobuf, iobuf_base, iobuf_len);
-                iobuf_len = 0;
-                continue;
-            default:
-                printf("ERROR: invalid / unsupported S-record '%s'\n", linebuf);
-                return;
-        }
-
-        /* new S-record not contiguous? */
-        if (sinfo.address != (iobuf_base + iobuf_len))
-        {
-            /* flush any existing buffer contents */
-            srec_flash(iobuf, iobuf_base, iobuf_len);
-
-            /* set initial buffer base address, 4-aligned, pad leading bytes */
-            iobuf_base = sinfo.address & 0xfffffffc;
-            iobuf_len = sinfo.address - iobuf_base;
-
-            /*
-             * We depend on the flash behaviour of not writing / reading back 0xff bytes
-             * to deal with the case where the 4-aligned buffer overlaps some byte(s)
-             * that were previously programmed.
-             *
-             * This is only likely in the case where the S-record stream is highly optimised,
-             * i.e. almost never.
-             */
-            iobuf[0] = iobuf[1] = iobuf[2] = 0xff;
-        }
-
-        /* update the buffer with bytes from the S-record */
-        for (int i = 0; i < sinfo.data_len; i++)
-        {
-            iobuf[iobuf_len++] = srec_byte(sinfo.data, i);
-
-            /* has buffer become full? */
-            if (iobuf_len == iobuflen)
-            {
-                /* yes, flush it */
-                srec_flash(iobuf, iobuf_base, iobuf_len);
-                iobuf_base = iobuf_base + iobuflen;
-                iobuf_len = 0;
-            }
-        }
-    }
 }
 
 uint string_to_uint(char* str)
@@ -417,15 +229,11 @@ void parse_command()
     }
     else if ((strcmp(iobuf, "prog") == 0) || (strcmp(iobuf, "p") == 0))
     {
-        cmd_prog(string_to_uint(arg1));
+        cmd_prog(0);
     }
     else if ((strcmp(iobuf, "erase") == 0) || (strcmp(iobuf, "e") == 0))
     {
         cmd_erase();
-    }
-    else if (srec_validate(iobuf, iobufpos, NULL) == 0)
-    {
-        cmd_srecord();
     }
     else
     {
@@ -453,6 +261,8 @@ int main()
     printf("\n");
     cmd_help();
     printf("\n> ");
+
+    memset(cfgbuf, 0, cfgbuflen);
 
     // parse input and call commands
     iobufpos = 0;

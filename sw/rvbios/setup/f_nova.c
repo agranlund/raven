@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <mint/osbind.h>
 #include <mint/ostruct.h>
 #include <mint/falcon.h>
@@ -50,7 +51,7 @@
 
 
 static void exitFormNova(void);
-static void confirmFormNova(int num_setting, conf_setting_u confSetting);
+static void confirmFormNova(int num_setting, conf_setting_u* confSetting);
 
 typedef struct
 {
@@ -122,7 +123,7 @@ const form_menu_t form_menu_nova={
 
 static void exitFormNova(void)
 {
-	rvnova_saveinf(&inf, path_inf);
+	rvnova_saveinf(&inf, (char*)path_inf);
 }
 
 static void initDrivers(void)
@@ -253,7 +254,7 @@ void refreshFormNova(void)
 void initFormNova(void)
 {
 	if (firstTimeSetup) {
-		if (!rvnova_loadinf(&inf, path_inf)) {
+		if (!rvnova_loadinf(&inf, (char*)path_inf)) {
 			/* default settings */
 			inf.menuinf.gdosfile[0] = 'N';
 			inf.menuinf.gdosfile[1] = 'V';
@@ -296,7 +297,7 @@ void updateFormNova(void)
 {
 }
 
-static void confirmFormNova(int num_setting, conf_setting_u confSetting)
+static void confirmFormNova(int num_setting, conf_setting_u* confSetting)
 {
 	switch(num_setting) {
 		case FORM_SETTING_DRVENABLE:
@@ -306,7 +307,7 @@ static void confirmFormNova(int num_setting, conf_setting_u confSetting)
 			inf.vdi_enable = inf.vdi_enable ? 0 : 1;
 			break;
 		case FORM_SETTING_DRIVER:
-			strCopy(driverlist[confSetting.num_list], inf.drvpath);
+			strCopy(driverlist[confSetting->num_list], inf.drvpath);
 			initResolutions();
             vt_clearForm(); /* completely redraw the form since settings options may change */
 			break;
@@ -317,7 +318,7 @@ static void confirmFormNova(int num_setting, conf_setting_u confSetting)
 			{
 				mode_t* mptr = modedata;
 				while (mptr) {
-					if (mptr->name == modelist_drv[confSetting.num_list]) {
+					if (mptr->name == modelist_drv[confSetting->num_list]) {
 						inf.drv_res.w = mptr->w;
 						inf.drv_res.h = mptr->h;
 						inf.drv_res.b = mptr->b;
@@ -331,7 +332,7 @@ static void confirmFormNova(int num_setting, conf_setting_u confSetting)
 			{
 				mode_t* mptr = modedata;
 				while (mptr) {
-					if (mptr->name == modelist_vdi[confSetting.num_list]) {
+					if (mptr->name == modelist_vdi[confSetting->num_list]) {
 						inf.vdi_res.w = mptr->w;
 						inf.vdi_res.h = mptr->h;
 						inf.vdi_res.b = mptr->b;
@@ -345,7 +346,7 @@ static void confirmFormNova(int num_setting, conf_setting_u confSetting)
 			inf.menuinf.gdos = inf.menuinf.gdos ? 0 : 1;
 			break;
 		case FORM_SETTING_GDOSNAME:
-			strCopyUpper(confSetting.input, inf.menuinf.gdosfile);
+			strCopyUpper(confSetting->input, inf.menuinf.gdosfile);
 			break;
 	}
 	refreshFormNova();

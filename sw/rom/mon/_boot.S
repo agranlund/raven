@@ -6,6 +6,7 @@
 //       or from motherboard jumper on rev.A2 boards
 //
 
+//    #define UART_BAUDR      921600
 //    #define UART_BAUDR      460800
     #define UART_BAUDR      115200
 
@@ -20,7 +21,8 @@
     .section .note.GNU-stack,"",%progbits
 
 // ----------------------------------------------------------
-// vector table
+// 0x40000000, 1k
+// early vector table
 // ----------------------------------------------------------
     .section    .vectors
     .align      4
@@ -29,6 +31,52 @@ rom_vectors:
     .dcb.l     1,start              //   1 / 0x04 : initial pc
     .dcb.l     1,vec_berr           //   2 / 0x08 : bus errror
     .dcb.l   253,vec_other          //  --------- 3-255
+
+// ----------------------------------------------------------
+// 0x40000400, 1k
+// toc
+// ----------------------------------------------------------
+    .section    .toc
+rom_toc:
+    .dcb.l  1,0x5F524F4D    // '_ROM'
+    .dcb.l  1,BIOS_ROM
+    .dcb.l  1,0x00000000
+    .dcb.l  1,0x00000000
+
+    .dcb.l  1,0x5F415049    // '_API'
+    .dcb.l  1,__export_start
+    .dcb.l  1,__export_size
+    .dcb.l  1,0x00000000
+
+    .dcb.l  1,0x5F434647    // '_CFG'
+    .dcb.l  1,__config_start
+    .dcb.l  1,__config_size
+    .dcb.l  1,0x00000000
+
+
+// ----------------------------------------------------------
+// 0x40000800, 2k
+// bios exports
+// ----------------------------------------------------------
+    .section    .export
+rom_export:
+    // export.c : const raven_t ravenBios
+
+// ----------------------------------------------------------
+// 0x40001000, 4k
+// user config
+// ----------------------------------------------------------
+    .section    .config
+rom_config:
+
+    //.dcb.l   255,0xDEADBEEF
+
+
+// ----------------------------------------------------------
+// 0x40002000
+// rom start
+// ----------------------------------------------------------
+    .section    .text
 
 //--------------------------------------------
 // BPRINT(uart*, char*)
@@ -51,7 +99,8 @@ rom_vectors:
     .align  2
     .type start, @function
 start:
-    // setup hardware
+
+    // setup cpu
     move.w  #0x2700,%sr                             // no interrupts
     nop
     reset                                           // reset peripherals
@@ -82,9 +131,13 @@ start:
     reset                                           // reset peripherals
     nop
 
-    // setup stack
+    // setup stack, but do _not_ use it or any other memory until
+    // we're done with early boot messages and memory detect.
     move.l  #__stack_top,%sp
-    sub.l   #16,%sp                                 // make room for hidden variables
+    
+    // make room for persistent hidden variables.
+    // these are currently used to detect warmboot
+    sub.l   #16,%sp
 
     // setup uart2
     move.l  #RV_PADDR_UART2,%a5
@@ -101,9 +154,10 @@ start:
     bset.b  #6,UART_EFR(%a5)                        // auto rts
 #endif
 
+    move.l  #UART_BAUDR,%d0                         // todo: get baudrate from user config
+
     move.b  #0x80,UART_LCR(%a5)                     // access baud registers
     move.l  #UART_CLK,%d1                           // set DLL and DLM
-    move.l  #UART_BAUDR,%d0
     move.l  %d1,%d2
     divul.l %d0,%d2
     lsr.l   #4,%d2                                  // d2 = xx.xx.mm.ll       

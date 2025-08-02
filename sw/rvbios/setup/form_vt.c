@@ -315,19 +315,19 @@ void vt_setting_newValue(const form_menu_t *form_menu, const char *str)
 		case SETTING_BOOL:
 			if (form_menu->confirm) {
 				confSetting.input = str;
-				form_menu->confirm(vt_selected, confSetting);
+				form_menu->confirm(vt_selected, &confSetting);
 			}
 			break;
 		case SETTING_LIST:
 			if (form_menu->confirm) {
 				confSetting.num_list = vt_list_selected;
-				form_menu->confirm(vt_selected, confSetting);
+				form_menu->confirm(vt_selected, &confSetting);
 			}
 			break;
 		case SETTING_UPDOWN:
 			if (form_menu->confirm) {
 				confSetting.num_list = vt_list_selected;
-				form_menu->confirm(vt_selected, confSetting);
+				form_menu->confirm(vt_selected, &confSetting);
 			}
 			break;
 	}

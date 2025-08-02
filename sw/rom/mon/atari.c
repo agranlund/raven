@@ -214,8 +214,11 @@ bool atari_InitMMU(uint32_t* simms)
     // peripheral memory map
 
     // 0xE00000 : 512k system rom : 512kb at physical rom offset 256kb. repeated to fill entire 1MB
-    mmu_Map24bit(0x00E00000, 0x40040000, 0x00080000, PMMU_READONLY  | PMMU_CM_WRITETHROUGH);
-    mmu_Map24bit(0x00E80000, 0x40040000, 0x00080000, PMMU_READONLY  | PMMU_CM_WRITETHROUGH);
+    extern uint8_t __mon_end;
+    uint32_t tosaddr = atari_DetectTos();
+    tosaddr = tosaddr ? tosaddr : (uint32_t)&__mon_end;
+    mmu_Map24bit(0x00E00000, tosaddr, 0x00080000, PMMU_READONLY  | PMMU_CM_WRITETHROUGH);
+    mmu_Map24bit(0x00E80000, tosaddr, 0x00080000, PMMU_READONLY  | PMMU_CM_WRITETHROUGH);
 
     // 0xF00000 : reserved io space
     mmu_Map24bit(0x00F00000, 0xA0000000, 0x00001000, PMMU_READWRITE | PMMU_CM_PRECISE);  // IDE ($f00000 -> $a0000000)
@@ -358,10 +361,8 @@ bool atari_Init()
     return false;
 }
 
-
-bool atari_DetectTos()
+uint32_t atari_DetectTos()
 {
-    extern const uint32_t __etos_signature;
-
-    return __etos_signature == 0x45544f53;  // "ETOS"
+    rvtoc_t* toc = sys_GetToc(RV_TOC_ETOS);
+    return toc ? toc->start : 0;
 }

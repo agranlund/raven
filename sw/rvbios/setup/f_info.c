@@ -44,7 +44,7 @@ typedef struct {
 
 /*--- Functions prototypes ---*/
 
-static void confirmFormNova(int num_setting, conf_setting_u confSetting);
+static void confirmFormNova(int num_setting, conf_setting_u* confSetting);
 
 
 /*--- Variables ---*/
@@ -83,7 +83,7 @@ void updateFormNova(void)
 }
 
 
-static void confirmFormNova(int num_setting, conf_setting_u confSetting)
+static void confirmFormNova(int num_setting, conf_setting_u* confSetting)
 {
 
 }

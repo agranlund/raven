@@ -99,7 +99,7 @@ typedef struct {
 	void (*update)(void);	/* Update form with time */
 
 	void (*init)(void);	/* Function to init setting pointer */
-	void (*confirm)(int numSetting, conf_setting_u confSetting);
+	void (*confirm)(int numSetting, conf_setting_u* confSetting);
 
 	void (*enter)(void);
 	void (*exit)(void);

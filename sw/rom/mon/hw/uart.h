@@ -28,6 +28,9 @@
 
 bool        uart_Init();
 
+uint32_t    uart_get_baud();
+void        uart_set_baud(uint32_t baud);
+
 bool        uart_txrdy();
 bool        uart_rxrdy();
 uint16_t    uart_sendbuf(uint8_t* data, uint16_t count);

@@ -180,6 +180,37 @@ bool sys_Init()
 
 
 //-----------------------------------------------------------------------
+uint32_t sys_Chipset(void) {
+    return (uint32_t)REV;
+}
+
+//-----------------------------------------------------------------------
+rvtoc_t* sys_GetToc(uint32_t id) {
+    extern uint8_t __toc_start;
+    rvtoc_t* toc = (rvtoc_t*)&__toc_start;
+    while(toc->id) {
+        if ((toc->id == id) || (id == 0)) {
+            return toc;
+        }
+        toc++;
+    }
+    return 0;
+}
+
+//-----------------------------------------------------------------------
+rvcfg_t* sys_GetCfg(uint32_t id) {
+    extern uint8_t __config_start;
+    rvcfg_t* cfg = (rvcfg_t*)&__config_start;
+    while(cfg) {
+        if ((cfg->id == id) || (id == 0)) {
+            return cfg;
+        }
+        cfg = (rvcfg_t*)(cfg->size + (uint32_t)cfg);
+    }
+    return 0;
+}
+
+//-----------------------------------------------------------------------
 //
 // kmemory
 //
