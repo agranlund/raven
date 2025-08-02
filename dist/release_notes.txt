@@ -1,6 +1,12 @@
 Raven.A1
 Hardware and software binary release
 
+xxxxxxxx
+  rom:      layout and size optimization
+  rom:      wip configspace for system settings
+  firmware: (simm programmer) support for rom configspace
+  rvbios:   get chipset version from bootrom
+
 20250718
   rom:      improved IDE speed (4.8 -> 7.9 MB/s)
   firmware: (nessi) improved cf-card compatibility
