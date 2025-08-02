@@ -67,7 +67,7 @@ typedef struct
 {
     uint32_t id;
     uint32_t size;
-    // data follows
+    /* data follows */
 } rvcfg_t;
 
 /*--------------------------------------------------------------------------------*/
