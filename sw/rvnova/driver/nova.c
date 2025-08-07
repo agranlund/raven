@@ -197,15 +197,14 @@ void nova_p_changeres(nova_bibres_t* bib, uint32_t offs) {
 }
 
 void nova_p_setcolor(uint16_t index, uint8_t* colors) {
-    /* sta_vdi calls it for all colors, several times with different values on startup */
-    /* double check the atc and other registers to figure out why. */
-    /* perhaps it writes all four of the available 16-color palettes */
-
     uint16_t sr = cpu_di();
     uint8_t dacIndex = (nova.planes < 8) ? atcColorIndexShadow[index&0xf] : index;
     dprintf("col %d (%02x): %02x %02x %02x\n", index, dacIndex, colors[0], colors[1], colors[2]);
 
     if (nova.planes == 1) {
+        /* a bit of a temp hack here */
+        /* not sure which additional indices we need to set for color 1 so */
+        /* we're setting all of them at the moment */
         int idx = index;
         int end = (index == 0) ? 1 : 255;
         for (; idx < end; idx++) {
