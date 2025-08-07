@@ -27,7 +27,7 @@
 #include <mint/falcon.h>
 #include <mint/sysvars.h>
 
-#include "../rvnova/rvnova.h"
+#include "../rvnova/loader/rvnova.h"
 
 #include "form_vt.h"
 #include "f_nova.h"
@@ -165,6 +165,7 @@ static void initDrivers(void)
 }
 
 static mode_t* findMode(uint16_t w, uint16_t h, uint8_t b) {
+    /* search for exact bpp match*/
 	int i; int best_i = -1;
 	uint16_t diff_w = 0xffff;
 	uint16_t diff_h = 0xffff;
@@ -177,12 +178,26 @@ static mode_t* findMode(uint16_t w, uint16_t h, uint8_t b) {
 			}
 		}
 	}
+    /* search for exact resolution match */
+    if ((best_i < 0) || (diff_w != 0) || (diff_h != 0)) {
+        int best_j = -1;
+        uint16_t diff_b = 0xffff;
+        for (i = 0; i < num_modes; i++) {
+            if ((modedata[i].w == w) && (modedata[i].h == h)) {
+                uint16_t db = (b >= modedata[i].b) ? (b - modedata[i].b) : 0xffff;
+                if ((best_j < 0) || (db < diff_b)) {
+                    diff_b = db; best_j = i;
+                }
+            }
+        }
+        best_i = (best_j >= 0) ? best_j : best_i;
+    }
 	return (best_i >= 0) ? &modedata[best_i] : 0L;
 }
 
 static void initResolutions(void)
 {
-	bib_t bib;
+	nova_bib_t bib;
 	int i, num_bwmodes;
 	char fname[128];
 	sprintf(fname, "%s\\%s\\%s", path_nova, inf.drvpath, path_bib); 
@@ -255,18 +270,7 @@ void initFormNova(void)
 {
 	if (firstTimeSetup) {
 		if (!rvnova_loadinf(&inf, (char*)path_inf)) {
-			/* default settings */
-			inf.menuinf.gdosfile[0] = 'N';
-			inf.menuinf.gdosfile[1] = 'V';
-			inf.menuinf.gdosfile[2] = 'D';
-			inf.menuinf.gdosfile[3] = 'I';
-			inf.vdi_enable = 1;
-			inf.drv_res.w = 640;
-			inf.drv_res.h = 480;
-			inf.drv_res.b = 1;
-			inf.vdi_res.w = 640;
-			inf.vdi_res.h = 480;
-			inf.vdi_res.b = 8;
+            rvnova_makeinf(&inf);
 		}
 		/* forced settings */
 		inf.menuinf.guikey = 0xf;

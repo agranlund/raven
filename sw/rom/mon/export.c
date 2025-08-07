@@ -44,6 +44,8 @@ static uint32_t b_i2c_Write(uint32_t val) { return (uint32_t) i2c_Write((uint8_t
 static uint32_t b_flash_Identify(void) { return flash_Identify(); }
 static uint32_t b_flash_Program(void* data, uint32_t size) { return flash_Program(data, size) ? 1 : 0; }
 
+static void b_vga_SetMode(uint32_t mode) { vga_SetMode((uint16_t)mode); }
+
 static struct X86EMU* b_x86() { return x86emu; }
 
 extern uint8_t __toc_start;
@@ -84,7 +86,7 @@ const raven_t ravenBios __attribute__((section(".export"))) =
     vga_Clear,
     vga_Addr,
     vga_Atari,
-    vga_Mode13h,
+    b_vga_SetMode,
     vga_SetPal,
     vga_GetPal,
 //0x00A0

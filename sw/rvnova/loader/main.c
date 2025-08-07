@@ -27,9 +27,11 @@
 #include <mint/osbind.h>
 
 #include "rvnova.h"
+#include "vga.h"
 
-/*extern void xcb_create(void);*/
-extern bool w32i_EnableInterleaveMode(void);
+uint32_t vga_iobase = 0x81000000UL;
+bool w32i_EnableInterleaveMode(void);
+
 
 static const char* path_root   		= "c:";
 static const char* path_vdibib 		= "auto\\sta_vdi.bib";
@@ -39,6 +41,7 @@ static const char* path_nova		= "nova";
 static const char* path_xmenu		= "xmenu.prg";
 static const char* path_emulator	= "auto\\emulator.prg";
 static const char* path_vdi			= "auto\\sta_vdi.prg";
+
 
 
 static void screen_off(void) {
@@ -72,15 +75,15 @@ static void screen_clear(void) {
 
 long supermain()
 {
-	bib_t bib_emu;
-	bib_t bib_vdi;
+	nova_bib_t bib_emu;
+	nova_bib_t bib_vdi;
 	rvnova_menuinf_t inf;
 	char fname[128];
 
 	/* load settings */
 	sprintf(fname, "%s\\%s", path_root, path_inf);
 	if (!rvnova_loadinf(&inf, fname)) {
-		return 0;
+        rvnova_makeinf(&inf);
 	}
 
 	/* force settings */
@@ -166,4 +169,47 @@ int main()
 /*		Ptermres(_PgmSize, 0); */
 	}
 	return 0;
+}
+
+
+
+bool w32i_EnableInterleaveMode(void) {
+
+    /* todo: it would be good if this code first identified that we actually
+       have an ET4000/W32i card.
+    */
+
+    uint16_t port;
+    uint8_t r32, r37;
+
+    /*
+    NOTE: The "KEY" must be set in order to write CRTC indices above 18, except indices 33 and
+    35, (CRTC 35 is protected by bit 7 of CRTC 11). See Section 5.1.2, Input Status Register Zero for
+    definition of "KEY
+    */
+
+    /* To set the KEY: write 03 to hercules compatibility registers */
+    vga_WritePort(0x3bf, 3);
+    /* then set bits 7 and 5 of mode control register to 1,1, e.g.A0 (other bits are don't care) */
+    port = (vga_ReadPort(0x3cc) & 1) ? 0x3d8 : 0x3b8;
+    vga_WritePort(port, 0xa0);
+
+    /* now enable interleaved memory mode */
+    r32 = vga_ReadReg(VGA_REG_CRTC, 0x32);            /* ras/cas conf */
+    r37 = vga_ReadReg(VGA_REG_CRTC, 0x37);            /* vsconf2 */
+
+    /* Databook page: 126
+    CRTC:37 video system conf2
+    bit0 : display memory data bus width
+    */
+    vga_WriteReg(VGA_REG_CRTC, 0x37, (r37 | 1));
+
+    /* Databook page: 130
+     CRTC:32 ras/cas config
+     bit7 : memory interleave enable.
+     When set to 1 (memory interleave enabled), the chip operates properly only if
+     CSW<0> = 0, CSP<0> = 0, and CRTC Indexed Register 37 bit 0 = 1.
+    */
+    vga_WriteReg(VGA_REG_CRTC, 0x32, ((r32 | (1 << 7)) & 0xFC));
+    return true;
 }

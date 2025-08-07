@@ -27,7 +27,8 @@ sw/tools/*/*.prg
 sw/tools/*/*.app
 sw/tools/*/*.tos
 sw/rvbios/*.prg
-sw/rvnova/*.prg
+sw/rvnova/loader/*.prg
+sw/rvnova/driver/*.prg
 sw/isa/*/*.prg
 sw/isa/drivers/*/*.prg
 sw/isa/drivers/picogus/pgusinit/*.prg

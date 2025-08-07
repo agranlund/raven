@@ -22,6 +22,23 @@
 #include <mint/osbind.h>
 #include "rvnova.h"
 
+int rvnova_makeinf(rvnova_menuinf_t* inf) {
+	memset((void*)inf, 0, sizeof(rvnova_menuinf_t));
+    strcpy(inf->menuinf.gdosfile, "NVDI");
+    inf->menuinf.output = 1;
+	inf->menuinf.guikey = 3;		/* gui disable unless keypress */
+	inf->menuinf.maccel = 0;
+    strcpy(inf->drvpath, "DEFAULT");
+    inf->drv_enable = 1;
+    inf->vdi_enable = 1;
+    inf->drv_res.w = 640;
+    inf->drv_res.h = 480;
+    inf->drv_res.b = 1;
+    inf->vdi_res.w = 640;
+    inf->vdi_res.h = 480;
+    inf->vdi_res.b = 8;
+    return 1;    
+}
 
 int rvnova_loadinf(rvnova_menuinf_t* inf, char* fname)
 {
@@ -35,7 +52,6 @@ int rvnova_loadinf(rvnova_menuinf_t* inf, char* fname)
 	}
 	return 0;
 }
-
 
 int rvnova_saveinf(rvnova_menuinf_t* inf, char* fname)
 {
@@ -59,7 +75,7 @@ int rvnova_saveinf(rvnova_menuinf_t* inf, char* fname)
 	return 0;
 }
 
-void rvnova_freebib(bib_t* bib)
+void rvnova_freebib(nova_bib_t* bib)
 {
 	bib->num = 0;
 	if (bib->res) {
@@ -68,8 +84,7 @@ void rvnova_freebib(bib_t* bib)
 	}
 }
 
-
-int rvnova_loadbib(bib_t* bib, char* fname)
+int rvnova_loadbib(nova_bib_t* bib, char* fname)
 {
 	int32_t ok = Fopen(fname, 0);
 	bib->num = 0;
@@ -78,22 +93,22 @@ int rvnova_loadbib(bib_t* bib, char* fname)
 		int16_t fp = (int16_t)ok;
 		int32_t fs = Fseek(0, fp, 2);
 		Fseek(0, fp, 0);
-		bib->res = (bibres_t*)malloc(fs);
+		bib->res = (nova_bibres_t*)malloc(fs);
 		Fread(fp, fs, (void*)bib->res);
 		Fclose(fp);
-		bib->num = fs / sizeof(bibres_t);
+		bib->num = fs / sizeof(nova_bibres_t);
 	}
 	return bib->num;
 }
 
-int rvnova_savebib(bib_t* bib, char* fname)
+int rvnova_savebib(nova_bib_t* bib, char* fname)
 {
 	int32_t ok;
-	bib_t oldbib;
+	nova_bib_t oldbib;
 
 	if (rvnova_loadbib(&oldbib, fname)) {
 		if (oldbib.num == bib->num) {
-			if (memcmp((void*)oldbib.res, (void*)bib->res, bib->num * sizeof(bibres_t)) == 0) {
+			if (memcmp((void*)oldbib.res, (void*)bib->res, bib->num * sizeof(nova_bibres_t)) == 0) {
 				rvnova_freebib(&oldbib);
 				return 1;
 			}
@@ -104,7 +119,7 @@ int rvnova_savebib(bib_t* bib, char* fname)
 	ok = Fcreate(fname, 0);
 	if (ok >= 0) {
 		int16_t fp = (int16_t)ok;
-		int32_t fs = bib->num * sizeof(bibres_t);
+		int32_t fs = bib->num * sizeof(nova_bibres_t);
 		Fwrite(fp, fs, (void*)bib->res);
 		Fclose(fp);
 		return 1;
@@ -112,13 +127,14 @@ int rvnova_savebib(bib_t* bib, char* fname)
 	return 0;
 }
 
-void rvnova_copybib(bib_t* dst, int dsti, bib_t* src, int srci)
+void rvnova_copybib(nova_bib_t* dst, int dsti, nova_bib_t* src, int srci)
 {
-	memcpy((void*)&dst->res[dsti], (void*)&src->res[srci], sizeof(bibres_t));
+	memcpy((void*)&dst->res[dsti], (void*)&src->res[srci], sizeof(nova_bibres_t));
 }
 
-int rvnova_findres(bib_t* bib, res_t* res)
+int rvnova_findres(nova_bib_t* bib, res_t* res)
 {
+    /* match exact bpp but different resolution */
 	int i; int best_i = -1;
 	uint16_t diff_w = 0xffff;
 	uint16_t diff_h = 0xffff;
@@ -139,7 +155,32 @@ int rvnova_findres(bib_t* bib, res_t* res)
 			}
 		}
 	}
-	if (best_i >= 0) {
+
+    /* match exact resolution but lower bpp */
+    if ((best_i < 0) || ((bib->res[best_i].real_x+1) != res->w) || ((bib->res[best_i].real_y+1) != res->h)) {
+        int best_j = -1;
+        uint16_t diff_b = 0xffff;
+        for (i = 0; i < bib->num; i++) {
+            if ((res->w == (bib->res[i].real_x + 1)) && ((res->h == (bib->res[i].real_y + 1)))) {
+                uint8_t planes = bib->res[i].planes;
+                if ((planes == 16) && (bib->res[i].colors < 64000U)) {
+                    planes = 15;
+                }
+                if (planes <= res->b) {
+                    uint16_t db = res->b - planes;
+                    if ((best_j < 0) || (db < diff_b)) {
+                        best_j = i;
+                        diff_b = db;
+                    }
+                }
+            }
+        }
+        if (best_j >= 0) {
+            best_i = best_j;
+        }
+    }
+
+    if (best_i >= 0) {
 		res->i = (uint8_t)best_i;
 		return 1;
 	}

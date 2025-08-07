@@ -18,34 +18,19 @@
  *-----------------------------------------------------------------------------*/
 #ifndef _RVNOVA_H_
 #define _RVNOVA_H_
-
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "nova.h"
 
 #define FLG_W32I_INTERLEAVE     (1<<0)
 
-typedef struct
-{
+typedef struct {
 	uint16_t	w,h;
 	uint8_t		b,i;
 } res_t;
 
-typedef struct
-{
-	uint8_t		maccel;
-	uint8_t		guikey;
-	uint8_t		u02;
-	uint8_t		u03;
-	uint8_t		resid;
-	uint8_t		output;
-	uint8_t		u06;
-	uint8_t		gdos;
-	char		gdosfile[48];
-} nova_menuinf_t;
-
-typedef struct
-{
+typedef struct {
 	nova_menuinf_t	menuinf;
 	uint8_t			drv_enable;
 	uint8_t			vdi_enable;
@@ -55,40 +40,15 @@ typedef struct
     uint8_t         flags;
 } rvnova_menuinf_t;
 
-typedef struct
-{
-	char		name[33];
-	char		dummy;
-	uint16_t	mode;
-	uint16_t	pitch;
-	uint16_t	planes;
-	uint16_t	colors;
-	uint16_t	hcmode;
-	uint16_t	max_x, max_y;
-	uint16_t	real_x, real_y;
-	uint16_t	freq;
-	uint8_t		freq2;
-	uint8_t		low_res;
-	uint8_t		r_3c2;
-	uint8_t		r_3d4[25];
-	uint8_t		extended[3];
-	uint8_t		dummy2;
-} bibres_t;
 
-typedef struct
-{
-	uint16_t	num;
-	bibres_t*	res;
-} bib_t;
-
-
+int  rvnova_makeinf(rvnova_menuinf_t* inf);
 int  rvnova_loadinf(rvnova_menuinf_t* inf, char* fname);
 int  rvnova_saveinf(rvnova_menuinf_t* inf, char* fname);
 
-int  rvnova_loadbib(bib_t* bib, char* fname);
-int  rvnova_savebib(bib_t* bib, char* fname);
-void rvnova_freebib(bib_t* bib);
-void rvnova_copybib(bib_t* dst, int dsti, bib_t* src, int srci);
-int  rvnova_findres(bib_t* bib, res_t* res);
+int  rvnova_loadbib(nova_bib_t* bib, char* fname);
+int  rvnova_savebib(nova_bib_t* bib, char* fname);
+void rvnova_freebib(nova_bib_t* bib);
+void rvnova_copybib(nova_bib_t* dst, int dsti, nova_bib_t* src, int srci);
+int  rvnova_findres(nova_bib_t* bib, res_t* res);
 
 #endif /* _RVNOVA_H_ */

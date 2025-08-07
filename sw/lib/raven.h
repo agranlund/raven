@@ -8,7 +8,7 @@ Important:
 #define _RAVEN_H_
 
 /*--------------------------------------------------------------------------------*/
-#define C_RAVN_VER          0x202507297UL
+#define C_RAVN_VER          0x20250807UL
 #define C_RAVN_PTR          0x40000000UL
 #ifndef C_RAVN
 #define C_RAVN              0x5241564EUL
@@ -114,7 +114,7 @@ typedef struct
     void        _RVAPI (*vga_Clear)(void);
     uint32_t    _RVAPI (*vga_Addr)(void);
     void        _RVAPI (*vga_640_480_1)(void);
-    void        _RVAPI (*vga_320_200_8)(void);
+    void        _RVAPI (*vga_SetMode)(uint32_t num);
     void        _RVAPI (*vga_SetPal)(uint32_t idx, uint32_t num, uint8_t* pal);
     void        _RVAPI (*vga_GetPal)(uint32_t idx, uint32_t num, uint8_t* pal);
 

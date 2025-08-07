@@ -13,7 +13,7 @@ OBJS = main.o xbios_c.o utils.o xbios.o eiffel.o sp060.o \
 	setup/f_cpu.o \
 	setup/f_nova.o \
 	setup/f_exit.o \
-	../rvnova/rvnova.o
+	../rvnova/loader/rvnova.o
 
 ROOTDIR = ..
 include $(ROOTDIR)/Makefile.cmn

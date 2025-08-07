@@ -1,5 +1,5 @@
 
-NAME = rvnova
+NAME = emulator
 
 BIN = $(NAME).prg
 PRJ = $(NAME).prj
@@ -7,8 +7,8 @@ PRJ = $(NAME).prj
 INSTALL_ROOT = c:/auto
 INSTALL_BINS = $(BIN)
 
-OBJS = main.o rvnova.o lowlevel.o
+OBJS = main.o asm.o nova.o
 # xcb.o
 
-ROOTDIR = ..
+ROOTDIR = ../..
 include $(ROOTDIR)/Makefile.cmn

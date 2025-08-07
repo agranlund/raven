@@ -136,9 +136,12 @@ copysw:
 	# --------------------------------------------------
 	# RVNOVA
 	# --------------------------------------------------
-	make -C $(ROOTDIR)/sw/rvnova clean
-	make -C $(ROOTDIR)/sw/rvnova
-	$(COPY) $(ROOTDIR)/sw/rvnova/rvnova.prg $(SWDIR_AUTO)/
+	make -C $(ROOTDIR)/sw/rvnova/loader/ clean
+	make -C $(ROOTDIR)/sw/rvnova/loader
+	$(COPY) $(ROOTDIR)/sw/rvnova/loader/rvnova.prg $(SWDIR_AUTO)/
+
+	make -C $(ROOTDIR)/sw/rvnova/driver/ clean
+	make -C $(ROOTDIR)/sw/rvnova/driver
 
 	# --------------------------------------------------
 	# TOOLS
@@ -261,6 +264,10 @@ copysw:
 	# NOVA
 	# --------------------------------------------------
 		mkdir -p $(SWDIR_NOVA)
+		unzip $(SUPPDIR)/nova/TT_ET4000T0_V300.zip -d $(SWDIR_NOVA)
+		mv $(SWDIR_NOVA)/T0 $(SWDIR_NOVA)/DEFAULT
+		$(COPY) $(ROOTDIR)/sw/rvnova/driver/emulator.prg $(SWDIR_NOVA)/DEFAULT/AUTO/EMULATOR.PRG
+
 		unzip $(SUPPDIR)/nova/TT_ET4000T0_V300.zip -d $(SWDIR_NOVA)
 		mv $(SWDIR_NOVA)/T0 $(SWDIR_NOVA)/ET4000.T0
 		unzip $(SUPPDIR)/nova/TT_ET4000T3_V300.zip -d $(SWDIR_NOVA)

@@ -26,7 +26,7 @@ setup\f_nvram.c
 setup\f_cpu.c
 setup\f_nova.c
 setup\f_exit.c
-..\rvnova\rvnova.c
+..\rvnova\loader\rvnova.c
 ..\purec\lib\pctoslib.lib
 ..\purec\lib\pcstdlib.lib
 ..\purec\lib\pclnalib.lib
