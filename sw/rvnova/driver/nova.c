@@ -36,11 +36,10 @@
 
 nova_xcb_t nova;
 uint8_t nova_xcb_safety_area[128];
-
-uint32_t vga_iobase;
-uint32_t vga_membase;
 static uint8_t atcColorIndexShadow[16];
 
+#define vga_iobase  RV_PADDR_ISA_IO
+#define vga_membase RV_PADDR_ISA_RAM16
 
 static uint16_t bpp_to_mode(uint16_t bpp) {
     switch (bpp) {
@@ -152,10 +151,6 @@ bool drv_setmode(uint16_t w, uint16_t h, uint16_t bpp) {
 
 
 bool drv_init(void) {
-
-    /* bus setup */
-    vga_iobase  = 0x81000000UL;
-    vga_membase = 0x82000000UL;
 
     /* default ega color table */
     atcColorIndexShadow[ 0] = 0x00;

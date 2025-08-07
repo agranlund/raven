@@ -29,9 +29,7 @@
 #include "rvnova.h"
 #include "vga.h"
 
-uint32_t vga_iobase = 0x81000000UL;
 bool w32i_EnableInterleaveMode(void);
-
 
 static const char* path_root   		= "c:";
 static const char* path_vdibib 		= "auto\\sta_vdi.bib";

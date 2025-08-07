@@ -22,8 +22,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-extern uint32_t vga_iobase;
-
 #define VGA_REG_ATC         0x3C0
 #define VGA_REG_MISC        0x3C2
 #define VGA_REG_VIDSUB      0x3C3
@@ -37,11 +35,11 @@ extern uint32_t vga_iobase;
 #define VGA_REG_STAT1       0x3DA
 
 static uint8_t vga_ReadPort(uint16_t port) {
-    return *((volatile uint8_t*)(vga_iobase + port));
+    return *((volatile uint8_t*)(0x81000000UL + port));
 }
 
 static void vga_WritePort(uint16_t port, uint8_t val) {
-    *((volatile uint8_t* )(vga_iobase + port)) = val;
+    *((volatile uint8_t* )(0x81000000UL + port)) = val;
 }
 
 static uint8_t vga_ReadReg(uint16_t port, uint8_t idx) {
