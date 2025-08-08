@@ -258,7 +258,7 @@ void nova_p_setscreen(void* addr) {
     dprintf("nova: p_setscreen: %08lx\n", (uint32_t)addr);
 }
 
-void nova_nova_p_vsync(void) {
+void nova_p_vsync(void) {
     /* have no seen this called from sta_vdi, but certainly */
     /* useful and used by user-code, SDL and so on */
     /* test nova_col.acc */
@@ -300,7 +300,7 @@ bool nova_prepare(void) {
     nova.p_screen_on = nova_p_screen_on;
     nova.p_changepos = nova_p_changepos;
     nova.p_setscreen = nova_p_setscreen;
-    nova.p_vsync = nova_nova_p_vsync;
+    nova.p_vsync = nova_p_vsync;
 
     /* card setup */
     nova.reg_base = vga_iobase + 0x8000UL;
