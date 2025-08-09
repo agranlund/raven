@@ -13,6 +13,6 @@ emulator.prg
 ..\..\purec\lib\cstart0.o
 main.c
 asm.s
-nova.c
+nv.c
 ..\..\purec\lib\pctoslib.lib
 ..\..\purec\lib\pcstdlib.lib
