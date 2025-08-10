@@ -161,17 +161,17 @@ void nova_p_changeres(nova_bibres_t* bib, uint32_t offs) {
     /* possibility of refusing or altering parameters per device capabilities */
     /* I have no idea what offs is supposed to do, */
     /* perhaps screen memory offset but I have only seen this argument be 0 */
-    uint16_t sr, w, h, b;
-
-    w = bib->max_x + 1;
-    h = bib->max_y + 1;
-    b = bib->planes;
+    uint16_t sr;
+    uint16_t w = bib->max_x + 1;
+    uint16_t h = bib->max_y + 1;
+    uint16_t b = bib->planes;
 
     dprintf("nova: p_changeres: %08lx, %ld : %dx%dx%d\n", (uint32_t)bib, offs, w, h, b);
 
     sr = cpu_di();
+    card->vsync();
+    card->vsync();
     if (nv_setmode(w, h, b)) {
-
         /* update nova cookie */
         nova.mem_size = card->bank_size * card->num_banks;
         update_nova_resinfo(w, h, b);
@@ -180,14 +180,16 @@ void nova_p_changeres(nova_bibres_t* bib, uint32_t offs) {
         /* sta_vdi needs register access to draw in 16 color planar */
         if (nova.planes == 4) {
             cpu_map(VADDR_IO, PADDR_IO, VSIZE_IO, PMMU_CM_PRECISE | PMMU_READWRITE);
-            cpu_flush_atc();
         } else {
             uint32_t offs;
             for (offs = 0; offs < VSIZE_IO; offs += 4096) {
                 cpu_map(VADDR_IO + offs, (uint32_t)nova_dummy_area, 4096, PMMU_CM_PRECISE | PMMU_READWRITE);
-                cpu_flush_atc();
             }
         }
+        cpu_flush_atc();
+        /*cpu_flush_cache();*/
+        card->vsync();
+        card->vsync();
     }
     cpu_ei(sr);
 }

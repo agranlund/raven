@@ -26,16 +26,18 @@ driver_t* card = 0;
 /*-------------------------------------------------------------------------------
   standard vga and vesa functionality
 -------------------------------------------------------------------------------*/
-bool nv_vesa_setmode(uint16_t mode) {
-    /* todo: vesa support */
-    /* todo: x86 api directly instead of this... */
-    raven()->vga_SetMode((uint32_t)mode);
-    return true;
-}
-
 void nv_vesa_vsync(void) {
     do { cpu_nop(); } while (vga_ReadPort(0x3DA) & 8);
     do { cpu_nop(); } while (!(vga_ReadPort(0x3DA) & 8));
+}
+
+bool nv_vesa_setmode(uint16_t mode) {
+    /* todo: vesa support */
+    /* todo: x86 api directly instead of this... */
+    nv_vesa_vsync();
+    raven()->vga_SetMode((uint32_t)mode);
+    nv_vesa_vsync();
+    return true;
 }
 
 void nv_vesa_setcolors(uint16_t index, uint16_t count, uint8_t* colors) {
