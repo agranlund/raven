@@ -48,7 +48,7 @@ void dprintf_uart(char* s, ...) {
 #endif
 
 /*-----------------------------------------------------------------------------*/
-void setcookie(uint32_t cookie_id, uint32_t cookie_value) {
+static void setcookie(uint32_t cookie_id, uint32_t cookie_value) {
     /* find existing cookie, or a free slot */
     int32_t cookies_size = 0;
 	int32_t cookies_used = 0;
@@ -126,15 +126,11 @@ static bool setmode(uint16_t* w, uint16_t* h, uint16_t* b) {
     return false;
 }
 
-void update_nova_resname(char* name) {
-    int i = 0;
-    while ((i < 35) && (name[i] != 0)) {
-        nova.mode_name[i] = name[i]; i++;
-    }
-    nova.mode_name[i] = 0;
+static void update_nova_resname(char* name) {
+    strncpy(nova.mode_name, name, 35);
 }
 
-void update_nova_resinfo(uint16_t width, uint16_t height, uint16_t bpp) {
+static void update_nova_resinfo(uint16_t width, uint16_t height, uint16_t bpp) {
     nova.max_x = width - 1;
     nova.max_y = height - 1;
     nova.planes = bpp;
@@ -283,6 +279,41 @@ void nova_p_vsync(void) {
 
 *-----------------------------------------------------------------------------*/
 
+static void setbootres() {
+    int16_t bootdrive;
+    int32_t result = 0;
+    char* fname = (char*)nova_dummy_area;
+    nova_bibres_t* bibres = (nova_bibres_t*)nova_dummy_area;
+
+    strcpy(fname, "C:\\AUTO\\EMULATOR.BIB");
+    bootdrive = *((volatile int16_t*)0x446UL) + (int16_t)'A';
+    if ((bootdrive >= 'A') && (bootdrive <= 'Z')) {
+        fname[0] = (char)bootdrive;
+        result = Fopen(nova_dummy_area, 0);
+        if (result >= 0) {
+            int16_t fp = (int16_t)result;
+            int32_t fs = Fseek(0, fp, 2);
+            result = -1;
+            Fseek(0, fp, 0);
+            if (fs >= sizeof(nova_bibres_t)) {
+                Fread(fp, fs, (void*)bibres);
+                result = 1;
+            }
+            Fclose(fp);
+        }
+    }
+
+    if (result >= 0) {
+        uint8_t* pal = nova_dummy_area;
+        pal[0] = 0xFF; pal[1] = 0xFF; pal[2] = 0xFF;
+        pal[3] = 0x00; pal[4] = 0x00; pal[5] = 0x00;
+        dprintf("bootres from emulator.bib\n");
+        nova_p_changeres(bibres, 0);
+        nova_p_setcolor(0, &pal[0]);
+        nova_p_setcolor(1, &pal[3]);
+    }
+}
+
 long supermain(void) {
     uint32_t cookie;
 
@@ -346,10 +377,12 @@ long supermain(void) {
     cpu_map(VADDR_IO,  PADDR_IO,  VSIZE_IO,  PMMU_CM_PRECISE | PMMU_READWRITE);
     cpu_map(VADDR_MEM, PADDR_MEM, VSIZE_MEM, PMMU_CM_PRECISE | PMMU_READWRITE);
 
-    /* todo: set resolution from emulator.bib */
-
     /* install cookie */
     setcookie(C_NOVA, (uint32_t)&nova);
+
+    /* apply boot resolution */
+    setbootres();
+
     return 0;
 }
 
