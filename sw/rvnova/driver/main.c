@@ -168,7 +168,9 @@ void nova_p_changeres(nova_bibres_t* bib, uint32_t offs) {
 
     dprintf("nova: p_changeres: %08lx, %ld : %dx%dx%d\n", (uint32_t)bib, offs, w, h, b);
 
-    sr = cpu_di();
+    /* dies on cpu_di() if p_changeres() is called from nova_col.acc */
+    /* are we being called from usermode? or run out of super stack? */
+    sr = cpu_di();  
     card->vsync();
     card->vsync();
     if (nv_setmode(w, h, b)) {
