@@ -83,12 +83,15 @@ static void     cpu_flush_cache(void) { raven()->cache_Flush(); }
  * driver
  *-----------------------------------------------------------------------------*/
 
+#define MODE_FLAG_INVALID   (1<<15)
+
 typedef struct
 {
     uint16_t    width;
     uint16_t    height;
     uint16_t    bpp;
-    uint16_t    code;
+    uint16_t    flags;
+    uint32_t    code;
 } mode_t;
 
 typedef struct

@@ -109,7 +109,7 @@ bool nv_setmode(uint16_t width, uint16_t height, uint16_t bpp) {
     dprintf("nv_setmode %dx%dx%dx\n", width, height, bpp);
     for (i = 0; i < card->num_modes && !result; i++) {
         mode_t* mode = card->getmode(i);
-        if (mode && (mode->width == width) && (mode->height == height) && (mode->bpp == bpp)) {
+        if (mode && !(mode->flags & MODE_FLAG_INVALID) && (mode->width == width) && (mode->height == height) && (mode->bpp == bpp)) {
             result = card->setmode(i);
         }
     }

@@ -25,11 +25,11 @@ extern driver_t _this;
 
 
 static const mode_t modes[] = {
-    {  320, 200,  8, 0x0013 },
-    {  640, 350,  1, 0x0010 },
-    {  640, 350,  4, 0x0010 },
-    {  640, 480,  1, 0x0012 },
-    {  640, 480,  4, 0x0012 },
+    {  320, 200,  8, 0, 0x13 },
+    {  640, 350,  1, 0, 0x10 },
+    {  640, 350,  4, 0, 0x10 },
+    {  640, 480,  1, 0, 0x12 },
+    {  640, 480,  4, 0, 0x12 },
 };
 
 static mode_t* drv_getmode(uint16_t num) {
@@ -42,7 +42,7 @@ static mode_t* drv_getmode(uint16_t num) {
 static bool drv_setmode(uint16_t num) {
     if (num < _this.num_modes) {
         dprintf("drv setmode %d (%dx%dx%d 0x%04x)\n", num, modes[num].width, modes[num].height, modes[num].bpp, modes[num].code);
-        return nv_vesa_setmode(modes[num].code);
+        return nv_vesa_setmode((uint16_t)(modes[num].code & 0xffff));
     }
     return false;
 }
