@@ -60,8 +60,8 @@ extern uint16_t cpu_di(void);
 extern uint16_t cpu_ei(uint16_t sr);
 static void     cpu_nop(void) 0x4E71;
 static void     cpu_map(uint32_t log, uint32_t phys, uint32_t size, uint32_t flags) { raven()->mmu_Map(log, phys, size, flags); }
-static void     cpu_flush_atc() { raven()->mmu_Flush(); }
-static void     cpu_flush_cache() { raven()->cache_Flush(); }
+static void     cpu_flush_atc(void) { raven()->mmu_Flush(); }
+static void     cpu_flush_cache(void) { raven()->cache_Flush(); }
 
 /*-----------------------------------------------------------------------------*/
 #define PADDR_IO        RV_PADDR_ISA_IO
@@ -76,8 +76,48 @@ static void     cpu_flush_cache() { raven()->cache_Flush(); }
 /*-----------------------------------------------------------------------------*/
 
 
+
 /*-----------------------------------------------------------------------------*/
+
+/*-------------------------------------------------------------------------------
+ * driver
+ *-----------------------------------------------------------------------------*/
+
+typedef struct
+{
+    uint16_t    width;
+    uint16_t    height;
+    uint16_t    bpp;
+    uint16_t    code;
+} mode_t;
+
+typedef struct
+{
+    char*       driver_name;
+    uint32_t    driver_version;
+    bool        (*init)(void);
+
+    char*       card_name;
+    uint32_t    bank_addr;
+    uint32_t    bank_size;
+    uint16_t    num_banks;
+    void        (*setbank)(uint16_t num);
+
+    uint16_t    num_modes;
+    mode_t*     (*getmode)(uint16_t num);
+    bool        (*setmode)(uint16_t num);
+
+    void        (*setcolors)(uint16_t index, uint16_t count, uint8_t* colors);
+    void        (*getcolors)(uint16_t index, uint16_t count, uint8_t* colors);
+    void        (*vsync)(void);
+} driver_t;
+
+
+/*-------------------------------------------------------------------------------
+ * core
+ *-----------------------------------------------------------------------------*/
 extern nova_xcb_t nova;
+extern driver_t* card;
 
 /* initialise system and driver */
 extern bool nv_init(void);
@@ -86,10 +126,7 @@ extern bool nv_init(void);
 extern bool nv_setmode(uint16_t w, uint16_t h, uint16_t b);
 
 /* initialize vram and banks, if any */
-extern void nv_init_vram(uint32_t phys, uint32_t size, uint32_t count);
-
-
-
+extern void nv_init_vram(uint32_t phys, uint32_t size, uint16_t count);
 
 /* standard vga or vesa functionality */
 extern void nv_vesa_vsync(void);

@@ -20,6 +20,9 @@
 #include "raven.h"
 #include "vga.h"
 
+driver_t* card = 0;
+
+
 /*-------------------------------------------------------------------------------
   standard vga and vesa functionality
 -------------------------------------------------------------------------------*/
@@ -55,51 +58,90 @@ void nv_vesa_getcolors(uint16_t index, uint16_t count, uint8_t* colors) {
     }
 }
 
-
 /*-------------------------------------------------------------------------------
   driver core
 -------------------------------------------------------------------------------*/
 
+static uint32_t vram_base = 0;
+static uint32_t vram_size = 0;
+static uint16_t vram_count = 0;
+
+static uint8_t nv_dummy_page[4096];
+void nv_init_vram(uint32_t base, uint32_t size, uint16_t count) {
+    uint16_t pagesize = 4096;
+    uint32_t log = VADDR_MEM;
+    uint32_t phys = PADDR_MEM + base;
+
+    /* early out if no change */
+    if ((phys == vram_base) && (size == vram_size) && (count == vram_count)) {
+        return;
+    } else {
+        vram_base = phys;
+        vram_size = size;
+        vram_count = count;
+    }
+
+    dprintf("nv_init_vram %08lx : %08lx x %ld\n", base, size, count);
+
+    /* map logical framebuffer */
+    while (count) {
+        cpu_map(log, vram_base, vram_size, PMMU_CM_PRECISE | PMMU_READWRITE);
+        log += size;
+        count--;
+    }
+
+    /* unmap remaining logical mem */
+    while (log < (VADDR_MEM + VSIZE_MEM)) {
+        cpu_map(log, (uint32_t)nv_dummy_page, pagesize, PMMU_CM_PRECISE | PMMU_READWRITE);
+        log += pagesize;
+    }
+
+    /* and flush the atc cache */
+    cpu_flush_atc();
+}
+
 bool nv_setmode(uint16_t width, uint16_t height, uint16_t bpp) {
-
-    typedef struct 
-    {
-        uint16_t w;
-        uint16_t h;
-        uint16_t bpp;
-        uint16_t code;
-    } vgamode_t;
-
-    static const vgamode_t vgamodes[] = {
-        {  320, 200,  8, 0x0013 },
-        {  640, 350,  1, 0x0010 },
-        {  640, 350,  4, 0x0010 },
-        {  640, 480,  1, 0x0012 },
-        {  640, 480,  4, 0x0012 },
-    };
-
     int i;
-    vgamode_t* best = 0;
-    for (i = 0; i < sizeof(vgamodes) / sizeof(vgamode_t); i++) {
-        if ((vgamodes[i].w == width) && (vgamodes[i].h == height) && (vgamodes[i].bpp == bpp)) {
-            best = (vgamode_t*)&vgamodes[i];
+    int modeidx = -1;
+    bool result = false;
+    dprintf("nv_setmode %dx%dx%dx\n", width, height, bpp);
+    for (i = 0; i < card->num_modes && !result; i++) {
+        mode_t* mode = card->getmode(i);
+        if (mode && (mode->width == width) && (mode->height == height) && (mode->bpp == bpp)) {
+            result = card->setmode(i);
+        }
+    }
+    if (result) {
+        nv_init_vram(card->bank_addr, card->bank_size, card->num_banks);
+    }
+    return result;
+}
+
+
+extern driver_t drv_vga;
+static driver_t* drivers[] = {
+    &drv_vga,
+};
+
+bool nv_init(void) {
+    int i;
+    card = 0;
+    for (i = 0; i < (sizeof(drivers) / sizeof(driver_t*)) && !card; i++) {
+        if (drivers[i] && drivers[i]->init()) {
+            card = drivers[i];
         }
     }
 
-    if (best) {
-        nv_vesa_vsync();
-        nv_vesa_setmode(best->code);
+    if (card) {
+        dprintf("nv_init: %s [%s]\n", card->driver_name, card->card_name ? card->card_name : "unknown");
+        /* prepare logical framebuffer */
+        nv_init_vram(card->bank_addr, card->bank_size, card->num_banks);
+        /* prepare logical ioregs */
+        cpu_map(VADDR_IO, PADDR_IO, VSIZE_IO, PMMU_CM_PRECISE | PMMU_READWRITE);
+        cpu_flush_atc();
         return true;
     }
+
+    dprintf("nv_init failed\n");
     return false;
-}
-
-void nv_init_vram(uint32_t phys, uint32_t size, uint32_t count) {
-    /* todo: map logical vram, size = bank size, count = bank count */
-    /* linear vram is treated as a single very large bank */
-}
-
-bool nv_init(void) {
-    /* todo: card detection for svga features */
-    return true;
 }

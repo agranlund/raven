@@ -109,25 +109,8 @@ static uint16_t mode_to_bpp(uint16_t mode) {
     return (mode <= NOVA_MODE_32BPP) ? mode_to_bpp_table[mode] : 0;
 }
 
-static bool setmode(uint16_t* w, uint16_t* h, uint16_t* b) {
-
-    /* todo: query for best matching mode */
-    uint16_t width = *w;
-    uint16_t height = *h;
-    uint16_t bpp = *b;
-
-    /* apply mode */
-    if (nv_setmode(width, height, bpp)) {
-        *w = width;
-        *h = height;
-        *b = bpp;
-        return true;
-    }
-    return false;
-}
-
 static void update_nova_resname(char* name) {
-    strncpy(nova.mode_name, name, 35);
+    strncpy((char*)nova.mode_name, name, 35);
 }
 
 static void update_nova_resinfo(uint16_t width, uint16_t height, uint16_t bpp) {
@@ -152,7 +135,6 @@ static void update_nova_resinfo(uint16_t width, uint16_t height, uint16_t bpp) {
         /* planar mode: bytes per line per plane */
         nova.pitch = (uint16_t)((nova.max_x + 1) >> 3);
     }
-    nova.scrn_count = 1;
     nova.scrn_size = (uint32_t)(nova.max_x+1);
     nova.scrn_size *= (nova.max_y+1);
     if (nova.planes >= 8) {
@@ -160,7 +142,10 @@ static void update_nova_resinfo(uint16_t width, uint16_t height, uint16_t bpp) {
         /* chunky mode: scrn_size is total size */
         nova.scrn_size *= nova.planes;
     }
-    nova.scrn_size >>= 3;            
+    nova.scrn_size >>= 3;
+    nova.scrn_count = nova.mem_size / nova.scrn_size;
+    nova.scrn_count = (nova.scrn_count < 1) ? 1 : nova.scrn_count;
+    nova.base = nova.mem_base;
 }
 
 
@@ -185,11 +170,12 @@ void nova_p_changeres(nova_bibres_t* bib, uint32_t offs) {
     dprintf("nova: p_changeres: %08lx, %ld : %dx%dx%d\n", (uint32_t)bib, offs, w, h, b);
 
     sr = cpu_di();
-    if (setmode(&w, &h, &b)) {
+    if (nv_setmode(w, h, b)) {
 
         /* update nova cookie */
-        update_nova_resname(bib->name);
+        nova.mem_size = card->bank_size * card->num_banks;
         update_nova_resinfo(w, h, b);
+        update_nova_resname(bib->name);
 
         /* sta_vdi needs register access to draw in 16 color planar */
         if (nova.planes == 4) {
@@ -209,7 +195,7 @@ void nova_p_changeres(nova_bibres_t* bib, uint32_t offs) {
 void nova_p_setcolor(uint16_t index, uint8_t* colors) {
     uint16_t sr;
     uint8_t dacIndex = (nova.planes < 8) ? nova_colormap[index&0xf] : index;
-    dprintf("col %d (%02x): %02x %02x %02x\n", index, dacIndex, colors[0], colors[1], colors[2]);
+    /*dprintf("col %d (%02x): %02x %02x %02x\n", index, dacIndex, colors[0], colors[1], colors[2]);*/
 
     sr = cpu_di();
     if (nova.planes == 1) {
@@ -219,11 +205,11 @@ void nova_p_setcolor(uint16_t index, uint8_t* colors) {
         int idx = index;
         int end = (index == 0) ? 1 : 255;
         for (; idx < end; idx++) {
-            nv_vesa_setcolors(idx, 1, colors);
+            card->setcolors(idx, 1, colors);
         }
     }
     else {
-        nv_vesa_setcolors(dacIndex, 1, colors);
+        card->setcolors(dacIndex, 1, colors);
     }
     cpu_ei(sr);
 }
@@ -268,7 +254,7 @@ void nova_p_vsync(void) {
     /* useful and used by user-code, SDL and so on */
     /* test nova_col.acc */
     dprintf("nova: p_vsync\n");
-    nv_vesa_vsync();
+    card->vsync();
 }
 
 
@@ -279,7 +265,7 @@ void nova_p_vsync(void) {
 
 *-----------------------------------------------------------------------------*/
 
-static void setbootres() {
+static bool setbootres(void) {
     int16_t bootdrive;
     int32_t result = 0;
     char* fname = (char*)nova_dummy_area;
@@ -289,7 +275,7 @@ static void setbootres() {
     bootdrive = *((volatile int16_t*)0x446UL) + (int16_t)'A';
     if ((bootdrive >= 'A') && (bootdrive <= 'Z')) {
         fname[0] = (char)bootdrive;
-        result = Fopen(nova_dummy_area, 0);
+        result = Fopen(fname, 0);
         if (result >= 0) {
             int16_t fp = (int16_t)result;
             int32_t fs = Fseek(0, fp, 2);
@@ -311,7 +297,10 @@ static void setbootres() {
         nova_p_changeres(bibres, 0);
         nova_p_setcolor(0, &pal[0]);
         nova_p_setcolor(1, &pal[3]);
+        return true;
     }
+
+    return false;
 }
 
 long supermain(void) {
@@ -321,6 +310,24 @@ long supermain(void) {
     if (!nv_init()) {
         return -1;
     }
+
+    /* default ega color table */
+    nova_colormap[ 0] = 0x00;
+    nova_colormap[ 1] = 0x01;
+    nova_colormap[ 2] = 0x02;
+    nova_colormap[ 3] = 0x03;
+    nova_colormap[ 4] = 0x04;
+    nova_colormap[ 5] = 0x05;
+    nova_colormap[ 6] = 0x14;
+    nova_colormap[ 7] = 0x07;
+    nova_colormap[ 8] = 0x38;
+    nova_colormap[ 9] = 0x39;
+    nova_colormap[10] = 0x3A;
+    nova_colormap[11] = 0x3B;
+    nova_colormap[12] = 0x3C;
+    nova_colormap[13] = 0x3D;
+    nova_colormap[14] = 0x3E;
+    nova_colormap[15] = 0x3F;
 
     /* general setup */
     memset((void*)&nova, 0, sizeof(nova_xcb_t));
@@ -344,45 +351,19 @@ long supermain(void) {
 
     /* card setup */
     nova.reg_base = (void*) (VADDR_IO + 0x8000UL);
-    nova.mem_base = (void*) (VADDR_MEM + 0xA0000UL);
-    nova.mem_size = (64 * 1024UL);
-
-    /* default resolution setup */
-    update_nova_resname("boot");
-    update_nova_resinfo(640, 480, 2);
-    nova.resolution = 1;
-    nova.old_resolution = 0;
-    nova.base = nova.mem_base;
-    nova.scrn_count = 1;
-
-    /* default ega color table */
-    nova_colormap[ 0] = 0x00;
-    nova_colormap[ 1] = 0x01;
-    nova_colormap[ 2] = 0x02;
-    nova_colormap[ 3] = 0x03;
-    nova_colormap[ 4] = 0x04;
-    nova_colormap[ 5] = 0x05;
-    nova_colormap[ 6] = 0x14;
-    nova_colormap[ 7] = 0x07;
-    nova_colormap[ 8] = 0x38;
-    nova_colormap[ 9] = 0x39;
-    nova_colormap[10] = 0x3A;
-    nova_colormap[11] = 0x3B;
-    nova_colormap[12] = 0x3C;
-    nova_colormap[13] = 0x3D;
-    nova_colormap[14] = 0x3E;
-    nova_colormap[15] = 0x3F;
-
-    /* prepare logical memory and io space */
-    cpu_map(VADDR_IO,  PADDR_IO,  VSIZE_IO,  PMMU_CM_PRECISE | PMMU_READWRITE);
-    cpu_map(VADDR_MEM, PADDR_MEM, VSIZE_MEM, PMMU_CM_PRECISE | PMMU_READWRITE);
+    nova.mem_base = (void*) (VADDR_MEM);
+    nova.mem_size = card->bank_size * card->num_banks;
 
     /* install cookie */
     setcookie(C_NOVA, (uint32_t)&nova);
 
     /* apply boot resolution */
-    setbootres();
-
+    nova.old_resolution = 0;
+    nova.resolution = 1;
+    if (!setbootres()) {
+        update_nova_resinfo(640, 480, 2);
+        update_nova_resname("boot");
+    }
     return 0;
 }
 
