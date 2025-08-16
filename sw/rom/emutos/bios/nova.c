@@ -1,7 +1,7 @@
 /*
  * nova.c - Nova/Vofa/Wittich adapter graphics card routines
  *
- * Copyright (C) 2018-2024 The EmuTOS development team
+ * Copyright (C) 2018-2025 The EmuTOS development team
  *
  * Authors:
  * Christian Zietz
@@ -87,6 +87,18 @@ static int is_crazydots;
 #define EXT_GE_CONFIG   0x7AEE
 #define MISC_CNTL       0x7EEE
 #define R_MISC_CNTL     0x92EE
+
+/* ATI Mach64 only */
+#define M64_CONFIG_CHIP_ID  0x6EEC
+#define M64_SCRATCH_REG_1   0x46EC
+
+#define M64_GX_CHIP_ID      0xD7
+
+typedef enum {
+    MACH_NOT_DETECTED = 0,
+    MACH_32,
+    MACH_64
+} MACH_TYPE;
 
 static ULONG delay20us;
 #define SHORT_DELAY delay_loop(delay20us)
@@ -245,30 +257,43 @@ void detect_nova(void)
     }
 }
 
-/* Read and write some registers specific to Mach32. */
-static int detect_mach32(void)
+/* Detect ATI Mach32 and Mach64 */
+static MACH_TYPE detect_mach(void)
 {
-    int result = 0;
+    MACH_TYPE result = MACH_NOT_DETECTED;
 
-    if (VGAREG_W(CONFIG_STATUS_1) != 0xFFFFU)
+    /*
+     * For Mach64 check chip ID.
+     * Only the Mach64 GX is known to exist on ISA cards.
+     */
+    if (VGAREG(M64_CONFIG_CHIP_ID) == M64_GX_CHIP_ID)
     {
-        /* Read two bytes of ATI magic number from BIOS ROM. */
-        /* After power-up, only even bytes are accessible. */
-        if (*(novamembase + 0xC0032UL) == '6' && *(novamembase + 0xC0034UL) == '2')
+        /* Try to read and write Mach64-specific scratch register. */
+        VGAREG(M64_SCRATCH_REG_1) = 0x55U;
+        if (VGAREG(M64_SCRATCH_REG_1) == 0x55U)
         {
-            /* Try to read and write Mach32 specific scratch register. */
-            VGAREG(SCRATCH_PAD_1) = 0x55U;
-            if (VGAREG(SCRATCH_PAD_1) == 0x55U)
-            {
-                result = 1;
-            }
+            result = MACH_64;
+        }
+    }
+    /*
+     * For Mach32 not every revision has a chip ID register.
+     * Instead, check ATI magic number in the BIOS ROM on the card.
+     * After power-up, only even bytes are accessible.
+     */
+    else if (*(novamembase + 0xC0032UL) == '6' && *(novamembase + 0xC0034UL) == '2')
+    {
+        /* Try to read and write Mach32-specific scratch register. */
+        VGAREG(SCRATCH_PAD_1) = 0x55U;
+        if (VGAREG(SCRATCH_PAD_1) == 0x55U)
+        {
+            result = MACH_32;
         }
     }
 
     if (result) {
-        KDEBUG(("detect_mach32() detected ATI Mach32\n"));
+        KDEBUG(("detect_mach() detected an ATI %s\n", (result==MACH_32)?"Mach32":"Mach64"));
     } else {
-        KDEBUG(("detect_mach32() did not detect ATI Mach32\n"));
+        KDEBUG(("detect_mach() did not detect an ATI Mach32/64.\n"));
     }
     return result;
 }
@@ -564,8 +589,14 @@ int init_nova(void)
     if (!has_nova)
         return 0;
 
-    /* Detect ATI Mach32 (as opposed to ET4000). */
-    is_mach32 = detect_mach32();
+    if (!is_crazydots) {
+        /* Detect ATI Mach32 (as opposed to ET4000). */
+        is_mach32 = (detect_mach() == MACH_32);
+    } else {
+        /* Crazydots always has a ET4000 */
+        is_mach32 = 0;
+    }
+
     if (is_mach32) {
         novamembase += 0x0A0000UL;
         init_mach32();

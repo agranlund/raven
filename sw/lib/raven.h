@@ -8,7 +8,7 @@ Important:
 #define _RAVEN_H_
 
 /*--------------------------------------------------------------------------------*/
-#define C_RAVN_VER          0x20250807UL
+#define C_RAVN_VER          0x20250815UL
 #define C_RAVN_PTR          0x40000000UL
 #ifndef C_RAVN
 #define C_RAVN              0x5241564EUL
@@ -71,6 +71,12 @@ typedef struct
 } rvcfg_t;
 
 /*--------------------------------------------------------------------------------*/
+typedef struct { uint16_t ax, bx, cx, dx, si, di, cflag; } x86_wregs_t;
+typedef struct { uint8_t ah, al, bh, bl, ch, cl, dh, dl; } x86_bregs_t;
+typedef union  { x86_wregs_t x; x86_bregs_t h;} x86_regs_t;
+typedef struct { uint16_t es; uint16_t cs; uint16_t ss; uint16_t ds; } x86_sregs_t;
+
+/*--------------------------------------------------------------------------------*/
 typedef struct
 {
 /* 0x0000 */
@@ -105,11 +111,7 @@ typedef struct
     uint32_t    reserved0060[2];
     
 /* 0x0080 */
-#if defined(__GNUC__)
-    struct X86EMU* _RVAPI (*x86)(void);
-#else
-    void*       _RVAPI (*x86)(void);
-#endif
+    uint32_t    _reserved0080[1];
     uint32_t    _RVAPI (*vga_Init)(void);
     void        _RVAPI (*vga_Clear)(void);
     uint32_t    _RVAPI (*vga_Addr)(void);
@@ -135,6 +137,12 @@ typedef struct
     uint32_t    reserved00C0[3];
     int32_t     _RVAPI (**mon_fgetchar)(void);
     void        _RVAPI (**mon_fputchar)(int32_t c);
+
+/* 0x00D0 */
+    uint32_t    _RVAPI (*int86x)(uint32_t no, x86_regs_t* regs_in, x86_regs_t* regs_out, x86_sregs_t* sregs);
+    uint32_t    reserved00D0[7]; /* reserved for future x86 related things */
+
+/* 0x00E0 */
 
 } raven_t;
 

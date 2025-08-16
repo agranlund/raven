@@ -1,0 +1,440 @@
+Name     Nessi ;
+PartNo   00 ;
+Date     2025-08-12 ;
+Revision 01 ;
+Designer Anders Granlund ;
+Company  HappyDaze ;
+Assembly None ;
+Location  ;
+Device   f1508ispplcc84;
+
+
+//------------------------------------------------------------------------------
+// Copyright Anders Granlund 2024.
+// This source describes Open Hardware and is licensed under the CERN-OHLW v2
+// You may redistribute and modify this documentation and make products
+// using it under the terms of the CERN-OHL-W v2 (https:/cern.ch/cern-ohl).
+// This documentation is distributed WITHOUT ANY EXPRESS OR IMPLIED
+// WARRANTY, INCLUDING OF MERCHANTABILITY, SATISFACTORY QUALITY
+// AND FITNESS FOR A PARTICULAR PURPOSE.
+// Please see the CERN-OHL-W v2 for applicable conditions.
+//------------------------------------------------------------------------------
+
+//
+// Based on 48mhz bus speed, 2x cpu speed.
+//
+
+
+//--------------------------------------------
+// ATF1508AS-7JX84 : PLCC84, ISP, 7ns
+//--------------------------------------------
+
+PROPERTY ATMEL{JTAG=on};
+PROPERTY ATMEL{TDI_pullup=on};
+PROPERTY ATMEL{TMS_pullup=on};
+PROPERTY ATMEL{pd1=off};
+PROPERTY ATMEL{pd2=off};
+PROPERTY ATMEL{cascade_logic=off};
+PROPERTY ATMEL{logic_doubling=off};
+PROPERTY ATMEL{output_fast=on};
+PROPERTY ATMEL{pin_keep=off};
+PROPERTY ATMEL{preassign=keep};
+PROPERTY ATMEL{security=off};
+PROPERTY ATMEL{xor_synthesis=on};
+
+
+//--------------------------------------------
+// JTAG reserved
+//--------------------------------------------
+//pin 14 = ;            // JTAG_TDI
+//pin 23 = ;            // JTAG_TMS
+//pin 62 = ;            // JTAG_TCK
+//pin 71 = ;            // JTACK_TDO
+
+
+//--------------------------------------------
+// Global inputs
+//--------------------------------------------
+//pin 81 = SPARE_J106_IN_81;      // unused J106 (in)
+pin 83 = BCLK;
+pin 84 = !OPT_FAST_ISA;
+pin 1  = !RSTI;
+pin 2  = PCLK;
+
+
+//--------------------------------------------
+// I/O blocks
+//--------------------------------------------
+pin 4  = !TA;
+pin 5  = !TEA;
+pin 6  = !AVEC;
+pin 8  = !TBI;
+pin 9  = !TCI;
+pin 10 = CPUX1;
+pin 11 = !TRA;
+pin 12 = !CLKEN;
+
+pin 15 = TT1;
+pin 16 = TT0;
+pin 17 = !TIP;
+pin 18 = !TS;
+pin 20 = TM1;
+pin 21 = TM0;
+pin 22 = TM2;
+
+pin 24 = !SAS;
+pin 25 = SIZ1;
+pin 27 = SIZ0;
+pin 28 = RW;
+pin 29 = !CLA;
+pin 30 = A0;
+pin 31 = A1;
+
+pin 33 = A9;
+pin 34 = A5;
+pin 35 = A25;
+pin 36 = A10;
+pin 37 = A24;
+pin 39 = A29;
+pin 40 = A30;
+pin 41 = A31;
+
+pin 44 = !RB2RD;
+pin 45 = !RB2WR;
+pin 46 = !RB1RD;
+pin 48 = !RB1WR;
+pin 49 = !RB0RD;
+pin 50 = !RB0WR;
+pin 51 = !RB3RD;
+pin 52 = !RB3WR;
+
+pin 54 = !IOCS16;
+pin 55 = !EXCS;
+pin 56 = !EXDSACK0;
+pin 57 = !EXTA;
+pin 58 = !EXDS;
+pin 60 = !EXDTACK;
+pin 61 = !EXDSACK1;
+
+pin 63 = !ISA8;
+pin 64 = !ISAIO;
+pin 65 = !ISACS;
+pin 67 = !ISANOWS;
+pin 68 = ISARDY;
+pin 69 = !RESET;
+pin 70 = !RSTO;
+
+//pin 73 = SPARE_J106_IO_73;            // unused J106 (io)
+pin 74 = !IACK;
+pin 75 = !IDECS;
+pin 76 = !YMCS;
+pin 77 = !MFP2CS;
+pin 79 = !MFP1CS;
+pin 80 = !UARTCS;
+
+
+
+//--------------------------------------------
+//
+// General logic
+//
+//--------------------------------------------
+CLKEN = BCLK # CPUX1;
+
+RESET = RSTI # RSTO;        // peripheral reset
+TEA = 'b'0;                 // bus error
+TRA = 'b'0;                 // bus retry
+
+
+//----------------------------------------------------------------------------------------
+//
+// Interrupts
+//  TT1:0 = 11
+//  TM2:0 = IPL
+//  A31:0 = $ffffffff
+//
+// Breakpoint
+//  TT1:0 = 11
+//  TM2:0 = 0
+//  A32:0 = 00000000
+//
+// LPSTOP
+//  TT1:0 = 11
+//  TM2:0 = 0
+//  A32:0 = $fffffffe
+//
+//----------------------------------------------------------------------------------------
+
+IRQCYCLE    = [TT1..0]:'b'11;
+BUSCYCLE    = [TT1..0]:'b'0X;
+AUTOIRQ     = IRQCYCLE & ![TM2..0]:'b'110;  // autovector everything except mfp
+MFPIRQ      = IRQCYCLE & [TM2..0]:'b'110;   // MFP = IRQ6
+AVEC        = !MFPIRQ;
+
+
+//----------------------------------------------------------------------------------------
+//
+// Memory map : 32bit
+//
+//----------------------------------------------------------------------------------------
+DECODE_SIMM0        = [A31..0]:'b'000XXX00XXXXXXXXXXXXXXXXXXXXXXXX;	// $00000000
+DECODE_SIMM1        = [A31..0]:'b'000XXX01XXXXXXXXXXXXXXXXXXXXXXXX;	// $01000000
+DECODE_SIMM2        = [A31..0]:'b'000XXX10XXXXXXXXXXXXXXXXXXXXXXXX;	// $02000000
+DECODE_SIMM3        = [A31..0]:'b'010XXX00XXXXXXXXXXXXXXXXXXXXXXXX;	// $40000000
+DECODE_UART         = [A31..0]:'b'001XXX00XXXXXXXXXXXXXXXXXXXXXXXX;	// $20000000
+
+//----------------------------------------------------------------------------------------
+//
+// Memory map : 16/8 bit
+//
+//----------------------------------------------------------------------------------------
+DECODE_IDE          = [A31..0]:'b'101XXX00XXXXXXXXXXXXX00XXXXXXXXX;	// $A0000000
+DECODE_MFP2         = [A31..0]:'b'101XXX00XXXXXXXXXXXXX01XXXXXXXXX;	// $A0000A00
+
+DECODE_YM           = [A31..0]:'b'101XXX01XXXXXXXXXXXXX00XXXXXXXXX;	// $A1000800    ($ff8800)
+DECODE_MFP1         = [A31..0]:'b'101XXX01XXXXXXXXXXXXX01XXXXXXXXX;	// $A1000A00    ($fffa00)
+DECODE_ACIA         = [A31..0]:'b'101XXX01XXXXXXXXXXXXX10XXXXXXXXX;	// $A1000C00    ($fffc00)
+DECODE_INV1         = [A31..0]:'b'101XXX01XXXXXXXXXXXXX11XXXXXXXXX;	// $A1000e00    ($fffe00)
+
+DECODE_ISA_A_RAM8   = [A31..0]:'b'100XXX00XXXXXXXXXXXXXXXXXXXXXXXX;	// $80000000
+DECODE_ISA_A_IO8    = [A31..0]:'b'100XXX01XXXXXXXXXXXXXXXXXXXXXXXX;	// $81000000
+DECODE_ISA_A_RAM16  = [A31..0]:'b'100XXX10XXXXXXXXXXXXXXXXXXXXXXXX;	// $82000000
+DECODE_ISA_A_IO16   = [A31..0]:'b'100XXX11XXXXXXXXXXXXXXXXXXXXXXXX;	// $83000000
+
+BYTE_CYCLE          = (SIZ0 & !SIZ1);
+BYTE_READ           = BYTE_CYCLE & RW;
+
+DECODE_ISA_RAM8     = DECODE_ISA_A_RAM8 # (DECODE_ISA_A_RAM16 & BYTE_READ & !A0);
+DECODE_ISA_RAM16    = DECODE_ISA_A_RAM16 & !DECODE_ISA_RAM8;
+
+DECODE_ISA_IO16     = (DECODE_ISA_A_IO8 & !BYTE_CYCLE) # DECODE_ISA_A_IO16;
+DECODE_ISA_IO8      = DECODE_ISA_A_IO8 & !DECODE_ISA_IO16;
+
+
+DECODE_ISA          = DECODE_ISA_RAM8 # DECODE_ISA_IO8 # DECODE_ISA_RAM16 # DECODE_ISA_IO16;
+DECODE_ISA16        = DECODE_ISA_IO16 # DECODE_ISA_RAM16;
+DECODE_68150        = DECODE_IDE # DECODE_YM # DECODE_MFP1 # DECODE_MFP2 # DECODE_ISA;
+
+//----------------------------------------------------------------------------------------
+// Localbus
+//----------------------------------------------------------------------------------------
+node BUSEN;
+node BUSTA;
+node [BSTATE0..5];
+[BSTATE0..5].ck = PCLK;
+[BSTATE0..5].ar = RSTI # BSTATE5 # (BUSTA & TS) # !TIP;
+BSTATE0.d = BSTATE0 # SAS;
+BSTATE1.d = BSTATE0;
+BSTATE2.d = BSTATE1;
+BSTATE3.d = BSTATE2;
+BSTATE4.d = BSTATE3;
+BSTATE5.d = BSTATE4;
+
+BUSEN = BSTATE0 & !TS & TIP & !BSTATE4;           // 48mhz
+BUSTA = BSTATE3 & !TS & TIP;
+
+
+//----------------------------------------------------------------------------------------
+// RAM / ROM
+//----------------------------------------------------------------------------------------
+node ROM_OVERLAY_DISABLED;
+ROM_OVERLAY_DISABLED.ck = TS & RW & DECODE_SIMM3;
+ROM_OVERLAY_DISABLED.ar = RSTI;
+ROM_OVERLAY_DISABLED.d = 'b'1;
+
+RB0RD = BUSEN & TIP &  RW & (DECODE_SIMM0 # DECODE_ACIA) & ROM_OVERLAY_DISABLED;
+RB0WR = BUSEN & TIP & !RW & DECODE_SIMM0;
+RB1RD = BUSEN & TIP &  RW & DECODE_SIMM1;
+RB1WR = BUSEN & TIP & !RW & DECODE_SIMM1;
+RB2RD = BUSEN & TIP &  RW & DECODE_SIMM2;
+RB2WR = BUSEN & TIP & !RW & DECODE_SIMM2;
+RB3RD = BUSEN & TIP &  RW & (DECODE_SIMM3 # (DECODE_SIMM0 & !ROM_OVERLAY_DISABLED));
+RB3WR = BUSEN & TIP & !RW & DECODE_SIMM3;
+
+
+DECODE_RAM = DECODE_SIMM0 /*# DECODE_ACIA*/ # DECODE_SIMM1 # DECODE_SIMM2;
+DECODE_ROM = DECODE_SIMM3;
+
+TCI = !(TIP & (DECODE_SIMM0 /*# DECODE_ACIA*/ # DECODE_SIMM1 # DECODE_SIMM2 # DECODE_SIMM3));
+
+TBI = 'b'1;                 // burst inhibit
+CLA = 'b'0;                 // burst address increment
+
+
+//----------------------------------------------------------------------------------------
+// UART
+//----------------------------------------------------------------------------------------
+UARTCS = BUSEN & TIP & DECODE_UART;
+
+
+//----------------------------------------------------------------------------------------
+// MC68150 bus
+//----------------------------------------------------------------------------------------
+
+node EXCYCLE;
+node [DTACK0..1];           // synchronised dtack from mfp,ym,ide
+node [YMDTACK0..3];         // todo: shared generic waitstate
+node [IDESTART0..2];
+node [IDEDTACK0..5];
+node ISADSACK0;
+node ISADSACK1;
+
+IDESTART = IDESTART0;       // IDE setup delay
+IDEDTACK = IDEDTACK5;       // IDE dtack delay
+YMDTACK  = YMDTACK3;        // YM2149 dtack delay
+
+SELECT_68150 = TIP & (DECODE_68150 # MFPIRQ);
+
+EXCYCLE.ck = !BCLK;
+EXCYCLE.ar = RSTI;
+EXCYCLE.d  = SELECT_68150;
+
+EXCS.ck = !BCLK;
+EXCS.ar = RSTI;
+EXCS.d = SELECT_68150 & (!DECODE_IDE # IDESTART);
+
+[DTACK0..1].ck = BCLK;
+[DTACK0..1].ar = RSTI;
+DTACK0.d = EXDTACK;
+DTACK1.d = DTACK0;
+
+EXDSACK1 = EXDS & (
+    EXDTACK #
+    YMDTACK #
+    IDEDTACK #
+    ISADSACK1
+    );
+
+EXDSACK0 = EXDS & (
+    ISADSACK0
+    );
+
+
+//----------------------------------------------------------------------------------------
+// 68150 : IRQ
+//----------------------------------------------------------------------------------------
+IACK.ck = BCLK;
+IACK.ar = RSTI;
+IACK.d = EXDS & EXCS & MFPIRQ;
+
+//----------------------------------------------------------------------------------------
+// 68150 : MFP
+//----------------------------------------------------------------------------------------
+MFP1CS.ck = BCLK;
+MFP1CS.ar = RSTI;
+MFP1CS.d = EXDS & EXCS & DECODE_MFP1;
+
+MFP2CS.ck = BCLK;
+MFP2CS.ar = RSTI;
+MFP2CS.d = EXDS & EXCS & DECODE_MFP2;
+
+//----------------------------------------------------------------------------------------
+// 68150 : YM
+//----------------------------------------------------------------------------------------
+YMCS.ck = BCLK;
+YMCS.ar = RSTI;// # !EXDS;
+YMCS.d  = EXDS & EXCS & DECODE_YM;
+
+[YMDTACK0..3].ck = BCLK;
+[YMDTACK0..3].ar = RSTI # !YMCS # !EXDS;
+YMDTACK3.d = YMDTACK2;
+YMDTACK2.d = YMDTACK1;
+YMDTACK1.d = YMDTACK0;
+YMDTACK0.d = YMCS;
+
+//----------------------------------------------------------------------------------------
+// 68150 : IDE
+//
+// PIO  Cyc    Set    MB/s
+// 0    600    70     3
+// 1    383    50     5
+// 2    240    30     8
+// 3    180    20     11
+// 4    120    14     16
+// 5    100    12     20
+// 6     80    10     25
+//----------------------------------------------------------------------------------------
+
+// Trigger IDE_CS and delay 68150_CS
+// to comply with IDE CS -> RW setup time
+IDECS.ck = BCLK;
+IDECS.ar = RSTI;
+IDECS.d  = EXCYCLE & DECODE_IDE;
+
+// IDE_CS -> 68150_CS delay counter
+[IDESTART0..2].ck = !BCLK;
+[IDESTART0..2].ar = RSTI;
+IDESTART2.d = IDESTART1;
+IDESTART1.d = IDESTART0;
+IDESTART0.d = SELECT_68150 & DECODE_IDE;
+
+// IDE dtack delay counter
+// todo: would be better to use the ready signal but
+// only if we're in a PIO mode that supports it.
+[IDEDTACK0..5].ck = BCLK;
+[IDEDTACK0..5].ar = RSTI # !IDECS;
+IDEDTACK5.d = IDEDTACK4;
+IDEDTACK4.d = IDEDTACK3;
+IDEDTACK3.d = IDEDTACK2;
+IDEDTACK2.d = IDEDTACK1;
+IDEDTACK1.d = IDEDTACK0;
+IDEDTACK0.d = IDECS;
+
+
+//----------------------------------------------------------------------------------------
+// 68150 : ISA
+//----------------------------------------------------------------------------------------
+node [ISADTACK0..22];
+
+ISA8  = !DECODE_ISA16;
+ISAIO = DECODE_ISA_IO8 # DECODE_ISA_IO16;
+ISADS = EXCS & DECODE_ISA & EXDS;
+ISACS = ISADS & ISADTACK1 & (RW # !ISADTACK19);
+
+ISADSACK16 = DECODE_ISA_RAM16 # (DECODE_ISA_IO16 & IOCS16);
+ISADSACKXX = ISADS & ISADTACK22;
+ISADSACK1  = ISADSACKXX &  ISADSACK16;
+ISADSACK0  = ISADSACKXX & !ISADSACK16;
+
+node ISADONE;
+ISADONE.ck = BCLK;
+ISADONE.ar = RSTI # !ISACS;
+ISADONE.d = ISARDY; // # (!RW & !ISAIO);
+
+[ISADTACK0..22].ck = BCLK;
+[ISADTACK0..22].ar = RSTI # !EXDS;
+ISADTACK22.d = ISADTACK21;
+ISADTACK21.d = ISADTACK20;
+ISADTACK20.d = ISADTACK19;
+ISADTACK19.d = ISADTACK18;
+ISADTACK18.d = ISADTACK17;
+ISADTACK17.d = (ISADTACK16 & ISADONE) # ISADTACK17;
+ISADTACK16.d = ISADTACK15;
+ISADTACK15.d = ISADTACK14;
+ISADTACK14.d = ISADTACK13;
+ISADTACK13.d = ISADTACK12;
+ISADTACK12.d = ISADTACK11;
+ISADTACK11.d = ISADTACK10 # (OPT_FAST_ISA & ISADS & DECODE_ISA_RAM16);
+ISADTACK10.d = ISADTACK9;
+ISADTACK9.d = ISADTACK8;
+ISADTACK8.d = ISADTACK7;
+ISADTACK7.d = ISADTACK6;
+ISADTACK6.d = ISADTACK5;
+ISADTACK5.d = ISADTACK4;
+ISADTACK4.d = ISADTACK3;
+ISADTACK3.d = ISADTACK2;
+ISADTACK2.d = ISADTACK1;
+ISADTACK1.d = ISADTACK0;
+ISADTACK0.d = ISADS;
+
+
+//----------------------------------------------------------------------------------------
+// Bus cycle end
+//----------------------------------------------------------------------------------------
+
+LOCTA1 = BUSTA;
+
+TA = AUTOIRQ #              // autovector irq
+    (EXCS & EXTA) #         // slowbus ta
+    (!EXCYCLE & LOCTA1);
+

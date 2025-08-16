@@ -3,7 +3,7 @@
 
 /*
 *       Copyright 1999, Caldera Thin Clients, Inc.
-*                 2002-2024 The EmuTOS development team
+*                 2002-2025 The EmuTOS development team
 *
 *       This software is licenced under the GNU Public License.
 *       Please see LICENSE.TXT for further information.
@@ -475,12 +475,13 @@ static void just_draw(OBJECT *tree, WORD obj, WORD sx, WORD sy)
     LONG spec;
     WORD tmpx, tmpy, tmpth;
     char ch;
-    GRECT t, c;
+    GRECT t, c;             /* 'c' is used as a temporary copy of 't' */
     TEDINFO edblk;
     BITBLK bi;
     ICONBLK ib;
     CICON *cicon;
 #if CONF_WITH_3D_OBJECTS
+    GRECT effect_grect;     /* saved copy of 't', used by add_3d_effect() */
     WORD effect_th;
     BOOL movetext, changecol;
 #endif
@@ -541,7 +542,7 @@ static void just_draw(OBJECT *tree, WORD obj, WORD sx, WORD sy)
     }
 
 #if CONF_WITH_3D_OBJECTS
-    rc_copy(&t, &c);    /* save for add_3d_effect() at the end */
+    rc_copy(&t, &effect_grect); /* save for add_3d_effect() at the end */
 #endif
 
     /*
@@ -730,30 +731,30 @@ static void just_draw(OBJECT *tree, WORD obj, WORD sx, WORD sy)
             FALLTHROUGH; /* to gr_gtext */
         case G_TEXT:
         case G_BOXTEXT:
-            gr_inside(&t, tmpth);
+            /*
+             * we need to pass a modified grect to gr_gtext(), so make a copy
+             */
+            rc_copy(&t, &c);
+            gr_inside(&c, tmpth);
 #if CONF_WITH_3D_OBJECTS
             /*
-             * for TEXT/BOXTEXT/BOXCHAR/FTEXT/FBOXTEXT objects,
-             * shift text position as required
+             * for TEXT/BOXTEXT/BOXCHAR/FTEXT/FBOXTEXT objects, check
+             * if the text should be moved when toggling SELECTED.
+             *
+             * if so, assuming the 'base' position is (x,y), the
+             * positions will be:
+             *  unselected: (x,y-1)
+             *  selected:   (x+1,y)
              */
-            if (movetext && !(state & SELECTED))
+            if (movetext)
             {
-                t.g_x--;
-                t.g_y--;
+                if (state & SELECTED)
+                    c.g_x++;
+                else
+                    c.g_y--;
             }
 #endif
-            gr_gtext(edblk.te_just, edblk.te_font, edblk.te_ptext, &t);
-#if CONF_WITH_3D_OBJECTS
-            /*
-             * restore shifted text position
-             */
-            if (movetext && !(state & SELECTED))
-            {
-                t.g_x++;
-                t.g_y++;
-            }
-#endif
-            gr_inside(&t, -tmpth);
+            gr_gtext(edblk.te_just, edblk.te_font, edblk.te_ptext, &c);
             break;
         case G_IMAGE:
             bi = *((BITBLK *)spec);
@@ -947,7 +948,7 @@ static void just_draw(OBJECT *tree, WORD obj, WORD sx, WORD sy)
      * do 3D effect for activators, indicators
      */
     if (flags & FL3DOBJ)
-        add_3d_effect(&c, state, effect_th, icol);
+        add_3d_effect(&effect_grect, state, effect_th, icol);
 #endif
 } /* just_draw */
 
@@ -1023,7 +1024,7 @@ static WORD get_prev(OBJECT *tree, WORD parent, WORD obj)
  *
  *  For example, consider an i-box surrounding a set of radio buttons,
  *  where the i-box has the same x coordinate as the leftmost button.
- *  The buttons will be expanded when displayed but the i-box will not. 
+ *  The buttons will be expanded when displayed but the i-box will not.
  *  Then, if the user clicks just inside the leftmost radio button, mx/my
  *  may NOT be inside the i-box.  In this case, ob_find() will not find
  *  the radio button object, and the click will (probably) be ignored.

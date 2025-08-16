@@ -3,13 +3,15 @@
 
 #if (DEBUG_X86EMU == 0)
     #define DEBUG_X86CORE                   0
-    #define DEBUG_X86ISA                    0
+    #define DEBUG_X86ISA_IO                 0
+    #define DEBUG_X86ISA_MEM                0
     #define DEBUG_X86PORTS                  0
     #define DEBUG_X86INTS                   0
     #define DEBUG_X86MEM                    0
 #else
     #define DEBUG_X86CORE                   1
-    #define DEBUG_X86ISA                    0
+    #define DEBUG_X86ISA_IO                 1
+    #define DEBUG_X86ISA_MEM                0
     #define DEBUG_X86PORTS                  1
     #define DEBUG_X86INTS                   1
     #define DEBUG_X86MEM                    1
@@ -17,7 +19,7 @@
 
 #include "x86emu.h"
 
-#define ENABLE_DIRECT_VGA_MEM_READ      0
+#define ENABLE_DIRECT_VGA_MEM_READ      1
 #define ENABLE_DIRECT_VGA_MEM_WRITE     1
 #define ENABLE_BLOCK_BIOS_WRITES        1
 #define ENABLE_WRAP_1MB_ADDRESS_SPACE   0
@@ -44,7 +46,7 @@ uint32_t iodbg[256];
 #else
 #define dbgport(...)
 #endif
-#if DEBUG_X86ISA
+#if (DEBUG_X86ISA_IO || DEBUG_X86ISA_MEM)
 #define dbgisa(...)  x86dbg(__VA_ARGS__)
 #else
 #define dbgisa(...)
@@ -70,44 +72,73 @@ static inline void x86_halt(struct X86EMU* emu) {
     x86dbg("\n"); longjmp(emu->exec_state, 1);
 }
 
-static inline uint8_t isa_rdb(uint32_t addr) {
-    uint8_t be = *((volatile uint8_t*)(addr));
-#if DEBUG_X86ISA 
-    dbgisa("isa_rdb %08x %02x %02x\n", addr, be, be);
-#endif
-    return be;
-}
-
 //--------------------------------------------------------------------------------------------------
 // Real ISA access
 //--------------------------------------------------------------------------------------------------
 
+
+static inline uint8_t isa_rdb(uint32_t addr) {
+    uint8_t be = *((volatile uint8_t*)(addr));
+#if DEBUG_X86ISA_MEM
+    if (!(addr & 0x01000000)) { dbgisa("isa_rdb_mem %08x %02x %02x\n", addr, be, be); }
+#endif
+#if DEBUG_X86ISA_IO
+    if(  (addr & 0x01000000)) { dbgisa("isa_rdb_io  %08x %02x %02x\n", addr, be, be); }
+#endif
+    return be;
+}
+
 static inline uint32_t isa_rdw(uint32_t addr) {
     uint16_t le = *((volatile uint16_t*)addr); uint16_t be = x86isa_swap16(le);
-    dbgisa("isa_rdw %08x %04x %04x\n", addr, le, be);
+#if DEBUG_X86ISA_MEM
+    if (!(addr & 0x01000000)) { dbgisa("isa_rdw_mem %08x %04x %04x\n", addr, be, le); }
+#endif
+#if DEBUG_X86ISA_IO
+    if(  (addr & 0x01000000)) { dbgisa("isa_rdw_io  %08x %04x %04x\n", addr, be, le); }
+#endif
     return be;
 }
 
 static inline uint32_t isa_rdl(uint32_t addr) {
     uint32_t le = *((volatile uint32_t*)addr); uint32_t be = x86isa_swap32(le);
-    dbgisa("isa_rdl %08x %08x %08x\n", addr, le, be);
+#if DEBUG_X86ISA_MEM
+    if (!(addr & 0x01000000)) { dbgisa("isa_rdl_mem %08x %08x %08x\n", addr, be, le); }
+#endif
+#if DEBUG_X86ISA_IO
+    if(  (addr & 0x01000000)) { dbgisa("isa_rdl_io  %08x %08x %08x\n", addr, be, le); }
+#endif
     return be;
 }
 
 static inline void isa_wrb(uint32_t addr, uint8_t data)  {
-    dbgisa("isa_wrb %08x %02x %02x\n", addr, data, data);
+#if DEBUG_X86ISA_MEM
+    if (!(addr & 0x01000000)) { dbgisa("isa_wrb_mem %08x %02x %02x\n", addr, data, data); }
+#endif
+#if DEBUG_X86ISA_IO
+    if(  (addr & 0x01000000)) { dbgisa("isa_wrb_io  %08x %02x %02x\n", addr, data, data); }
+#endif
     *((volatile uint8_t*)(addr)) = data;
 }
 
 static inline void isa_wrw(uint32_t addr, uint16_t data) {
     uint16_t le = x86isa_swap16(data);
-    dbgisa("isa_wrw %08x %04x %04x\n", addr, data, le);
+#if DEBUG_X86ISA_MEM
+    if (!(addr & 0x01000000)) { dbgisa("isa_wrw_mem %08x %04x %04x\n", addr, data, le); }
+#endif
+#if DEBUG_X86ISA_IO
+    if(  (addr & 0x01000000)) { dbgisa("isa_wrw_io  %08x %04x %04x\n", addr, data, le); }
+#endif
     *((volatile uint16_t*)(addr)) = le;
 }
 
 static inline void isa_wrl(uint32_t addr, uint32_t data) {
     uint32_t le = x86isa_swap32(data);
-    dbgisa("isa_wrl %08x %08x %08x\n", addr, data, le);
+#if DEBUG_X86ISA_MEM
+    if (!(addr & 0x01000000)) { dbgisa("isa_wrw_mem %08x %08x %08x\n", addr, data, le); }
+#endif
+#if DEBUG_X86ISA_IO
+    if(  (addr & 0x01000000)) { dbgisa("isa_wrw_io  %08x %08x %08x\n", addr, data, le); }
+#endif
     *((volatile uint32_t*)(addr)) = le;
 }
 
@@ -237,7 +268,7 @@ static uint8_t x86_rdb(struct X86EMU *emu, uint32_t addr) {
         x86_halt(emu);
         return 0;
     }
-    else if (ENABLE_DIRECT_VGA_MEM_READ && addr >= 0xa0000 && addr < 0xc0000) {
+    else if (ENABLE_DIRECT_VGA_MEM_READ && ((addr >= 0xfffff) || (addr >= 0xa0000 && addr < 0xc0000))) {
         return isa_rdb(emu->isa_membase + addr);
     } else {
         return emu->mem_base[addr];
@@ -254,7 +285,11 @@ static uint16_t x86_rdw(struct X86EMU *emu, uint32_t addr) {
         x86err("x86_rdw %08x\n", addr);
         x86_halt(emu);
         return 0;
-    } else if (ENABLE_DIRECT_VGA_MEM_READ && addr >= 0xa0000 && addr < 0xc0000) {
+    } else if (ENABLE_DIRECT_VGA_MEM_READ && ((addr >= 0xfffff) || (addr >= 0xa0000 && addr < 0xc0000))) {
+        if (addr > 0xfffff) {
+            x86err("isa mem rdw %08x\n", addr);
+            x86_halt(emu);
+        }
         return isa_rdw(emu->isa_membase + addr);
     } else {
         return x86_swap16(*((uint16_t*)(emu->mem_base + addr)));
@@ -282,7 +317,7 @@ static void x86_wrb(struct X86EMU *emu, uint32_t addr, uint8_t val) {
     if (addr >= emu->mem_size) {
         x86err("x86_wrb %08x\n", addr);
         x86_halt(emu);
-    } else if (ENABLE_DIRECT_VGA_MEM_WRITE && addr >= 0xa0000 && addr < 0xc0000) {
+    } else if (ENABLE_DIRECT_VGA_MEM_WRITE && ((addr >= 0xfffff) || (addr >= 0xa0000 && addr < 0xc0000))) {
         isa_wrb(emu->isa_membase + addr, val);
     } else if (!ENABLE_BLOCK_BIOS_WRITES || addr < 0xa0000) {
         emu->mem_base[addr] = val;
@@ -299,7 +334,7 @@ static void x86_wrw(struct X86EMU *emu, uint32_t addr, uint16_t val) {
         x86err("x86_wrw %08x\n", addr);
         x86_halt(emu);
         return;
-    } else if (ENABLE_DIRECT_VGA_MEM_WRITE && addr >= 0xa0000 && addr < 0xc0000) {
+    } else if (ENABLE_DIRECT_VGA_MEM_WRITE && ((addr >= 0xfffff) || (addr >= 0xa0000 && addr < 0xc0000))) {
         isa_wrw(emu->isa_membase + addr, val);
     } else if (!ENABLE_BLOCK_BIOS_WRITES || addr < 0xa0000) {
         *((uint16_t*)(emu->mem_base + addr)) = x86_swap16(val);
@@ -327,7 +362,7 @@ static void x86_int(struct X86EMU *emu, int num)
     uint32_t seg = x86_ReadWord(emu, (num << 2) + 2);
     uint32_t off = x86_ReadWord(emu, (num << 2) + 0);
     uint32_t vec = (seg == 0xffff) ? 0 : (off + (seg << 4));
-    dbgint("int:%02x : %08x : ah_%02x, al_%02x, bl_%02x\n", num, vec, emu->x86.R_AH, emu->x86.R_AL, emu->x86.R_BL);
+    dbgint("int:%02x : %08x (%04x:%04x): ah_%02x, al_%02x, bl_%02x\n", num, vec, seg, off, emu->x86.R_AH, emu->x86.R_AL, emu->x86.R_BL);
 
     switch (num)
     {
@@ -367,7 +402,7 @@ static void x86_int(struct X86EMU *emu, int num)
         } break;
 
         case 0x15:  // memory
-            //dbgint("int15: AH:%02x AL:%02x\n", emu->x86.R_AH, emu->x86.R_AL);
+            /*dbgint("int15: AH:%02x AL:%02x DH=%02x DL=%02x\n", emu->x86.R_AH, emu->x86.R_AL, emu->x86.R_DH, emu->x86.R_DL);*/
             vec = 0;
             break;
 

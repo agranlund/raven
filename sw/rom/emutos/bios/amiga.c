@@ -1,7 +1,7 @@
 /*
  * amiga.c - Amiga specific functions
  *
- * Copyright (C) 2013-2022 The EmuTOS development team
+ * Copyright (C) 2013-2025 The EmuTOS development team
  *
  * Authors:
  *  VRI   Vincent Rivière
@@ -37,6 +37,8 @@
 
 /* Custom registers */
 #define CUSTOM_BASE ((void *)0xdff000)
+#define VPOSR   *(volatile UWORD*)0xdff004
+#define VHPOSR  *(volatile UWORD*)0xdff006
 #define JOY0DAT *(volatile UWORD*)0xdff00a
 #define JOY1DAT *(volatile UWORD*)0xdff00c
 #define ADKCONR *(volatile UWORD*)0xdff010
@@ -262,10 +264,62 @@ static void detect_gayle(void)
     has_gayle = 1;
 }
 
+int amiga_is_ntsc;
+
+/* Read current video line. Safe method in case low byte overflows. */
+static UWORD get_videoline(void)
+{
+    UWORD vpos_high1, vpos_high2, vpos_low;
+
+    do
+    {
+        vpos_high1 = VPOSR & 7;
+        vpos_low   = VHPOSR >> 8;
+        vpos_high2 = VPOSR & 7;
+    }
+    while (vpos_high1 != vpos_high2);
+
+    return (vpos_high1 << 8) | vpos_low;
+}
+
+/*
+ * A safe way to distinguish between PAL and NTSC is counting
+ * lines for one frame of video.
+ */
+static void detect_ntsc(void)
+{
+    UWORD cur_line;
+    UWORD max_line = 0;
+
+    /* observe line count until start of the next frame */
+    do
+    {
+        cur_line = get_videoline();
+
+        if (cur_line > max_line)
+        {
+            max_line = cur_line;
+        }
+    }
+    while (!(cur_line < max_line));
+
+    /* PAL has 625/2 lines per field */
+    if (max_line > 300)
+    {
+        amiga_is_ntsc = 0;
+    }
+    else
+    {
+        amiga_is_ntsc = 1;
+    }
+}
+
 void amiga_machine_detect(void)
 {
     detect_gayle();
     KDEBUG(("has_gayle = %d\n", has_gayle));
+    detect_ntsc();
+    KDEBUG(("amiga_is_ntsc = %d\n", amiga_is_ntsc));
 }
 
 const char *amiga_machine_name(void)
@@ -456,10 +510,15 @@ static void add_uae_32bit_chip_ram(void);
 /* Detect Alt-RAM directly from hardware */
 static void add_alt_ram_from_hardware(void)
 {
-    /* Add the slowest RAM first to put it at the end of the Alt-RAM pool */
-    add_slow_ram();
-    add_processor_slot_fast_ram();
-    add_motherboard_fast_ram();
+    /* 24-bit RAM is really SLOW since GOLD 2.12, don't use it. */
+    if (!IS_APOLLO_68080)
+    {
+        /* Add the slowest RAM first to put it at the end of the Alt-RAM pool */
+        add_slow_ram();
+        add_processor_slot_fast_ram();
+        add_motherboard_fast_ram();
+    }
+
     add_expansion_ram();
 #if CONF_WITH_UAE
     add_uae_32bit_chip_ram();
@@ -479,6 +538,11 @@ static void add_alt_ram_from_loader(void)
     {
         UBYTE *address = altram_regions[i].address;
         ULONG size = altram_regions[i].size;
+
+        /* 24-bit RAM is really SLOW since GOLD 2.12, don't use it. */
+        if (IS_APOLLO_68080 && !IS_32BIT_POINTER(address))
+            continue;
+
         KDEBUG(("xmaddalt(%p, %lu)\n", address, size));
         xmaddalt(address, size);
     }
@@ -546,7 +610,7 @@ static void amiga_set_videomode(UWORD width, UWORD height)
         lowres_height = height / 2;
     }
 
-    vstart = 44 + (256 / 2) - (lowres_height / 2);
+    vstart = 44 + ((amiga_is_ntsc?200:256) / 2) - (lowres_height / 2);
     vstop = vstart + lowres_height;
     vstop = (UBYTE)(((WORD)vstop) - 0x100); /* Normalize value */
 
@@ -1844,7 +1908,7 @@ static UWORD decode_mfm_word(const UWORD **ppmfm)
  *
  * Documentation:
  * https://jlgconsult.pagesperso-orange.fr/Atari/diskette/diskette_en.htm#Atari_Double_Density_Diskette_Format
- * http://bitsavers.trailing-edge.com/pdf/ibm/floppy/GA21-9182-4_Diskette_General_Information_Manual_Aug79.pdf
+ * https://bitsavers.trailing-edge.com/pdf/ibm/floppy/GA21-9182-4_Diskette_General_Information_Manual_Aug79.pdf
  */
 static WORD amiga_floppy_decode_track(void)
 {
@@ -2103,7 +2167,7 @@ LONG amiga_flop_mediach(WORD dev)
 #define SERPER_DIVIDEND_NTSC 3579545UL
 #define SERPER_DIVIDEND_PAL  3546895UL
 
-#define SERPER_BAUD(baud) ((SERPER_DIVIDEND_PAL / (baud)) - 1)
+#define SERPER_BAUD(baud) (((amiga_is_ntsc?SERPER_DIVIDEND_NTSC:SERPER_DIVIDEND_PAL) / (baud)) - 1)
 
 #define SERDAT_TBE 0x2000 /* Transmit Buffer Empty */
 
@@ -2148,7 +2212,7 @@ void amiga_rs232_rbf_interrupt(void)
 /* implementation is written by the EmuTOS development team.                  */
 /******************************************************************************/
 
-/* http://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node0654.html */
+/* https://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node0654.html */
 typedef void *APTR; /* Generic, untyped pointer */
 
 /*
@@ -2175,7 +2239,7 @@ typedef void *APTR; /* Generic, untyped pointer */
  * More information: https://wiki.amigaos.net/wiki/Exec_Lists_and_Queues
  */
 
-/* http://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node062F.html */
+/* https://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node062F.html */
 struct Node MAY_ALIAS;
 struct Node
 {
@@ -2186,7 +2250,7 @@ struct Node
     char        *ln_Name;
 };
 
-/* http://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node0628.html */
+/* https://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node0628.html */
 struct List MAY_ALIAS;
 struct List
 {
@@ -2197,7 +2261,7 @@ struct List
     UBYTE       l_pad;
 };
 
-/* http://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node0047.html */
+/* https://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node0047.html */
 static void NewList(struct List *list)
 {
     list->lh_Head = (struct Node *)&list->lh_Tail; /* Head.ln_Succ = &Tail; */
@@ -2205,7 +2269,7 @@ static void NewList(struct List *list)
     list->lh_TailPred = (struct Node *)&list->lh_Head; /* Tail.ln_Pred = &Head; */
 }
 
-/* http://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node01E1.html */
+/* https://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node01E1.html */
 static void AddTail(struct List *list, struct Node *node)
 {
     /* Fill the node */
@@ -2223,8 +2287,8 @@ static void AddTail(struct List *list, struct Node *node)
 /* AUTOCONFIG - Initialization of Zorro II/III expansion boards               */
 /******************************************************************************/
 
-/* http://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node05FE.html */
-/* http://amigadev.elowar.com/read/ADCD_2.1/Hardware_Manual_guide/node02C8.html */
+/* https://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node05FE.html */
+/* https://amigadev.elowar.com/read/ADCD_2.1/Hardware_Manual_guide/node02C8.html */
 
 /* Each expansion board starts with ExpansionRom read-only data
  * followed by ExpansionControl write registers.
@@ -2287,7 +2351,7 @@ struct ExpansionControl
 #define ERT_Z3_SSMASK 0x0f /* Zorro III board sub-size */
 
 /* AmigaOS stores board information in ConfigDev structure. So we do. */
-/* http://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node05F1.html */
+/* https://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node05F1.html */
 struct ConfigDev MAY_ALIAS;
 struct ConfigDev
 {
@@ -2315,7 +2379,7 @@ struct ConfigDev
  * So each data byte actually occupies 2 WORDs (4 bytes)
  * - High nybble is located at data offset * 4
  * - Offset of the low nybble depends of the board type
- * http://amigadev.elowar.com/read/ADCD_2.1/Hardware_Manual_guide/node02C7.html
+ * https://amigadev.elowar.com/read/ADCD_2.1/Hardware_Manual_guide/node02C7.html
  */
 
 static void get_nybble_offsets(APTR board, ULONG offset, volatile UBYTE **pphigh, volatile UBYTE **pplow)
@@ -2337,7 +2401,7 @@ static void get_nybble_offsets(APTR board, ULONG offset, volatile UBYTE **pphigh
     *pplow = &p[offset + low_nybble_offset];
 }
 
-/* http://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node0268.html */
+/* https://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node0268.html */
 static UBYTE ReadExpansionByte(APTR board, ULONG offset)
 {
     volatile UBYTE *phigh, *plow;
@@ -2354,7 +2418,7 @@ static UBYTE ReadExpansionByte(APTR board, ULONG offset)
     return byte;
 }
 
-/* http://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node026D.html */
+/* https://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node026D.html */
 static void WriteExpansionByte(APTR board, ULONG offset, ULONG byte)
 {
     volatile UBYTE *phigh, *plow;
@@ -2387,8 +2451,8 @@ static void read_board_rom(APTR board, struct ExpansionRom *rom)
     rom->er_Type = ~rom->er_Type;
 }
 
-/* http://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node0269.html
- * http://amigadev.elowar.com/read/ADCD_2.1/Hardware_Manual_guide/node02C8.html */
+/* https://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node0269.html
+ * https://amigadev.elowar.com/read/ADCD_2.1/Hardware_Manual_guide/node02C8.html */
 static BOOL ReadExpansionRom(APTR board, struct ConfigDev *configDev)
 {
     struct ExpansionRom *rom = &configDev->cd_Rom;
@@ -2488,7 +2552,7 @@ static BOOL ReadExpansionRom(APTR board, struct ConfigDev *configDev)
     return TRUE;
 }
 
-/* http://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node025F.html */
+/* https://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node025F.html */
 static struct ConfigDev *AllocConfigDev(void)
 {
     size_t size = sizeof(struct ConfigDev);
@@ -2503,7 +2567,7 @@ static struct ConfigDev *AllocConfigDev(void)
     return configDev;
 }
 
-/* http://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node0263.html */
+/* https://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node0263.html */
 static void FreeConfigDev(struct ConfigDev *configDev)
 {
     /* FIXME: bfree()? */
@@ -2512,14 +2576,14 @@ static void FreeConfigDev(struct ConfigDev *configDev)
 /* List of all ConfigDev's found by AUTOCONFIG. */
 static struct List boardList; /* Needs to be initialized! */
 
-/* http://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node025D.html */
+/* https://amigadev.elowar.com/read/ADCD_2.1/Includes_and_Autodocs_3._guide/node025D.html */
 static void AddConfigDev(struct ConfigDev *configDev)
 {
     KDEBUG(("AddConfigDev configDev=%p cd_BoardAddr=%p\n", configDev, configDev->cd_BoardAddr));
     AddTail(&boardList, (struct Node *)configDev);
 }
 
-/* http://aros.sourceforge.net/de/documentation/developers/autodocs/expansion.php#writeexpansionword
+/* https://aros.sourceforge.io/de/documentation/developers/autodocs/expansion.html#writeexpansionword
  * WriteExpansionWord() is used to configure Zorro III boards
  * by writing to ExpansionControl ec_Z3_HighBase and ec_BaseAddress.
  * It makes ExpansionRom/ExpansionControl disappear from "board" address,

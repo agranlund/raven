@@ -1,7 +1,7 @@
 /*
  * boot.c - standalone PRG to load EmuTOS in RAM
  *
- * Copyright (C) 2001-2019 The EmuTOS development team
+ * Copyright (C) 2001-2025 The EmuTOS development team
  *
  * Authors:
  *  LVL     Laurent Vogel
@@ -127,7 +127,7 @@ int main(void)
 #ifdef TARGET_256
   /* prg256 variants don't support TT and beyond */
   if (get_cookie(_MCH) >= MCH_TT) {
-    (void)Cconws("\033EEMU256*.PRG supports ST/MegaST/STe/MegaSTe.\r\n");
+    (void)Cconws("\033EEMU256*.PRG only supports\r\nST/MegaST/STe/MegaSTe.\r\n");
     (void)Cconws("Use EMUTOS*.PRG instead.\r\n");
     (void)Cconws("Hit RETURN to exit");
     (void)Cconin();

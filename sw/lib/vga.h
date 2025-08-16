@@ -21,6 +21,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "raven.h"
+
+#define VGA_IOBASE          RV_PADDR_ISA_IO
 
 #define VGA_REG_ATC         0x3C0
 #define VGA_REG_MISC        0x3C2
@@ -35,11 +38,11 @@
 #define VGA_REG_STAT1       0x3DA
 
 static uint8_t vga_ReadPort(uint16_t port) {
-    return *((volatile uint8_t*)(0x81000000UL + port));
+    return *((volatile uint8_t*)(VGA_IOBASE + port));
 }
 
 static void vga_WritePort(uint16_t port, uint8_t val) {
-    *((volatile uint8_t* )(0x81000000UL + port)) = val;
+    *((volatile uint8_t* )(VGA_IOBASE + port)) = val;
 }
 
 static uint8_t vga_ReadReg(uint16_t port, uint8_t idx) {
@@ -60,6 +63,25 @@ static void vga_WriteReg(uint16_t port, uint8_t idx, uint8_t val) {
       vga_WritePort(port, idx);
       vga_WritePort(port+1, val);
    }
+}
+
+static uint16_t vga_GetBaseReg(uint16_t reg) {
+    return (vga_ReadPort(0x3cc) & 1) ? (0x3d0 + reg) : (0x3b0 + reg);
+}
+
+static void vga_ModifyReg(uint16_t port, uint8_t idx, uint8_t mask, uint8_t val) {
+    vga_WriteReg(port, idx, (vga_ReadReg(port, idx) & ~mask) | (val & mask));
+}
+
+static bool vga_TestReg(uint16_t port, uint8_t idx, uint8_t mask) {
+    uint8_t temp[3];
+    temp[0] = vga_ReadReg(port, idx);
+    vga_WriteReg(port, idx, temp[0] & ~mask);
+    temp[1] = vga_ReadReg(port, idx) & mask;
+    vga_WriteReg(port, idx, temp[0] | mask);
+    temp[2] = vga_ReadReg(port, idx) & mask;
+    vga_WriteReg(port, idx, temp[0]);
+    return ((temp[1] == 0) && (temp[2] == mask));
 }
 
 #endif /* _VGA_H_ */

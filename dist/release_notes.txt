@@ -1,6 +1,14 @@
 Raven.A1
 Hardware and software binary release
 
+xxxxxxxx:
+  rom:      updated to emutos 1.4
+  rom:      x86 emulation bugfix
+  firmware: (nessi) ISA access tweak
+  firmware: (nessi) IDE access tweak
+  rvnova:   Cirrus Logic GD54xx driver
+  rvnova:   OAK driver
+
 20250808:
   rom:      layout and size optimization
   rom:      wip configspace for system settings
