@@ -119,7 +119,7 @@ const raven_t ravenBios __attribute__((section(".export"))) =
     b_i2c_Write,
     {0,0},
 //0x0080
-    0,
+    {0},
     vga_Init,
     vga_Clear,
     vga_Addr,
