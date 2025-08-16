@@ -6,7 +6,7 @@
  * Defines that should *not* be overridden should appear in sysconf.h
  * (or deskconf.h if they apply to EmuDesk).
  *
- * Copyright (C) 2001-2024 The EmuTOS development team
+ * Copyright (C) 2001-2025 The EmuTOS development team
  *
  * Authors:
  *  MAD     Martin Doering
@@ -125,6 +125,9 @@
  * Defaults for the FireBee target
  */
 #ifdef MACHINE_FIREBEE
+# ifndef CONF_WITH_ST_MMU
+#  define CONF_WITH_ST_MMU 0
+# endif
 # ifndef CONF_WITH_TT_MMU
 #  define CONF_WITH_TT_MMU 0
 # endif
@@ -2083,8 +2086,25 @@
 # define RAVEN_DEBUG_PRINT 0
 #endif
 
+/*
+ * Set CARTRIDGE_DEBUG_PRINT to 1 to redirect debug prints to the
+ * cartridge port. A character 'c' is encoded into address lines
+ * A8-A1 by performing a read access to the upper half of the cartridge
+ * address space 0xFB0xxx, which is decoded to the /ROM3 signal.
+ * This has the advantage of being always available since it does not
+ * require initialization of a peripheral.
+ * Output can be decoded by connecting a logic analyzer to A8-A1,
+ * triggering on /ROM3, or by using a special firmware for the
+ * SidecarTridge Multi-device hardware:
+ * https://github.com/czietz/atari-debug-cart
+ */
+#ifndef CARTRIDGE_DEBUG_PRINT
+# define CARTRIDGE_DEBUG_PRINT 0
+#endif
+
+
 /* Determine if kprintf() is available */
-#if CONF_WITH_UAE || DETECT_NATIVE_FEATURES || STONX_NATIVE_PRINT || CONSOLE_DEBUG_PRINT || RS232_DEBUG_PRINT || SCC_DEBUG_PRINT || COLDFIRE_DEBUG_PRINT || MIDI_DEBUG_PRINT || RAVEN_DEBUG_PRINT
+#if CONF_WITH_UAE || DETECT_NATIVE_FEATURES || STONX_NATIVE_PRINT || CONSOLE_DEBUG_PRINT || RS232_DEBUG_PRINT || SCC_DEBUG_PRINT || COLDFIRE_DEBUG_PRINT || MIDI_DEBUG_PRINT || CARTRIDGE_DEBUG_PRINT || RAVEN_DEBUG_PRINT
 #  define HAS_KPRINTF 1
 # else
 #  define HAS_KPRINTF 0
@@ -2286,8 +2306,8 @@
 # endif
 #endif
 
-#if (CONSOLE_DEBUG_PRINT + RS232_DEBUG_PRINT + SCC_DEBUG_PRINT + COLDFIRE_DEBUG_PRINT + MIDI_DEBUG_PRINT) > 1
-# error Only one of CONSOLE_DEBUG_PRINT, RS232_DEBUG_PRINT, SCC_DEBUG_PRINT, COLDFIRE_DEBUG_PRINT or MIDI_DEBUG_PRINT must be set to 1.
+#if (CONSOLE_DEBUG_PRINT + RS232_DEBUG_PRINT + SCC_DEBUG_PRINT + COLDFIRE_DEBUG_PRINT + MIDI_DEBUG_PRINT + CARTRIDGE_DEBUG_PRINT) > 1
+# error Only one of CONSOLE_DEBUG_PRINT, RS232_DEBUG_PRINT, SCC_DEBUG_PRINT, COLDFIRE_DEBUG_PRINT, MIDI_DEBUG_PRINT or CARTRIDGE_DEBUG_PRINT must be set to 1.
 #endif
 
 

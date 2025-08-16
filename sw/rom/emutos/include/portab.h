@@ -2,7 +2,7 @@
  * portab.h - Definitions for writing portable C
  *
  * Copyright (C) 2001 Lineo, Inc
- *               2001-2020 The EmuTOS development team
+ *               2001-2025 The EmuTOS development team
  *
  * This file is distributed under the GPL, version 2 or at your
  * option any later version.  See doc/license.txt for details.
@@ -45,6 +45,12 @@
 #define SPRINTF_STYLE __attribute__ ((format (printf, 2, 3)))
 #else
 #define SPRINTF_STYLE
+#endif
+
+#ifdef __GNUC__
+#define PACKED __attribute__ ((packed))
+#else
+#define PACKED
 #endif
 
 /* Convenience macros to test the versions of glibc and gcc.

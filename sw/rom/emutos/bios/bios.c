@@ -2,7 +2,7 @@
  *  bios.c - C portion of BIOS initialization and front end
  *
  * Copyright (C) 2001 Lineo, Inc.
- * Copyright (C) 2001-2024 The EmuTOS development team
+ * Copyright (C) 2001-2025 The EmuTOS development team
  *
  * Authors:
  *  SCC     Steve C. Cavender
@@ -141,7 +141,7 @@ static void vecs_init(void)
      * By default, any unexpected exception calls dopanic().
      */
     init_exc_vec();
-    init_user_vec();
+    init_user_vec(FIRST_BOOT);
 
     /* Some user drivers may install interrupt handlers and call the previous
      * ones. For example, ARAnyM's network driver for MiNT (nfeth.xif) and fVDI
@@ -400,6 +400,32 @@ static void bios_init(void)
     set_sr(0x2300);
 #else
     set_sr(0x2000);
+#endif
+
+#if defined(MACHINE_ARANYM) || defined(TARGET_1024)
+    /* ARAnyM 1.1.0 loads only the first half of 1024k ROMs.
+     * Detect this situation and warn the user.
+     * This method is ugly, but safe for releases as they are thoroughly tested.
+     */
+    if (IS_ARANYM && ULONG_AT(0x00e80000) == 0)
+    {
+        kcprintf(
+            "\r\n"
+            "ERROR: This 1024k ROM isn't supported by your ARAnyM version.\r\n"
+            "Please use etos512*.img instead, until next ARAnyM release.\r\n"
+        );
+
+        /* Don't use halt() on ARAnyM, as it causes an infinite loop
+           with the message: "STOPed with interrupts disabled, exiting;".
+           FIXME: Fix halt() instead.
+        */
+        for(;;)
+        {
+#if USE_STOP_INSN_TO_FREE_HOST_CPU
+            stop_until_interrupt();
+#endif
+        }
+    }
 #endif
 
     /* Initialize the RS-232 port(s) */

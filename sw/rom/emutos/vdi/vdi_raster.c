@@ -2,7 +2,7 @@
  * vdi_raster.c - Blitting routines
  *
  * Copyright 2002 Joachim Hoenig (blitter)
- * Copyright 2003-2020 The EmuTOS development team
+ * Copyright 2003-2025 The EmuTOS development team
  *
  * This file is distributed under the GPL, version 2 or at your
  * option any later version.  See doc/license.txt for details.
@@ -1246,7 +1246,7 @@ static void vrt_cpyfm16(struct blit_frame *info)
     /*
      * init destination area variables
      */
-    dst_width = v_lin_wr / sizeof(WORD);    /* in words */
+    dst_width = info->d_nxln / sizeof(WORD);    /* in words */
     q = dst = info->d_form + ((LONG)info->d_ymin * dst_width) + info->d_xmin;
 
     switch(mode) {

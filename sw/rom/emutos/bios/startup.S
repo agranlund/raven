@@ -1,7 +1,7 @@
 /*
  * startup.S - EmuTOS startup module
  *
- * Copyright (C) 2001-2024 The EmuTOS development team
+ * Copyright (C) 2001-2025 The EmuTOS development team
  *
  * This file is distributed under the GPL, version 2 or at your
  * option any later version.  See doc/license.txt for details.
@@ -389,17 +389,9 @@ raven_startup_ret:
         // 0x5 is a valid value for the ST and the TT, the correct configuration
         // will be found and applied in memory.S. On the Falcon this is a dummy
         // register, so we can write to it as well without consequences.
-#ifdef __mcoldfire__
-        move.b  0xffff8001.w, d0
-        cmpi.b  #0xc, d0
-        blt.s   valid_st_mmu_config
-        move.b  #0x5, d0
-        move.b  d0, 0xffff8001.w
-#else
         cmpi.b  #0xc, 0xffff8001.w
         blt.s   valid_st_mmu_config
         move.b  #0x5, 0xffff8001.w
-#endif
 
 valid_st_mmu_config:
 #endif

@@ -5,7 +5,8 @@ These special versions allow EmuTOS to be loaded from the filesystem
 This is the simplest way to test EmuTOS on real hardware.
 The drawback is less available RAM compared to ROM versions.
 
-These versions are ONLY suitable for the following hardware:
+These versions are smaller than the PRG versions but ONLY suitable for
+the following hardware:
 - ST(e)
 - Mega ST(e)
 - emulators of the above
@@ -18,6 +19,7 @@ TT, Falcon or equivalent hardware.
 
 The desktop features are comparable to Atari TOS 2.
 
+emu256ca.prg - Catalan (PAL)
 emu256cz.prg - Czech (PAL)
 emu256de.prg - German (PAL)
 emu256es.prg - Spanish (PAL)

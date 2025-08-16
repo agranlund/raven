@@ -1,7 +1,7 @@
 /*
  * machine.c - detection of machine type
  *
- * Copyright (C) 2001-2024 The EmuTOS development team
+ * Copyright (C) 2001-2025 The EmuTOS development team
  *
  * Authors:
  *  LVL     Laurent Vogel
@@ -599,7 +599,7 @@ void machine_detect(void)
 #endif
 
     detected_busses = check_busses();
-    KDEBUG(("detected_busses = 0x%04x\n", (unsigned int)detected_busses));
+    KDEBUG(("detected_busses = 0x%lx\n", detected_busses));
 
 #if CONF_WITH_MONSTER
     detect_monster();
