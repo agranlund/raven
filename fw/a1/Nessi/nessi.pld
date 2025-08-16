@@ -279,7 +279,7 @@ node [IDEDTACK0..5];
 node ISADSACK0;
 node ISADSACK1;
 
-IDESTART = IDESTART1;       // IDE setup delay
+IDESTART = IDESTART0;       // IDE setup delay
 IDEDTACK = IDEDTACK5;       // IDE dtack delay
 YMDTACK  = YMDTACK3;        // YM2149 dtack delay
 
