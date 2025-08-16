@@ -1,6 +1,6 @@
 Name     Nessi ;
 PartNo   00 ;
-Date     2025-07-14 ;
+Date     2025-08-12 ;
 Revision 01 ;
 Designer Anders Granlund ;
 Company  HappyDaze ;
@@ -55,9 +55,9 @@ PROPERTY ATMEL{xor_synthesis=on};
 //--------------------------------------------
 // Global inputs
 //--------------------------------------------
-pin 81 = SPARE_J106_IN_81;      // unused J106 (in)
+//pin 81 = SPARE_J106_IN_81;      // unused J106 (in)
 pin 83 = BCLK;
-pin 84 = SPARE_J105_IN_84;      // unused J105 (in - hi/lo jumpered)
+pin 84 = !OPT_FAST_ISA;
 pin 1  = !RSTI;
 pin 2  = PCLK;
 
@@ -124,7 +124,7 @@ pin 68 = ISARDY;
 pin 69 = !RESET;
 pin 70 = !RSTO;
 
-pin 73 = SPARE_J106_IO_73;            // unused J106 (io)
+//pin 73 = SPARE_J106_IO_73;            // unused J106 (io)
 pin 74 = !IACK;
 pin 75 = !IDECS;
 pin 76 = !YMCS;
@@ -215,7 +215,6 @@ DECODE_ISA          = DECODE_ISA_RAM8 # DECODE_ISA_IO8 # DECODE_ISA_RAM16 # DECO
 DECODE_ISA16        = DECODE_ISA_IO16 # DECODE_ISA_RAM16;
 DECODE_68150        = DECODE_IDE # DECODE_YM # DECODE_MFP1 # DECODE_MFP2 # DECODE_ISA;
 
-
 //----------------------------------------------------------------------------------------
 // Localbus
 //----------------------------------------------------------------------------------------
@@ -233,7 +232,6 @@ BSTATE5.d = BSTATE4;
 
 BUSEN = BSTATE0 & !TS & TIP & !BSTATE4;           // 48mhz
 BUSTA = BSTATE3 & !TS & TIP;
-
 
 
 //----------------------------------------------------------------------------------------
@@ -282,7 +280,7 @@ node ISADSACK0;
 node ISADSACK1;
 
 IDESTART = IDESTART1;       // IDE setup delay
-IDEDTACK = IDEDTACK4;       // IDE dtack delay
+IDEDTACK = IDEDTACK5;       // IDE dtack delay
 YMDTACK  = YMDTACK3;        // YM2149 dtack delay
 
 SELECT_68150 = TIP & (DECODE_68150 # MFPIRQ);
@@ -386,7 +384,7 @@ IDEDTACK0.d = IDECS;
 //----------------------------------------------------------------------------------------
 // 68150 : ISA
 //----------------------------------------------------------------------------------------
-node [ISADTACK0..20];
+node [ISADTACK0..22];
 
 ISA8  = !DECODE_ISA16;
 ISAIO = DECODE_ISA_IO8 # DECODE_ISA_IO16;
@@ -394,7 +392,7 @@ ISADS = EXCS & DECODE_ISA & EXDS;
 ISACS = ISADS & ISADTACK1 & (RW # !ISADTACK19);
 
 ISADSACK16 = DECODE_ISA_RAM16 # (DECODE_ISA_IO16 & IOCS16);
-ISADSACKXX = ISADS & ISADTACK20;
+ISADSACKXX = ISADS & ISADTACK22;
 ISADSACK1  = ISADSACKXX &  ISADSACK16;
 ISADSACK0  = ISADSACKXX & !ISADSACK16;
 
@@ -403,8 +401,10 @@ ISADONE.ck = BCLK;
 ISADONE.ar = RSTI # !ISACS;
 ISADONE.d = ISARDY; // # (!RW & !ISAIO);
 
-[ISADTACK0..20].ck = BCLK;
-[ISADTACK0..20].ar = RSTI # !EXDS;
+[ISADTACK0..22].ck = BCLK;
+[ISADTACK0..22].ar = RSTI # !EXDS;
+ISADTACK22.d = ISADTACK21;
+ISADTACK21.d = ISADTACK20;
 ISADTACK20.d = ISADTACK19;
 ISADTACK19.d = ISADTACK18;
 ISADTACK18.d = ISADTACK17;
@@ -414,14 +414,14 @@ ISADTACK15.d = ISADTACK14;
 ISADTACK14.d = ISADTACK13;
 ISADTACK13.d = ISADTACK12;
 ISADTACK12.d = ISADTACK11;
-ISADTACK11.d = ISADTACK10 # (ISADS & DECODE_ISA_RAM16);
+ISADTACK11.d = ISADTACK10 # (OPT_FAST_ISA & ISADS & DECODE_ISA_RAM16);
 ISADTACK10.d = ISADTACK9;
 ISADTACK9.d = ISADTACK8;
 ISADTACK8.d = ISADTACK7;
 ISADTACK7.d = ISADTACK6;
 ISADTACK6.d = ISADTACK5;
 ISADTACK5.d = ISADTACK4;
-ISADTACK4.d = ISADTACK3;    // <--
+ISADTACK4.d = ISADTACK3;
 ISADTACK3.d = ISADTACK2;
 ISADTACK2.d = ISADTACK1;
 ISADTACK1.d = ISADTACK0;
