@@ -23,7 +23,7 @@ typedef enum {
     CD_STATUS_READY,
 } cdrom_image_status_t;
 
-// typedef enum { PICO_BASED = 0, PICOGUS_2 = 1 } board_type_t;
+typedef enum { PICO_BASED = 0, PICOGUS_2 = 1 } board_type_t;
 
 // typedef enum { INVALID_MODE = 0, GUS_MODE = 1, ADLIB_MODE = 2, MPU_MODE = 3, PSG_MODE = 4, SB_MODE = 5} card_mode_t;
 

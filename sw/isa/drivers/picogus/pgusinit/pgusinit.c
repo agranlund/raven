@@ -15,43 +15,42 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+
+#ifdef __ATARI__
+
 // moved section below from picogus.h as this was not working
 // ---------------------------------------------------------------
-
-typedef enum { PICO_BASED = 0, PICOGUS_2 = 1 } board_type_t;
 
 typedef enum { INVALID_MODE = 0, GUS_MODE = 1, ADLIB_MODE = 2, MPU_MODE = 3, PSG_MODE = 4, SB_MODE = 5, USB_MODE = 6, NE2000_MODE = 7 } card_mode_t;
 
 static const char *modenames[8] = { "INVALID", "GUS", "ADLIB", "MPU", "PSG", "SB", "USB", "NE2000" };
 // ---------------------------------------------------------------
+#endif
 
-// #include <io.h>
-// #include <conio.h>
-// #include <dos.h>
+//ATARI GCC Build Added
+#ifdef __ATARI__
+    #include <ext.h>
+    #include <mint/cookie.h>
+    #include <mint/osbind.h>
+    #include "../../../isa.h"
+#else
+    #include <io.h>
+    #include <conio.h>
+    #include <dos.h> 
+    #include <i86.h>
+#endif
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
-// #include <i86.h>
 #include <ctype.h>
 #include <string.h>
 #include "pgusinit.h"
 
 #include "../common/picogus.h"
-
-//ATARI GCC Build Added
-#ifdef __ATARI__
-    #include <ext.h>
-    #include <mint/cookie.h>
-    #include "../../../isa.h"
-
-#else
-    #include <conio.h>
-    #include <dos.h> 
-    #include <i86.h>
-#endif
 
 static card_mode_t gMode;
 static card_mode_t newMode = 0;
@@ -62,16 +61,28 @@ static bool is_console;
 static uint8_t page_lines;
 
 // REMOVED FOR ATARI BUILD
-/* const uint8_t get_screen_lines(void)
-{
-    uint16_t bios_screensize = *(uint16_t far *)MK_FP(0x40, 0x4c);
-    uint8_t bios_screencols = *(uint8_t far *)MK_FP(0x40, 0x4a);
-
-    if (bios_screensize && bios_screencols) {
-        return bios_screensize / bios_screencols / 2;
+//ATARI GCC Build Added
+#ifdef __ATARI__
+    uint8_t get_screen_lines(void) {
+        long *vdo;
+        if (Getcookie(C__VDO, (long *)&vdo) == C_FOUND && vdo) {
+            return (uint8_t)vdo[3];  // vdo[3] = screen height in lines
+        }
+        return 25;  // Fallback
     }
-    return 25;
-} */
+#else
+
+   const uint8_t get_screen_lines(void)
+   {
+       uint16_t bios_screensize = *(uint16_t far *)MK_FP(0x40, 0x4c);
+       uint8_t bios_screencols = *(uint8_t far *)MK_FP(0x40, 0x4a);
+
+       if (bios_screensize && bios_screencols) {
+           return bios_screensize / bios_screencols / 2;
+       }
+       return 25;
+   }
+#endif
 
 static void pageprintf(char *format, ...)
 {
@@ -545,13 +556,23 @@ static int write_firmware(const char* fw_filename)
             return 11;
         }
 
-        if (uf2_buf.uf2.magicStart0 != 0x0A324655 || uf2_buf.uf2.magicStart1 != 0x9E5D5157 || uf2_buf.uf2.magicEnd != 0x0AB16F30) {
-            fprintf(stderr, "ERROR: file %s is not a valid UF2 file - bad magic\n", fw_filename);
+    uint32_t swap32(uint32_t val) {
+        return ((val >> 24) & 0xFF) |
+               ((val >> 8) & 0xFF00) |
+               ((val << 8) & 0xFF0000) |
+               ((val << 24) & 0xFF000000);
+    }
+
+ //       if (uf2_buf.uf2.magicStart0 != 0x0A324655 || uf2_buf.uf2.magicStart1 != 0x9E5D5157 || uf2_buf.uf2.magicEnd != 0x0AB16F30) {
+          if (swap32(uf2_buf.uf2.magicStart0) != 0x0A324655 || swap32(uf2_buf.uf2.magicStart1) != 0x9E5D5157 || swap32(uf2_buf.uf2.magicEnd)    != 0x0AB16F30) {
+ 
+           fprintf(stderr, "ERROR: file %s is not a valid UF2 file - bad magic\n", fw_filename);
             return 12;
         }
 
         if (i == 0) {
-            numBlocks = uf2_buf.uf2.numBlocks;
+            numBlocks = swap32(uf2_buf.uf2.numBlocks);
+            // numBlocks = uf2_buf.uf2.numBlocks;
 
             // Put card into programming mode
             outp(CONTROL_PORT, 0xCC); // Knock on the door...
@@ -566,7 +587,11 @@ static int write_firmware(const char* fw_filename)
             fprintf(stderr, "Preparing to program %d blocks...", numBlocks);
         }
 
-        if (i != uf2_buf.uf2.blockNo) {
+//        if (i != uf2_buf.uf2.blockNo) {
+//            fprintf(stderr, "\nERROR: file %s is not a valid UF2 file - block mismatch\n", fw_filename);
+//            return 14;
+//        }
+        if (i != swap32(uf2_buf.uf2.blockNo)) {
             fprintf(stderr, "\nERROR: file %s is not a valid UF2 file - block mismatch\n", fw_filename);
             return 14;
         }
@@ -615,28 +640,31 @@ static int write_firmware(const char* fw_filename)
 }
 
 
-/* static void wifi_printStatus(void)
-{
-    outp(CONTROL_PORT, 0xCC); // Knock on the door...
-    outp(CONTROL_PORT, CMD_WIFISTAT); // Select WiFi status command
-    outp(DATA_PORT_HIGH, 0); // Write to start getting the status
+#ifdef __ATARI__
+#else
+  static void wifi_printStatus(void)
+  {
+       outp(CONTROL_PORT, 0xCC); // Knock on the door...
+       outp(CONTROL_PORT, CMD_WIFISTAT); // Select WiFi status command
+       outp(DATA_PORT_HIGH, 0); // Write to start getting the status
    
-    printf("WiFi status: ");
-    uint16_t try = 0;
-    char c;
-    while (c = inp(DATA_PORT_HIGH)) {
-        if (c == 255) {
-            if (++try == 10000) {
-                printf("Error getting WiFI status\n");
-                break;
-            } else {
-                continue;
-            }
-        }
-        putchar(c);
-    }
-    putchar('\n');
-} */
+       printf("WiFi status: ");
+       uint16_t try = 0;
+       char c;
+       while (c = inp(DATA_PORT_HIGH)) {
+           if (c == 255) {
+               if (++try == 10000) {
+                   printf("Error getting WiFI status\n");
+                   break;
+               } else {
+                   continue;
+               }
+           }
+           putchar(c);
+       }
+       putchar('\n');
+   }
+#endif
 
 static void send_string(const uint8_t cmd, const char* str, const int16_t max_len)
 {
@@ -785,32 +813,35 @@ static bool cmdSendMouseRate(const char* arg, const int cmd)
     return ctrlSendUint8(arg, cmd, 20, 200);
 }
 
-/* static bool cmdWifiStatus(const char* arg, const int cmd)
-{
-    wifi_printStatus();
-    exit(0);
-}
+#ifdef __ATARI__
+#else
+  static bool cmdWifiStatus(const char* arg, const int cmd)
+  {
+      wifi_printStatus();
+      exit(0);
+  }
 
-static bool cmdWifiSSID(const char* arg, const int cmd)
-{
-    wifichg = true;
-    send_string(cmd, arg, 32);
-    return true;
-}
+  static bool cmdWifiSSID(const char* arg, const int cmd)
+  {
+      wifichg = true;
+      send_string(cmd, arg, 32);
+      return true;
+  }
 
-static bool cmdWifiPass(const char* arg, const int cmd)
-{
-    wifichg = true;
-    send_string(cmd, arg, 63);
-    return true;
-}
+  static bool cmdWifiPass(const char* arg, const int cmd)
+  {
+      wifichg = true;
+      send_string(cmd, arg, 63);
+      return true;
+  }
 
-static bool cmdWifiNoPass(const char* arg, const int cmd)
-{
-    wifichg = true;
-    send_string(cmd, "", 1);
-    return true;
-} */
+  static bool cmdWifiNoPass(const char* arg, const int cmd)
+  {
+      wifichg = true;
+      send_string(cmd, "", 1);
+      return true;
+  }
+#endif
 
 static bool cmdCDLoadName(const char* arg, const int cmd)
 {
@@ -896,10 +927,13 @@ ParseCommand parseCommands[] = {
     {"/mouseproto", cmdSendMouseProto, CMD_MOUSEPROTO, ARG_REQUIRE, "0"},
     {"/mouserate", cmdSendMouseRate, CMD_MOUSERATE, ARG_REQUIRE, "60"},
     {"/ne2kport", cmdSendPort, CMD_NE2KPORT, ARG_REQUIRE, "300"},
-//    {"/wifistatus", cmdSendPort, 0, ARG_NONE},
-//    {"/wifissid", cmdWifiSSID, CMD_WIFISSID, ARG_REQUIRE},
-//    {"/wifipass", cmdWifiPass, CMD_WIFIPASS, ARG_REQUIRE},
-//    {"/wifinopass", cmdWifiNoPass, CMD_WIFIPASS, ARG_NONE},
+    #ifdef __ATARI__
+    #else
+        {"/wifistatus", cmdSendPort, 0, ARG_NONE},
+        {"/wifissid", cmdWifiSSID, CMD_WIFISSID, ARG_REQUIRE},
+        {"/wifipass", cmdWifiPass, CMD_WIFIPASS, ARG_REQUIRE},
+        {"/wifinopass", cmdWifiNoPass, CMD_WIFIPASS, ARG_NONE},
+    #endif
     {"/cdport", cmdSendPort, CMD_CDPORT, ARG_REQUIRE, "250"},
     {"/cdlist", cmdCDList, 0, ARG_NONE},
     {"/cdload", cmdCDLoad, CMD_CDLOAD, ARG_REQUIRE},
@@ -1053,11 +1087,14 @@ static void printSBMode()
     print_cdemu_status();
 }
 
-/* static void printNE2000Mode()
-{
-    printf("Running in NE2000 mode on port %x\n", ctrlGetUint16(CMD_NE2KPORT));
-    wifi_printStatus();
-} */
+#ifdef __ATARI__
+#else
+   static void printNE2000Mode()
+   {
+       printf("Running in NE2000 mode on port %x\n", ctrlGetUint16(CMD_NE2KPORT));
+       wifi_printStatus();
+   }
+#endif
 
 static void printMultiMode()
 {
@@ -1163,7 +1200,7 @@ static init_status initPicoGUS()
 int main(int argc, char* argv[]) {
     is_console = isatty(fileno(stdout));
     if (is_console) {
-        // page_lines = get_screen_lines() - 1;
+        page_lines = get_screen_lines() - 1;
     }
 
     banner();
@@ -1226,9 +1263,12 @@ int main(int argc, char* argv[]) {
     case SB_MODE:
         printSBMode();
         break;
- //   case NE2000_MODE:
- //       printNE2000Mode();
- //       break;
+    #ifdef __ATARI__
+    #else
+        case NE2000_MODE:
+            printNE2000Mode();
+            break;
+    #endif
     default:
         printf("Running in unknown mode (maybe upgrade pgusinit?)\n");
         break;

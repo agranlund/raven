@@ -15,14 +15,24 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-// #include <conio.h>
-// #include <dos.h>
+//ATARI GCC Build Added
+#ifdef __ATARI__
+    #include <ext.h>
+    #include <mint/cookie.h>
+    #include <mint/osbind.h>
+    #include "../../../isa.h"
+#else
+    #include <conio.h>
+    #include <dos.h>
+    #include <i86.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
-// #include <i86.h>
+
 
 #include "../common/picogus.h"
 
