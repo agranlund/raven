@@ -5,23 +5,37 @@ jobs:
       runs-on: ubuntu-22.04
       env: 
         BUILD_TYPE: "Release"
-        PICOSDK_VER: "develop"  # Temporarily use "release" branch
-        PICOEXTRA_VER: "sdk-2.1.0"
+        PICOSDK_VER: "2.1.1"
+        PICOEXTRA_VER: "sdk-2.1.1"
         # The Pico-SDK will listen to these environment vars
         PICOTOOL_FETCH_FROM_GIT_PATH: ${{github.workspace}}/pico/picotool
         PICO_SDK_PATH: ${{github.workspace}}/pico/pico-sdk
         PICO_EXTRAS_PATH: ${{github.workspace}}/pico/pico-extras
         OUTPUT_DIR: ${{github.workspace}}/binaries
       steps:
+      # Act is a utility for testing github actions locally. Only run when in act.
+      - name: Install Act dependencies
+        if: ${{ env.ACT }}
+        run: apt-get update && sudo apt-get install curl build-essential cmake -y
+
       - name: Checkout repo with submodules
         uses: actions/checkout@v4
         with:
             submodules: recursive
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip' # caching pip dependencies
+
+      - name: Install Python dependencies
+        run: pip install sympy scipy more-itertools
+
       - name: Install Arm GNU Toolchain (arm-none-eabi-gcc)
         uses: carlosperate/arm-none-eabi-gcc-action@v1
         with:
-          release: '13.3.Rel1'
+          release: '14.2.Rel1'
 
       # Since we reference stable versions of Pico-SDK and pico-extras, we can cache their downloads.
       # If this were to reference changing branches (like "master"), this caching step must be removed!!!
@@ -93,13 +107,13 @@ jobs:
         uses: open-watcom/setup-watcom@v0
         with:
           version: "2.0-64"
-          tag: "2024-03-01-Build"
+          tag: "2025-07-01-Build"
 
       - name: Build pgusinit
         working-directory: ${{github.workspace}}/pgusinit
         run: |
           mkdir -p $OUTPUT_DIR
-          make -f Makefile-cross INCLUDE="$WATCOM"/h
+          make INCLUDE="$WATCOM"/h
           cp pgusinit.exe $OUTPUT_DIR
 
       # will generate pgusinit.zip as downloadable artifact with pgusinit.exe
