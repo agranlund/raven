@@ -14,6 +14,10 @@ emulator.prg
 main.c
 asm.s
 nv.c
+vdi.c
 cards\vga.c
+cards\cirrus.c
+cards\wdc.c
+cards\oak.c
 ..\..\purec\lib\pctoslib.lib
 ..\..\purec\lib\pcstdlib.lib

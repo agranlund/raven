@@ -46,7 +46,45 @@ static uint32_t b_flash_Program(void* data, uint32_t size) { return flash_Progra
 
 static void b_vga_SetMode(uint32_t mode) { vga_SetMode((uint16_t)mode); }
 
-static struct X86EMU* b_x86() { return x86emu; }
+static uint32_t b_int86x(uint32_t no, x86_regs_t* regs_in, x86_regs_t* regs_out, x86_sregs_t* sregs) {
+
+    /* set sregs */
+    if (sregs) {
+        x86emu->x86.R_ES = sregs->es;
+        x86emu->x86.R_DS = sregs->ds;
+        x86emu->x86.R_SS = sregs->ss;
+        x86emu->x86.R_CS = sregs->cs;
+    } else {
+        /* documentation claims suitable defaults would be used so just leave it */
+    }
+
+    /* set regs */
+    x86emu->x86.R_AX = regs_in->x.ax;
+    x86emu->x86.R_BX = regs_in->x.bx;
+    x86emu->x86.R_CX = regs_in->x.cx;
+    x86emu->x86.R_DX = regs_in->x.dx;
+    x86emu->x86.R_SI = regs_in->x.si;
+    x86emu->x86.R_DI = regs_in->x.di;
+    x86emu->x86.R_FLG = regs_in->x.cflag;
+
+    /* run emulator */
+    x86emu->x86.R_SP = 0xfffe;
+    x86_Int(x86emu, (uint8_t)no);
+
+    /* update sregs_out. sregs should remain unmodified */
+    if (regs_out) {
+        regs_out->x.ax = x86emu->x86.R_AX;
+        regs_out->x.bx = x86emu->x86.R_BX;
+        regs_out->x.cx = x86emu->x86.R_CX;
+        regs_out->x.dx = x86emu->x86.R_DX;
+        regs_out->x.si = x86emu->x86.R_SI;
+        regs_out->x.di = x86emu->x86.R_DI;
+        regs_out->x.cflag = x86emu->x86.R_FLG;
+    }
+
+    /* return AX*/
+    return (uint32_t)x86emu->x86.R_AX;
+}
 
 extern uint8_t __toc_start;
 extern uint8_t __config_start;
@@ -81,7 +119,7 @@ const raven_t ravenBios __attribute__((section(".export"))) =
     b_i2c_Write,
     {0,0},
 //0x0080
-    b_x86,
+    0,
     vga_Init,
     vga_Clear,
     vga_Addr,
@@ -105,4 +143,7 @@ const raven_t ravenBios __attribute__((section(".export"))) =
     {0,0,0},
     &getchar,
     &putchar,
+// 0x00D0
+    b_int86x,
+    {0,0,0,0,0,0,0}
 };

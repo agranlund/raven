@@ -27,14 +27,16 @@
 #include "nova.h"
 
 nova_xcb_t nova;
-static uint8_t nova_dummy_area[4096];
-static uint8_t nova_colormap[16];
 
+static uint32_t nova_dummy_page;
+static uint8_t nova_dummy_area[PMMU_PAGESIZE + PMMU_PAGEALIGN];
+static uint8_t nova_colormap[16];
 
 /*-----------------------------------------------------------------------------*/
 #if defined(DEBUG) && DEBUG && DEBUGPRINT_UART
 static char dbgstr[256];
 void dprintf_uart(char* s, ...) {
+    /* raven specific output on com1 */
     va_list args;
     char* buf = dbgstr;
     va_start(args, s);
@@ -88,6 +90,7 @@ static void setcookie(uint32_t cookie_id, uint32_t cookie_value) {
 	jar[(cookies_used<<1)+0] = 0;                   /* write new end marker */
 	jar[(cookies_used<<1)+1] = cookies_size;
 }
+
 
 /*-----------------------------------------------------------------------------*/
 static uint16_t bpp_to_mode(uint16_t bpp) {
@@ -146,21 +149,22 @@ static void update_nova_resinfo(uint16_t width, uint16_t height, uint16_t bpp) {
     nova.scrn_count = nova.mem_size / nova.scrn_size;
     nova.scrn_count = (nova.scrn_count < 1) ? 1 : nova.scrn_count;
     nova.base = nova.mem_base;
+
+    dprintf("size = %ld, pitch = %d\n", nova.scrn_size, nova.pitch);
 }
 
 
 /*-------------------------------------------------------------------------------
 
- NOVA outward facing API exposed in cookie
+ NOVA outward facing API as exposed in the cookie
 
 *-----------------------------------------------------------------------------*/
 void nova_p_changeres(nova_bibres_t* bib, uint32_t offs) {
     /* bib points directly to the requested resolution data */
-    /* sta_vdi respects the final info updated in nova cookie so it's */
-    /* probably safe to view this call as a polite request with */
-    /* possibility of refusing or altering parameters per device capabilities */
+    /* sta_vdi respects the final info that we update in the cookie so we */
+    /* can modify or reject the resolution change as we wish */
     /* I have no idea what offs is supposed to do, */
-    /* perhaps screen memory offset but I have only seen this argument be 0 */
+    /* assuming vram offset but I have only seen this argument be 0 */
     uint16_t sr;
     uint16_t w = bib->max_x + 1;
     uint16_t h = bib->max_y + 1;
@@ -172,25 +176,23 @@ void nova_p_changeres(nova_bibres_t* bib, uint32_t offs) {
     /* are we being called from usermode? or run out of super stack? */
     sr = cpu_di();  
     card->vsync();
-    card->vsync();
     if (nv_setmode(w, h, b)) {
         /* update nova cookie */
-        nova.mem_size = card->bank_size * card->num_banks;
+        nova.mem_size = card->bank_size * card->bank_count;
         update_nova_resinfo(w, h, b);
         update_nova_resname(bib->name);
 
         /* sta_vdi needs register access to draw in 16 color planar */
+        /* but we prevent them for all other resolutions */
         if (nova.planes == 4) {
-            cpu_map(VADDR_IO, PADDR_IO, VSIZE_IO, PMMU_CM_PRECISE | PMMU_READWRITE);
+            cpu_map(VADDR_IO, PADDR_IO, VSIZE_IO, PAGE_READWRITE);
         } else {
             uint32_t offs;
-            for (offs = 0; offs < VSIZE_IO; offs += 4096) {
-                cpu_map(VADDR_IO + offs, (uint32_t)nova_dummy_area, 4096, PMMU_CM_PRECISE | PMMU_READWRITE);
+            for (offs = 0; offs < VSIZE_IO; offs += PMMU_PAGESIZE) {
+                cpu_map(VADDR_IO + offs, (uint32_t)nova_dummy_page, PMMU_PAGESIZE, PAGE_READWRITE);
             }
         }
         cpu_flush_atc();
-        /*cpu_flush_cache();*/
-        card->vsync();
         card->vsync();
     }
     cpu_ei(sr);
@@ -203,9 +205,9 @@ void nova_p_setcolor(uint16_t index, uint8_t* colors) {
 
     sr = cpu_di();
     if (nova.planes == 1) {
-        /* a bit of a temp hack here */
-        /* not sure which additional indices we need to set for color 1 so */
-        /* we're setting all of them at the moment */
+        /* a bit of a temp hack here.. */
+        /* i'm not sure which additional indices we need to set for */
+        /* mono color 1 so just set all of them at the moment */
         int idx = index;
         int end = (index == 0) ? 1 : 255;
         for (; idx < end; idx++) {
@@ -227,17 +229,13 @@ void nova_p_changevirt(uint16_t x, uint16_t y) {
 }
 
 void nova_p_instxbios(uint16_t on) {
-    /* this gets called with 0 when sta_vdi.prg starts */
-    /* likely to stop the redirection stuff that the orignal emulator.prg */
-    /* for et4000 was doing */
+    /* this gets called with 0 when xmenu.prg starts */
     dprintf("nova: p_instxbios: %d\n", on);
 }
 
 void nova_p_screen_on(uint16_t on) {
     /* have no seen this called from sta_vdi */
-    /* likely useed by sta_vdi's screensaver and possibly */
-    /* useful for some usercode */
-    /* test nova_col.acc */
+    /* most likely used by sta_vdi's screensaver */
     dprintf("nova: p_screen_on: %d\n", on);
 }
 
@@ -248,15 +246,20 @@ void nova_p_changepos(nova_bibres_t* bib, uint16_t dir, uint16_t offs) {
     dprintf("nova: p_changepos: %08lx, %d, %d\n", (uint32_t)bib, dir, offs);
 }
 
+extern bool vdi_patch(void);
 void nova_p_setscreen(void* addr) {
+    static bool first = true;
     /* called on sta_vdi start and no confusion here */
     dprintf("nova: p_setscreen: %08lx\n", (uint32_t)addr);
+    /* take this opportunity hook in blitter support */
+    if (first) {
+        vdi_patch();
+        first = false;
+    }
 }
 
 void nova_p_vsync(void) {
-    /* have no seen this called from sta_vdi, but certainly */
-    /* useful and used by user-code, SDL and so on */
-    /* test nova_col.acc */
+    /* does what it says on the tin */
     dprintf("nova: p_vsync\n");
     card->vsync();
 }
@@ -268,6 +271,20 @@ void nova_p_vsync(void) {
  driver initialisation
 
 *-----------------------------------------------------------------------------*/
+
+static void *linea0(void) 0xa000;
+
+static void updatebootvdi(void) {
+    /* update resolution */
+    uint32_t la = (uint32_t)linea0();
+    *((uint16_t*)(la-0xc)) = nova.max_x + 1;    /* V_REZ_VT */
+    *((uint16_t*)(la-0x4)) = nova.max_y + 1;    /* V_REZ_HT */
+
+    /* todo: update font and console */
+    
+    /* update vdi framebuffer pointer */
+    *((volatile uint32_t*)0x44eUL) = VADDR_MEM;
+}
 
 static bool setbootres(void) {
     int16_t bootdrive;
@@ -301,11 +318,14 @@ static bool setbootres(void) {
         nova_p_changeres(bibres, 0);
         nova_p_setcolor(0, &pal[0]);
         nova_p_setcolor(1, &pal[3]);
+        updatebootvdi();
         return true;
     }
 
     return false;
 }
+
+extern void patch_vdi_onload(uint16_t on);
 
 long supermain(void) {
     uint32_t cookie;
@@ -315,7 +335,10 @@ long supermain(void) {
         return -1;
     }
 
-    /* default ega color table */
+    /* dummy page for preventing sta_vdi from accessing gfxcard io register */
+    nova_dummy_page = (((uint32_t)nova_dummy_area + (PMMU_PAGEALIGN - 1)) & ~(PMMU_PAGEALIGN - 1));
+
+    /* default ega->vga colormap */
     nova_colormap[ 0] = 0x00;
     nova_colormap[ 1] = 0x01;
     nova_colormap[ 2] = 0x02;
@@ -341,7 +364,7 @@ long supermain(void) {
     nova.version = NOVA_VERSION;
     nova.hcmode = NOVA_HCMODE_1X1;
     nova.blank_time = 0;
-    nova.mouse_speed = 1;
+    nova.mouse_speed = 0;
 
     /* api setup */
     nova.p_changeres = nova_p_changeres;
@@ -356,7 +379,7 @@ long supermain(void) {
     /* card setup */
     nova.reg_base = (void*) (VADDR_IO + 0x8000UL);
     nova.mem_base = (void*) (VADDR_MEM);
-    nova.mem_size = card->bank_size * card->num_banks;
+    nova.mem_size = card->bank_size * card->bank_count;
 
     /* install cookie */
     setcookie(C_NOVA, (uint32_t)&nova);
@@ -365,9 +388,13 @@ long supermain(void) {
     nova.old_resolution = 0;
     nova.resolution = 1;
     if (!setbootres()) {
+        /* no emulator.bib, just assume 640x480x2bpp */
         update_nova_resinfo(640, 480, 2);
         update_nova_resname("boot");
     }
+
+    /* clear the dummy page for good measure */
+    memset((void*)nova_dummy_page, 0, PMMU_PAGESIZE);
     return 0;
 }
 

@@ -40,21 +40,35 @@
     static void dprintf(char* s, ...) { }
 #endif
 
+/*-----------------------------------------------------------------------------*/
+#define NV_SUPPORT_BANKS        1
+
 
 /*-----------------------------------------------------------------------------*/
+#ifndef DRV_INCLUDE_CIRRUS
+#define DRV_INCLUDE_CIRRUS      1
+#endif
+#ifndef DRV_INCLUDE_WDC
+#define DRV_INCLUDE_WDC         0
+#endif
+#ifndef DRV_INCLUDE_OAK
+#define DRV_INCLUDE_OAK         1
+#endif
+
+
+/*-----------------------------------------------------------------------------*/
+#define PMMU_PAGESIZE           4096UL
+#define PMMU_PAGEALIGN          PMMU_PAGESIZE
+
 #define PMMU_INVALID            (0 << 0)
 #define PMMU_VALID              (3 << 0)
-#define PMMU_INDIRECT           (1 << 1)
 #define PMMU_WRITEPROTECT       (1 << 2)
 #define PMMU_USED               (1 << 3)
-#define PMMU_SUPER              (1 << 7)
-#define PMMU_CM_WRITETHROUGH    (0 << 5)
-#define PMMU_CM_COPYBACK        (1 << 5)
 #define PMMU_CM_PRECISE         (2 << 5)
-#define PMMU_CM_IMPRECISE       (3 << 5)
 
-#define PMMU_READONLY           (PMMU_VALID | PMMU_USED | PMMU_WRITEPROTECT)
-#define PMMU_READWRITE          (PMMU_VALID | PMMU_USED)
+#define PAGE_INVALID            (PMMU_CM_PRECISE | PMMU_INVALID)
+#define PAGE_READONLY           (PMMU_CM_PRECISE | PMMU_VALID | PMMU_USED | PMMU_WRITEPROTECT)
+#define PAGE_READWRITE          (PMMU_CM_PRECISE | PMMU_VALID | PMMU_USED)
 
 extern uint16_t cpu_di(void);
 extern uint16_t cpu_ei(uint16_t sr);
@@ -75,52 +89,51 @@ static void     cpu_flush_cache(void) { raven()->cache_Flush(); }
 
 /*-----------------------------------------------------------------------------*/
 
-
-
 /*-----------------------------------------------------------------------------*/
 
 /*-------------------------------------------------------------------------------
  * driver
  *-----------------------------------------------------------------------------*/
 
-#define MODE_FLAG_INVALID   (1<<15)
+typedef void(*addmode_f)(uint16_t, uint16_t, uint8_t, uint8_t, uint16_t);
 
 typedef struct
 {
     uint16_t    width;
     uint16_t    height;
-    uint16_t    bpp;
-    uint16_t    flags;
-    uint32_t    code;
+    uint8_t     bpp;
+    uint8_t     flags;
+    uint16_t    code;
 } mode_t;
 
 typedef struct
 {
-    char*       driver_name;
-    uint32_t    driver_version;
-    bool        (*init)(void);
-
-    char*       card_name;
+    const char* name;
+    uint32_t    vram_size;
+    uint32_t    bank_count;
     uint32_t    bank_addr;
     uint32_t    bank_size;
-    uint16_t    num_banks;
+    uint32_t    bank_step;
+    bool        (*setmode)(mode_t* mode);
     void        (*setbank)(uint16_t num);
-
-    uint16_t    num_modes;
-    mode_t*     (*getmode)(uint16_t num);
-    bool        (*setmode)(uint16_t num);
-
     void        (*setcolors)(uint16_t index, uint16_t count, uint8_t* colors);
     void        (*getcolors)(uint16_t index, uint16_t count, uint8_t* colors);
     void        (*vsync)(void);
-} driver_t;
+    void        (*clear)(void);
+} card_t;
 
+typedef struct
+{
+    const char* name;
+    bool        (*init)(card_t* card, addmode_f addmode);
+} driver_t;
 
 /*-------------------------------------------------------------------------------
  * core
  *-----------------------------------------------------------------------------*/
 extern nova_xcb_t nova;
-extern driver_t* card;
+extern driver_t* driver;
+extern card_t* card;
 
 /* initialise system and driver */
 extern bool nv_init(void);
@@ -131,10 +144,12 @@ extern bool nv_setmode(uint16_t w, uint16_t h, uint16_t b);
 /* initialize vram and banks, if any */
 extern void nv_init_vram(uint32_t phys, uint32_t size, uint16_t count);
 
-/* standard vga or vesa functionality */
-extern void nv_vesa_vsync(void);
-extern bool nv_vesa_setmode(uint16_t mode);
-extern void nv_vesa_setcolors(uint16_t index, uint16_t count, uint8_t* colors);
-extern void nv_vesa_getcolors(uint16_t index, uint16_t count, uint8_t* colors);
+
+/* standard vga functionality */
+extern void vga_vsync(void);
+extern bool vga_screen_on(bool on);
+extern bool vga_setmode(uint16_t code);
+extern void vga_setcolors(uint16_t index, uint16_t count, uint8_t* colors);
+extern void vga_getcolors(uint16_t index, uint16_t count, uint8_t* colors);
 
 #endif /* _EMULATOR_H_ */

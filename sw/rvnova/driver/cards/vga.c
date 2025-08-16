@@ -19,52 +19,134 @@
 #include "emulator.h"
 #include "raven.h"
 #include "vga.h"
+#include "x86.h"
 
-#define _this drv_vga
-extern driver_t _this;
+/*-------------------------------------------------------------------------------
+ * shared vga functionality
+ *-----------------------------------------------------------------------------*/
 
+void vga_vsync(void) {
+    do { cpu_nop(); } while (vga_ReadPort(0x3DA) & 8);
+    do { cpu_nop(); } while (!(vga_ReadPort(0x3DA) & 8));
+}
 
-static const mode_t modes[] = {
-    {  320, 200,  8, 0, 0x13 },
-    {  640, 350,  1, 0, 0x10 },
-    {  640, 350,  4, 0, 0x10 },
-    {  640, 480,  1, 0, 0x12 },
-    {  640, 480,  4, 0, 0x12 },
-};
-
-static mode_t* drv_getmode(uint16_t num) {
-    if (num < _this.num_modes) {
-        return (mode_t*)&modes[num];
+void vga_delay(uint32_t ms) {
+    /* a bit of a kludge and not accurate at all
+     * assumes a vertical refresh of 60hz which may not be true
+     * but close enough for our intended use */
+    uint32_t vsyncs = (ms / 17);
+    vsyncs = vsyncs ? vsyncs : 1;
+    for (; vsyncs; vsyncs--) {
+        vga_vsync();
     }
-    return 0;
 }
 
-static bool drv_setmode(uint16_t num) {
-    if (num < _this.num_modes) {
-        dprintf("drv setmode %d (%dx%dx%d 0x%04x)\n", num, modes[num].width, modes[num].height, modes[num].bpp, modes[num].code);
-        return nv_vesa_setmode((uint16_t)(modes[num].code & 0xffff));
+bool vga_screen_on(bool on) {
+    bool ret = vga_ReadPort(0x3c6) == 0 ? false : true;
+    vga_WritePort(0x3c6, on ? 0xff : 0x00);
+    return ret;
+}
+
+void vga_clear(void) {
+    uint32_t col = 0x00000000UL;
+    /* write to all planes */
+    uint8_t mask = vga_ReadReg(0x3c4, 0x02);
+    vga_WriteReg(0x3c4, 0x02, 0x0f);
+    /* clear all banks */
+    if (card) {
+        uint16_t bank; uint16_t banks = card->bank_count ? card->bank_count : 1;
+        for (bank = 0; bank < banks; bank++) {
+            uint32_t* dst  = (uint32_t*)(RV_PADDR_ISA_RAM16 + card->bank_addr);
+            uint32_t  siz  = card->bank_size >> 2;
+            card->setbank(bank);
+            for (; siz; siz--) {
+                *dst++ = col;
+            }
+        }
+    } else {
+        uint32_t* dst = (uint32_t*)RV_PADDR_ISA_RAM16;
+        uint32_t  siz = 1024UL * 64;
+        for (; siz; siz--) {
+            *dst++ = col;
+        }
     }
-    return false;
+    /* restore write mask */
+    vga_WriteReg(0x3c4, 0x02, mask);
 }
 
-static void drv_setbank(uint16_t num) {
-}
-
-static bool drv_init(void) {
-    dprintf("drv init\n");
-    _this.card_name = _this.driver_name;
-    _this.bank_addr = 0xA0000UL;
-    _this.bank_size = 64 * 1024UL;
-    _this.num_banks = 1;
-    _this.num_modes = sizeof(modes) / sizeof(mode_t);
-
-    _this.getmode = drv_getmode;
-    _this.setmode = drv_setmode;
-    _this.setbank = drv_setbank;
-    _this.setcolors = nv_vesa_setcolors;
-    _this.getcolors = nv_vesa_getcolors;
-    _this.vsync = nv_vesa_vsync;
+bool vga_setmode(uint16_t code) {
+    x86_regs_t r;
+    /* we clear the screen ourselves instead of slowly inside x86 emulation */
+    if (!(code & 0x80)) {
+        code |= 0x80;
+        vga_vsync();
+        vga_clear();
+    }
+    vga_vsync();
+    r.x.ax = code;
+    int86(0x10, &r, &r);
+    /* delay here because some cards can lock up if accessed too soon after mode change */
+    /* the value used here is based on absolutely nothing */
+    vga_delay(500);
+    vga_vsync();
     return true;
 }
 
-driver_t _this = { "Standard VGA", 1, drv_init };
+void vga_setcolors(uint16_t index, uint16_t count, uint8_t* colors) {
+    while (count) {
+        vga_WritePort(0x3c8, index++);
+        vga_WritePort(0x3c9, (*colors++)>>2);
+        vga_WritePort(0x3c9, (*colors++)>>2);
+        vga_WritePort(0x3c9, (*colors++)>>2);
+        count--;
+    }
+}
+
+void vga_getcolors(uint16_t index, uint16_t count, uint8_t* colors) {
+    while (count) {
+        vga_WritePort(0x3c8, index++);
+        *colors++ = vga_ReadPort(0x3c9);
+        *colors++ = vga_ReadPort(0x3c9);
+        *colors++ = vga_ReadPort(0x3c9);
+        count--;
+    }
+}
+
+
+/*-------------------------------------------------------------------------------
+ * generic base vga driver
+ *-----------------------------------------------------------------------------*/
+
+static void setbank(uint16_t num) {
+    /* dummy function intentionally left blank */
+}
+
+static bool setmode(mode_t* mode) {
+    return vga_setmode(mode->code);
+}
+
+static bool init(card_t* card, addmode_f addmode) {
+
+    card->name = "unknown";
+    card->bank_addr = 0xA0000UL;
+    card->vram_size = 1024UL * 256;
+    card->bank_size = 1024UL * 64;
+    card->bank_step = 1024UL * 4;
+    card->bank_count = 1;
+
+    card->setmode = setmode;
+    card->setbank = setbank;
+    card->setcolors = vga_setcolors;
+    card->getcolors = vga_getcolors;
+    card->vsync = vga_vsync;
+    card->clear = vga_clear;
+
+    addmode(640, 350, 1, 0, 0x10);
+    addmode(640, 480, 1, 0, 0x12);
+    addmode(640, 350, 4, 0, 0x10);
+    addmode(640, 480, 4, 0, 0x12);
+    addmode(320, 200, 8, 0, 0x13);
+    return true;
+}
+
+driver_t drv_vga = { "vga", init };

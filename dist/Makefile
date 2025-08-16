@@ -264,8 +264,8 @@ copysw:
 	# NOVA
 	# --------------------------------------------------
 		mkdir -p $(SWDIR_NOVA)
-		unzip $(SUPPDIR)/nova/TT_ET4000T0_V300.zip -d $(SWDIR_NOVA)
-		mv $(SWDIR_NOVA)/T0 $(SWDIR_NOVA)/DEFAULT
+		unzip $(SUPPDIR)/nova/TT_ET4000T8_V300.zip -d $(SWDIR_NOVA)
+		mv $(SWDIR_NOVA)/T8 $(SWDIR_NOVA)/DEFAULT
 		$(COPY) $(ROOTDIR)/sw/rvnova/driver/emulator.prg $(SWDIR_NOVA)/DEFAULT/AUTO/EMULATOR.PRG
 
 		unzip $(SUPPDIR)/nova/TT_ET4000T0_V300.zip -d $(SWDIR_NOVA)
