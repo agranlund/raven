@@ -2,10 +2,10 @@
 
 cmake_minimum_required(VERSION 3.13)
 
-set(PICO_BOARD_HEADER_DIRS ${CMAKE_CURRENT_LIST_DIR})
+set(PICO_BOARD_HEADER_DIRS ${CMAKE_CURRENT_LIST_DIR}/boards)
 if(NOT PICO_BOARD)
     set(PICO_BOARD "picogus2")
-    message("PICO_BOARD not set, defaulting to ${PROJECT_TYPE}")
+    message("PICO_BOARD not set, defaulting to ${PICO_BOARD}")
 endif()
 set(PICO_COPY_TO_RAM 1)
 
@@ -19,7 +19,7 @@ set(PICO_COPY_TO_RAM 1)
 include(pico_sdk_import.cmake)
 
 project(picogus
-    VERSION "2.2.0"
+    VERSION "3.2.0"
     LANGUAGES C CXX ASM
 )
 
@@ -27,10 +27,6 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
 include(pico_extras_import.cmake)
-
-# Tell the Pico SDK to use our local tinyusb instead of the one included in the SDK
-# This is needed to support tusb_xinput
-set(PICO_TINYUSB_PATH ${CMAKE_CURRENT_LIST_DIR}/tinyusb)
 
 #set(PICO_DEOPTIMIZED_DEBUG "1")
 #set(CMAKE_BUILD_TYPE "Debug")
@@ -41,6 +37,8 @@ if(NOT PROJECT_TYPE)
     set(PROJECT_TYPE "GUS")
     message("PROJECT_TYPE not set, defaulting to ${PROJECT_TYPE}")
 endif()
+
+set(PICO_TINYUSB_PATH ${CMAKE_CURRENT_LIST_DIR}/tinyusb)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
@@ -59,10 +57,21 @@ endfunction()
 
 # Global definitions across all targets
 add_compile_definitions(
-    RP2_CLOCK_SPEED=366000
+    # 370MHz is extremely closely evenly divisible by 44100Hz
+    RP2_CLOCK_SPEED=370000
+    SYS_CLK_HZ=370000000
+    # Manually set up PLLs because of non-default REFDIV
+    PLL_SYS_REFDIV=2
+    PLL_SYS_VCO_FREQ_HZ=1110000000
+    PLL_SYS_POSTDIV1=3
+    PLL_SYS_POSTDIV2=1
+    # Set voltage before main so no need to do so on the fly
+    SYS_CLK_VREG_VOLTAGE_AUTO_ADJUST=1
+    SYS_CLK_VREG_VOLTAGE_MIN=VREG_VOLTAGE_1_25
     PICO_DEFAULT_UART=0
     PICO_DEFAULT_UART_TX_PIN=28
     PICO_DEFAULT_UART_RX_PIN=-1
+    PICO_DEFAULT_UART_BAUD_RATE=230400
     PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=250
 )
 
@@ -73,11 +82,17 @@ function(config_target TARGET_NAME MULTIFW)
     add_executable(${TARGET_NAME} picogus.cpp)
     pico_set_program_version(${TARGET_NAME} ${CMAKE_PROJECT_VERSION})
 
+    # Add include directory for the new structure
+    target_include_directories(${TARGET_NAME} PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}
+    )
+
     target_compile_definitions(${TARGET_NAME} PRIVATE
         USE_AUDIO_I2S=1
         PICO_AUDIO_I2S_DATA_PIN=16
         PICO_AUDIO_I2S_CLOCK_PIN_BASE=17
         PICO_AUDIO_I2S_PIO=1
+        PICO_AUDIO_I2S_SM=3
         M62429_PIO=1
     )
 
@@ -88,13 +103,13 @@ function(config_target TARGET_NAME MULTIFW)
         target_compile_options(${TARGET_NAME} PRIVATE -flto=jobserver)
     endif()
 
-    target_sources(${TARGET_NAME} PRIVATE pico_reflash.c flash_settings.c)
+    target_sources(${TARGET_NAME} PRIVATE system/pico_reflash.c system/flash_settings.c)
     # target_compile_options(${TARGET_NAME} PRIVATE -save-temps -fverbose-asm)
     if(MULTIFW)
         set_linker_script(${TARGET_NAME} ${CMAKE_BINARY_DIR}/${TARGET_NAME}.ld)
     endif()
 
-    if(USB_JOYSTICK OR USB_MOUSE)
+    if(USB_JOYSTICK OR USB_MOUSE OR CDROM)
         set(USB_STACK TRUE)
     endif()
     if (USB_STACK)
@@ -119,18 +134,35 @@ function(config_target TARGET_NAME MULTIFW)
             mouse/sermouse.cpp
         )
     endif()
+    if(CDROM)
+        target_link_libraries(${TARGET_NAME} cdrom)
+        target_sources(${TARGET_NAME} PRIVATE
+            mke/mke.c
+            cdrom/msc_app.c
+        )
+        target_compile_definitions(${TARGET_NAME} PRIVATE CDROM=1)
+        target_sources(${TARGET_NAME} PRIVATE
+            ${CMAKE_CURRENT_LIST_DIR}/fatfs/source/ff.c
+            ${CMAKE_CURRENT_LIST_DIR}/fatfs/source/ffsystem.c
+            ${CMAKE_CURRENT_LIST_DIR}/fatfs/source/ffunicode.c
+        )
+        target_include_directories(${TARGET_NAME} PRIVATE
+            ${CMAKE_CURRENT_LIST_DIR}/fatfs/source/
+        )
+    endif()
 
     target_sources(${TARGET_NAME} PRIVATE
         M62429/M62429.cpp
-        pico_pic.c
+        system/pico_pic.c
     )
     pico_generate_pio_header(${TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/M62429/M62429.pio)
-    pico_generate_pio_header(${TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/isa_io.pio)
+    pico_generate_pio_header(${TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/isa/isa_io.pio)
 
     if(SOUND_MPU)
         target_sources(${TARGET_NAME} PRIVATE mpu401/mpu401.c mpu401/midi.c)
         target_compile_definitions(${TARGET_NAME} PRIVATE SOUND_MPU=1)
     endif()
+
 
     if(SOUND_OPL)
         target_compile_definitions(${TARGET_NAME} PRIVATE
@@ -178,6 +210,8 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tusb_xinput)
 add_subdirectory(rp2040-psram)
 add_subdirectory(opl)
 add_subdirectory(ne2000)
+add_subdirectory(cdrom)
+add_subdirectory(resampler)
 
 ################################################################################
 # Build GUS firmware
@@ -187,8 +221,9 @@ function(build_gus TARGET_NAME MULTIFW)
     config_target(${TARGET_NAME} ${MULTIFW})
     pico_set_program_name(${TARGET_NAME} "picogus-gus")
     target_sources(${TARGET_NAME} PRIVATE
+        audio/volctrl.cpp
         gusplay.cpp
-        isa_dma.c
+        isa/isa_dma.c
     )
     target_compile_definitions(${TARGET_NAME} PRIVATE
         SOUND_GUS=1
@@ -210,7 +245,7 @@ function(build_gus TARGET_NAME MULTIFW)
         SCALE_22K_TO_44K=1
         # FORCE_28CH_27CH=1
     )
-    pico_generate_pio_header(${TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/isa_dma.pio)
+    pico_generate_pio_header(${TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/isa/isa_dma.pio)
     target_link_libraries(${TARGET_NAME} rp2040-psram hardware_interp)
 endfunction()
 
@@ -220,18 +255,28 @@ function(build_sb TARGET_NAME MULTIFW)
     set(USB_JOYSTICK TRUE)
     set(SOUND_MPU TRUE)
     set(SOUND_OPL TRUE)
+    set(CDROM TRUE)
     config_target(${TARGET_NAME} ${MULTIFW})
     pico_set_program_name(${TARGET_NAME} "picogus-sb")
     target_sources(${TARGET_NAME} PRIVATE
-        sbdsp.cpp
+        audio/volctrl.cpp
+        sbdsp/sbdsp.cpp
         sbplay.cpp
-        isa_dma.c
+        isa/isa_dma.c
+        audio/audio_fifo.c
+        audio/audio_i2s_minimal.c
     )
     target_compile_definitions(${TARGET_NAME} PRIVATE
         SOUND_SB=1
         SOUND_DSP=1
+        SB_BUFFERLESS=1
+        SB_BUFFERLESS_NG=1
+        USE_CD_AUDIO_FIFO=1
+        # USE_IRQ=1
+        # AUDIO_CALLBACK_CORE0=1
     )
-    pico_generate_pio_header(${TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/isa_dma.pio)
+    target_link_libraries(${TARGET_NAME} resampler)
+    pico_generate_pio_header(${TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/isa/isa_dma.pio)
 endfunction()
 
 ################################################################################
@@ -243,7 +288,12 @@ function(build_adlib TARGET_NAME MULTIFW)
     set(SOUND_OPL TRUE)
     config_target(${TARGET_NAME} ${MULTIFW})
     pico_set_program_name(${TARGET_NAME} "picogus-adlib")
-    target_sources(${TARGET_NAME} PRIVATE sbplay.cpp)    
+    target_sources(${TARGET_NAME} PRIVATE
+        audio/volctrl.cpp
+        sbplay.cpp
+        audio/audio_i2s_minimal.c
+    )  
+    target_link_libraries(${TARGET_NAME} resampler)
 endfunction()
 
 ################################################################################
@@ -263,38 +313,22 @@ function(build_mpu TARGET_NAME MULTIFW)
 endfunction()
 
 ################################################################################
-# Build Tandy firmware
-function(build_tandy TARGET_NAME MULTIFW)
+# Build PSG firmware
+function(build_psg TARGET_NAME MULTIFW)
     set(USB_JOYSTICK TRUE)
     set(USB_MOUSE TRUE)
     set(SOUND_MPU TRUE)
     config_target(${TARGET_NAME} ${MULTIFW})
-    pico_set_program_name(${TARGET_NAME} "picogus-tandy")
+    pico_set_program_name(${TARGET_NAME} "picogus-psg")
     target_compile_definitions(${TARGET_NAME} PRIVATE
         SOUND_TANDY=1
-        # SQUARE_FLOAT_OUTPUT=1
-    )
-    target_sources(${TARGET_NAME} PRIVATE
-        square/square.cpp
-    )
-    target_sources(${TARGET_NAME} PRIVATE tandyplay.cpp)
-endfunction()
-
-################################################################################
-# Build CMS firmware
-function(build_cms TARGET_NAME MULTIFW)
-    set(USB_JOYSTICK TRUE)
-    set(USB_MOUSE TRUE)
-    set(SOUND_MPU TRUE)
-    config_target(${TARGET_NAME} ${MULTIFW})
-    pico_set_program_name(${TARGET_NAME} "picogus-cms")
-    target_compile_definitions(${TARGET_NAME} PRIVATE
         SOUND_CMS=1
     )
     target_sources(${TARGET_NAME} PRIVATE
+        audio/volctrl.cpp
         square/square.cpp
     )
-    target_sources(${TARGET_NAME} PRIVATE cmsplay.cpp)
+    target_sources(${TARGET_NAME} PRIVATE psgplay.cpp)
 endfunction()
 
 ################################################################################
@@ -303,12 +337,16 @@ function(build_usb TARGET_NAME MULTIFW)
     set(USB_JOYSTICK TRUE)
     set(USB_MOUSE TRUE)
     set(SOUND_MPU TRUE)
+    set(CDROM TRUE)
     config_target(${TARGET_NAME} ${MULTIFW})
     pico_set_program_name(${TARGET_NAME} "picogus-usb")
     target_compile_definitions(${TARGET_NAME} PRIVATE
         USB_ONLY=1
     )
-    target_sources(${TARGET_NAME} PRIVATE usbplay.cpp)
+    target_sources(${TARGET_NAME} PRIVATE 
+        audio/volctrl.cpp
+        usbplay.cpp
+    )
 endfunction()
 
 
@@ -341,8 +379,7 @@ if(PROJECT_TYPE STREQUAL "MULTIFW")
             "${CMAKE_BINARY_DIR}/pg-gus-multifw.ld"
             "${CMAKE_BINARY_DIR}/pg-adlib-multifw.ld"
             "${CMAKE_BINARY_DIR}/pg-mpu-multifw.ld"
-            "${CMAKE_BINARY_DIR}/pg-tandy-multifw.ld"
-            "${CMAKE_BINARY_DIR}/pg-cms-multifw.ld"
+            "${CMAKE_BINARY_DIR}/pg-psg-multifw.ld"
             "${CMAKE_BINARY_DIR}/pg-sb-multifw.ld"
             "${CMAKE_BINARY_DIR}/pg-usb-multifw.ld"
         COMMAND
@@ -356,22 +393,19 @@ if(PROJECT_TYPE STREQUAL "MULTIFW")
             -DFW_2_LD="${CMAKE_BINARY_DIR}/pg-adlib-multifw.ld"
             -DFW_3_BIN="${CMAKE_BINARY_DIR}/pg-mpu.bin"
             -DFW_3_LD="${CMAKE_BINARY_DIR}/pg-mpu-multifw.ld"
-            -DFW_4_BIN="${CMAKE_BINARY_DIR}/pg-tandy.bin"
-            -DFW_4_LD="${CMAKE_BINARY_DIR}/pg-tandy-multifw.ld"
-            -DFW_5_BIN="${CMAKE_BINARY_DIR}/pg-cms.bin"
-            -DFW_5_LD="${CMAKE_BINARY_DIR}/pg-cms-multifw.ld"
-            -DFW_6_BIN="${CMAKE_BINARY_DIR}/pg-sb.bin"
-            -DFW_6_LD="${CMAKE_BINARY_DIR}/pg-sb-multifw.ld"
-            -DFW_7_BIN="${CMAKE_BINARY_DIR}/pg-usb.bin"
-            -DFW_7_LD="${CMAKE_BINARY_DIR}/pg-usb-multifw.ld"
+            -DFW_4_BIN="${CMAKE_BINARY_DIR}/pg-psg.bin"
+            -DFW_4_LD="${CMAKE_BINARY_DIR}/pg-psg-multifw.ld"
+            -DFW_5_BIN="${CMAKE_BINARY_DIR}/pg-sb.bin"
+            -DFW_5_LD="${CMAKE_BINARY_DIR}/pg-sb-multifw.ld"
+            -DFW_6_BIN="${CMAKE_BINARY_DIR}/pg-usb.bin"
+            -DFW_6_LD="${CMAKE_BINARY_DIR}/pg-usb-multifw.ld"
             -P ${CMAKE_SOURCE_DIR}/multifw/generate_ld.cmake
         DEPENDS
             "${CMAKE_SOURCE_DIR}/multifw/firmware.ld.in"
             pg-gus
             pg-adlib
             pg-mpu
-            pg-tandy
-            pg-cms
+            pg-psg
             pg-sb
             pg-usb
     )
@@ -380,8 +414,7 @@ if(PROJECT_TYPE STREQUAL "MULTIFW")
         "${CMAKE_BINARY_DIR}/pg-gus-multifw.ld"
         "${CMAKE_BINARY_DIR}/pg-adlib-multifw.ld"
         "${CMAKE_BINARY_DIR}/pg-mpu-multifw.ld"
-        "${CMAKE_BINARY_DIR}/pg-tandy-multifw.ld"
-        "${CMAKE_BINARY_DIR}/pg-cms-multifw.ld"
+        "${CMAKE_BINARY_DIR}/pg-psg-multifw.ld"
         "${CMAKE_BINARY_DIR}/pg-sb-multifw.ld"
         "${CMAKE_BINARY_DIR}/pg-usb-multifw.ld"
     )
@@ -395,12 +428,9 @@ if(PROJECT_TYPE STREQUAL "MULTIFW")
     build_mpu(pg-mpu FALSE)
     build_mpu(pg-mpu-multifw TRUE)
     add_dependencies(pg-mpu-multifw pg-mpu generate_flash_firmware_h)
-    build_tandy(pg-tandy FALSE)
-    build_tandy(pg-tandy-multifw TRUE)
-    add_dependencies(pg-tandy-multifw pg-tandy generate_flash_firmware_h)
-    build_cms(pg-cms FALSE)
-    build_cms(pg-cms-multifw TRUE)
-    add_dependencies(pg-cms-multifw pg-cms generate_flash_firmware_h)
+    build_psg(pg-psg FALSE)
+    build_psg(pg-psg-multifw TRUE)
+    add_dependencies(pg-psg-multifw pg-psg generate_flash_firmware_h)
     build_sb(pg-sb FALSE)
     build_sb(pg-sb-multifw TRUE)
     add_dependencies(pg-sb-multifw pg-sb generate_flash_firmware_h)
@@ -409,11 +439,14 @@ if(PROJECT_TYPE STREQUAL "MULTIFW")
     add_dependencies(pg-usb-multifw pg-usb generate_flash_firmware_h)
 
     add_executable(bootloader)
-    target_sources(bootloader PRIVATE multifw/bootloader.c flash_settings.c)
+    target_sources(bootloader PRIVATE multifw/bootloader.c system/flash_settings.c)
     target_link_libraries(bootloader PRIVATE pico_stdlib hardware_flash pico_flash hardware_exception)
     pico_add_extra_outputs(bootloader)
     # set_linker_script(bootloader ${CMAKE_SOURCE_DIR}/multifw/bootloader.ld)
-    target_include_directories(bootloader PRIVATE ${CMAKE_BINARY_DIR}/generated/multifw)
+    target_include_directories(bootloader PRIVATE 
+        ${CMAKE_CURRENT_LIST_DIR}
+        ${CMAKE_BINARY_DIR}/generated/multifw
+    )
     pico_enable_stdio_uart(bootloader 0)
     pico_enable_stdio_usb(bootloader 0)
     pico_enable_stdio_semihosting(bootloader 0)
@@ -428,8 +461,8 @@ if(PROJECT_TYPE STREQUAL "MULTIFW")
     endif()
     add_custom_command(
         OUTPUT picogus.uf2
-        DEPENDS bootloader UF2CREATE pg-gus-multifw pg-adlib-multifw pg-mpu-multifw pg-tandy-multifw pg-cms-multifw pg-sb-multifw pg-usb-multifw
-        COMMAND UF2CREATE bootloader.bin pg-gus-multifw.bin pg-adlib-multifw.bin pg-mpu-multifw.bin pg-tandy-multifw.bin pg-cms-multifw.bin pg-sb-multifw.bin pg-usb-multifw.bin picogus.uf2
+        DEPENDS bootloader UF2CREATE pg-gus-multifw pg-adlib-multifw pg-mpu-multifw pg-psg-multifw pg-sb-multifw pg-usb-multifw
+        COMMAND UF2CREATE bootloader.bin pg-gus-multifw.bin pg-adlib-multifw.bin pg-mpu-multifw.bin pg-psg-multifw.bin pg-sb-multifw.bin pg-usb-multifw.bin picogus.uf2
     )
     add_custom_target(picogus ALL DEPENDS picogus.uf2)
 
@@ -447,12 +480,9 @@ elseif(PROJECT_TYPE STREQUAL "ADLIB")
 elseif(PROJECT_TYPE STREQUAL "MPU")
     set(FW_TARGET pg-mpu)
     build_mpu(pg-mpu FALSE)
-elseif(PROJECT_TYPE STREQUAL "TANDY")
-    set(FW_TARGET pg-tandy)
-    build_tandy(pg-tandy FALSE)
-elseif(PROJECT_TYPE STREQUAL "CMS")
-    set(FW_TARGET pg-cms)
-    build_cms(pg-cms FALSE)
+elseif(PROJECT_TYPE STREQUAL "PSG")
+    set(FW_TARGET pg-psg)
+    build_psg(pg-psg FALSE)
 elseif(PROJECT_TYPE STREQUAL "USB")
     set(FW_TARGET pg-usb)
     build_usb(pg-usb FALSE)

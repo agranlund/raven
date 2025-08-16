@@ -18,10 +18,10 @@
 
 #include <stdio.h>
 
-#include "flash_settings.h"
+#include "system/flash_settings.h"
 extern Settings settings;
 
-#include "pico_pic.h"
+#include "system/pico_pic.h"
 
 #ifdef USB_STACK
 #include "tusb.h"
@@ -44,7 +44,7 @@ void play_mpu() {
     MPU401_Init(settings.MPU.delaySysex, settings.MPU.fakeAllNotesOff);
 
     for (;;) {
-        send_midi_bytes(4);				// see if we need to send a byte
+        send_midi_bytes(8);
 #ifdef USB_STACK
         // Service TinyUSB events
         tuh_task();
