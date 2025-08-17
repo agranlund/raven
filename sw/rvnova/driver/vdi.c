@@ -191,16 +191,7 @@ bool vdi_patch(void* sp) {
 
 
 
-/* 
- * sta_vdi has another initial trap2 handler that moves the unusal one back
- * to the top in case someone else installs a higher prio trap2 handler..
- * NVDI has the same nasty behavior. very bizarre.
- * fVDI will runtime patches that out of NVDI and we could do something similar
- * here in order to override certain STA_VDI functionality -- but it's probably
- * just a lot easier to patch the VDI function table in memory (vdi_trap2_top_table)
- */
-
-/* dispatcher:  4217c, ghidra:  2198c
+/* dispatcher:
         0002198c 48 e7 60 e0     movem.l    {  A2 A1 A0 D2 D1},-(SP)
         00021990 20 41           movea.l    D1,A0
         00021992 22 50           movea.l    (A0),A1
@@ -220,7 +211,7 @@ bool vdi_patch(void* sp) {
         000219bc 4e 75           rts
 */
 
-/* trap2: 421cc, ghidra:  219dc
+/* trap2:
         000219d0 58 42 52 41     ds         "XBRA"
         000219d4 49 4d 4e 45     ds         "IMNE"
 vec_trap2top_old
@@ -265,11 +256,3 @@ vdi_trap2_top_table_fun
         00021a2c 00 02 2d c4     addr       FUN_00022dc4
         .....
 */
-
-/* vro_copyfm = 107, 107*8 = 872 = 0x368
-    0x21a20 + 0x368 = 21d88
-        00021d88 00 00           dw         0h
-        00021d8a 00 00           dw         0h
-        00021d8c 00 02 1e 9c     addr       DAT_00021e9c
-*/
-
