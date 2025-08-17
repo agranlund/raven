@@ -246,16 +246,9 @@ void nova_p_changepos(nova_bibres_t* bib, uint16_t dir, uint16_t offs) {
     dprintf("nova: p_changepos: %08lx, %d, %d\n", (uint32_t)bib, dir, offs);
 }
 
-extern bool vdi_patch(void);
 void nova_p_setscreen(void* addr) {
-    static bool first = true;
     /* called on sta_vdi start and no confusion here */
     dprintf("nova: p_setscreen: %08lx\n", (uint32_t)addr);
-    /* take this opportunity hook in blitter support */
-    if (first) {
-        vdi_patch();
-        first = false;
-    }
 }
 
 void nova_p_vsync(void) {
@@ -264,6 +257,14 @@ void nova_p_vsync(void) {
     card->vsync();
 }
 
+extern void vdi_patch(void* stack);
+extern void nova_p_setscreen_first_asm(void* addr);
+void nova_p_setscreen_first(void* addr, void* stack) {
+    dprintf("nova: p_setscreen_first: %08lx %08lx\n", (uint32_t)addr, (uint32_t)stack);
+    vdi_patch(stack);
+    nova.p_setscreen = nova_p_setscreen;
+    nova_p_setscreen(addr);
+}
 
 
 /*-------------------------------------------------------------------------------
@@ -325,8 +326,6 @@ static bool setbootres(void) {
     return false;
 }
 
-extern void patch_vdi_onload(uint16_t on);
-
 long supermain(void) {
     uint32_t cookie;
 
@@ -375,6 +374,11 @@ long supermain(void) {
     nova.p_changepos = nova_p_changepos;
     nova.p_setscreen = nova_p_setscreen;
     nova.p_vsync = nova_p_vsync;
+
+    /* hardware acceleration */
+    if (card->blit) {
+        nova.p_setscreen = nova_p_setscreen_first_asm;
+    }
 
     /* card setup */
     nova.reg_base = (void*) (VADDR_IO + 0x8000UL);

@@ -93,9 +93,21 @@ static void     cpu_flush_cache(void) { raven()->cache_Flush(); }
 
 /*-------------------------------------------------------------------------------
  * driver
+ *  todo: define how to work with different blitmodes, and single color fills
  *-----------------------------------------------------------------------------*/
 
 typedef void(*addmode_f)(uint16_t, uint16_t, uint8_t, uint8_t, uint16_t);
+
+typedef struct
+{
+    int32_t     x0;
+    int32_t     y0;
+    int32_t     x1;
+    int32_t     y1;
+    int32_t     width;
+    int32_t     height;
+    int32_t     flags;
+} blcmd_t;
 
 typedef struct
 {
@@ -120,6 +132,7 @@ typedef struct
     void        (*getcolors)(uint16_t index, uint16_t count, uint8_t* colors);
     void        (*vsync)(void);
     void        (*clear)(void);
+    bool        (*blit)(blcmd_t* blcmd);
 } card_t;
 
 typedef struct

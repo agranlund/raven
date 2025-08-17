@@ -20,25 +20,172 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
-#include <mint/cookie.h>
-#include <mint/osbind.h>
+#include <vdi.h>
 
 #include "emulator.h"
 #include "nova.h"
 
-/* trap2: 421cc */
-/* disp:  4217c */
+#define VDI_DEBUG   0
 
-extern uint32_t vdi_get_dispatcher(void);
+/*
+ * VDI patching.
+ *
+ * We cannot simply add our own trap2 handler because the VDI's are
+ * caching certain stuff as well as playing foul with the trap2 chain.
+ * Furthermore, NVDI replaces the trap and gets rid of STA_VDI from
+ * that chain completely, calling its dispatcher directly when needed.
+ * 
+ * So. when we get the first call from the resident STA_VDI we search
+ * it's memory from the stacked return address to find and modify
+ * the internal VDI jumptable. This is located right after the trap code.
+ *
+ */
+uint32_t vdi_patch_findtrap2_backward(uint32_t from, uint32_t len) {
+    uint32_t addr = from - 2;
+    for (; addr > (from - len); addr -= 2) {
+        if (*((uint32_t*)(addr+0)) == 0x58425241UL) {       /* 'XBRA' */
+            if (*((uint32_t*)(addr+4)) == 0x494D4E45UL) {   /* 'IMNE' */
+                return addr;
+            }
+        }
+    }
+    return 0;
+}
 
-bool vdi_patch(void) {
+uint32_t vdi_patch_find_vditable(uint32_t addr) {
+    uint32_t tableaddr = 0;
+    uint32_t trap2addr = vdi_patch_findtrap2_backward(addr, 16 * 1024UL);
+    dprintf("vdi_patch: %08lx trap: %08lx\n", addr, trap2addr);
+    if (!trap2addr) {
+        return 0;
+    }
+    /* todo: verify trap code to be sure the table is at offset 0x50 from it */
+    tableaddr = trap2addr + 0x50;
+    return tableaddr;
+}
 
-    uint32_t addr_dispatcher = vdi_get_dispatcher();
-    uint32_t addr_trap2 = *((uint32_t*)0x88UL);
-    dprintf("VDI trap2: %08lx, dispatcher: %08lx\n", addr_trap2, addr_dispatcher);
+bool vro_cpyfm_new(int16_t handle, int16_t vr_mode, int16_t *pxyarray, MFDB *psrcMFDB, MFDB *pdesMFDB) {
+#if VDI_DEBUG
+    dprintf("vro_copyfm: %d %d %08lx %08lx %08lx\n", handle, vr_mode, (uint32_t)pxyarray, (uint32_t)psrcMFDB, (uint32_t)pdesMFDB);
+    dprintf("%d,%d->%d,%d -> ", pxyarray[0], pxyarray[1], pxyarray[2], pxyarray[3]);
+    dprintf("%d,%d->%d,%d\n", pxyarray[4], pxyarray[5], pxyarray[6], pxyarray[7]);
+    dprintf("srcMFDB: %08lx, %d, %d\n", (uint32_t)psrcMFDB->fd_addr, psrcMFDB->fd_nplanes, psrcMFDB->fd_stand);
+    dprintf("dstMFDB: %08lx, %d, %d\n", (uint32_t)pdesMFDB->fd_addr, pdesMFDB->fd_nplanes, pdesMFDB->fd_stand);
+#endif
+    /* source and destination are screen */
+    if ((psrcMFDB->fd_addr == 0) && (pdesMFDB->fd_addr == 0)) {
+        /* blit in device specific format */
+        /*if ((psrcMFDB->fd_stand == 0) && (pdesMFDB->fd_stand == 0))*/ {
+            /* hardware blit */
+            static blcmd_t blcmd;
+          
+            /* early out if fully outside */
+            if ((pxyarray[0] > nova.max_x) ||
+                (pxyarray[1] > nova.max_y) ||
+                (pxyarray[4] > nova.max_x) ||
+                (pxyarray[5] > nova.max_y)
+            ) {
+                return false;
+            }
 
-    /* todo: hook up blitter overrides if driver supports hardware acceleration */
+            /* src clip */
+            blcmd.x0 = pxyarray[0];
+            blcmd.y0 = pxyarray[1];
+            blcmd.width = (pxyarray[2] - pxyarray[0]) + 1;
+            blcmd.height = (pxyarray[3] - pxyarray[1]) + 1;
+            if ((blcmd.x0 > nova.max_x) || (blcmd.y0 > nova.max_y)) {
+                return false;
+            }
+            if (blcmd.x0 < 0) {
+                blcmd.width += blcmd.x0;
+                blcmd.x0 = 0;
+            }
+            if (blcmd.x0 + blcmd.width > nova.max_x) {
+                blcmd.width = nova.max_x + 1 - blcmd.x0;
+            }
+            if (blcmd.y0 < 0){ 
+                blcmd.height += blcmd.y0;
+                blcmd.y0 = 0;
+            }
+            if (blcmd.y0 + blcmd.height > nova.max_y) {
+                blcmd.height = nova.max_y + 1 - blcmd.y0;
+            }
 
+            /* dst clip */
+            blcmd.x1 = pxyarray[4] + blcmd.x0 - pxyarray[0];
+            blcmd.y1 = pxyarray[5] + blcmd.y0 - pxyarray[1];
+            if ((blcmd.x1 > nova.max_x) || (blcmd.y1 > nova.max_y)) {
+                return false;
+            }
+            if (blcmd.x1 < 0) {
+                blcmd.width += blcmd.x1;
+                blcmd.x0 -= blcmd.x1;
+                blcmd.x1 = 0;
+            }
+            if (blcmd.x1 + blcmd.width > nova.max_x) {
+                blcmd.width = nova.max_x + 1 - blcmd.x1;
+            }
+            if (blcmd.y1 < 0) {
+                blcmd.height += blcmd.y1;
+                blcmd.y0 -= blcmd.y1;
+                blcmd.y1 = 0;
+            }
+            if (blcmd.y1 + blcmd.height > nova.max_y) {
+                blcmd.height = nova.max_y + 1 - blcmd.y1;
+            }
+
+            /* blit */
+            if (blcmd.width > 0 && blcmd.height > 0) {
+                blcmd.flags = 0;
+                if (card->blit(&blcmd)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+typedef void(*vdi_func)(uint32_t, uint32_t, void*, void*);
+vdi_func vdi_copyfm_dispatch_old;
+void vdi_copyfm_dispatch_new(uint32_t d0, uint32_t d1, void* a0, void* a1) {
+    /*
+     * d0.w = vdi function number
+     * d1.w = vdi handle
+     * a0.l = parameter blocks
+     * a1.l = workstation data (sta_vdi internal)
+    */
+    VDIPB* pb = (VDIPB*)a0;
+#if VDI_DEBUG
+    dprintf("vro_copyfm: %d %d %08lx %08lx\n", (uint16_t)d0, (uint16_t)d1, (uint32_t)a0, (uint32_t)a1);
+#endif    
+    if (!vro_cpyfm_new(
+        pb->contrl[6],
+        pb->intin[0],
+        (int16_t*)&pb->ptsin[0],
+        *(MFDB**)&pb->contrl[7],
+        *(MFDB**)&pb->contrl[9]
+    )) {
+        vdi_copyfm_dispatch_old(d0, d1, a0, a1);
+    }
+}
+
+bool vdi_patch(void* sp) {
+    uint16_t sr;
+    vdi_func* fun;
+    uint32_t vditable = vdi_patch_find_vditable(*((uint32_t*)sp));
+    if (!vditable) {
+        dprintf("vdi_patch: table not found\n");
+        return false;
+    }
+    dprintf("vdi_patch: table at %08lx\n", vditable);
+
+    sr = cpu_di();
+    fun = (vdi_func*)(vditable + 4 + (8 * 109));
+    vdi_copyfm_dispatch_old = *fun;
+    *fun = vdi_copyfm_dispatch_new;
+    cpu_flush_cache();
+    cpu_ei(sr);
     return true;
 }
 

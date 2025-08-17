@@ -10,7 +10,8 @@
     .XREF xbios_trap_new
     .XREF xbios_trap_install
 
-    .XREF vdi_get_dispatcher
+    .XREF nova_p_setscreen_first_asm
+    .XREF nova_p_setscreen_first
 
 
 ;----------------------------------------------------------
@@ -35,14 +36,12 @@ cpu_ei:
     rts
 
 
-
 ;----------------------------------------------------------
-; trap2(-1)
+; entry point for patching vdi
 ;----------------------------------------------------------
-vdi_get_dispatcher:
-    move.l  #-1,d0
-    trap    #2
-    rts
+nova_p_setscreen_first_asm:
+    move.l  sp,a1
+    jmp     nova_p_setscreen_first
 
 
 ;----------------------------------------------------------

@@ -202,9 +202,34 @@ static void configure_framebuffer(void) {
     }
 }
 
+static void configure_blitter(mode_t* mode) {
+    uint32_t pitch = mode->width;
+    if (mode->bpp > 8) {
+        pitch = (pitch * ((mode->bpp + 7) & ~7)) >> 3;
+    } else {
+        pitch = (pitch * mode->bpp) >> 3;
+    }
+
+    /* wait for blitter ready */
+    while (vga_ReadReg(0x3ce, 0x31) & 1) { cpu_nop(); }
+    /* set pitch lo */
+    vga_WriteReg(0x3ce, 0x26, (uint8_t)(pitch & 0xff)); /* src */
+    vga_WriteReg(0x3ce, 0x24, (uint8_t)(pitch & 0xff)); /* dst */
+    pitch >>= 8;
+    /* set pitch hi */
+    vga_WriteReg(0x3ce, 0x27, (uint8_t)(pitch & 0xff)); /* src */
+    vga_WriteReg(0x3ce, 0x25, (uint8_t)(pitch & 0xff)); /* dst */
+    /* configure defaults */
+    vga_WriteReg(0x3ce, 0x30, 0);       /* direction forward */
+    vga_WriteReg(0x3ce, 0x32, 0x0D);    /* rop = SRCCOPY */
+}
+
 static bool setmode(mode_t* mode) {
     if (vga_setmode(mode->code)) {
         configure_framebuffer();
+        if (cl_support_blitter()) {
+            configure_blitter(mode);
+        }
         return true;
     }
     return false;
@@ -218,6 +243,73 @@ static bool addmode_validated(addmode_f addmode, uint16_t w, uint16_t h, uint8_t
     return false;
 }
 
+static bool blit(blcmd_t* bl) {
+    uint32_t src, dst;
+    uint16_t bpp;
+    uint8_t dir;
+
+    /*dprintf("cirrus blit %ld,%ld %ld,%ld %ld,%ld\n", bl->x0, bl->y0, bl->x1, bl->y1, bl->width, bl->height);*/
+
+    if (nova.planes >= 8) {
+        bpp = ((nova.planes + 7) & ~7);
+    } else {
+        /* not sure it can accelerate planar modes */
+        return false;
+    }
+
+    /* source and destination address */
+    bl->width = (bl->width * bpp) >> 3;
+    src = (bl->y0 * nova.pitch) + ((bl->x0 * bpp) >> 3);
+    dst = (bl->y1 * nova.pitch) + ((bl->x1 * bpp) >> 3);
+
+    /* blit direction */
+    dir = 0;
+    if ((bl->y0 < bl->y1) || ((bl->y0 == bl->y1) && (bl->x0 < bl->x1))) {
+        if ((bl->y0 + bl->height) > bl->y1) {
+            uint32_t offs = ((bl->height - 1) * nova.pitch) + (bl->width - 1);
+            src += offs;
+            dst += offs;
+            dir = 1;
+        }
+    }
+
+    /* wait for not busy */
+    while (vga_ReadReg(0x3ce, 0x31) & 1) {
+        cpu_nop();
+    }
+
+    /* blit direction */
+    vga_WriteReg(0x3ce, 0x30, dir);
+
+    /* source address */
+    vga_WriteReg(0x3ce, 0x2c, (uint8_t)(src & 0xff)); src >>= 8;
+    vga_WriteReg(0x3ce, 0x2d, (uint8_t)(src & 0xff)); src >>= 8;
+    vga_WriteReg(0x3ce, 0x2e, (uint8_t)(src & 0xff));
+
+    /* dest address */
+    vga_WriteReg(0x3ce, 0x28, (uint8_t)(dst & 0xff)); dst >>= 8;
+    vga_WriteReg(0x3ce, 0x29, (uint8_t)(dst & 0xff)); dst >>= 8;
+    vga_WriteReg(0x3ce, 0x2a, (uint8_t)(dst & 0xff));
+
+    /* width */
+    bl->width -= 1;
+    vga_WriteReg(0x3ce, 0x20, (uint8_t)(bl->width & 0xff)); bl->width >>= 8;
+    vga_WriteReg(0x3ce, 0x21, (uint8_t)(bl->width & 0xff));
+    /* height */
+    bl->height -= 1;
+    vga_WriteReg(0x3ce, 0x22, (uint8_t)(bl->height & 0xff)); bl->height >>= 8;
+    vga_WriteReg(0x3ce, 0x23, (uint8_t)(bl->height & 0xff));
+
+    /* start blitter */
+    vga_ModifyReg(0x3ce, 0x31, 0x02, 0x02);
+
+    /* wait until completed */
+    while (vga_ReadReg(0x3ce, 0x31) & 1) {
+        cpu_nop();
+    }
+    return true;
+}
+
 static bool init(card_t* card, addmode_f addmode) {
 
     /* identify cirrus card */
@@ -229,6 +321,9 @@ static bool init(card_t* card, addmode_f addmode) {
     card->name = chipset_strings[chipset];
     card->vram_size = 1024UL * vram;
     card->setmode = setmode;
+    if (cl_support_blitter()) {
+        card->blit = blit;
+    }
     if (cl_support_linear()) {
         card->bank_addr = 0x200000UL;
         card->bank_size = card->vram_size;
