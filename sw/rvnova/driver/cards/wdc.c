@@ -20,19 +20,26 @@
 #include "raven.h"
 #include "vga.h"
 
-/* todo: find out how capabilities differs between card versions.
- * this code has only been tested on WDC90C31
+
+/* todo:
+ * I have no idea when certain features came to the lesser cards so most
+ * stuff is disabled for anything less than WD90C31 for now.
  */
+ 
+#define wd_support_blitter() (chipset == WD90C31)   /* not WD90C33 yet since it has a different blitter engine */
+#define wd_support_linear()  (chipset >= WD90C31)
+#define wd_support_32bit()   (chipset >= WD90C31)
+#define wd_support_banks()   (chipset >= WD90C31)
+
 
 #if DRV_INCLUDE_WDC
 
 typedef enum {
-    UNKNOWN = 0, PVGA1, WD90C00, WD90C10, WD90C11, WD90C20, WD90C22, WD90C24, WD90C26, WD90C30, WD90C31, WD90C33,
+    UNKNOWN = 0, PVGA1, WD90C00, WD90C10, WD90C11, WD90C30, WD90C31, WD90C33,
 } chipset_e;
 
-
 static const char* chipset_strings[] = {
-    "unknown", "PVGA1", "WD90C00", "WDC90C10", "WDC90C11", "WD90C20", "WD90C22", "WD90C24", "WD90C26", "WD90C30", "WD90C31", "WD90C33"
+    "unknown", "PVGA1", "WD90C00", "WDC90C10", "WDC90C11", "WD90C30", "WD90C31", "WD90C33"
 };
 
 static chipset_e chipset;
@@ -45,6 +52,7 @@ static bool identify(void) {
     uint8_t old_3d4_29;
 
     /* look for known string in vgabios */
+    chipset = 0; vram = 0;
     if (('V' != *((volatile char*)(RV_PADDR_ISA_RAM + 0xC007dUL + 0x00))) ||
         ('G' != *((volatile char*)(RV_PADDR_ISA_RAM + 0xC007dUL + 0x01))) ||
         ('A' != *((volatile char*)(RV_PADDR_ISA_RAM + 0xC007dUL + 0x02))) ||
@@ -80,17 +88,17 @@ static bool identify(void) {
             chipset = WD90C00;
         } else if (!vga_TestReg(0x3c4, 0x10, 0xff)) {
             if (vga_TestReg(rcrtc, 0x31, 0x68)) {
-                chipset = WD90C22;
+                chipset = 0; /*WD90C22;*/
             } else {
-                chipset = WD90C20;
+                chipset = 0; /*WD90C20;*/
             }
         } else if (vga_TestReg(0x3c4, 0x14, 0x0f)) {
             uint8_t id36 = vga_ReadReg(rcrtc, 0x36);
             uint8_t id37 = vga_ReadReg(rcrtc, 0x37);
             if ((id36 == 0x32) && (id37 == 0x34)) {
-                chipset = WD90C24;
+                chipset = 0; /*WD90C24;*/
             } else if ((id36 == 0x32) && (id37 == 0x36)) {
-                chipset = WD90C26;
+                chipset = 0; /*WD90C26;*/
             } else if ((id36 == 0x33) && (id37 == 0x30)) {
                 chipset = WD90C30;
             } else if ((id36 == 0x33) && (id37 == 0x31)) {
@@ -125,9 +133,6 @@ static bool identify(void) {
             break;
     }
 
-    /* todo: reject WDC cards that the driver doesn't support */
-    /* at the moment, that would be all cards without linear support */
-
     if (chipset && vram) {
         /* unlock crtc registers */
         vga_ModifyReg(rcrtc, 0x11, 0x80, 0x00);
@@ -145,35 +150,117 @@ static bool identify(void) {
 }
 
 static void setbank(uint16_t num) {
-    /* todo: banked mode support */
+    /* todo */
 }
 
 static void configure_framebuffer(void) {
 
-    /* todo: which cards and configs support this? */
-    bool vram32bit = true;
+    if (wd_support_linear()) {
 
-    /* bank location @ isa:2MB */
-    vga_WriteReg(0x3C4, 0x14, 0x02);
-    
-    /* memory settings */ 
-    vga_WriteReg(0x3CE, 0x0b,
-        (vram32bit ? 0xC0 : 0x80) |     /* ram size */
-        (3 << 4) |                      /* map 1MB */
-        (1 << 2) |                      /* 16bit isa memory access */
-        (vga_ReadReg(0x3CE, 0x0b) & 0x0f)
-    );
-    
-    /* disable vga adressing */
-    vga_WriteReg(vga_GetBaseReg(4), 0x2f, 0x00);
+        /* todo: which cards and configs support this, does it require 1MB? */
+        bool vram32bit = wd_support_32bit();
 
-    /* memory interface */
-    vga_WriteReg(0x3C4, 0x10,
-        0xC0 |                          /* 4 level write buffer */
-        (vram32bit ? 0x00 : 0x20) |     /* vram data path width */
-        0x00 |                          /* 8 level fifo */
-        0x01                            /* display fifo request @ 2 levels*/
+        /* bank location @ isa:2MB */
+        vga_WriteReg(0x3C4, 0x14, 0x02);
+        
+        /* memory settings */ 
+        vga_WriteReg(0x3CE, 0x0b,
+            (vram32bit ? 0xC0 : 0x80) |     /* ram size */
+            (3 << 4) |                      /* map 1MB */
+            (1 << 2) |                      /* 16bit isa memory access */
+            (vga_ReadReg(0x3CE, 0x0b) & 0x0f)
+        );
+        
+        /* disable vga adressing */
+        vga_WriteReg(vga_GetBaseReg(4), 0x2f, 0x00);
+
+        /* memory interface */
+        vga_WriteReg(0x3C4, 0x10,
+            0xC0 |                          /* 4 level write buffer */
+            (vram32bit ? 0x00 : 0x20) |     /* vram data path width */
+            0x00 |                          /* 8 level fifo */
+            0x01                            /* display fifo request @ 2 levels*/
+        );
+    } else if (wd_support_banks()) {
+        /* todo */
+    }
+}
+
+static bool blit(blcmd_t* bl) {
+    uint32_t src, dst;
+    uint16_t bpp;
+    uint16_t dir;
+
+    if (nova.planes >= 8) {
+        bpp = ((nova.planes + 7) & ~7);
+    } else {
+        /* todo: wdc can actually blit planar modes too */
+        return false;
+    }    
+
+    /* source and destination address */
+    src = (bl->y0 * nova.pitch) + ((bl->x0 * bpp) >> 3);
+    dst = (bl->y1 * nova.pitch) + ((bl->x1 * bpp) >> 3);
+
+    /* blit direction */
+    dir = 0;
+    if ((bl->y0 < bl->y1) || ((bl->y0 == bl->y1) && (bl->x0 < bl->x1))) {
+        if ((bl->y0 + bl->height) > bl->y1) {
+            uint32_t offs = ((bl->height - 1) * nova.pitch) + (((bl->width - 1) * bpp) >> 3);
+            src += offs;
+            dst += offs;
+            dir = 1;
+        }
+    }
+
+    /* select blitter registers */
+    vga_WritePortW(0x23c0, 
+        (1 << 12) |     /* do not increment read index */
+        (0 <<  8) |     /* read index 0 */
+        (1 <<  0)       /* bank 1 (blitter) */
     );
+
+    /* wait for not busy*/
+    while(vga_ReadPortW(0x23c2) & (1 << 11)) {
+        cpu_nop();
+    }
+
+    /* blitter control 2, index 1 */
+    vga_WritePortW(0x23c2, (1 << 12) | 0);
+
+    /* pitch */
+    vga_WritePortW(0x23c2, (8 << 12) | (uint16_t)(nova.pitch & 0x7ff));
+
+    /* rop = src_copy */
+    vga_WritePortW(0x23c2, (9 << 12) | (3 << 8));
+
+    /* plane mask */
+    vga_WritePortW(0x23c2, (14 << 12) | 0xff);
+    
+    /* dimensions */
+    vga_WritePortW(0x23c2, (6 << 12) | (uint16_t)(bl->width & 0x7ff));
+    vga_WritePortW(0x23c2, (7 << 12) | (uint16_t)(bl->height & 0x7ff));
+
+    /* src address, index 2 + 3 */
+    vga_WritePortW(0x23c2, (2 << 12) | (uint16_t)(src & 0xfff)); src >>= 12;
+    vga_WritePortW(0x23c2, (3 << 12) | (uint16_t)(src & 0x0ff));
+
+    /* dst address, index 4 + 5 */
+    vga_WritePortW(0x23c2, (4 << 12) | (uint16_t)(dst & 0xfff)); dst >>= 12;
+    vga_WritePortW(0x23c2, (5 << 12) | (uint16_t)(dst & 0x0ff));
+
+    /* start blitting */
+    vga_WritePortW(0x23c2, (0 << 12) |
+        (  1 <<  8) |   /* chunky mode */
+        (dir << 10) |   /* direction */
+        (  1 << 11)     /* start */
+    );
+
+    /* wait for not busy */
+    while(vga_ReadPortW(0x23c2) & (1 << 11)) {
+        cpu_nop();
+    }
+    return true;
 }
 
 static bool setmode(mode_t* mode) {
@@ -195,29 +282,36 @@ static bool init(card_t* card, addmode_f addmode) {
     card->name = chipset_strings[chipset];
     card->vram_size = 1024UL * vram;
     card->setmode = setmode;
-    if (1) { /* linear mode */
+    if (wd_support_linear()) {
         card->bank_addr = 0x200000UL;
         card->bank_size = card->vram_size;
-    } else { /* todo: banked mode */
+    } else if (wd_support_banks()) {
+        /* todo */
         card->setbank = setbank;
         card->bank_count = 1;
     }
+    if (wd_support_blitter()) {
+        card->blit = blit;
+    }
 
-    /* supply graphics modes */
-    addmode( 800, 600,  4, 0, 0x58);    /* 4bpp */
+    /* 4bpp modes */
+    addmode( 800, 600,  4, 0, 0x58);
     addmode(1024, 768,  4, 0, 0x5D);
     addmode(1280, 960,  4, 0, 0x6C);
     if (chipset >= WD90C31) {
-    addmode(1280,1024,  4, 0, 0x64);
+        addmode(1280,1024,  4, 0, 0x64);
     }
-    addmode( 640, 400,  8, 0, 0x5E);    /* 8bpp */
+    /* 8bpp modes */
+    addmode( 640, 400,  8, 0, 0x5E);
     addmode( 640, 480,  8, 0, 0x5F);
     if ((chipset >= WD90C30) || (chipset == WD90C11)) {
-    addmode( 800, 600,  8, 0, 0x5C);
+        addmode( 800, 600,  8, 0, 0x5C);
     }
     if (chipset >= WD90C30) {
-    addmode(1024, 768,  8, 0, 0x60);
+        addmode(1024, 768,  8, 0, 0x60);
     }
+    /* todo: 16bpp modes */
+    /* todo: 24bpp modes */
 
     /* 
      * PR31: system interface control

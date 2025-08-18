@@ -24,6 +24,7 @@
 #include "raven.h"
 
 #define VGA_IOBASE          RV_PADDR_ISA_IO
+#define VGA_IOBASE16        RV_PADDR_ISA_IO16
 
 #define VGA_REG_ATC         0x3C0
 #define VGA_REG_MISC        0x3C2
@@ -36,6 +37,16 @@
 #define VGA_REG_GDC         0x3CE
 #define VGA_REG_CRTC        0x3D4
 #define VGA_REG_STAT1       0x3DA
+
+static uint16_t vga_ReadPortW(uint16_t port) {
+    uint16_t be = *((volatile uint16_t*)(VGA_IOBASE16 + port));
+    return ((be >> 8) | (be << 8));
+}
+
+static void vga_WritePortW(uint16_t port, uint16_t val) {
+    uint16_t le = ((val >> 8) | (val << 8));
+    *((volatile uint16_t*)(VGA_IOBASE16 + port)) = le;
+}
 
 static uint8_t vga_ReadPort(uint16_t port) {
     return *((volatile uint8_t*)(VGA_IOBASE + port));

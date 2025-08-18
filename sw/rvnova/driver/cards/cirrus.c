@@ -224,25 +224,6 @@ static void configure_blitter(mode_t* mode) {
     vga_WriteReg(0x3ce, 0x32, 0x0D);    /* rop = SRCCOPY */
 }
 
-static bool setmode(mode_t* mode) {
-    if (vga_setmode(mode->code)) {
-        configure_framebuffer();
-        if (cl_support_blitter()) {
-            configure_blitter(mode);
-        }
-        return true;
-    }
-    return false;
-}
-
-static bool addmode_validated(addmode_f addmode, uint16_t w, uint16_t h, uint8_t b, uint8_t f, uint16_t c) {
-    if (vgabios_InquireVideoMode(c)) {
-        addmode(w, h, b, f, c);
-        return true;
-    }
-    return false;
-}
-
 static bool blit(blcmd_t* bl) {
     uint32_t src, dst;
     uint16_t bpp;
@@ -308,6 +289,25 @@ static bool blit(blcmd_t* bl) {
         cpu_nop();
     }
     return true;
+}
+
+static bool setmode(mode_t* mode) {
+    if (vga_setmode(mode->code)) {
+        configure_framebuffer();
+        if (cl_support_blitter()) {
+            configure_blitter(mode);
+        }
+        return true;
+    }
+    return false;
+}
+
+static bool addmode_validated(addmode_f addmode, uint16_t w, uint16_t h, uint8_t b, uint8_t f, uint16_t c) {
+    if (vgabios_InquireVideoMode(c)) {
+        addmode(w, h, b, f, c);
+        return true;
+    }
+    return false;
 }
 
 static bool init(card_t* card, addmode_f addmode) {

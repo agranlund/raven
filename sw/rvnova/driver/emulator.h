@@ -48,11 +48,11 @@
 #ifndef DRV_INCLUDE_CIRRUS
 #define DRV_INCLUDE_CIRRUS      1
 #endif
-#ifndef DRV_INCLUDE_WDC
-#define DRV_INCLUDE_WDC         0
-#endif
 #ifndef DRV_INCLUDE_OAK
 #define DRV_INCLUDE_OAK         1
+#endif
+#ifndef DRV_INCLUDE_WDC
+#define DRV_INCLUDE_WDC         1
 #endif
 
 
