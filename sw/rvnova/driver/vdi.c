@@ -21,11 +21,146 @@
 #include <string.h>
 #include <stdarg.h>
 #include <vdi.h>
+#include <linea.h>
 
 #include "emulator.h"
 #include "nova.h"
 
 #define VDI_DEBUG   0
+
+/*-----------------------------------------------------------------------------
+ NOVA VDI internal workstation data
+-----------------------------------------------------------------------------*/
+typedef struct
+{
+/* 000 */   uint8_t     _unk_000[0x01c - 0x000];
+/* 01c */   uint16_t    vsf_color;
+/* 01e */   uint16_t    vsf_style;
+/* 020 */   uint16_t    vsf_perimeter;
+/* 022 */   uint16_t    vsf_interior;
+/* 024 */   uint8_t     _unk_024[0x4b0 - 0x024];
+/* 4b0 */   uint16_t    writemode;
+/* 4b2 */   uint16_t    _unk_4b2;
+/* 4b4 */   uint16_t    clipflag;
+/* 4b6 */   rect_t      cliprect;
+/* 4be */   uint8_t     _unk_4be[0x8c2 - 0x4be];    /* 4be = some kind of updated flag? */
+
+/* some of the following are being updated from at the start of every */
+/* sta_vdi handler when 'is_screen' is not zero */
+
+/* 8c2 */   uint16_t    bytes_per_line;
+/* 8c4 */   uint8_t     _unk_8c4[0x90a - 0x8c4];
+/* 90a */   uint16_t    changed_flag;
+/* 90c */   uint8_t     _unk_90c[0x910 - 0x90c];
+/* 910 */   uint32_t    screen_addr;
+/* 914 */   uint16_t    screen_width;
+/* 916 */   uint16_t    screen_height;
+/* 918 */   uint16_t    screen_bpp;
+/* 91a */   uint16_t    _unk_91a;
+/* 91c */   void*       _unk_91c_func_ptr_table; /* points to a jumptable used in vdi functions */
+/* 920 */   uint16_t    _unk_920;
+} stawk_t;
+
+
+
+/*-----------------------------------------------------------------------------
+ NOVA VDI function handler
+ d0.w = vdi function number
+ d1.w = vdi handle
+ a0.l = parameter blocks
+ a1.l = workstation data (sta_vdi internal)
+-----------------------------------------------------------------------------*/
+typedef void(*vdi_func)(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk);
+
+/*-----------------------------------------------------------------------------
+ NOVA VDI function table
+-----------------------------------------------------------------------------*/
+typedef struct
+{
+    uint16_t ptsout;
+    uint16_t intout;
+    vdi_func fun;
+} vdi_funcdata_t;
+
+
+/*-----------------------------------------------------------------------------
+ globals
+-----------------------------------------------------------------------------*/
+static vdi_funcdata_t* sta_vdifuncs;
+static LINEA* sta_linea;
+
+/*-----------------------------------------------------------------------------
+109 : vro_copyfm
+-----------------------------------------------------------------------------*/
+vdi_func vro_copyfm_old;
+void vro_copyfm_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
+    int16_t vrmode = pb->intin[0];
+    MFDB* psrcMFDB = *(MFDB**)&pb->contrl[7];
+    MFDB* pdstMFDB = *(MFDB**)&pb->contrl[9];
+
+    if ((psrcMFDB->fd_addr == 0) && (pdstMFDB->fd_addr == 0)) {
+        rect_t* src = (rect_t*)&pb->ptsin[0];
+        vec_t* dst = (vec_t*)&pb->ptsin[4];
+
+        if (wk->clipflag && !nv_clip_blit(dst, src, &wk->cliprect, &nv_scrnclip)) {
+            return;
+        }
+
+        if (card->blit(src, dst)) {
+            return;
+        }
+    }
+    vro_copyfm_old(fn, vh, pb, wk);
+}
+
+/*-----------------------------------------------------------------------------
+114 : vr_recfl
+-----------------------------------------------------------------------------*/
+vdi_func vr_recfl_old;
+void vr_recfl_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
+
+#if 1
+    /* todo: verify better if this is for screen */
+    if (card->fill && (vh == 1)) {
+        /* only src_copy fills */
+        if (wk->writemode == 0) {
+            int16_t style;
+            int16_t color = wk->vsf_color;
+            switch (wk->vsf_interior) {
+                case 0: style = 7; color = 0; break;
+                case 1: style = 7; break;
+                case 2: style = wk->vsf_style; break;
+                default: style = 8; break;
+            }
+            /* only dither patterns */
+            if (style < 8) {
+                /* clip and blit */
+                rect_t* r = (rect_t*)&pb->ptsin[0];
+                if (wk->clipflag && !nv_clip_rect(r, &wk->cliprect)) {
+                    return;
+                }
+                if (card->fill(color,  7 - style, r)) {
+                    return;
+                }
+                /* fall through to software blit if 
+                driver rejected it for some reason */
+            }
+        }
+    }
+#endif        
+    vr_recfl_old(fn, vh, pb, wk);
+}
+
+vdi_func v_gdp_old;
+void v_gdp_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
+    if (pb->contrl[5] == 1) {
+        /* v_bar, doesn't appear to be used much
+            identical to vr_recfl except it can draw an outline if wk->vsf_perimeter is set */
+        /*dprintf("vbar: %d,%d,%d : %d,%d - %d,%d (%d,%d)\n", wk->writemode, wk->vsf_interior, wk->vsf_perimeter, pb->ptsin[0], pb->ptsin[1], pb->ptsin[2], pb->ptsin[3], pb->ptsin[2]-pb->ptsin[0], pb->ptsin[3]-pb->ptsin[1]);*/
+    }
+    v_gdp_old(fn, vh, pb, wk);
+}
+
 
 /*
  * VDI patching.
@@ -52,207 +187,50 @@ uint32_t vdi_patch_findtrap2_backward(uint32_t from, uint32_t len) {
     return 0;
 }
 
-uint32_t vdi_patch_find_vditable(uint32_t addr) {
+vdi_funcdata_t* vdi_patch_find_vditable(uint32_t addr) {
     uint32_t tableaddr = 0;
     uint32_t trap2addr = vdi_patch_findtrap2_backward(addr, 16 * 1024UL);
-    dprintf("vdi_patch: %08lx trap: %08lx\n", addr, trap2addr);
+    dprintf("vdi_patch: start at %08lx\n", addr);
+    dprintf("vdi_patch: trap2 at %08lx\n", trap2addr);
     if (!trap2addr) {
         return 0;
     }
     /* todo: verify trap code to be sure the table is at offset 0x50 from it */
     tableaddr = trap2addr + 0x50;
-    return tableaddr;
+    return (vdi_funcdata_t*)tableaddr;
 }
 
-bool vro_cpyfm_new(int16_t handle, int16_t vr_mode, int16_t *pxyarray, MFDB *psrcMFDB, MFDB *pdesMFDB) {
-#if VDI_DEBUG
-    dprintf("vro_copyfm: %d %d %08lx %08lx %08lx\n", handle, vr_mode, (uint32_t)pxyarray, (uint32_t)psrcMFDB, (uint32_t)pdesMFDB);
-    dprintf("%d,%d->%d,%d -> ", pxyarray[0], pxyarray[1], pxyarray[2], pxyarray[3]);
-    dprintf("%d,%d->%d,%d\n", pxyarray[4], pxyarray[5], pxyarray[6], pxyarray[7]);
-    dprintf("srcMFDB: %08lx, %d, %d\n", (uint32_t)psrcMFDB->fd_addr, psrcMFDB->fd_nplanes, psrcMFDB->fd_stand);
-    dprintf("dstMFDB: %08lx, %d, %d\n", (uint32_t)pdesMFDB->fd_addr, pdesMFDB->fd_nplanes, pdesMFDB->fd_stand);
-#endif
-    /* source and destination are screen */
-    if ((psrcMFDB->fd_addr == 0) && (pdesMFDB->fd_addr == 0)) {
-        /* blit in device specific format */
-        /*if ((psrcMFDB->fd_stand == 0) && (pdesMFDB->fd_stand == 0))*/ {
-            /* hardware blit */
-            static blcmd_t blcmd;
-          
-            /* early out if fully outside */
-            if ((pxyarray[0] > nova.max_x) ||
-                (pxyarray[1] > nova.max_y) ||
-                (pxyarray[4] > nova.max_x) ||
-                (pxyarray[5] > nova.max_y)
-            ) {
-                return false;
-            }
-
-            /* src clip */
-            blcmd.x0 = pxyarray[0];
-            blcmd.y0 = pxyarray[1];
-            blcmd.width = (pxyarray[2] - pxyarray[0]) + 1;
-            blcmd.height = (pxyarray[3] - pxyarray[1]) + 1;
-            if ((blcmd.x0 > nova.max_x) || (blcmd.y0 > nova.max_y)) {
-                return false;
-            }
-            if (blcmd.x0 < 0) {
-                blcmd.width += blcmd.x0;
-                blcmd.x0 = 0;
-            }
-            if (blcmd.x0 + blcmd.width > nova.max_x) {
-                blcmd.width = nova.max_x + 1 - blcmd.x0;
-            }
-            if (blcmd.y0 < 0){ 
-                blcmd.height += blcmd.y0;
-                blcmd.y0 = 0;
-            }
-            if (blcmd.y0 + blcmd.height > nova.max_y) {
-                blcmd.height = nova.max_y + 1 - blcmd.y0;
-            }
-
-            /* dst clip */
-            blcmd.x1 = pxyarray[4] + blcmd.x0 - pxyarray[0];
-            blcmd.y1 = pxyarray[5] + blcmd.y0 - pxyarray[1];
-            if ((blcmd.x1 > nova.max_x) || (blcmd.y1 > nova.max_y)) {
-                return false;
-            }
-            if (blcmd.x1 < 0) {
-                blcmd.width += blcmd.x1;
-                blcmd.x0 -= blcmd.x1;
-                blcmd.x1 = 0;
-            }
-            if (blcmd.x1 + blcmd.width > nova.max_x) {
-                blcmd.width = nova.max_x + 1 - blcmd.x1;
-            }
-            if (blcmd.y1 < 0) {
-                blcmd.height += blcmd.y1;
-                blcmd.y0 -= blcmd.y1;
-                blcmd.y1 = 0;
-            }
-            if (blcmd.y1 + blcmd.height > nova.max_y) {
-                blcmd.height = nova.max_y + 1 - blcmd.y1;
-            }
-
-            /* blit */
-            if (blcmd.width > 0 && blcmd.height > 0) {
-                blcmd.flags = 0;
-                if (card->blit(&blcmd)) {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-typedef void(*vdi_func)(uint32_t, uint32_t, void*, void*);
-vdi_func vdi_copyfm_dispatch_old;
-void vdi_copyfm_dispatch_new(uint32_t d0, uint32_t d1, void* a0, void* a1) {
-    /*
-     * d0.w = vdi function number
-     * d1.w = vdi handle
-     * a0.l = parameter blocks
-     * a1.l = workstation data (sta_vdi internal)
-    */
-    VDIPB* pb = (VDIPB*)a0;
-#if VDI_DEBUG
-    dprintf("vro_copyfm: %d %d %08lx %08lx\n", (uint16_t)d0, (uint16_t)d1, (uint32_t)a0, (uint32_t)a1);
-#endif    
-    if (!vro_cpyfm_new(
-        pb->contrl[6],
-        pb->intin[0],
-        (int16_t*)&pb->ptsin[0],
-        *(MFDB**)&pb->contrl[7],
-        *(MFDB**)&pb->contrl[9]
-    )) {
-        vdi_copyfm_dispatch_old(d0, d1, a0, a1);
-    }
-}
 
 bool vdi_patch(void* sp) {
     uint16_t sr;
-    vdi_func* fun;
-    uint32_t vditable = vdi_patch_find_vditable(*((uint32_t*)sp));
-    if (!vditable) {
+    sta_vdifuncs = vdi_patch_find_vditable(*((uint32_t*)sp));
+    if (!sta_vdifuncs) {
         dprintf("vdi_patch: table not found\n");
         return false;
     }
-    dprintf("vdi_patch: table at %08lx\n", vditable);
+    dprintf("vdi_patch: table at %08lx\n", (uint32_t)sta_vdifuncs);
 
     sr = cpu_di();
-    fun = (vdi_func*)(vditable + 4 + (8 * 109));
-    vdi_copyfm_dispatch_old = *fun;
-    *fun = vdi_copyfm_dispatch_new;
+
+    /* vro_copyfm */
+    vro_copyfm_old = sta_vdifuncs[109].fun;
+    sta_vdifuncs[109].fun = vro_copyfm_new;
+
+    /* vr_recfl */
+    vr_recfl_old = sta_vdifuncs[114].fun;
+    sta_vdifuncs[114].fun = vr_recfl_new;
+
+#if 0    
+    v_gdp_old = sta_vdifuncs[11].fun;
+    sta_vdifuncs[11].fun = v_gdp_new;
+#endif
+
+    /* grab pointer to sta_vdi's internal linea structure
+     * vro_copyfm beings with "movea.l LINEA.l,A2" ($24 $79 $addr) */
+    sta_linea = *(LINEA**)(((uint32_t)vro_copyfm_old) + 0x02);
+    dprintf("vdi_patch: linea at %08lx\n", (uint32_t)sta_linea);
+
     cpu_flush_cache();
     cpu_ei(sr);
     return true;
 }
-
-
-
-/* dispatcher:
-        0002198c 48 e7 60 e0     movem.l    {  A2 A1 A0 D2 D1},-(SP)
-        00021990 20 41           movea.l    D1,A0
-        00021992 22 50           movea.l    (A0),A1
-        00021994 32 29 00 0c     move.w     (0xc,A1),D1w
-        00021998 30 11           move.w     (A1),D0w
-        0002199a b0 7c 00 83     cmp.w      #0x83,D0w
-        0002199e 62 18           bhi.b      LAB_000219b8
-        000219a0 45 fb 06 7e     lea        (0x21a20,PC,D0w*0x8),A2
-        000219a4 33 5a 00 04     move.w     (A2)+,(0x4,A1)=>vdi_trap2_top_table_dw0
-        000219a8 33 5a 00 08     move.w     (A2)+,(0x8,A1)=>vdi_trap2_top_table_dw1
-        000219ac 24 52           movea.l    (A2),A2=>vdi_trap2_top_table_fun                 = 0002221e
-        000219ae 43 fa 08 70     lea        (0x870,PC)=>workstation_pointers,A1
-        000219b2 22 71 14 00     movea.l    (0x0,A1,D1w*0x4)=>workstation_pointers,A1
-        000219b6 4e 92           jsr        (A2)
-                             LAB_000219b8
-        000219b8 4c df 07 06     movem.l    (SP=>local_14)+,{  D1 D2 A0 A1 A2}
-        000219bc 4e 75           rts
-*/
-
-/* trap2:
-        000219d0 58 42 52 41     ds         "XBRA"
-        000219d4 49 4d 4e 45     ds         "IMNE"
-vec_trap2top_old
-        000219d8 00 00 00 00     long       0h
-vec_trap2top_new
-        000219dc b0 7c 00 73     cmp.w      #0x73,D0w
-        000219e0 66 36           bne.b      LAB_00021a18
-        000219e2 48 e7 60 e0     movem.l    {  A2 A1 A0 D2 D1},-(SP)
-        000219e6 20 41           movea.l    D1,A0                                            get address of parameter blocks
-        000219e8 22 50           movea.l    (A0),A1                                          A1 = contrl arrays
-        000219ea 32 29 00 0c     move.w     (0xc,A1),D1w                                     D1 = ctrl[6] = handle
-        000219ee 30 11           move.w     (A1),D0w                                         D0 = ctrl[0] = opcode
-        000219f0 b0 7c 00 83     cmp.w      #0x83,D0w                                        skip if vdi func > 131
-        000219f4 62 1c           bhi.b      LAB_00021a12
-        000219f6 45 fb 06 28     lea        (0x21a20,PC,D0w*0x8),A2
-        000219fa 33 5a 00 04     move.w     (A2)+,(0x4,A1)=>vdi_trap2_top_table_dw0          set ctrl[2] = ptsout count
-        000219fe 33 5a 00 08     move.w     (A2)+,(0x8,A1)=>vdi_trap2_top_table_dw1          set ctrl[4] = intout array
-        00021a02 24 52           movea.l    (A2),A2=>vdi_trap2_top_table_fun                 A2 = func pointer
-        00021a04 43 fa 08 1a     lea        (0x81a,PC)=>workstation_pointers,A1              A1 = workstation data pointers
-        00021a08 c2 7c 01 ff     and.w      #0x1ff,D1w
-        00021a0c 22 71 14 00     movea.l    (0x0,A1,D1w*0x4)=>workstation_pointers,A1        A1 = ptr to workstation data for
-        00021a10 4e 92           jsr        (A2)                                             jump to opcode handler
-LAB_00021a12
-        00021a12 4c df 07 06     movem.l    (SP)+,{  D1 D2 A0 A1 A2}
-        00021a16 4e 73           rte
-LAB_00021a18
-        00021a18 2f 3a ff be     move.l     (-0x42,PC)=>vec_trap2top_old,-(SP)
-        00021a1c 4e 75           rts
-        00021a1e 00              db         0h
-        00021a1f 00              db         0h
-
-        ; VDI functions table
-vdi_trap2_top_table_dw0
-        00021a20 00 00           dw         0h                      ; ptsout
-vdi_trap2_top_table_dw1
-        00021a22 00 00           dw         0h                      ; intout
-vdi_trap2_top_table_fun
-        00021a24 00 02 22 1e     addr       FUN_0002220a::rts       ; funcptr
-        .....
-        00021a28 00 06           dw         6h
-        00021a2a 00 2d           dw         2Dh
-        00021a2c 00 02 2d c4     addr       FUN_00022dc4
-        .....
-*/

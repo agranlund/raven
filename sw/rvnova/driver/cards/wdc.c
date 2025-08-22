@@ -149,9 +149,150 @@ static bool identify(void) {
     return false;
 }
 
+static bool blit(rect_t* src, vec_t* dst) {
+   uint32_t srcaddr, dstaddr;
+    uint32_t width_minus_one;
+    uint32_t height_minus_one;
+    uint16_t bpp;
+    uint8_t dir;
+
+    if (nova.planes >= 8) {
+        bpp = ((nova.planes + 7) & ~7);
+    } else {
+        /* todo: wdc can do planar blits */
+        return false;
+    }
+
+    /* source and destination address */
+    height_minus_one = (uint32_t)(src->max.y - src->min.y);
+    width_minus_one = (uint32_t)(src->max.x - src->min.x);
+    width_minus_one = (uint32_t)((width_minus_one * bpp) >> 3);
+    srcaddr = ((uint32_t)src->min.y * nova.pitch) + (((uint32_t)src->min.x * bpp) >> 3);
+    dstaddr = ((uint32_t)dst->y * nova.pitch) + (((uint32_t)dst->x * bpp) >> 3);
+
+    /* blit direction */
+    dir = 0;
+    if ((src->min.y < dst->y) || ((src->min.y == dst->y) && (src->min.x < dst->x))) {
+        if (src->max.y >= dst->y) {
+            uint32_t offs = (height_minus_one * nova.pitch) + width_minus_one;
+            srcaddr += offs;
+            dstaddr += offs;
+            dir = 1;
+        }
+    }
+
+    /* select blitter registers */
+    vga_WritePortW(0x23c0, 
+        (1 << 12) |     /* do not increment read index */
+        (0 <<  8) |     /* read index 0 */
+        (1 <<  0)       /* bank 1 (blitter) */
+    );
+
+    /* update blitter registers */
+    vga_WritePortW(0x23c2, 0x1000 | 0); /* standard blit, no transparency */
+    vga_WritePortW(0x23c2, 0x8000 | (uint16_t)(nova.pitch & 0x7ff));
+    vga_WritePortW(0x23c2, 0x9000 | (3 << 8));  /* src_copy */
+    vga_WritePortW(0x23c2, 0xE000 | 0xff);  /* plane mask */
+    vga_WritePortW(0x23c2, 0x6000 | (uint16_t)((width_minus_one + 1) & 0x7ff));
+    vga_WritePortW(0x23c2, 0x7000 | (uint16_t)((height_minus_one + 1) & 0x7ff));
+    vga_WritePortW(0x23c2, 0x2000 | (uint16_t)(srcaddr & 0xfff)); srcaddr >>= 12;
+    vga_WritePortW(0x23c2, 0x3000 | (uint16_t)(srcaddr & 0x0ff));
+    vga_WritePortW(0x23c2, 0x4000  | (uint16_t)(dstaddr & 0xfff)); dstaddr >>= 12;
+    vga_WritePortW(0x23c2, 0x5000  | (uint16_t)(dstaddr & 0x0ff));
+
+    /* start blitting */
+    vga_WritePortW(0x23c2, 0x0000  |
+        (  1 <<  8) |   /* chunky mode */
+        (dir << 10) |   /* direction */
+        (  1 << 11)     /* start */
+    );
+
+    /* wait until finished */
+    while(vga_ReadPortW(0x23c2) & (1 << 11)) {
+        cpu_nop();
+    }
+    return true;
+}
+
+static uint32_t fillpattern_addr;
+static void upload_fillpatterns(uint32_t addr) {
+    int i, j, k;
+    uint8_t* vram = (uint8_t*)(PADDR_MEM + addr);
+    fillpattern_addr = addr;
+    for (i=0; i<8; i++) {
+        for (j=0; j<2; j++) {
+            uint32_t pat = nv_fillpatterns[i];
+            for (k=0; k<32; k++) {
+                *vram++ = (pat & 0x80000000UL) ? 0xff : 0x00;
+                pat <<= 1;
+            }
+        }
+    }
+}
+
+static uint32_t get_fillpattern(uint16_t idx, int16_t xoffs, int16_t yoffs) {
+    return (fillpattern_addr + ((idx & 7) << 6) + ((yoffs & 3) << 3) + ((xoffs & 7) << 0));
+}
+
+static bool fill(uint16_t col, uint16_t pat, rect_t* dst) {
+    uint32_t srcaddr, dstaddr;
+    uint32_t width_minus_one;
+    uint32_t height_minus_one;
+    uint16_t bpp;
+    uint8_t dir;
+
+    if (nova.planes >= 8) {
+        bpp = ((nova.planes + 7) & ~7);
+    } else {
+        return false;
+    }
+
+    height_minus_one = (uint32_t)(dst->max.y - dst->min.y);
+    width_minus_one = (uint32_t)(dst->max.x - dst->min.x);
+    width_minus_one = (uint32_t)((width_minus_one * bpp) >> 3);
+    dstaddr = ((uint32_t)dst->min.y * nova.pitch) + (((uint32_t)dst->min.x * bpp) >> 3);
+
+    /* select blitter registers */
+    vga_WritePortW(0x23c0, 
+        (1 << 12) |     /* do not increment read index */
+        (0 <<  8) |     /* read index 0 */
+        (1 <<  0)       /* bank 1 (blitter) */
+    );
+
+    /* update blitter registers */
+    vga_WritePortW(0x23c2, 0x1000 | (1 << 4));  /* source is 8x8 pattern */
+    vga_WritePortW(0x23c2, 0x8000 | (uint16_t)(nova.pitch & 0x7ff));
+    vga_WritePortW(0x23c2, 0x9000 | (3 << 8));  /* src_copy */
+    vga_WritePortW(0x23c2, 0xE000 | 0xff);  /* plane mask */
+    vga_WritePortW(0x23c2, 0xA000 | col);   /* foreground color */
+    vga_WritePortW(0x23c2, 0xB000 | 0x00);  /* background color */
+    vga_WritePortW(0x23c2, 0x6000 | (uint16_t)((width_minus_one + 1) & 0x7ff));
+    vga_WritePortW(0x23c2, 0x7000 | (uint16_t)((height_minus_one + 1) & 0x7ff));
+    srcaddr = get_fillpattern(pat, dst->min.x, dst->min.y);
+    vga_WritePortW(0x23c2, 0x2000  | (uint16_t)(srcaddr & 0xfff)); srcaddr >>= 12;
+    vga_WritePortW(0x23c2, 0x3000  | (uint16_t)(srcaddr & 0x0ff));
+    vga_WritePortW(0x23c2, 0x4000  | (uint16_t)(dstaddr & 0xfff)); dstaddr >>= 12;
+    vga_WritePortW(0x23c2, 0x5000  | (uint16_t)(dstaddr & 0x0ff));
+
+    /* start blitter */
+    vga_WritePortW(0x23c2, 0x0000  |
+        ( 3 <<  2) |    /* source mono */
+        ( 1 <<  6) |    /* source linear */
+        ( 1 <<  8) |    /* dest chunky */
+        ( 1 << 11)      /* start */
+    );
+
+    /* wait until finished */
+    while(vga_ReadPortW(0x23c2) & (1 << 11)) {
+        cpu_nop();
+    }
+    return true;
+}
+
 static void setbank(uint16_t num) {
     /* todo */
 }
+
 
 static void configure_framebuffer(void) {
 
@@ -184,83 +325,11 @@ static void configure_framebuffer(void) {
     } else if (wd_support_banks()) {
         /* todo */
     }
-}
 
-static bool blit(blcmd_t* bl) {
-    uint32_t src, dst;
-    uint16_t bpp;
-    uint16_t dir;
-
-    if (nova.planes >= 8) {
-        bpp = ((nova.planes + 7) & ~7);
-    } else {
-        /* todo: wdc can actually blit planar modes too */
-        return false;
-    }    
-
-    /* source and destination address */
-    src = (bl->y0 * nova.pitch) + ((bl->x0 * bpp) >> 3);
-    dst = (bl->y1 * nova.pitch) + ((bl->x1 * bpp) >> 3);
-
-    /* blit direction */
-    dir = 0;
-    if ((bl->y0 < bl->y1) || ((bl->y0 == bl->y1) && (bl->x0 < bl->x1))) {
-        if ((bl->y0 + bl->height) > bl->y1) {
-            uint32_t offs = ((bl->height - 1) * nova.pitch) + (((bl->width - 1) * bpp) >> 3);
-            src += offs;
-            dst += offs;
-            dir = 1;
-        }
+    /* blitter configuration */
+    if (wd_support_blitter()) {
+        upload_fillpatterns(card->bank_addr + card->bank_size - 2048);
     }
-
-    /* select blitter registers */
-    vga_WritePortW(0x23c0, 
-        (1 << 12) |     /* do not increment read index */
-        (0 <<  8) |     /* read index 0 */
-        (1 <<  0)       /* bank 1 (blitter) */
-    );
-
-    /* wait for not busy*/
-    while(vga_ReadPortW(0x23c2) & (1 << 11)) {
-        cpu_nop();
-    }
-
-    /* blitter control 2, index 1 */
-    vga_WritePortW(0x23c2, (1 << 12) | 0);
-
-    /* pitch */
-    vga_WritePortW(0x23c2, (8 << 12) | (uint16_t)(nova.pitch & 0x7ff));
-
-    /* rop = src_copy */
-    vga_WritePortW(0x23c2, (9 << 12) | (3 << 8));
-
-    /* plane mask */
-    vga_WritePortW(0x23c2, (14 << 12) | 0xff);
-    
-    /* dimensions */
-    vga_WritePortW(0x23c2, (6 << 12) | (uint16_t)(bl->width & 0x7ff));
-    vga_WritePortW(0x23c2, (7 << 12) | (uint16_t)(bl->height & 0x7ff));
-
-    /* src address, index 2 + 3 */
-    vga_WritePortW(0x23c2, (2 << 12) | (uint16_t)(src & 0xfff)); src >>= 12;
-    vga_WritePortW(0x23c2, (3 << 12) | (uint16_t)(src & 0x0ff));
-
-    /* dst address, index 4 + 5 */
-    vga_WritePortW(0x23c2, (4 << 12) | (uint16_t)(dst & 0xfff)); dst >>= 12;
-    vga_WritePortW(0x23c2, (5 << 12) | (uint16_t)(dst & 0x0ff));
-
-    /* start blitting */
-    vga_WritePortW(0x23c2, (0 << 12) |
-        (  1 <<  8) |   /* chunky mode */
-        (dir << 10) |   /* direction */
-        (  1 << 11)     /* start */
-    );
-
-    /* wait for not busy */
-    while(vga_ReadPortW(0x23c2) & (1 << 11)) {
-        cpu_nop();
-    }
-    return true;
 }
 
 static bool setmode(mode_t* mode) {
@@ -292,6 +361,7 @@ static bool init(card_t* card, addmode_f addmode) {
     }
     if (wd_support_blitter()) {
         card->blit = blit;
+        card->fill = fill;
     }
 
     /* 4bpp modes */

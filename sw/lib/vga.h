@@ -38,42 +38,40 @@
 #define VGA_REG_CRTC        0x3D4
 #define VGA_REG_STAT1       0x3DA
 
+
+#define vga_ReadPort(port) *((volatile uint8_t*)(VGA_IOBASE + (port)))
+#define vga_WritePort(port, val) *((volatile uint8_t* )(VGA_IOBASE + (port))) = (uint8_t)(val);
+
+#define vga_WritePortWLE(port, val) *((volatile uint16_t*)(VGA_IOBASE16 + port)) = val
+#define vga_ReadPortWLE(port) *((volatile uint16_t*)(VGA_IOBASE16 + port))
+
 static uint16_t vga_ReadPortW(uint16_t port) {
-    uint16_t be = *((volatile uint16_t*)(VGA_IOBASE16 + port));
+    uint16_t be = vga_ReadPortWLE(port);
     return ((be >> 8) | (be << 8));
 }
 
 static void vga_WritePortW(uint16_t port, uint16_t val) {
     uint16_t le = ((val >> 8) | (val << 8));
-    *((volatile uint16_t*)(VGA_IOBASE16 + port)) = le;
-}
-
-static uint8_t vga_ReadPort(uint16_t port) {
-    return *((volatile uint8_t*)(VGA_IOBASE + port));
-}
-
-static void vga_WritePort(uint16_t port, uint8_t val) {
-    *((volatile uint8_t* )(VGA_IOBASE + port)) = val;
+    vga_WritePortWLE(port, le);
 }
 
 static uint8_t vga_ReadReg(uint16_t port, uint8_t idx) {
     if (port==0x3C0) {
-        vga_ReadPort(0x3DA);
+        uint8_t dummy = vga_ReadPort(0x3DA);
     }
     vga_WritePort(port, idx);
     return vga_ReadPort(port+1);
 }
 
 static void vga_WriteReg(uint16_t port, uint8_t idx, uint8_t val) {
-   if (port==0x3C0) {
-      vga_ReadPort(0x3DA);
-      vga_WritePort(port, idx);
-      vga_WritePort(port, val);
-   }
-   else {
-      vga_WritePort(port, idx);
-      vga_WritePort(port+1, val);
-   }
+    if (port==0x3C0) {
+        uint8_t dummy = vga_ReadPort(0x3DA);
+        vga_WritePort(port, idx);
+        vga_WritePort(port, val);
+    }
+    else {
+        vga_WritePortWLE(port, (((uint16_t)idx)<<8)|val);
+    }
 }
 
 static uint16_t vga_GetBaseReg(uint16_t reg) {

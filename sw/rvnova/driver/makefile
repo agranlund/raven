@@ -7,7 +7,8 @@ PRJ = $(NAME).prj
 INSTALL_ROOT = c:/auto
 INSTALL_BINS = $(BIN)
 
-OBJS = main.o asm.o nv.o vdi.o cards/vga.o \
+OBJS = main.o asm.o nv.o nvex.o vdi.o \
+	cards/vga.o \
 	cards/cirrus.o \
 	cards/wdc.o \
 	cards/oak.o

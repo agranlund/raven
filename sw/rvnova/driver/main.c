@@ -112,6 +112,10 @@ static uint16_t mode_to_bpp(uint16_t mode) {
     return (mode <= NOVA_MODE_32BPP) ? mode_to_bpp_table[mode] : 0;
 }
 
+static uint16_t bpp_to_bytes(uint16_t bpp) {
+    return (((bpp + 7) & ~7) >> 3);
+}
+
 static void update_nova_resname(char* name) {
     strncpy((char*)nova.mode_name, name, 35);
 }
@@ -133,7 +137,7 @@ static void update_nova_resinfo(uint16_t width, uint16_t height, uint16_t bpp) {
     nova.v_right = nova.max_x;
     if (nova.planes >= 8) {
         /* chunky mode: total bytes per line */
-        nova.pitch = (uint16_t)(((uint32_t)(nova.max_x + 1) * nova.planes) >> 3);
+        nova.pitch = (uint16_t)((uint32_t)(nova.max_x + 1) * bpp_to_bytes(nova.planes));
     } else {
         /* planar mode: bytes per line per plane */
         nova.pitch = (uint16_t)((nova.max_x + 1) >> 3);
@@ -181,6 +185,18 @@ void nova_p_changeres(nova_bibres_t* bib, uint32_t offs) {
         nova.mem_size = card->bank_size * card->bank_count;
         update_nova_resinfo(w, h, b);
         update_nova_resname(bib->name);
+
+        /* update screen clip region */
+        nv_scrnclip.min.x = 0;
+        nv_scrnclip.min.y = 0;
+        nv_scrnclip.max.x = nova.max_x;
+        nv_scrnclip.max.y = nova.max_y;
+
+        /* update vram clip region */
+        nv_vramclip.min.x = 0;
+        nv_vramclip.min.y = 0;
+        nv_vramclip.max.x = nova.max_x;
+        nv_vramclip.max.y = (nova.mem_size / nova.pitch) - 1;
 
         /* sta_vdi needs register access to draw in 16 color planar */
         /* but we prevent them for all other resolutions */

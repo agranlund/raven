@@ -14,6 +14,7 @@ emulator.prg
 main.c
 asm.s
 nv.c
+nvex.c
 vdi.c
 cards\vga.c
 cards\cirrus.c

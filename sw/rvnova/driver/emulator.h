@@ -80,16 +80,11 @@ static void     cpu_flush_cache(void) { raven()->cache_Flush(); }
 /*-----------------------------------------------------------------------------*/
 #define PADDR_IO        RV_PADDR_ISA_IO
 #define PADDR_MEM       RV_PADDR_ISA_RAM16
-
 #define VADDR_MEM       0x44000000UL    /* logical mem space */
 #define VADDR_IO        0x44F00000UL    /* logical io space */
-
 #define VSIZE_MEM       0x00400000UL    /*  4Mb virtual mem space */
 #define VSIZE_IO        0x00010000UL    /* 64kb virtual io space  */
 
-/*-----------------------------------------------------------------------------*/
-
-/*-----------------------------------------------------------------------------*/
 
 /*-------------------------------------------------------------------------------
  * driver
@@ -98,16 +93,17 @@ static void     cpu_flush_cache(void) { raven()->cache_Flush(); }
 
 typedef void(*addmode_f)(uint16_t, uint16_t, uint8_t, uint8_t, uint16_t);
 
-typedef struct
-{
-    int32_t     x0;
-    int32_t     y0;
-    int32_t     x1;
-    int32_t     y1;
-    int32_t     width;
-    int32_t     height;
-    int32_t     flags;
-} blcmd_t;
+typedef struct {
+    int16_t x;
+    int16_t y;
+} vec_t;
+
+typedef struct {
+    vec_t min;
+    vec_t max;
+} rect_t;
+
+#define line_t rect_t
 
 typedef struct
 {
@@ -132,7 +128,9 @@ typedef struct
     void        (*getcolors)(uint16_t index, uint16_t count, uint8_t* colors);
     void        (*vsync)(void);
     void        (*clear)(void);
-    bool        (*blit)(blcmd_t* blcmd);
+    bool        (*blit)(rect_t* src, vec_t* dst);
+    bool        (*fill)(uint16_t col, uint16_t pat, rect_t* dst);
+
 } card_t;
 
 typedef struct
@@ -157,6 +155,14 @@ extern bool nv_setmode(uint16_t w, uint16_t h, uint16_t b);
 /* initialize vram and banks, if any */
 extern void nv_init_vram(uint32_t phys, uint32_t size, uint16_t count);
 
+/* misc helpers */
+extern rect_t nv_vramclip;
+extern rect_t nv_scrnclip;
+extern bool nv_clip_point(vec_t* point, rect_t* dclip);
+extern bool nv_clip_rect(rect_t* rect, rect_t* dclip);
+extern bool nv_clip_blit(vec_t* dst, rect_t* src, rect_t* dclip, rect_t* sclip);
+extern bool nv_clip_line(line_t* line, rect_t* dlip);
+extern uint32_t nv_fillpatterns[8];
 
 /* standard vga functionality */
 extern void vga_vsync(void);
@@ -164,5 +170,8 @@ extern bool vga_screen_on(bool on);
 extern bool vga_setmode(uint16_t code);
 extern void vga_setcolors(uint16_t index, uint16_t count, uint8_t* colors);
 extern void vga_getcolors(uint16_t index, uint16_t count, uint8_t* colors);
+
+
+
 
 #endif /* _EMULATOR_H_ */
