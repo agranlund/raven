@@ -208,7 +208,7 @@ static uint16_t colorexp_restore05;
 static uint16_t colorexp_restore10;
 static uint16_t colorexp_restore11;
 
-void cl_upload_colorexp_patterns(void) {
+static void cl_upload_colorexp_patterns(void) {
     int x, y, w;
     for (w = 0; w < 8; w++) {           /* patterns 0-7 */
         uint32_t* vram = (uint32_t*)(PADDR_MEM + colorexp_addr + ((w & 7) << 8));
