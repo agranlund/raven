@@ -29,6 +29,46 @@
 #define VDI_DEBUG   0
 
 /*-----------------------------------------------------------------------------
+ NOVA VDI internal device function pointers
+-----------------------------------------------------------------------------*/
+typedef struct
+{
+/* 00 */    uint32_t    _unk00;
+/* 04 */    uint32_t    _unk04;
+/* 08 */    uint32_t    _unk08;
+/* 0c */    uint32_t    _unk0c;
+/* 10 */    uint32_t    _unk10;
+/* 14 */    uint32_t    _unk14;     /* used in 4bpp, sets vga regs */
+/* 18 */    uint32_t    _unk18;     /* fillpoly? */
+/* 1c */    uint32_t    _unk1c;
+/* 20 */    uint32_t    _unk20;
+/* 24 */    uint32_t    _unk24;
+/* 28 */    uint32_t    _unk28;
+/* 2c */    uint32_t    _unk2c;
+/* 30 */    uint32_t    _unk30;
+/* 34 */    uint32_t    _unk34;
+/* 38 */    uint32_t    _unk38;
+/* 3c */    uint32_t    _unk3c;
+/* 40 */    uint32_t    _unk40;
+/* 44 */    uint32_t    _unk44;     /* sta6_v_line */
+/* 48 */    uint32_t    _unk48;
+/* 4c */    uint32_t    putpixel;   /* linea_putpixel */
+/* 50 */    uint32_t    getpixel;   /* linea_getpixel */
+/* 54 */    uint32_t    bitblt;     /* linea_bitblt  */
+/* 58 */    uint32_t    copyfm;     /* linea_copyfm + vro_copyfm */
+/* 5c */    uint32_t    _unk5c;
+/* 60 */    uint32_t    _unk60;
+/* 64 */    uint32_t    _unk64;
+/* 68 */    uint32_t    _unk68;
+/* 6c */    uint32_t    _unk6c;     /* sta_22_vst_color, sta_25_vsf_color */
+/* 70 */    uint32_t    _unk70;     /* sta_22_vst_color, sta_25_vsf_color, sta_105_v_getpixel */
+/* 74 */    uint32_t    _unk74;     /* sta_105_v_getpixel */
+/* 78 */    uint32_t    _unk78;
+/* 7c */    uint32_t    _unk7c;
+/* 80 */    uint16_t    _unk80[6];
+} stawk91c_t;
+
+/*-----------------------------------------------------------------------------
  NOVA VDI internal workstation data
 -----------------------------------------------------------------------------*/
 typedef struct
@@ -43,11 +83,10 @@ typedef struct
 /* 4b2 */   uint16_t    _unk_4b2;
 /* 4b4 */   uint16_t    clipflag;
 /* 4b6 */   rect_t      cliprect;
-/* 4be */   uint8_t     _unk_4be[0x8c2 - 0x4be];    /* 4be = some kind of updated flag? */
-
+/* 4be */   uint8_t     _unk_4be_updateflag;    /* set to 1 in vsf_perimeter and similar */
+/* 4c0 */   uint8_t     _unk_4c0[0x8c2 - 0x4c0];
 /* some of the following are being updated from at the start of every */
 /* sta_vdi handler when 'is_screen' is not zero */
-
 /* 8c2 */   uint16_t    bytes_per_line;
 /* 8c4 */   uint8_t     _unk_8c4[0x90a - 0x8c4];
 /* 90a */   uint16_t    changed_flag;
@@ -57,11 +96,9 @@ typedef struct
 /* 916 */   uint16_t    screen_height;
 /* 918 */   uint16_t    screen_bpp;
 /* 91a */   uint16_t    _unk_91a;
-/* 91c */   void*       _unk_91c_func_ptr_table; /* points to a jumptable used in vdi functions */
+/* 91c */   stawk91c_t* screen_funcs;  
 /* 920 */   uint16_t    _unk_920;
 } stawk_t;
-
-
 
 /*-----------------------------------------------------------------------------
  NOVA VDI function handler
@@ -82,12 +119,17 @@ typedef struct
     vdi_func fun;
 } vdi_funcdata_t;
 
-
 /*-----------------------------------------------------------------------------
  globals
 -----------------------------------------------------------------------------*/
+#define STAVDI_BSS_OFFSET_NOVAPLANE        (0x00030fbcUL - 0x0002ddb2UL)
+#define STAVDI_BSS_OFFSET_VTSCROLLFUNC     (0x000310a4UL - 0x0002ddb2UL)
+
 static vdi_funcdata_t* sta_vdifuncs;
 static LINEA* sta_linea;
+static uint32_t sta_bss;
+
+
 
 /*-----------------------------------------------------------------------------
 109 : vro_copyfm
@@ -119,7 +161,6 @@ void vro_copyfm_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
 vdi_func vr_recfl_old;
 void vr_recfl_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
 
-#if 1
     /* todo: verify better if this is for screen */
     if (card->fill && (vh == 1)) {
         /* only src_copy fills */
@@ -147,10 +188,12 @@ void vr_recfl_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
             }
         }
     }
-#endif        
     vr_recfl_old(fn, vh, pb, wk);
 }
 
+/*-----------------------------------------------------------------------------
+11 : v_gdp
+-----------------------------------------------------------------------------*/
 vdi_func v_gdp_old;
 void v_gdp_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
     if (pb->contrl[5] == 1) {
@@ -161,6 +204,34 @@ void v_gdp_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
     v_gdp_old(fn, vh, pb, wk);
 }
 
+
+/*-----------------------------------------------------------------------------
+vt_scroll
+  d0.w: first row
+  d1.w: last row
+  a1.l: linea data
+-----------------------------------------------------------------------------*/
+typedef void(*vt_scroll_func)(int16_t, int16_t, void*, void*);
+extern void vt_scroll_asm(int16_t, int16_t, void*, void*);
+vt_scroll_func vt_scroll_old;
+void vt_scroll(int16_t d0, int16_t d1, void* a0, void* a1) {
+    if ((d1 - d0) > 0) {
+        int16_t char_height = *((int16_t*)(((uint32_t)a1) - 0x2e)); /* v_cel_ht (linea -2e) */
+        if (char_height > 0) {
+            rect_t src; vec_t dst;
+            src.min.y = char_height * d0;
+            src.max.y = char_height * (d1 + 1);
+            dst.y = (src.min.y - char_height);
+            dst.x = 0;
+            src.min.x = 0;
+            src.max.x = nova.max_x;
+            if (nv_clip_rect(&src, &nv_scrnclip) && card->blit(&src, &dst)) {
+                return;
+            }
+        }
+        vt_scroll_old(d0, d1, a0, a1);
+    }
+}
 
 /*
  * VDI patching.
@@ -174,6 +245,8 @@ void v_gdp_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
  * it's memory from the stacked return address to find and modify
  * the internal VDI jumptable. This is located right after the trap code.
  *
+ * VT52 scrolling is patched by finding its function pointer in BSS
+ * 
  */
 uint32_t vdi_patch_findtrap2_backward(uint32_t from, uint32_t len) {
     uint32_t addr = from - 2;
@@ -195,11 +268,16 @@ vdi_funcdata_t* vdi_patch_find_vditable(uint32_t addr) {
     if (!trap2addr) {
         return 0;
     }
-    /* todo: verify trap code to be sure the table is at offset 0x50 from it */
     tableaddr = trap2addr + 0x50;
     return (vdi_funcdata_t*)tableaddr;
 }
 
+uint32_t vdi_patch_find_bss(vdi_funcdata_t* vditable) {
+    uint32_t v105func = (uint32_t)vditable[105].fun;
+    uint32_t var_planes = *((uint32_t*)(v105func + 0x20));
+    uint32_t bss = var_planes - STAVDI_BSS_OFFSET_NOVAPLANE;
+    return bss;
+}
 
 bool vdi_patch(void* sp) {
     uint16_t sr;
@@ -210,6 +288,12 @@ bool vdi_patch(void* sp) {
     }
     dprintf("vdi_patch: table at %08lx\n", (uint32_t)sta_vdifuncs);
 
+    sta_bss = vdi_patch_find_bss(sta_vdifuncs);
+    if (!sta_bss) {
+        dprintf("bdi_patch: bss not found\n");
+    }
+    dprintf("vdi_patch: bss   at %08lx\n", sta_bss);
+
     sr = cpu_di();
 
     /* vro_copyfm */
@@ -217,13 +301,20 @@ bool vdi_patch(void* sp) {
     sta_vdifuncs[109].fun = vro_copyfm_new;
 
     /* vr_recfl */
-    vr_recfl_old = sta_vdifuncs[114].fun;
-    sta_vdifuncs[114].fun = vr_recfl_new;
+    if (card->fill) {
+        vr_recfl_old = sta_vdifuncs[114].fun;
+        sta_vdifuncs[114].fun = vr_recfl_new;
+    }
 
-#if 0    
+#if 0
+    /* v_gpd */
     v_gdp_old = sta_vdifuncs[11].fun;
     sta_vdifuncs[11].fun = v_gdp_new;
 #endif
+
+    /* vt_scroll */
+    vt_scroll_old = *((vt_scroll_func*)(sta_bss + STAVDI_BSS_OFFSET_VTSCROLLFUNC));
+    *((vt_scroll_func*)(sta_bss + STAVDI_BSS_OFFSET_VTSCROLLFUNC)) = vt_scroll_asm;
 
     /* grab pointer to sta_vdi's internal linea structure
      * vro_copyfm beings with "movea.l LINEA.l,A2" ($24 $79 $addr) */
@@ -234,3 +325,4 @@ bool vdi_patch(void* sp) {
     cpu_ei(sr);
     return true;
 }
+

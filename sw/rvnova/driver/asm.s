@@ -13,6 +13,10 @@
     .XREF nova_p_setscreen_first_asm
     .XREF nova_p_setscreen_first
 
+    .XREF vt_scroll_asm
+    .XREF vt_scroll_old
+    .XREF vt_scroll
+
 
 ;----------------------------------------------------------
 ; uint16_t cpu_di(void)
@@ -43,6 +47,14 @@ nova_p_setscreen_first_asm:
     move.l  sp,a1
     jmp     nova_p_setscreen_first
 
+;----------------------------------------------------------
+; entry point for vt_scroll
+;----------------------------------------------------------
+vt_scroll_asm:
+    movem.l d0-d7/a0-a6,-(sp)
+    jsr     vt_scroll
+    movem.l (sp)+,d0-d7/a0-a6
+    rts
 
 ;----------------------------------------------------------
 ; exception vector for bankswitcher mechanism

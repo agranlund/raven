@@ -153,22 +153,21 @@ static bool blit(rect_t* src, vec_t* dst) {
    uint32_t srcaddr, dstaddr;
     uint32_t width_minus_one;
     uint32_t height_minus_one;
-    uint16_t bpp;
+    uint16_t bytes_per_pixel;
     uint8_t dir;
 
-    if (nova.planes >= 8) {
-        bpp = ((nova.planes + 7) & ~7);
-    } else {
-        /* todo: wdc can do planar blits */
+    /* we cannot blit planar modes */
+    bytes_per_pixel = (((nova.planes + 1) & ~7) >> 3);
+    if (bytes_per_pixel < 1) {
         return false;
     }
 
     /* source and destination address */
     height_minus_one = (uint32_t)(src->max.y - src->min.y);
     width_minus_one = (uint32_t)(src->max.x - src->min.x);
-    width_minus_one = (uint32_t)((width_minus_one * bpp) >> 3);
-    srcaddr = ((uint32_t)src->min.y * nova.pitch) + (((uint32_t)src->min.x * bpp) >> 3);
-    dstaddr = ((uint32_t)dst->y * nova.pitch) + (((uint32_t)dst->x * bpp) >> 3);
+    width_minus_one = (uint32_t)(width_minus_one * bytes_per_pixel);
+    srcaddr = ((uint32_t)src->min.y * nova.pitch) + ((uint32_t)src->min.x * bytes_per_pixel);
+    dstaddr = ((uint32_t)dst->y * nova.pitch) + ((uint32_t)dst->x * bytes_per_pixel);
 
     /* blit direction */
     dir = 0;
@@ -238,19 +237,19 @@ static bool fill(uint16_t col, uint16_t pat, rect_t* dst) {
     uint32_t srcaddr, dstaddr;
     uint32_t width_minus_one;
     uint32_t height_minus_one;
-    uint16_t bpp;
-    uint8_t dir;
+    uint16_t bytes_per_pixel;
 
-    if (nova.planes >= 8) {
-        bpp = ((nova.planes + 7) & ~7);
-    } else {
+    /* we cannot blit planar modes */
+    /* temp: disable >8bit fills also, until our vdi hook is capable of passing such color values */
+    bytes_per_pixel = (((nova.planes + 1) & ~7) >> 3);
+    if (bytes_per_pixel != 1) {
         return false;
     }
 
     height_minus_one = (uint32_t)(dst->max.y - dst->min.y);
     width_minus_one = (uint32_t)(dst->max.x - dst->min.x);
-    width_minus_one = (uint32_t)((width_minus_one * bpp) >> 3);
-    dstaddr = ((uint32_t)dst->min.y * nova.pitch) + (((uint32_t)dst->min.x * bpp) >> 3);
+    width_minus_one = (uint32_t)(width_minus_one * bytes_per_pixel);
+    dstaddr = ((uint32_t)dst->min.y * nova.pitch) + ((uint32_t)dst->min.x * bytes_per_pixel);
 
     /* select blitter registers */
     vga_WritePortW(0x23c0, 

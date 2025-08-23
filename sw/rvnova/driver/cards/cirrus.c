@@ -282,8 +282,8 @@ static bool blit(rect_t* src, vec_t* dst) {
     uint8_t dir;
 
     /* we cannot blit planar modes */
-    bytes_per_pixel = (((nova.planes + 7) & ~7) >> 3);
-    if (bytes_per_pixel == 0) {
+    bytes_per_pixel = (((nova.planes + 1) & ~7) >> 3);
+    if (bytes_per_pixel < 1) {
         return false;
     }
 
@@ -336,7 +336,7 @@ static bool fill(uint16_t col, uint16_t pat, rect_t* dst) {
 
     /* we cannot blit planar modes */
     /* temp: disable >8bit fills also, until our vdi hook is capable of passing such color values */
-    bytes_per_pixel = (((nova.planes + 7) & ~7) >> 3);
+    bytes_per_pixel = (((nova.planes + 1) & ~7) >> 3);
     if (bytes_per_pixel != 1) {
         return false;
     }
