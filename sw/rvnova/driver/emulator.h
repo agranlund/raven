@@ -164,6 +164,10 @@ extern bool nv_clip_blit(vec_t* dst, rect_t* src, rect_t* dclip, rect_t* sclip);
 extern bool nv_clip_line(line_t* line, rect_t* dlip);
 extern uint32_t nv_fillpatterns[8];
 
+/* bankswitcher */
+extern void nv_banksw_install(void);
+extern void nv_banksw_prepare(uint16_t width, uint16_t height, uint16_t bpp);
+
 /* standard vga functionality */
 extern void vga_vsync(void);
 extern bool vga_screen_on(bool on);

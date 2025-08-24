@@ -3,8 +3,8 @@
     .XREF cpu_di
     .XREF cpu_ei
     
-    .XREF nv_bankvec_handler
-    .XREF nv_bankvec_install
+    .XREF nv_banksw_installvector
+    .XREF nv_banksw_handler
 
     .XREF xbios_trap_old
     .XREF xbios_trap_new
@@ -83,7 +83,7 @@ nv_bankvec_new:
     movem.l d0-d2/a0-a2,-(sp)
     move.l  sp,a0
     add.l   #24,a0
-    bsr     nv_bankvec_handler
+    bsr     nv_banksw_handler
     cmp.b   #0,d0
     bne.b   nv_bankvec_skip
     movem.l (sp)+,d0-d2/a0-a2       ; re-run fault instruction
@@ -93,7 +93,7 @@ nv_bankvec_skip:
     move.l  nv_bankvec_old,-(sp)    ; run original exception handler
     rts
 
-nv_bankvec_install:
+nv_banksw_installvector:
     bsr     cpu_di
     move.l  0x0008.w,d1
     move.l  d1,nv_bankvec_old
