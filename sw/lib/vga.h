@@ -39,8 +39,8 @@
 #define VGA_REG_STAT1       0x3DA
 
 
-#define vga_ReadPort(port) *((volatile uint8_t*)(VGA_IOBASE + (port)))
-#define vga_WritePort(port, val) *((volatile uint8_t* )(VGA_IOBASE + (port))) = (uint8_t)(val);
+#define vga_ReadPort(port) *((volatile uint8_t*)(VGA_IOBASE16 + (port)))
+#define vga_WritePort(port, val) *((volatile uint8_t* )(VGA_IOBASE16 + (port))) = (uint8_t)(val);
 
 #define vga_WritePortWLE(port, val) *((volatile uint16_t*)(VGA_IOBASE16 + port)) = val
 #define vga_ReadPortWLE(port) *((volatile uint16_t*)(VGA_IOBASE16 + port))
