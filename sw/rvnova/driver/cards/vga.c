@@ -64,8 +64,8 @@ void vga_clear(void) {
             }
         }
     } else {
-        uint32_t* dst = (uint32_t*)RV_PADDR_ISA_RAM16;
-        uint32_t  siz = 1024UL * 64;
+        uint32_t* dst = (uint32_t*)(RV_PADDR_ISA_RAM16 + 0xa0000UL);
+        uint32_t  siz = 1024UL * 128;
         for (; siz; siz--) {
             *dst++ = col;
         }
@@ -76,20 +76,35 @@ void vga_clear(void) {
 
 bool vga_setmode(uint16_t code) {
     x86_regs_t r;
-    /* we clear the screen ourselves instead of slowly inside x86 emulation */
-    if (!(code & 0x80)) {
-        code |= 0x80;
+    bool result;
+    if (code >= 0x100) {
+        /* vesa */
+        if (!(code & 0x8000)) {
+            vga_vsync();
+            vga_clear();
+        }
         vga_vsync();
-        vga_clear();
+        r.x.bx = code | 0x8000;
+        r.x.ax = 0x4f02;    /* setmode */
+        int86(0x10, &r, &r);
+        result = (r.h.ah == 0);
+    } else {
+        /* vga or svga */
+        if (!(code & 0x80)) {
+            vga_vsync();
+            vga_clear();
+        }
+        vga_vsync();
+        r.x.ax = code | 0x80;
+        int86(0x10, &r, &r);
+        result = true;
     }
-    vga_vsync();
-    r.x.ax = code;
-    int86(0x10, &r, &r);
+
     /* delay here because some cards can lock up if accessed too soon after mode change */
     /* the value used here is based on absolutely nothing */
     vga_delay(500);
     vga_vsync();
-    return true;
+    return result;
 }
 
 void vga_setcolors(uint16_t index, uint16_t count, uint8_t* colors) {
