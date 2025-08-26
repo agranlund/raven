@@ -288,11 +288,6 @@ static bool fill(uint16_t col, uint16_t pat, rect_t* dst) {
     return true;
 }
 
-static void setbank(uint16_t num) {
-    /* todo */
-}
-
-
 static void configure_framebuffer(void) {
 
     if (wd_support_linear()) {
@@ -322,7 +317,9 @@ static void configure_framebuffer(void) {
             0x01                            /* display fifo request @ 2 levels*/
         );
     } else if (wd_support_banks()) {
-        /* todo */
+
+    } else if (vram >= 512) {
+        vga_ModifyReg(0x3ce, 0x06, 0x0c, 0x00); /* single 128kb bank */
     }
 
     /* blitter configuration */
@@ -337,6 +334,11 @@ static bool setmode(mode_t* mode) {
         return true;
     }
     return false;
+}
+
+static void setbank(uint16_t num) {
+    vga_WritePortWLE(0x3ce, 0x0900 | (num &0xff));  /* rdbank */
+    vga_WritePortWLE(0x3ce, 0x0a00 | (num &0xff));  /* wrbank */
 }
 
 static bool init(card_t* card, addmode_f addmode) {
@@ -354,10 +356,14 @@ static bool init(card_t* card, addmode_f addmode) {
         card->bank_addr = 0x200000UL;
         card->bank_size = card->vram_size;
     } else if (wd_support_banks()) {
-        /* todo */
         card->setbank = setbank;
-        card->bank_count = 1;
+        card->bank_size = 1024UL * 64;
+        card->bank_step = 1024UL * 4;
+        card->bank_count = card->vram_size / card->bank_size;
+    } else if (vram >= 512) {
+        card->bank_size = 1024UL * 128;
     }
+
     if (wd_support_blitter()) {
         card->blit = blit;
         card->fill = fill;
