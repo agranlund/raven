@@ -11679,6 +11679,26 @@
 		)
 		(uuid "7189c60a-724b-4fae-b694-a3d9cb7b954c")
 	)
+	(text_box "Changes from rev.A1:\nThis signal is now wire-or of IOCS16 and MEMCS16\n"
+		(exclude_from_sim no)
+		(at 730.25 391.795 0)
+		(size 27.94 8.255)
+		(margins 0.9525 0.9525 0.9525 0.9525)
+		(stroke
+			(width 0)
+			(type dot)
+		)
+		(fill
+			(type none)
+		)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left top)
+		)
+		(uuid "75497423-6fef-48e8-813b-7f9cc4a8622b")
+	)
 	(text_box "TEA / TRA:\nThe current slave asserts this input signal to indicate an error condition for the current transfer to immediately terminate the bus cycle. The assertion of TEA has precedence over TRA\nand TA for native-MC68060-style acknowledgment termination.\nFor MC68040-style acknowledge termination, TEA must be asserted with TA negated to\ncause the current bus cycle to immediately terminate with a bus error indication. For\nMC68040-style acknowledge termination, TRA must be held negated."
 		(exclude_from_sim no)
 		(at 100.33 379.73 0)
@@ -11759,10 +11779,10 @@
 		)
 		(uuid "d186c224-1000-4dbf-903c-e3095a107e92")
 	)
-	(text_box "Changes from rev.A1:\n\n- pin34 is now A6 instead of A5\n- pin73 is now /BUSCS instead of unused header\n- pin81 is now /ETH_CS instead of unused header"
+	(text_box "Changes from rev.A1:\n\n- pin34 is now A6 instead of A5\n- pin73 is now /BUSCS instead of unused header\n- pin81 is now /ETH_CS instead of unused header\n- pin54 is wire-or of /ISA:IOCS16 and /ISA:MEMCS16"
 		(exclude_from_sim no)
 		(at 522.605 308.61 0)
-		(size 59.69 13.97)
+		(size 59.69 16.51)
 		(margins 0.9525 0.9525 0.9525 0.9525)
 		(stroke
 			(width 0)

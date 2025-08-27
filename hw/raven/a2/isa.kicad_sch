@@ -2958,6 +2958,203 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Jumper:SolderJumper_2_Bridged"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim yes)
+			(in_bom no)
+			(on_board yes)
+			(property "Reference" "JP"
+				(at 0 2.032 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "SolderJumper_2_Bridged"
+				(at 0 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Solder Jumper, 2-pole, closed/bridged"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "solder jumper SPST"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "SolderJumper*Bridged*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "SolderJumper_2_Bridged_0_1"
+				(rectangle
+					(start -0.508 0.508)
+					(end 0.508 -0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.254 1.016) (xy -0.254 -1.016)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -0.254 -1.016)
+					(mid -1.2656 0)
+					(end -0.254 1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -0.254 -1.016)
+					(mid -1.2656 0)
+					(end -0.254 1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(arc
+					(start 0.254 1.016)
+					(mid 1.2656 0)
+					(end 0.254 -1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 0.254 1.016)
+					(mid 1.2656 0)
+					(end 0.254 -1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.254 1.016) (xy 0.254 -1.016)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "SolderJumper_2_Bridged_1_1"
+				(pin passive line
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "B"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Oscillator:CXO_DIP8"
 			(pin_names
 				(offset 0.254)
@@ -3812,27 +4009,25 @@
 		)
 		(uuid "a2a86d44-2200-4c83-a1cc-a2cedcc2c8d0")
 	)
-	(text_box "TODO:\n\nConnect MEMCS16 to cpld"
+	(text_box "Changes from rev.A1:\n\nIOCS16 and MEMCS16 are tied\ntogether as wired-or.\n"
 		(exclude_from_sim no)
-		(at 172.72 234.95 0)
-		(size 31.115 14.605)
+		(at 147.32 192.405 0)
+		(size 34.29 12.065)
 		(margins 0.9525 0.9525 0.9525 0.9525)
 		(stroke
 			(width 0)
-			(type default)
+			(type dot)
 		)
 		(fill
-			(type color)
-			(color 255 230 63 0.53)
+			(type none)
 		)
 		(effects
 			(font
 				(size 1.27 1.27)
-				(color 0 0 0 1)
 			)
 			(justify left top)
 		)
-		(uuid "baedc592-e870-4ac2-9e28-7516124c399b")
+		(uuid "faeb364e-5c0f-4a4a-84e6-8a7a601f8553")
 	)
 	(junction
 		(at 182.245 73.66)
@@ -3863,12 +4058,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "15c949d7-a4ff-40bd-ac9c-575068133bbd")
-	)
-	(junction
-		(at 167.005 269.875)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "184dd7d9-1a0e-496e-8ce6-ad25983c5de9")
 	)
 	(junction
 		(at 151.13 330.835)
@@ -3989,6 +4178,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "8473a9df-671d-425a-99ae-eaf32f42961f")
+	)
+	(junction
+		(at 176.53 269.875)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8878f75f-f0d2-40d6-bc24-acf6b6b570cc")
 	)
 	(junction
 		(at 190.5 81.28)
@@ -5936,7 +6131,7 @@
 	)
 	(wire
 		(pts
-			(xy 143.51 269.875) (xy 167.005 269.875)
+			(xy 143.51 269.875) (xy 176.53 269.875)
 		)
 		(stroke
 			(width 0)
@@ -6266,16 +6461,6 @@
 	)
 	(wire
 		(pts
-			(xy 143.51 272.415) (xy 156.845 272.415)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "17cb8a3f-90cc-4c57-bb6c-1abe257c5975")
-	)
-	(wire
-		(pts
 			(xy 280.67 340.995) (xy 292.735 340.995)
 		)
 		(stroke
@@ -6443,6 +6628,16 @@
 			(type default)
 		)
 		(uuid "1ccadc0a-7e27-405f-ac62-4a7aba88098e")
+	)
+	(wire
+		(pts
+			(xy 176.53 269.875) (xy 181.61 269.875)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1cfd7049-a00e-41f1-a296-e07ea6e7d733")
 	)
 	(bus
 		(pts
@@ -6646,6 +6841,16 @@
 	)
 	(wire
 		(pts
+			(xy 176.53 272.415) (xy 176.53 269.875)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "26128412-85a4-4513-8f4d-6dae306aad3a")
+	)
+	(wire
+		(pts
 			(xy 389.89 297.815) (xy 401.955 297.815)
 		)
 		(stroke
@@ -6683,6 +6888,16 @@
 			(type default)
 		)
 		(uuid "26d76484-de18-43bb-be6b-4a52129ce9cf")
+	)
+	(wire
+		(pts
+			(xy 172.085 272.415) (xy 176.53 272.415)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2781befe-955b-4958-93cc-01ca2a5745a6")
 	)
 	(wire
 		(pts
@@ -6996,7 +7211,7 @@
 	)
 	(wire
 		(pts
-			(xy 182.245 269.875) (xy 190.5 269.875)
+			(xy 189.23 269.875) (xy 197.485 269.875)
 		)
 		(stroke
 			(width 0)
@@ -8616,16 +8831,6 @@
 	)
 	(wire
 		(pts
-			(xy 167.005 269.875) (xy 174.625 269.875)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "702a3ae2-d4b8-4b4e-bca1-d9120550034d")
-	)
-	(wire
-		(pts
 			(xy 20.955 340.995) (xy 33.02 340.995)
 		)
 		(stroke
@@ -8766,7 +8971,7 @@
 	)
 	(wire
 		(pts
-			(xy 163.83 267.335) (xy 174.625 267.335)
+			(xy 163.83 267.335) (xy 181.61 267.335)
 		)
 		(stroke
 			(width 0)
@@ -8906,7 +9111,7 @@
 	)
 	(wire
 		(pts
-			(xy 182.245 267.335) (xy 190.5 267.335)
+			(xy 189.23 267.335) (xy 197.485 267.335)
 		)
 		(stroke
 			(width 0)
@@ -9496,7 +9701,7 @@
 	)
 	(wire
 		(pts
-			(xy 167.005 257.81) (xy 167.005 269.875)
+			(xy 176.53 257.81) (xy 176.53 269.875)
 		)
 		(stroke
 			(width 0)
@@ -10336,7 +10541,7 @@
 	)
 	(wire
 		(pts
-			(xy 160.655 262.255) (xy 174.625 262.255)
+			(xy 160.655 262.255) (xy 181.61 262.255)
 		)
 		(stroke
 			(width 0)
@@ -10516,7 +10721,7 @@
 	)
 	(wire
 		(pts
-			(xy 182.245 262.255) (xy 189.865 262.255)
+			(xy 189.23 262.255) (xy 196.85 262.255)
 		)
 		(stroke
 			(width 0)
@@ -11283,6 +11488,16 @@
 			(type default)
 		)
 		(uuid "d3ce6780-f2a1-451b-aa58-c27a9af55758")
+	)
+	(wire
+		(pts
+			(xy 143.51 272.415) (xy 164.465 272.415)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d413abfe-37ef-404f-8c00-4568382c9d7f")
 	)
 	(wire
 		(pts
@@ -16684,7 +16899,7 @@
 	)
 	(global_label "ISA:IOCS16"
 		(shape output)
-		(at 167.005 257.81 90)
+		(at 176.53 257.81 90)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -16694,7 +16909,7 @@
 		)
 		(uuid "6e6d4a2c-a2dd-42e0-90e6-f431de8a1c12")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 167.005 244.4833 90)
+			(at 176.53 244.4833 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18048,7 +18263,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Network08_Split")
-		(at 178.435 269.875 270)
+		(at 185.42 269.875 270)
 		(mirror x)
 		(unit 5)
 		(exclude_from_sim no)
@@ -18057,7 +18272,7 @@
 		(dnp no)
 		(uuid "0f797efc-1cc2-4b1f-a205-9e6e95f8236f")
 		(property "Reference" "RN501"
-			(at 186.055 268.605 90)
+			(at 193.04 268.605 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18065,7 +18280,7 @@
 			)
 		)
 		(property "Value" "4K7"
-			(at 178.435 269.875 90)
+			(at 185.42 269.875 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18073,7 +18288,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Array_SIP9"
-			(at 178.435 271.907 90)
+			(at 185.42 271.907 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18082,7 +18297,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.vishay.com/docs/31509/csc.pdf"
-			(at 178.435 269.875 0)
+			(at 185.42 269.875 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18091,7 +18306,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 178.435 269.875 0)
+			(at 185.42 269.875 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18099,7 +18314,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "IRC / TT"
-			(at 178.435 269.875 0)
+			(at 185.42 269.875 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18108,7 +18323,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "L091S472LF"
-			(at 178.435 269.875 0)
+			(at 185.42 269.875 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20211,7 +20426,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 190.5 269.875 270)
+		(at 197.485 269.875 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -20219,7 +20434,7 @@
 		(dnp no)
 		(uuid "4b38214f-563d-4159-be3d-eb2ce2d401a2")
 		(property "Reference" "#PWR0538"
-			(at 186.69 269.875 0)
+			(at 193.675 269.875 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20228,7 +20443,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 195.58 269.875 90)
+			(at 202.565 269.875 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20236,7 +20451,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 190.5 269.875 0)
+			(at 197.485 269.875 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20245,7 +20460,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 190.5 269.875 0)
+			(at 197.485 269.875 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20254,7 +20469,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 190.5 269.875 0)
+			(at 197.485 269.875 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21992,7 +22207,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 189.865 262.255 270)
+		(at 196.85 262.255 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -22000,7 +22215,7 @@
 		(dnp no)
 		(uuid "68c72214-d378-4dec-aa3a-24a7b5520b8c")
 		(property "Reference" "#PWR0536"
-			(at 186.055 262.255 0)
+			(at 193.04 262.255 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22009,7 +22224,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 194.945 262.255 90)
+			(at 201.93 262.255 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22017,7 +22232,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 189.865 262.255 0)
+			(at 196.85 262.255 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22026,7 +22241,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 189.865 262.255 0)
+			(at 196.85 262.255 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22035,7 +22250,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 189.865 262.255 0)
+			(at 196.85 262.255 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24261,7 +24476,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Network08_Split")
-		(at 178.435 262.255 270)
+		(at 185.42 262.255 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -24269,7 +24484,7 @@
 		(dnp no)
 		(uuid "9c025f95-0b2b-4c4d-b2d5-54f73edd73e0")
 		(property "Reference" "RN502"
-			(at 186.055 260.985 90)
+			(at 193.04 260.985 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24277,7 +24492,7 @@
 			)
 		)
 		(property "Value" "4K7"
-			(at 178.435 262.255 90)
+			(at 185.42 262.255 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24285,7 +24500,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Array_SIP9"
-			(at 178.435 260.223 90)
+			(at 185.42 260.223 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24294,7 +24509,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.vishay.com/docs/31509/csc.pdf"
-			(at 178.435 262.255 0)
+			(at 185.42 262.255 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24303,7 +24518,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 178.435 262.255 0)
+			(at 185.42 262.255 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24311,7 +24526,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "IRC / TT"
-			(at 178.435 262.255 0)
+			(at 185.42 262.255 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24320,7 +24535,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "L091S472LF"
-			(at 178.435 262.255 0)
+			(at 185.42 262.255 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -25127,6 +25342,76 @@
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/eec73fb6-6eba-45b9-9adf-00542ef5d3d8"
 					(reference "#PWR0547")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Jumper:SolderJumper_2_Bridged")
+		(at 168.275 272.415 0)
+		(unit 1)
+		(exclude_from_sim yes)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b38879ec-4dd8-45e4-9e85-cbc20effcb45")
+		(property "Reference" "JP501"
+			(at 168.275 266.065 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "SolderJumper_2_Bridged"
+			(at 168.275 268.605 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "Jumper:SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm"
+			(at 168.275 272.415 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 168.275 272.415 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Solder Jumper, 2-pole, closed/bridged"
+			(at 168.275 272.415 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "284da678-eff7-4f2b-97bd-d56be0416206")
+		)
+		(pin "2"
+			(uuid "f27f9bf6-b560-4e67-950e-4cd2a1a87957")
+		)
+		(instances
+			(project ""
+				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/eec73fb6-6eba-45b9-9adf-00542ef5d3d8"
+					(reference "JP501")
 					(unit 1)
 				)
 			)
@@ -27096,7 +27381,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Network08_Split")
-		(at 178.435 267.335 270)
+		(at 185.42 267.335 270)
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -27104,7 +27389,7 @@
 		(dnp no)
 		(uuid "d1b20935-1d76-4cb6-9055-d3cbcab09cdd")
 		(property "Reference" "RN502"
-			(at 186.055 266.065 90)
+			(at 193.04 266.065 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27112,7 +27397,7 @@
 			)
 		)
 		(property "Value" "4K7"
-			(at 178.435 267.335 90)
+			(at 185.42 267.335 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27120,7 +27405,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Array_SIP9"
-			(at 178.435 265.303 90)
+			(at 185.42 265.303 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27129,7 +27414,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.vishay.com/docs/31509/csc.pdf"
-			(at 178.435 267.335 0)
+			(at 185.42 267.335 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27138,7 +27423,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 178.435 267.335 0)
+			(at 185.42 267.335 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27146,7 +27431,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "IRC / TT"
-			(at 178.435 267.335 0)
+			(at 185.42 267.335 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27155,7 +27440,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "L091S472LF"
-			(at 178.435 267.335 0)
+			(at 185.42 267.335 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27510,7 +27795,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 190.5 267.335 270)
+		(at 197.485 267.335 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -27518,7 +27803,7 @@
 		(dnp no)
 		(uuid "ea092467-fa4c-46a8-83b4-cf876007b1e8")
 		(property "Reference" "#PWR0537"
-			(at 186.69 267.335 0)
+			(at 193.675 267.335 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27527,7 +27812,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 195.58 267.335 90)
+			(at 202.565 267.335 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27535,7 +27820,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 190.5 267.335 0)
+			(at 197.485 267.335 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27544,7 +27829,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 190.5 267.335 0)
+			(at 197.485 267.335 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27553,7 +27838,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 190.5 267.335 0)
+			(at 197.485 267.335 0)
 			(effects
 				(font
 					(size 1.27 1.27)
