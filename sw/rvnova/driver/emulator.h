@@ -78,7 +78,7 @@ static void     cpu_flush_atc(void) { raven()->mmu_Flush(); }
 static void     cpu_flush_cache(void) { raven()->cache_Flush(); }
 
 /*-----------------------------------------------------------------------------*/
-#define PADDR_IO        RV_PADDR_ISA_IO
+#define PADDR_IO        RV_PADDR_ISA_IO16
 #define PADDR_MEM       RV_PADDR_ISA_RAM16
 #define VADDR_MEM       0x44000000UL    /* logical mem space */
 #define VADDR_IO        0x44F00000UL    /* logical io space */
