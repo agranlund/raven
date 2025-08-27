@@ -2,11 +2,14 @@ Raven.A1
 Hardware and software binary release
 
 xxxxxxxx:
-  rom:      updated to emutos 1.4
-  rom:      x86 emulation bugfix
   firmware: (nessi) ISA access tweak
   firmware: (nessi) IDE access tweak
-  rvnova:   Cirrus Logic GD54xx driver
+
+20250827:
+  rom:      updated to EmuTOS 1.4
+  rom:      x86 emulation bugfix
+  rvnova:   Cirrus Logic GD54xx driver (blitter support)
+  rvnova:   WDC90C31 driver (blitter support)
   rvnova:   OAK driver
 
 20250808:
