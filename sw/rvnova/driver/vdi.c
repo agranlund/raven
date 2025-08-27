@@ -129,7 +129,19 @@ static vdi_funcdata_t* sta_vdifuncs;
 static LINEA* sta_linea;
 static uint32_t sta_bss;
 
+/*-----------------------------------------------------------------------------
+vdi helpers
+-----------------------------------------------------------------------------*/
+#define vdi_is_screenwk(_wk) (_wk->screen_addr >= VADDR_MEM)
 
+static bool vdi_getfillparams(stawk_t* wk, int16_t* style, int16_t* color) {
+    switch (wk->vsf_interior) {
+        case 0: *style = 7; *color = 0; return true;
+        case 1: *style = 7; *color = wk->vsf_color; return true;
+        case 2: *style = wk->vsf_style; *color = wk->vsf_color; return ((*style) < 8);
+        default: return false;
+    }
+}
 
 /*-----------------------------------------------------------------------------
 109 : vro_copyfm
@@ -160,22 +172,11 @@ void vro_copyfm_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
 -----------------------------------------------------------------------------*/
 vdi_func vr_recfl_old;
 void vr_recfl_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
-
-    /* todo: verify better if this is for screen */
-    if (card->fill && (vh == 1)) {
+    if (card->fill && vdi_is_screenwk(wk)) {
         /* only src_copy fills */
         if (wk->writemode == 0) {
-            int16_t style;
-            int16_t color = wk->vsf_color;
-            switch (wk->vsf_interior) {
-                case 0: style = 7; color = 0; break;
-                case 1: style = 7; break;
-                case 2: style = wk->vsf_style; break;
-                default: style = 8; break;
-            }
-            /* only dither patterns */
-            if (style < 8) {
-                /* clip and blit */
+            int16_t style, color;
+            if (vdi_getfillparams(wk, &style, &color)) {
                 rect_t* r = (rect_t*)&pb->ptsin[0];
                 if (wk->clipflag && !nv_clip_rect(r, &wk->cliprect)) {
                     return;
@@ -183,8 +184,6 @@ void vr_recfl_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
                 if (card->fill(color,  7 - style, r)) {
                     return;
                 }
-                /* fall through to software blit if 
-                driver rejected it for some reason */
             }
         }
     }
@@ -193,17 +192,48 @@ void vr_recfl_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
 
 /*-----------------------------------------------------------------------------
 11 : v_gdp
+disabled since Kronos draw v_bars in reverse order so apparently that's legal.
 -----------------------------------------------------------------------------*/
+#if 0
 vdi_func v_gdp_old;
 void v_gdp_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
-    if (pb->contrl[5] == 1) {
-        /* v_bar, doesn't appear to be used much
-            identical to vr_recfl except it can draw an outline if wk->vsf_perimeter is set */
-        /*dprintf("vbar: %d,%d,%d : %d,%d - %d,%d (%d,%d)\n", wk->writemode, wk->vsf_interior, wk->vsf_perimeter, pb->ptsin[0], pb->ptsin[1], pb->ptsin[2], pb->ptsin[3], pb->ptsin[2]-pb->ptsin[0], pb->ptsin[3]-pb->ptsin[1]);*/
+    if (card->fill && vdi_is_screenwk(wk)) {
+        if (pb->contrl[5] == 1) {
+            /* v_bar */
+            if (wk->writemode == 0) {
+                int16_t style, color;
+                if (vdi_getfillparams(wk, &style, &color)) {
+                    rect_t* r = (rect_t*)pb->ptsin;
+                    if (wk->clipflag && !nv_clip_rect(r, &wk->cliprect)) {
+                        return;
+                    }
+                    if (card->fill(color,  7 - style, r)) {
+                        if (wk->vsf_perimeter) {
+                            line_t l;
+                            l.min.x = r->min.x;          /* top */
+                            l.max.x = r->max.x;
+                            l.min.y = r->min.y;
+                            l.max.y = r->min.y;
+                            card->fill(color, 0, &l);
+                            l.min.y = r->max.y;          /* bottom */
+                            l.max.y = r->max.y;
+                            card->fill(color, 0, &l);
+                            l.max.x = r->min.x;          /* left */
+                            l.min.y = r->min.y;
+                            card->fill(color, 0, &l);
+                            l.min.x = r->max.x;          /* right */
+                            l.max.x = r->max.x;
+                            card->fill(color, 0, &l);
+                        }
+                        return;
+                    }
+                }
+            }
+        }
     }
     v_gdp_old(fn, vh, pb, wk);
 }
-
+#endif
 
 /*-----------------------------------------------------------------------------
 vt_scroll
@@ -297,9 +327,11 @@ bool vdi_patch(void* sp) {
     sr = cpu_di();
 
     /* vro_copyfm */
-    vro_copyfm_old = sta_vdifuncs[109].fun;
-    sta_vdifuncs[109].fun = vro_copyfm_new;
-
+    if (card->blit) {
+        vro_copyfm_old = sta_vdifuncs[109].fun;
+        sta_vdifuncs[109].fun = vro_copyfm_new;
+    }
+    
     /* vr_recfl */
     if (card->fill) {
         vr_recfl_old = sta_vdifuncs[114].fun;
@@ -308,8 +340,10 @@ bool vdi_patch(void* sp) {
 
 #if 0
     /* v_gpd */
-    v_gdp_old = sta_vdifuncs[11].fun;
-    sta_vdifuncs[11].fun = v_gdp_new;
+    if (card->fill) {
+        v_gdp_old = sta_vdifuncs[11].fun;
+        sta_vdifuncs[11].fun = v_gdp_new;
+    }
 #endif
 
     /* vt_scroll */
@@ -325,4 +359,3 @@ bool vdi_patch(void* sp) {
     cpu_ei(sr);
     return true;
 }
-
