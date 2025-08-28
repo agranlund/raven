@@ -1,10 +1,6 @@
 Raven.A1
 Hardware and software binary release
 
-xxxxxxxx:
-  firmware: (nessi) ISA access tweak
-  firmware: (nessi) IDE access tweak
-
 20250827:
   rom:      updated to EmuTOS 1.4
   rom:      x86 emulation bugfix
