@@ -1,0 +1,17 @@
+rvtest.tos
+.C[-I..\..\purec\include]
+.C[-I..\..\lib]
+.C[-E1 -Y -G -M -Z -P -W2]
+
+.S[-I..\..\purec\include]
+.S[-S]
+
+.L[-R -M -V -S=4096]
+=
+..\..\purec\lib\cstart0.o
+main.c
+m_speed.c
+m_sprite.c
+m_scroll.c
+..\..\purec\lib\pctoslib.lib
+..\..\purec\lib\pcstdlib.lib
