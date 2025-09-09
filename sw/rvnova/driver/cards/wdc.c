@@ -149,69 +149,6 @@ static bool identify(void) {
     return false;
 }
 
-static bool blit(rect_t* src, vec_t* dst) {
-   uint32_t srcaddr, dstaddr;
-    uint32_t width_minus_one;
-    uint32_t height_minus_one;
-    uint16_t bytes_per_pixel;
-    uint8_t dir;
-
-    /* we cannot blit planar modes */
-    bytes_per_pixel = (((nova.planes + 1) & ~7) >> 3);
-    if (bytes_per_pixel < 1) {
-        return false;
-    }
-
-    /* source and destination address */
-    height_minus_one = (uint32_t)(src->max.y - src->min.y);
-    width_minus_one = (uint32_t)(src->max.x - src->min.x);
-    width_minus_one = (uint32_t)(width_minus_one * bytes_per_pixel);
-    srcaddr = ((uint32_t)src->min.y * nova.pitch) + ((uint32_t)src->min.x * bytes_per_pixel);
-    dstaddr = ((uint32_t)dst->y * nova.pitch) + ((uint32_t)dst->x * bytes_per_pixel);
-
-    /* blit direction */
-    dir = 0;
-    if ((src->min.y < dst->y) || ((src->min.y == dst->y) && (src->min.x < dst->x))) {
-        if (src->max.y >= dst->y) {
-            uint32_t offs = (height_minus_one * nova.pitch) + width_minus_one;
-            srcaddr += offs;
-            dstaddr += offs;
-            dir = 1;
-        }
-    }
-
-    /* select blitter registers */
-    vga_WritePortW(0x23c0, 
-        (1 << 12) |     /* do not increment read index */
-        (0 <<  8) |     /* read index 0 */
-        (1 <<  0)       /* bank 1 (blitter) */
-    );
-
-    /* update blitter registers */
-    vga_WritePortW(0x23c2, 0x1000 | 0); /* standard blit, no transparency */
-    vga_WritePortW(0x23c2, 0x8000 | (uint16_t)(nova.pitch & 0x7ff));
-    vga_WritePortW(0x23c2, 0x9000 | (3 << 8));  /* src_copy */
-    vga_WritePortW(0x23c2, 0xE000 | 0xff);  /* plane mask */
-    vga_WritePortW(0x23c2, 0x6000 | (uint16_t)((width_minus_one + 1) & 0x7ff));
-    vga_WritePortW(0x23c2, 0x7000 | (uint16_t)((height_minus_one + 1) & 0x7ff));
-    vga_WritePortW(0x23c2, 0x2000 | (uint16_t)(srcaddr & 0xfff)); srcaddr >>= 12;
-    vga_WritePortW(0x23c2, 0x3000 | (uint16_t)(srcaddr & 0x0ff));
-    vga_WritePortW(0x23c2, 0x4000  | (uint16_t)(dstaddr & 0xfff)); dstaddr >>= 12;
-    vga_WritePortW(0x23c2, 0x5000  | (uint16_t)(dstaddr & 0x0ff));
-
-    /* start blitting */
-    vga_WritePortW(0x23c2, 0x0000  |
-        (  1 <<  8) |   /* chunky mode */
-        (dir << 10) |   /* direction */
-        (  1 << 11)     /* start */
-    );
-
-    /* wait until finished */
-    while(vga_ReadPortW(0x23c2) & (1 << 11)) {
-        cpu_nop();
-    }
-    return true;
-}
 
 static uint32_t fillpattern_addr;
 static void upload_fillpatterns(uint32_t addr) {
@@ -233,62 +170,78 @@ static uint32_t get_fillpattern(uint16_t idx, int16_t xoffs, int16_t yoffs) {
     return (fillpattern_addr + ((idx & 7) << 6) + ((yoffs & 3) << 3) + ((xoffs & 7) << 0));
 }
 
-static bool fill(uint16_t col, uint16_t pat, rect_t* dst) {
-    uint32_t srcaddr, dstaddr;
+#define wd_rop(cmd) (((uint16_t)cmd) & 0x0F00)
+
+static bool blit(uint32_t cmd, rect_t* src, vec_t* dst) {
+    uint32_t dstaddr, srcaddr;
     uint32_t width_minus_one;
     uint32_t height_minus_one;
     uint16_t bytes_per_pixel;
+    uint16_t ctrl0, ctrl1;
 
-    /* we cannot blit planar modes */
-    /* temp: disable >8bit fills also, until our vdi hook is capable of passing such color values */
-    bytes_per_pixel = (((nova.planes + 1) & ~7) >> 3);
-    if (bytes_per_pixel != 1) {
-        return false;
+    ctrl0 = ((1 << 8) | (1 << 11)); /* packed pixels, start */
+    ctrl1 = 0x1000;
+    bytes_per_pixel = (((nova->planes + 1) & ~7) >> 3);
+    height_minus_one = (uint32_t)(src->max.y - src->min.y);
+    width_minus_one = ((uint32_t)(src->max.x - src->min.x)) * bytes_per_pixel;
+    dstaddr = (((uint32_t)dst->y) * nova->pitch) + (dst->x * bytes_per_pixel);
+
+    /* select blitter, read index 0 with no increment */
+    vga_WritePortW(0x23c0,  (1 << 12) | (0 << 8) | (1 << 0));
+
+    if (cmd & BL_FILL) {
+        uint8_t pattern = BL_GETPATTERN(cmd);
+        if (pattern) {
+            srcaddr = get_fillpattern(pattern, src->min.x, src->min.y);
+            vga_WritePortW(0x23c2, 0x2000 | (uint16_t)(srcaddr & 0xfff));
+            vga_WritePortW(0x23c2, 0x3000 | (uint16_t)((srcaddr >> 12) & 0x0ff));
+            ctrl1 |= (1 << 4);  /* source format is 8x8 pattern */
+            ctrl0 |= ((3 << 2) | (1 << 6));  /* source data is mono and linear */
+        } else {
+            ctrl0 |= (2 << 2);  /* source data is fixed color */
+        }
+        vga_WritePortW(0x23c2, 0xA000 | BL_GETFGCOL(cmd));
+        vga_WritePortW(0x23c2, 0xB000 | BL_GETBGCOL(cmd));
+    } else {
+        srcaddr = (((uint32_t)src->min.y) * nova->pitch) + (src->min.x * bytes_per_pixel);
+        if (srcaddr < dstaddr) {
+            if (src->max.y >= dst->y) {
+                uint32_t offset = (height_minus_one * nova->pitch) + width_minus_one;
+                srcaddr += offset;
+                dstaddr += offset;
+                ctrl0 |= (1 << 10);  /* reverse blit */
+            }
+        }
+        vga_WritePortW(0x23c2, 0x2000 | (uint16_t)(srcaddr & 0xfff));
+        vga_WritePortW(0x23c2, 0x3000 | (uint16_t)((srcaddr >> 12) & 0x0ff));
+        if (cmd & BL_MONO) {
+            ctrl0 |= (1 << 2); /* color src -> mono mask -> color expand */
+            vga_WritePortW(0x23c2, 0xA000 | BL_GETBGCOL(cmd));
+            vga_WritePortW(0x23c2, 0xB000 | BL_GETFGCOL(cmd));
+        }
     }
 
-    height_minus_one = (uint32_t)(dst->max.y - dst->min.y);
-    width_minus_one = (uint32_t)(dst->max.x - dst->min.x);
-    width_minus_one = (uint32_t)(width_minus_one * bytes_per_pixel);
-    dstaddr = ((uint32_t)dst->min.y * nova.pitch) + ((uint32_t)dst->min.x * bytes_per_pixel);
+    if (cmd & BL_TRANSPARENT) {
+        ctrl1 |= ((1 << 2) | (1 << 0));
+    }
 
-    /* select blitter registers */
-    vga_WritePortW(0x23c0, 
-        (1 << 12) |     /* do not increment read index */
-        (0 <<  8) |     /* read index 0 */
-        (1 <<  0)       /* bank 1 (blitter) */
-    );
-
-    /* update blitter registers */
-    vga_WritePortW(0x23c2, 0x1000 | (1 << 4));  /* source is 8x8 pattern */
-    vga_WritePortW(0x23c2, 0x8000 | (uint16_t)(nova.pitch & 0x7ff));
-    vga_WritePortW(0x23c2, 0x9000 | (3 << 8));  /* src_copy */
-    vga_WritePortW(0x23c2, 0xE000 | 0xff);  /* plane mask */
-    vga_WritePortW(0x23c2, 0xA000 | col);   /* foreground color */
-    vga_WritePortW(0x23c2, 0xB000 | 0x00);  /* background color */
+    vga_WritePortW(0x23c2, 0x9000 | wd_rop(cmd));
+    vga_WritePortW(0x23c2, 0x8000 | (uint16_t)(nova->pitch & 0x7ff));
     vga_WritePortW(0x23c2, 0x6000 | (uint16_t)((width_minus_one + 1) & 0x7ff));
     vga_WritePortW(0x23c2, 0x7000 | (uint16_t)((height_minus_one + 1) & 0x7ff));
-    srcaddr = get_fillpattern(pat, dst->min.x, dst->min.y);
-    vga_WritePortW(0x23c2, 0x2000  | (uint16_t)(srcaddr & 0xfff)); srcaddr >>= 12;
-    vga_WritePortW(0x23c2, 0x3000  | (uint16_t)(srcaddr & 0x0ff));
-    vga_WritePortW(0x23c2, 0x4000  | (uint16_t)(dstaddr & 0xfff)); dstaddr >>= 12;
-    vga_WritePortW(0x23c2, 0x5000  | (uint16_t)(dstaddr & 0x0ff));
+    vga_WritePortW(0x23c2, 0x4000 | (uint16_t)(dstaddr & 0xfff));
+    vga_WritePortW(0x23c2, 0x5000 | (uint16_t)((dstaddr >> 12) & 0x0ff));
 
     /* start blitter */
-    vga_WritePortW(0x23c2, 0x0000  |
-        ( 3 <<  2) |    /* source mono */
-        ( 1 <<  6) |    /* source linear */
-        ( 1 <<  8) |    /* dest chunky */
-        ( 1 << 11)      /* start */
-    );
+    vga_WritePortW(0x23c2, ctrl1);
+    vga_WritePortW(0x23c2, ctrl0);
 
     /* wait until finished */
-    while(vga_ReadPortW(0x23c2) & (1 << 11)) {
-        cpu_nop();
-    }
+    while(vga_ReadPortW(0x23c2) & (1 << 11));
     return true;
 }
 
-static void configure_framebuffer(void) {
+static void configure_framebuffer(mode_t* mode) {
 
     if (wd_support_linear()) {
 
@@ -323,17 +276,37 @@ static void configure_framebuffer(void) {
     }
 
     /* blitter configuration */
-    if (wd_support_blitter()) {
+    if (wd_support_blitter() && mode) {
+        card->caps |= NV_CAPS_BLIT | NV_CAPS_FILL | NV_CAPS_DITHER | NV_CAPS_DSTKEY | NV_CAPS_AUTOMASK;
+        if (mode->bpp != 8) {
+            card->caps &= ~(NV_CAPS_BLIT | NV_CAPS_FILL);
+        }
+        /* select blitter, read index 0 with no increment */
+        vga_WritePortW(0x23c0,  (1 << 12) | (0 << 8) | (1 << 0));
+        /* set default blitter registers */
+        vga_WritePortW(0x23c2, 0xA000 | 0xff);  /* foreground color */
+        vga_WritePortW(0x23c2, 0xB000 | 0x00);  /* background color */
+        vga_WritePortW(0x23c2, 0xC000 | 0x00);  /* transparency color */
+        vga_WritePortW(0x23c2, 0xD000 | 0xff);  /* transparency mask */
+        vga_WritePortW(0x23c2, 0xE000 | 0xff);  /* plane mask */
+        /* upload fill patterns to vram */
         upload_fillpatterns(card->bank_addr + card->bank_size - 2048);
     }
 }
 
 static bool setmode(mode_t* mode) {
     if (vga_setmode(mode->code)) {
-        configure_framebuffer();
+        configure_framebuffer(mode);
         return true;
     }
     return false;
+}
+
+static void setaddr(uint32_t addr) {
+    uint16_t crtc = vga_GetBaseReg(4);
+    vga_ModifyReg(0x3ce, 0x0D, 0x18, (addr >> 15));
+    vga_WritePortWLE(crtc, 0x0D00 | ((addr >>  2) & 0xff));
+    vga_WritePortWLE(crtc, 0x0C00 | ((addr >> 10) & 0xff));
 }
 
 static void setbank(uint16_t num) {
@@ -352,6 +325,7 @@ static bool init(card_t* card, addmode_f addmode) {
     card->name = chipset_strings[chipset];
     card->vram_size = 1024UL * vram;
     card->setmode = setmode;
+    card->setaddr = setaddr;
     if (wd_support_linear()) {
         card->bank_addr = 0x200000UL;
         card->bank_size = card->vram_size;
@@ -366,7 +340,6 @@ static bool init(card_t* card, addmode_f addmode) {
 
     if (wd_support_blitter()) {
         card->blit = blit;
-        card->fill = fill;
     }
 
     /* 4bpp modes */
@@ -419,7 +392,7 @@ static bool init(card_t* card, addmode_f addmode) {
     }
 
     /* configure linear or banked framebuffer */
-    configure_framebuffer();
+    configure_framebuffer(0);
 
     return true;
 }

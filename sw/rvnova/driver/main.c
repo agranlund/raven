@@ -26,7 +26,8 @@
 #include "emulator.h"
 #include "nova.h"
 
-nova_xcb_t nova;
+static nova_xcb_t nova_static;
+nova_xcb_t* nova;
 
 static uint32_t nova_dummy_page;
 static uint8_t nova_dummy_area[PMMU_PAGESIZE + PMMU_PAGEALIGN];
@@ -117,44 +118,44 @@ static uint16_t bpp_to_bytes(uint16_t bpp) {
 }
 
 static void update_nova_resname(char* name) {
-    strncpy((char*)nova.mode_name, name, 35);
+    strncpy((char*)nova->mode_name, name, 35);
 }
 
 static void update_nova_resinfo(uint16_t width, uint16_t height, uint16_t bpp) {
-    nova.max_x = width - 1;
-    nova.max_y = height - 1;
-    nova.planes = bpp;
+    nova->max_x = width - 1;
+    nova->max_y = height - 1;
+    nova->planes = bpp;
 
-    nova.mode = bpp_to_mode(nova.planes);
-    nova.colors = (1 << nova.planes);
-    nova.real_min_x = 0;
-    nova.real_max_x = nova.max_x;
-    nova.real_min_y = 0;
-    nova.real_max_y = nova.max_y;
-    nova.v_top = 0;
-    nova.v_bottom = nova.max_y;
-    nova.v_left = 0;
-    nova.v_right = nova.max_x;
-    if (nova.planes >= 8) {
+    nova->mode = bpp_to_mode(nova->planes);
+    nova->colors = (1 << nova->planes);
+    nova->real_min_x = 0;
+    nova->real_max_x = nova->max_x;
+    nova->real_min_y = 0;
+    nova->real_max_y = nova->max_y;
+    nova->v_top = 0;
+    nova->v_bottom = nova->max_y;
+    nova->v_left = 0;
+    nova->v_right = nova->max_x;
+    if (nova->planes >= 8) {
         /* chunky mode: total bytes per line */
-        nova.pitch = (uint16_t)((uint32_t)(nova.max_x + 1) * bpp_to_bytes(nova.planes));
+        nova->pitch = (uint16_t)((uint32_t)(nova->max_x + 1) * bpp_to_bytes(nova->planes));
     } else {
         /* planar mode: bytes per line per plane */
-        nova.pitch = (uint16_t)((nova.max_x + 1) >> 3);
+        nova->pitch = (uint16_t)((nova->max_x + 1) >> 3);
     }
-    nova.scrn_size = (uint32_t)(nova.max_x+1);
-    nova.scrn_size *= (nova.max_y+1);
-    if (nova.planes >= 8) {
+    nova->scrn_size = (uint32_t)(nova->max_x+1);
+    nova->scrn_size *= (nova->max_y+1);
+    if (nova->planes >= 8) {
         /* planar mode: scrn_size is per plane  */
         /* chunky mode: scrn_size is total size */
-        nova.scrn_size *= nova.planes;
+        nova->scrn_size *= nova->planes;
     }
-    nova.scrn_size >>= 3;
-    nova.scrn_count = nova.mem_size / nova.scrn_size;
-    nova.scrn_count = (nova.scrn_count < 1) ? 1 : nova.scrn_count;
-    nova.base = nova.mem_base;
+    nova->scrn_size >>= 3;
+    nova->scrn_count = nova->mem_size / nova->scrn_size;
+    nova->scrn_count = (nova->scrn_count < 1) ? 1 : nova->scrn_count;
+    nova->base = nova->mem_base;
 
-    dprintf("size = %ld, pitch = %d\n", nova.scrn_size, nova.pitch);
+    dprintf("size = %ld, pitch = %d\n", nova->scrn_size, nova->pitch);
 }
 
 
@@ -182,25 +183,13 @@ void nova_p_changeres(nova_bibres_t* bib, uint32_t offs) {
     card->vsync();
     if (nv_setmode(w, h, b)) {
         /* update nova cookie */
-        nova.mem_size = card->bank_size * card->bank_count;
+        nova->mem_size = card->bank_size * card->bank_count;
         update_nova_resinfo(w, h, b);
         update_nova_resname(bib->name);
 
-        /* update screen clip region */
-        nv_scrnclip.min.x = 0;
-        nv_scrnclip.min.y = 0;
-        nv_scrnclip.max.x = nova.max_x;
-        nv_scrnclip.max.y = nova.max_y;
-
-        /* update vram clip region */
-        nv_vramclip.min.x = 0;
-        nv_vramclip.min.y = 0;
-        nv_vramclip.max.x = nova.max_x;
-        nv_vramclip.max.y = (nova.mem_size / nova.pitch) - 1;
-
         /* sta_vdi needs register access to draw in 16 color planar */
         /* but we prevent them for all other resolutions */
-        if (nova.planes == 4) {
+        if (nova->planes == 4) {
             cpu_map(VADDR_IO, PADDR_IO, VSIZE_IO, PAGE_READWRITE);
         } else {
             uint32_t offs;
@@ -216,11 +205,11 @@ void nova_p_changeres(nova_bibres_t* bib, uint32_t offs) {
 
 void nova_p_setcolor(uint16_t index, uint8_t* colors) {
     uint16_t sr;
-    uint8_t dacIndex = (nova.planes < 8) ? nova_colormap[index&0xf] : index;
+    uint8_t dacIndex = (nova->planes < 8) ? nova_colormap[index&0xf] : index;
     /*dprintf("col %d (%02x): %02x %02x %02x\n", index, dacIndex, colors[0], colors[1], colors[2]);*/
 
     sr = cpu_di();
-    if (nova.planes == 1) {
+    if (nova->planes == 1) {
         /* a bit of a temp hack here.. */
         /* i'm not sure which additional indices we need to set for */
         /* mono color 1 so just set all of them at the moment */
@@ -264,12 +253,14 @@ void nova_p_changepos(nova_bibres_t* bib, uint16_t dir, uint16_t offs) {
 
 void nova_p_setscreen(void* addr) {
     /* called on sta_vdi start and no confusion here */
-    dprintf("nova: p_setscreen: %08lx\n", (uint32_t)addr);
+    uint32_t offset = (uint32_t)addr - (uint32_t)nova->base;
+    /*dprintf("nova: p_setscreen: %08lx : %08lx\n", (uint32_t)addr, (uint32_t)offset);*/
+    card->setaddr(offset);
 }
 
 void nova_p_vsync(void) {
     /* does what it says on the tin */
-    dprintf("nova: p_vsync\n");
+    /*dprintf("nova: p_vsync\n");*/
     card->vsync();
 }
 
@@ -278,7 +269,7 @@ extern void nova_p_setscreen_first_asm(void* addr);
 void nova_p_setscreen_first(void* addr, void* stack) {
     dprintf("nova: p_setscreen_first: %08lx %08lx\n", (uint32_t)addr, (uint32_t)stack);
     vdi_patch(stack);
-    nova.p_setscreen = nova_p_setscreen;
+    nova->p_setscreen = nova_p_setscreen;
     nova_p_setscreen(addr);
 }
 
@@ -294,8 +285,8 @@ static void *linea0(void) 0xa000;
 static void updatebootvdi(void) {
     /* update resolution */
     uint32_t la = (uint32_t)linea0();
-    *((uint16_t*)(la-0xc)) = nova.max_x + 1;    /* V_REZ_VT */
-    *((uint16_t*)(la-0x4)) = nova.max_y + 1;    /* V_REZ_HT */
+    *((uint16_t*)(la-0xc)) = nova->max_x + 1;    /* V_REZ_VT */
+    *((uint16_t*)(la-0x4)) = nova->max_y + 1;    /* V_REZ_HT */
 
     /* todo: update font and console */
     
@@ -372,41 +363,47 @@ long supermain(void) {
     nova_colormap[15] = 0x3F;
 
     /* general setup */
-    memset((void*)&nova, 0, sizeof(nova_xcb_t));
+    nova = &nova_static;
+    memset(nova, 0, sizeof(nova_xcb_t));
     if (Getcookie(C__CPU, (long*)&cookie) == C_FOUND) {
-        nova.cpu = (uint16_t)(cookie & 0xffff);
+        nova->cpu = (uint16_t)(cookie & 0xffff);
     }
-    nova.version = NOVA_VERSION;
-    nova.hcmode = NOVA_HCMODE_1X1;
-    nova.blank_time = 0;
-    nova.mouse_speed = 0;
+    nova->version = NOVA_VERSION;
+    nova->hcmode = NOVA_HCMODE_1X1;
+    nova->blank_time = 0;
+    nova->mouse_speed = 0;
 
     /* api setup */
-    nova.p_changeres = nova_p_changeres;
-    nova.p_setcolor = nova_p_setcolor;
-    nova.p_changevirt = nova_p_changevirt;
-    nova.p_instxbios = nova_p_instxbios;
-    nova.p_screen_on = nova_p_screen_on;
-    nova.p_changepos = nova_p_changepos;
-    nova.p_setscreen = nova_p_setscreen;
-    nova.p_vsync = nova_p_vsync;
+    nova->p_changeres = nova_p_changeres;
+    nova->p_setcolor = nova_p_setcolor;
+    nova->p_changevirt = nova_p_changevirt;
+    nova->p_instxbios = nova_p_instxbios;
+    nova->p_screen_on = nova_p_screen_on;
+    nova->p_changepos = nova_p_changepos;
+    nova->p_setscreen = nova_p_setscreen;
+    nova->p_vsync = nova_p_vsync;
 
     /* hardware acceleration */
     if (card->blit) {
-        nova.p_setscreen = nova_p_setscreen_first_asm;
+        nova->p_setscreen = nova_p_setscreen_first_asm;
     }
 
     /* card setup */
-    nova.reg_base = (void*) (VADDR_IO + 0x8000UL);
-    nova.mem_base = (void*) (VADDR_MEM);
-    nova.mem_size = card->bank_size * card->bank_count;
+    nova->reg_base = (void*) (VADDR_IO + 0x8000UL);
+    nova->mem_base = (void*) (VADDR_MEM);
+    nova->mem_size = card->bank_size * card->bank_count;
+
+/* ------ TEMP ------ */
+    *((uint32_t*)(&nova->unknown8A[0])) = (uint32_t)card;
+/* ------ TEMP ------ */
+
 
     /* install cookie */
-    setcookie(C_NOVA, (uint32_t)&nova);
+    setcookie(C_NOVA, (uint32_t)nova);
 
     /* apply boot resolution */
-    nova.old_resolution = 0;
-    nova.resolution = 1;
+    nova->old_resolution = 0;
+    nova->resolution = 1;
     if (!setbootres()) {
         /* no emulator.bib, just assume 640x480x2bpp */
         update_nova_resinfo(640, 480, 2);

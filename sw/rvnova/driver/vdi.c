@@ -132,16 +132,82 @@ static uint32_t sta_bss;
 /*-----------------------------------------------------------------------------
 vdi helpers
 -----------------------------------------------------------------------------*/
+#define vdi_min(a,b) (((a)<(b)) ? (a) : (b))
+#define vdi_max(a,b) (((a)>(b)) ? (a) : (b))
 #define vdi_is_screenwk(_wk) (_wk->screen_addr >= VADDR_MEM)
+
+static uint32_t vdi_coord_to_addr(vec_t* coord) {
+    uint16_t bits_per_pixel = (nova->planes < 8) ? 1 : ((nova->planes+1) & ~7);
+    return (((uint32_t)coord->y) * nova->pitch) + ((coord->x * bits_per_pixel) >> 3);
+}
 
 static bool vdi_getfillparams(stawk_t* wk, int16_t* style, int16_t* color) {
     switch (wk->vsf_interior) {
-        case 0: *style = 7; *color = 0; return true;
-        case 1: *style = 7; *color = wk->vsf_color; return true;
-        case 2: *style = wk->vsf_style; *color = wk->vsf_color; return ((*style) < 8);
+        case 0: *style = 0; *color = 0; return true;
+        case 1: *style = 0; *color = wk->vsf_color; return true;
+        case 2: *style = (7 - wk->vsf_style); *color = wk->vsf_color; return ((*style) >= 0);
         default: return false;
     }
 }
+
+static void vdi_prepare_clip(rect_t* clip, rect_t* wkclip) {
+    clip->min.x = 0; clip->max.x = nova->max_x;
+    clip->min.y = 0; clip->max.y = nova->max_y;
+    if (wkclip) {
+        clip->min.x = vdi_max(clip->min.x, vdi_min(wkclip->min.x, wkclip->max.x));
+        clip->max.x = vdi_min(clip->max.x, vdi_max(wkclip->min.x, wkclip->max.x));
+        clip->min.y = vdi_max(clip->min.y, vdi_min(wkclip->min.y, wkclip->max.y));
+        clip->max.y = vdi_min(clip->max.y, vdi_max(wkclip->min.y, wkclip->max.y));
+    }
+}
+
+static bool vdi_clip_blit(rect_t* d, rect_t* s, vec_t* din, rect_t* sin, rect_t* wkclip) {
+    /* prepare cliprect */
+    rect_t clip;
+    vdi_prepare_clip(&clip, wkclip);
+    /* prepare output rects, early out on fully outside */
+    s->min.x = vdi_min(sin->min.x, sin->max.x); if (s->min.x > clip.max.x) { return false; }
+    s->max.x = vdi_max(sin->min.x, sin->max.x); if (s->max.x < clip.min.x) { return false; }
+    s->min.y = vdi_min(sin->min.y, sin->max.y); if (s->min.y > clip.max.y) { return false; }
+    s->max.y = vdi_max(sin->min.y, sin->max.y); if (s->max.y < clip.min.y) { return false; }
+    d->min.x = din->x; if (d->min.x > clip.max.x) { return false; }
+    d->min.y = din->y; if (d->min.y > clip.max.y) { return false; }
+    d->max.x = din->x + (s->max.x - s->min.x); if (d->max.x < clip.min.x) { return false; }
+    d->max.y = din->y + (s->max.y - s->min.y); if (d->max.y < clip.min.y) { return false; }
+    /* clip source rect */
+    if (s->min.x < clip.min.x) { d->min.x += (clip.min.x - s->min.x); s->min.x = clip.min.x; }
+    if (s->min.y < clip.min.y) { d->min.y += (clip.min.y - s->min.y); s->min.y = clip.min.y; }
+    if (s->max.x > clip.max.x) { d->max.x -= (s->max.x - clip.max.x); s->max.x = clip.max.x; }
+    if (s->max.y > clip.max.y) { d->max.y -= (s->max.y - clip.max.y); s->max.y = clip.max.y; }
+    /* clip dest rect */
+    if (d->min.x < clip.min.x) { s->min.x += (clip.min.x - d->min.x); d->min.x = clip.min.x; }
+    if (d->min.y < clip.min.y) { s->min.y += (clip.min.y - d->min.y); d->min.y = clip.min.y; }
+    if (d->max.x > clip.max.x) { s->max.x -= (d->max.x - clip.max.x); d->max.x = clip.max.x; }
+    if (d->max.y > clip.max.y) { s->max.y -= (d->max.y - clip.max.y); d->max.y = clip.max.y; }
+    /* result clip */
+    if (((d->max.x - d->min.x) < 0) || ((d->max.y - d->min.y) < 0)) {
+        return false;
+    }
+    return true;    
+}
+
+static bool vdi_clip_rect(rect_t* d, rect_t* din, rect_t* wkclip) {
+    /* prepare cliprect */
+    rect_t clip;
+    vdi_prepare_clip(&clip, wkclip);
+    /* sort area min/max and reject fully outside */
+    d->min.x = vdi_min(din->min.x, din->max.x); if (d->min.x > clip.max.x) { return false; }
+    d->max.x = vdi_max(din->min.x, din->max.x); if (d->max.x < clip.min.x) { return false; }
+    d->min.y = vdi_min(din->min.y, din->max.y); if (d->min.y > clip.max.y) { return false; }
+    d->max.y = vdi_max(din->min.y, din->max.y); if (d->max.y < clip.min.y) { return false; }
+    /* adjust to cliprect */
+    d->min.x = vdi_max(d->min.x, clip.min.x);
+    d->max.x = vdi_min(d->max.x, clip.max.x);
+    d->min.y = vdi_max(d->min.y, clip.min.y);
+    d->max.y = vdi_min(d->max.y, clip.max.y);
+    return true;
+}
+
 
 /*-----------------------------------------------------------------------------
 109 : vro_copyfm
@@ -151,17 +217,15 @@ void vro_copyfm_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
     int16_t vrmode = pb->intin[0];
     MFDB* psrcMFDB = *(MFDB**)&pb->contrl[7];
     MFDB* pdstMFDB = *(MFDB**)&pb->contrl[9];
-
     if ((psrcMFDB->fd_addr == 0) && (pdstMFDB->fd_addr == 0)) {
-        rect_t* src = (rect_t*)&pb->ptsin[0];
-        vec_t* dst = (vec_t*)&pb->ptsin[4];
-
-        if (wk->clipflag && !nv_clip_blit(dst, src, &wk->cliprect, &nv_scrnclip)) {
-            return;
-        }
-
-        if (card->blit(src, dst)) {
-            return;
+        if (card->caps & NV_CAPS_BLIT) {
+            rect_t src; rect_t dst;
+            if (!vdi_clip_blit(&dst, &src, (vec_t*)&pb->ptsin[4], (rect_t*)&pb->ptsin[0], wk->clipflag ? &wk->cliprect : 0)) {
+                return;
+            }
+            if (card->blit(((vrmode & BL_MASK_ROP) << BL_SHIFT_ROP), &src, &dst.min)) {
+                return;
+            }
         }
     }
     vro_copyfm_old(fn, vh, pb, wk);
@@ -172,17 +236,19 @@ void vro_copyfm_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
 -----------------------------------------------------------------------------*/
 vdi_func vr_recfl_old;
 void vr_recfl_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
-    if (card->fill && vdi_is_screenwk(wk)) {
-        /* only src_copy fills */
-        if (wk->writemode == 0) {
-            int16_t style, color;
-            if (vdi_getfillparams(wk, &style, &color)) {
-                rect_t* r = (rect_t*)&pb->ptsin[0];
-                if (wk->clipflag && !nv_clip_rect(r, &wk->cliprect)) {
-                    return;
-                }
-                if (card->fill(color,  7 - style, r)) {
-                    return;
+    if (vdi_is_screenwk(wk)) {
+        if (card->caps & NV_CAPS_FILL) {
+            /* todo: we can support other writemodes */
+            if (wk->writemode == 0) {
+                int16_t style, color;
+                if (vdi_getfillparams(wk, &style, &color)) {
+                    rect_t dst;
+                    if (!vdi_clip_rect(&dst, (rect_t*)&pb->ptsin[0], wk->clipflag ? &wk->cliprect : 0)) {
+                        return;
+                    }
+                    if (card->blit(BL_FILL|BL_ROP_S|BL_FGCOL(color)|BL_PATTERN(style), &dst, &dst.min)) {
+                        return;
+                    }
                 }
             }
         }
@@ -248,15 +314,20 @@ void vt_scroll(int16_t d0, int16_t d1, void* a0, void* a1) {
     if ((d1 - d0) > 0) {
         int16_t char_height = *((int16_t*)(((uint32_t)a1) - 0x2e)); /* v_cel_ht (linea -2e) */
         if (char_height > 0) {
-            rect_t src; vec_t dst;
-            src.min.y = char_height * d0;
-            src.max.y = char_height * (d1 + 1);
-            dst.y = (src.min.y - char_height);
-            dst.x = 0;
-            src.min.x = 0;
-            src.max.x = nova.max_x;
-            if (nv_clip_rect(&src, &nv_scrnclip) && card->blit(&src, &dst)) {
-                return;
+            if (card->caps & NV_CAPS_BLIT) {
+                rect_t src; rect_t dst;
+                src.min.x = 0;
+                src.max.x = nova->max_x;
+                src.min.y = char_height * d0;
+                src.max.y = char_height * (d1 + 1);
+                dst.min.x = 0;
+                dst.min.y = (src.min.y - char_height);
+                if (!vdi_clip_blit(&dst, &src, &dst.min, &src, 0)) {
+                    return;
+                }
+                if (card->blit(BL_ROP_S, &src, &dst.min)) {
+                    return;
+                }
             }
         }
         vt_scroll_old(d0, d1, a0, a1);
@@ -327,23 +398,17 @@ bool vdi_patch(void* sp) {
     sr = cpu_di();
 
     /* vro_copyfm */
-    if (card->blit) {
-        vro_copyfm_old = sta_vdifuncs[109].fun;
-        sta_vdifuncs[109].fun = vro_copyfm_new;
-    }
-    
+    vro_copyfm_old = sta_vdifuncs[109].fun;
+    sta_vdifuncs[109].fun = vro_copyfm_new;
+
     /* vr_recfl */
-    if (card->fill) {
-        vr_recfl_old = sta_vdifuncs[114].fun;
-        sta_vdifuncs[114].fun = vr_recfl_new;
-    }
+    vr_recfl_old = sta_vdifuncs[114].fun;
+    sta_vdifuncs[114].fun = vr_recfl_new;
 
 #if 0
     /* v_gpd */
-    if (card->fill) {
-        v_gdp_old = sta_vdifuncs[11].fun;
-        sta_vdifuncs[11].fun = v_gdp_new;
-    }
+    v_gdp_old = sta_vdifuncs[11].fun;
+    sta_vdifuncs[11].fun = v_gdp_new;
 #endif
 
     /* vt_scroll */

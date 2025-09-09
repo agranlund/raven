@@ -49,7 +49,7 @@
 #define DRV_INCLUDE_CIRRUS      1
 #endif
 #ifndef DRV_INCLUDE_OAK
-#define DRV_INCLUDE_OAK         1
+#define DRV_INCLUDE_OAK         0
 #endif
 #ifndef DRV_INCLUDE_WDC
 #define DRV_INCLUDE_WDC         1
@@ -88,8 +88,66 @@ static void     cpu_flush_cache(void) { raven()->cache_Flush(); }
 
 /*-------------------------------------------------------------------------------
  * driver
- *  todo: define how to work with different blitmodes, and single color fills
  *-----------------------------------------------------------------------------*/
+
+
+/* display mode caps */
+#define NV_CAPS_BLIT            (1UL<<0)      /* blit operation */
+#define NV_CAPS_FILL            (1UL<<1)      /* fill operation */
+#define NV_CAPS_DITHER          (1UL<<2)      /* 8x8 dither patterns */
+#define NV_CAPS_SRCKEY          (1UL<<3)      /* source colorkey transparency */
+#define NV_CAPS_DSTKEY          (1UL<<4)      /* destination colorkey transparency */
+#define NV_CAPS_AUTOMASK        (1UL<<5)      /* monoexpand from color source, for example WDC cards */
+#define NV_CAPS_ASYNC           (1UL<<7)      /* asynchronous blits */
+
+/* blit command */
+#define BL_SHIFT_BG             24      /* xxxxxxxx ........ ........ ........ */
+#define BL_MASK_BG              0xff
+#define BL_SHIFT_FG             16      /* ........ xxxxxxxx ........ ........ */
+#define BL_MASK_FG              0xff
+#define BL_SHIFT_PAT            12      /* ........ ........ xxxx.... ........ */
+#define BL_MASK_PAT             0xf
+#define BL_SHIFT_ROP            8       /* ........ ........ ....xxxx ........ */
+#define BL_MASK_ROP             0xf
+#define BL_SHIFT_CMD            0       /* ........ ........ ........ xxxxxxxx */
+#define BL_MASK_CMD             0xff
+
+#define BL_GETBGCOL(x)          (((x)>>BL_SHIFT_BG)&BL_MASK_BG)
+#define BL_GETFGCOL(x)          (((x)>>BL_SHIFT_FG)&BL_MASK_FG)
+#define BL_GETPATTERN(x)        (((x)>>BL_SHIFT_PAT)&BL_MASK_PAT)
+#define BL_GETROP(x)            (((x)>>BL_SHIFT_ROP)&BL_MASK_ROP)
+
+/* blit flags */
+#define BL_BLIT                 (0UL << (BL_SHIFT_CMD + 0))
+#define BL_FILL                 (1UL << (BL_SHIFT_CMD + 0))
+#define BL_ASYNC                (1UL << (BL_SHIFT_CMD + 1))
+#define BL_TRANSPARENT          (1UL << (BL_SHIFT_CMD + 2))
+#define BL_MONO                 (1UL << (BL_SHIFT_CMD + 3))
+
+/* raster operations, same order as VDI */
+#define BL_ROP_0                ( 0UL << BL_SHIFT_ROP)  /* ALL_WHITE */
+#define BL_ROP_DSa              ( 1UL << BL_SHIFT_ROP)  /* S_AND_D */
+#define BL_ROP_SDna             ( 2UL << BL_SHIFT_ROP)  /* S_AND_NOTD */
+#define BL_ROP_S                ( 3UL << BL_SHIFT_ROP)  /* S_ONLY */
+#define BL_ROP_DSna             ( 4UL << BL_SHIFT_ROP)  /* NOTS_AND_D */
+#define BL_ROP_D                ( 5UL << BL_SHIFT_ROP)  /* D_ONLY */
+#define BL_ROP_DSx              ( 6UL << BL_SHIFT_ROP)  /* S_XOR_D */
+#define BL_ROP_DSo              ( 7UL << BL_SHIFT_ROP)  /* S_OR_D */
+#define BL_ROP_DSon             ( 8UL << BL_SHIFT_ROP)  /* NOT_SORD */
+#define BL_ROP_DSxn             ( 9UL << BL_SHIFT_ROP)  /* NOT_SXORD */
+#define BL_ROP_Dn               (10UL << BL_SHIFT_ROP)  /* NOT_D */
+#define BL_ROP_SDno             (11UL << BL_SHIFT_ROP)  /* S_OR_NOTD */
+#define BL_ROP_Sn               (12UL << BL_SHIFT_ROP)  /* NOT_S */
+#define BL_ROP_DSno             (13UL << BL_SHIFT_ROP)  /* NOTS_OR_D */
+#define BL_ROP_DSan             (14UL << BL_SHIFT_ROP)  /* NOT_SANDD */
+#define BL_ROP_1                (15UL << BL_SHIFT_ROP)  /* ALL_BLACK */
+
+
+/* fill values */
+#define BL_PATTERN(x)           (((uint32_t)((x)&BL_MASK_PAT))<<BL_SHIFT_PAT)
+#define BL_FGCOL(x)             (((uint32_t)((x)&BL_MASK_FG))<<BL_SHIFT_FG)
+#define BL_BGCOL(x)             (((uint32_t)((x)&BL_MASK_BG))<<BL_SHIFT_BG)
+
 
 typedef void(*addmode_f)(uint16_t, uint16_t, uint8_t, uint8_t, uint16_t);
 
@@ -103,8 +161,6 @@ typedef struct {
     vec_t max;
 } rect_t;
 
-#define line_t rect_t
-
 typedef struct
 {
     uint16_t    width;
@@ -117,20 +173,20 @@ typedef struct
 typedef struct
 {
     const char* name;
+    uint32_t    caps;
     uint32_t    vram_size;
     uint32_t    bank_count;
     uint32_t    bank_addr;
     uint32_t    bank_size;
     uint32_t    bank_step;
     bool        (*setmode)(mode_t* mode);
+    void        (*setaddr)(uint32_t addr);
     void        (*setbank)(uint16_t num);
     void        (*setcolors)(uint16_t index, uint16_t count, uint8_t* colors);
     void        (*getcolors)(uint16_t index, uint16_t count, uint8_t* colors);
     void        (*vsync)(void);
     void        (*clear)(void);
-    bool        (*blit)(rect_t* src, vec_t* dst);
-    bool        (*fill)(uint16_t col, uint16_t pat, rect_t* dst);
-
+    bool        (*blit)(uint32_t cmd, rect_t* src, vec_t* dst);
 } card_t;
 
 typedef struct
@@ -142,40 +198,26 @@ typedef struct
 /*-------------------------------------------------------------------------------
  * core
  *-----------------------------------------------------------------------------*/
-extern nova_xcb_t nova;
+extern uint32_t nv_fillpatterns[8];
+extern nova_xcb_t* nova;
 extern driver_t* driver;
 extern card_t* card;
 
-/* initialise system and driver */
 extern bool nv_init(void);
-
-/* set graphics mode */
 extern bool nv_setmode(uint16_t w, uint16_t h, uint16_t b);
-
-/* initialize vram and banks, if any */
 extern void nv_init_vram(uint32_t phys, uint32_t size, uint16_t count);
-
-/* misc helpers */
-extern rect_t nv_vramclip;
-extern rect_t nv_scrnclip;
-extern bool nv_clip_point(vec_t* point, rect_t* dclip);
-extern bool nv_clip_rect(rect_t* rect, rect_t* dclip);
-extern bool nv_clip_blit(vec_t* dst, rect_t* src, rect_t* dclip, rect_t* sclip);
-extern bool nv_clip_line(line_t* line, rect_t* dlip);
-extern uint32_t nv_fillpatterns[8];
-
-/* bankswitcher */
 extern void nv_banksw_install(void);
 extern void nv_banksw_prepare(uint16_t width, uint16_t height, uint16_t bpp);
+extern bool nv_accel_hlines(uint16_t flg, uint16_t col, int16_t num, int16_t ypos, int16_t* pts);
 
 /* standard vga functionality */
 extern void vga_vsync(void);
+extern void vga_vblank_out(void);
+extern void vga_vblank_int(void);
 extern bool vga_screen_on(bool on);
 extern bool vga_setmode(uint16_t code);
+extern void vga_setaddr(uint32_t addr);
 extern void vga_setcolors(uint16_t index, uint16_t count, uint8_t* colors);
 extern void vga_getcolors(uint16_t index, uint16_t count, uint8_t* colors);
-
-
-
 
 #endif /* _EMULATOR_H_ */

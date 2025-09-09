@@ -25,9 +25,17 @@
  * shared vga functionality
  *-----------------------------------------------------------------------------*/
 
+void vga_vblank_out(void) {
+    while (vga_ReadPort(0x3DA) & 8);
+}
+
+void vga_vblank_in(void) {
+    while (!(vga_ReadPort(0x3DA) & 8));
+}
+
 void vga_vsync(void) {
-    do { cpu_nop(); } while (vga_ReadPort(0x3DA) & 8);
-    do { cpu_nop(); } while (!(vga_ReadPort(0x3DA) & 8));
+    vga_vblank_out();
+    vga_vblank_in();
 }
 
 void vga_delay(uint32_t ms) {
@@ -127,13 +135,17 @@ void vga_getcolors(uint16_t index, uint16_t count, uint8_t* colors) {
     }
 }
 
+void vga_setaddr(uint32_t addr) {
+    uint16_t crtc = vga_GetBaseReg(4);
+    vga_WriteReg(crtc, 0x0D, (addr >>  2) & 0xff);
+    vga_WriteReg(crtc, 0x0C, (addr >> 10) & 0xff);
+}
 
 /*-------------------------------------------------------------------------------
  * generic base vga driver
  *-----------------------------------------------------------------------------*/
 
 static void setbank(uint16_t num) {
-    /* dummy function intentionally left blank */
 }
 
 static bool setmode(mode_t* mode) {
@@ -151,6 +163,7 @@ static bool init(card_t* card, addmode_f addmode) {
 
     card->setmode = setmode;
     card->setbank = setbank;
+    card->setaddr = vga_setaddr;
     card->setcolors = vga_setcolors;
     card->getcolors = vga_getcolors;
     card->vsync = vga_vsync;

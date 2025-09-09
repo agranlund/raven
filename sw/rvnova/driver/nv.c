@@ -38,8 +38,10 @@ static mode_t modes[MAX_MODES];
 uint32_t nv_dummy_page;
 static uint8_t nv_dummy_page_data[PMMU_PAGESIZE + PMMU_PAGEALIGN];
 
-
-
+uint32_t nv_fillpatterns[8] = {
+    0xffffffffUL, 0xeeffbbffUL, 0xaaffaaffUL, 0xaaddaa77UL,
+    0xaa55aa55UL, 0x88552255UL, 0x00550055UL, 0x00440011UL
+};
 
 /*-------------------------------------------------------------------------------
  * nv_init_vram:
@@ -225,6 +227,11 @@ void nv_validate_card(void) {
         card->bank_count = 1;
         card->bank_step = card->bank_size;
     }
+/*
+    if (card->fill && !card->hlines) {
+        card->hlines = nv_accel_hlines;
+    }
+*/        
 }
 
 /*-------------------------------------------------------------------------------

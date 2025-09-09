@@ -57,7 +57,8 @@ static void vga_WritePortW(uint16_t port, uint16_t val) {
 
 static uint8_t vga_ReadReg(uint16_t port, uint8_t idx) {
     if (port==0x3C0) {
-        uint8_t dummy = vga_ReadPort(0x3DA);
+        static uint8_t dummy;
+        dummy = vga_ReadPort(0x3DA);
     }
     vga_WritePort(port, idx);
     return vga_ReadPort(port+1);
@@ -65,7 +66,8 @@ static uint8_t vga_ReadReg(uint16_t port, uint8_t idx) {
 
 static void vga_WriteReg(uint16_t port, uint8_t idx, uint8_t val) {
     if (port==0x3C0) {
-        uint8_t dummy = vga_ReadPort(0x3DA);
+        static uint8_t dummy;
+        dummy = vga_ReadPort(0x3DA);
         vga_WritePort(port, idx);
         vga_WritePort(port, val);
     }

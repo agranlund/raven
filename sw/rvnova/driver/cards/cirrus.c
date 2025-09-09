@@ -23,6 +23,8 @@
 
 #if DRV_INCLUDE_CIRRUS
 
+#define CL_DISABLE_2MB_SUPPORT  1   /* todo: remove when 2MB is confirmed working */
+
 typedef enum {
     UNKNOWN = 0, GD5401, GD5402, GD5420, GD5422, GD5424, GD5426, GD5428, GD5429, GD5430, GD5432, GD5434,
 } chipset_e;
@@ -170,6 +172,19 @@ static bool identify(void) {
 
     /* leave card unlocked if supported */
     if (chipset && vram) {
+
+        #if CL_DISABLE_2MB_SUPPORT
+        vram = (vram > 1024) ? 1024 : vram;
+        #endif
+
+        /* protected overscan color */
+        if ((chipset >= GD5426) && (chipset <= GD5429)) {
+            uint8_t overscan_rgb[3] = {0, 0, 0 };
+            vga_ModifyReg(0x3c4, 0x12, 0x02, 0x02);
+            vga_setcolors(0x02, 1, overscan_rgb);
+            vga_ModifyReg(0x3c4, 0x12, 0x82, 0x80);
+        }
+
         return true;
     }
 
@@ -183,7 +198,9 @@ static void configure_framebuffer(void) {
     vga_WriteReg(0x3ce, 0x09, 0x00);
     vga_WriteReg(0x3ce, 0x0a, 0x00);
     if (cl_support_linear()) {
-        /* enable linear @ isa:2MB */
+        /* use 2MB linear aperture */
+        vga_ModifyReg(0x0ce, 0x0b, 0x21, 0x20);
+        /* enable and map to isa:2MB */
         vga_ModifyReg(0x3c4, 0x07, 0xf0, 0x20);
     } else if (cl_support_banks()) {
         /* enable banks  */
@@ -208,6 +225,7 @@ static uint16_t colorexp_restore05;
 static uint16_t colorexp_restore10;
 static uint16_t colorexp_restore11;
 
+/* todo: GD5429+ doesn't need pre-rotated patterns */
 static void cl_upload_colorexp_patterns(void) {
     int x, y, w;
     for (w = 0; w < 8; w++) {           /* patterns 0-7 */
@@ -226,8 +244,31 @@ static void cl_upload_colorexp_patterns(void) {
     }
 }
 
-static uint32_t cl_get_colorexp_pattern(uint16_t idx, uint16_t xoffs, uint16_t yoffs) {
+static uint32_t cl_get_colorexp_pattern(uint8_t idx, uint16_t xoffs, uint16_t yoffs) {
     return (colorexp_addr + ((idx & 7) << 8) + ((yoffs & 3) << 6) + ((xoffs & 7) << 3));
+}
+
+static uint8_t cl_rops[16] = {
+    0x00,  /* BL_ROP_0     */
+    0x05,  /* BL_ROP_DSa   */
+    0x09,  /* BL_ROP_SDna  */
+    0x0D,  /* BL_ROP_S     */
+    0x50,  /* BL_ROP_DSna  */
+    0x06,  /* BL_ROP_D     */
+    0x59,  /* BL_ROP_DSx   */
+    0x6D,  /* BL_ROP_DSo   */
+    0x90,  /* BL_ROP_DSon  */
+    0x95,  /* BL_ROP_DSxn  */
+    0x0B,  /* BL_ROP_Dn    */
+    0xAD,  /* BL_ROP_SDno  */
+    0xD0,  /* BL_ROP_Sn    */
+    0xD6,  /* BL_ROP_DSno  */
+    0xDA,  /* BL_ROP_DSan  */
+    0x0E,  /* BL_ROP_1     */
+};
+
+static uint8_t cl_get_rop(uint32_t cmd) {
+    return cl_rops[((cmd) >> BL_SHIFT_ROP) & BL_MASK_ROP];
 }
 
 static uint32_t cl_getpitch(uint32_t width, uint8_t bpp) {
@@ -243,8 +284,18 @@ static void configure_blitter(mode_t* mode) {
     vga_WriteReg(0x3ce, 0x30, 0);       /* direction forward */
     vga_WriteReg(0x3ce, 0x32, 0x0D);    /* rop = SRCCOPY */
 
+
+    /* capabilities */
+    card->caps |= NV_CAPS_BLIT | NV_CAPS_FILL | NV_CAPS_DITHER;
+
+    /* only in 8bpp blit for now but not Mode13h */
+    if ((mode->bpp != 8) || (mode->width < 640)) {
+        card->caps &= ~(NV_CAPS_BLIT | NV_CAPS_FILL);
+    }
+
     /* transparency color and mask */
     if ((chipset >= GD5426) && (chipset <= GD5428)) {
+        card->caps |= NV_CAPS_SRCKEY;
         vga_WriteReg(0x3ce, 0x34, 0x00);
         vga_WriteReg(0x3ce, 0x35, 0x00);
         vga_WriteReg(0x3ce, 0x38, 0x00);
@@ -274,39 +325,46 @@ static void configure_blitter(mode_t* mode) {
     vga_WritePortWLE(0x3ce, colorexp_restore10);
 }
 
-static bool blit(rect_t* src, vec_t* dst) {
+static bool blit(uint32_t cmd, rect_t* src, vec_t* dst) {
     uint32_t srcaddr, dstaddr;
     uint32_t width_minus_one;
     uint32_t height_minus_one;
     uint16_t bytes_per_pixel;
-    uint8_t dir;
-
-    /* we cannot blit planar modes */
-    bytes_per_pixel = (((nova.planes + 1) & ~7) >> 3);
-    if (bytes_per_pixel < 1) {
-        return false;
-    }
+    uint16_t ctrl = 0x3000;
 
     /* source and destination address */
+    bytes_per_pixel = (((nova->planes + 1) & ~7) >> 3);
     height_minus_one = (uint32_t)(src->max.y - src->min.y);
     width_minus_one = (uint32_t)(src->max.x - src->min.x);
     width_minus_one = (uint32_t)((width_minus_one * bytes_per_pixel) + (bytes_per_pixel - 1));
-    srcaddr = ((uint32_t)src->min.y * nova.pitch) + ((uint32_t)src->min.x * bytes_per_pixel);
-    dstaddr = ((uint32_t)dst->y * nova.pitch) + ((uint32_t)dst->x * bytes_per_pixel);
+    dstaddr = ((uint32_t)dst->y * nova->pitch) + ((uint32_t)dst->x * bytes_per_pixel);
 
-    /* blit direction */
-    dir = 0;
-    if ((src->min.y < dst->y) || ((src->min.y == dst->y) && (src->min.x < dst->x))) {
-        if (src->max.y >= dst->y) {
-            uint32_t offs = (height_minus_one * nova.pitch) + width_minus_one;
+    if (cmd & BL_FILL) {
+        uint8_t pattern = BL_GETPATTERN(cmd);
+        srcaddr = cl_get_colorexp_pattern(pattern, dst->x, dst->y);
+        /* enable color expansion and set colors */
+        vga_WritePortWLE(0x3ce, colorexp_set04);
+        vga_WritePortWLE(0x3ce, colorexp_set05);
+        vga_WritePortWLE(0x3ce, 0x0000 | BL_GETFGCOL(cmd));
+        vga_WritePortWLE(0x3ce, 0x1000 | BL_GETBGCOL(cmd));
+        /* forward blit, 8x8 pattern with color expansion enabled */
+        ctrl |= (0x0080 | 0x0040 | ((bytes_per_pixel < 2) ? 0x0000 : 0x0010));
+    } else {
+        srcaddr = ((uint32_t)src->min.y * nova->pitch) + ((uint32_t)src->min.x * bytes_per_pixel);
+        if ((srcaddr < dstaddr) && (src->max.y >= dst->y)) {
+            uint32_t offs = (height_minus_one * nova->pitch) + width_minus_one;
             srcaddr += offs;
             dstaddr += offs;
-            dir = 1;
+            ctrl |= (1 << 0); /* reverse blit */
         }
     }
 
-    /* prepare blitter regs */
-    vga_WritePortWLE(0x3ce, 0x3000 | dir);
+    if (cmd & BL_TRANSPARENT) {
+        ctrl |= (1 << 3);
+    }
+   
+    vga_WritePortWLE(0x3ce, ctrl);
+    vga_WritePortWLE(0x3ce, 0x3200 | cl_get_rop(cmd));
     vga_WritePortWLE(0x3ce, 0x2c00 | (uint8_t)(srcaddr & 0xff)); srcaddr >>= 8;
     vga_WritePortWLE(0x3ce, 0x2d00 | (uint8_t)(srcaddr & 0xff)); srcaddr >>= 8;
     vga_WritePortWLE(0x3ce, 0x2e00 | (uint8_t)(srcaddr & 0xff));
@@ -319,73 +377,89 @@ static bool blit(rect_t* src, vec_t* dst) {
     vga_WritePortWLE(0x3ce, 0x2300 | (uint8_t)(height_minus_one & 0xff));
 
     /* start blitter and wait until finished  */
-    vga_WritePort(0x3ce, 0x31);
-    vga_WritePort(0x3cf, (vga_ReadPort(0x3cf) | 0x02));
-    while (vga_ReadPort(0x3cf) & 1) {
-        cpu_nop();
+    vga_WritePortWLE(0x3ce, 0x3100 | 0x02);
+    while (vga_ReadPortWLE(0x3ce) & 1);
+
+    /* disable color expansion mode */
+    if (cmd & BL_FILL) {
+        vga_WritePortWLE(0x3ce, colorexp_restore05);
+        vga_WritePortWLE(0x3ce, colorexp_restore04);
+        vga_WritePortWLE(0x3ce, colorexp_restore00);
+        vga_WritePortWLE(0x3ce, colorexp_restore10);
     }
+
     return true;
 }
-
-static bool fill(uint16_t col, uint16_t pat, rect_t* dst) {
-    uint32_t srcaddr, dstaddr;
-    uint32_t width_minus_one;
-    uint32_t height_minus_one;
-    uint16_t bytes_per_pixel;
-    uint16_t blitmode;
-
-    /* we cannot blit planar modes */
-    /* temp: disable >8bit fills also, until our vdi hook is capable of passing such color values */
-    bytes_per_pixel = (((nova.planes + 1) & ~7) >> 3);
+#if 0
+static bool hlines(uint16_t flg, uint16_t col, int16_t num, int16_t ypos, int16_t* pts) {
+    volatile uint16_t* regw = (volatile uint16_t*)(PADDR_IO + 0x3ce);
+    uint32_t yaddr = ((uint32_t)ypos) * nova->pitch;
+    uint16_t bytes_per_pixel = (((nova->planes + 1) & ~7) >> 3);
     if (bytes_per_pixel != 1) {
         return false;
     }
 
-    /* destination address */
-    height_minus_one = (uint32_t)(dst->max.y - dst->min.y);
-    width_minus_one = (uint32_t)(dst->max.x - dst->min.x);
-    width_minus_one = (uint32_t)((width_minus_one * bytes_per_pixel) + (bytes_per_pixel - 1));
-    dstaddr = ((uint32_t)dst->min.y * nova.pitch) + ((uint32_t)dst->min.x * bytes_per_pixel);
-
-    /* enable color expansion and set foreground color */
-    vga_WritePortWLE(0x3ce, colorexp_set04);
-    vga_WritePortWLE(0x3ce, colorexp_set05);
-    vga_WritePortWLE(0x3ce, 0x0000 | ((col >> 0) & 0xff));
-    vga_WritePortWLE(0x3ce, 0x1000 | ((col >> 8) & 0xff));
-
-    /* forward blit, 8x8 pattern with color expansion enabled */
-    vga_WritePortWLE(0x3ce, 0x3000 | 0x0080 | 0x0040 | ((bytes_per_pixel < 2) ? 0x0000 : 0x0010));
-
-    /* update common blitter regs */
-    srcaddr = cl_get_colorexp_pattern(pat, dst->min.x, dst->min.y);
-    vga_WritePortWLE(0x3ce, 0x2c00 | (uint8_t)(srcaddr & 0xff)); srcaddr >>= 8;
-    vga_WritePortWLE(0x3ce, 0x2d00 | (uint8_t)(srcaddr & 0xff)); srcaddr >>= 8;
-    vga_WritePortWLE(0x3ce, 0x2e00 | (uint8_t)(srcaddr & 0xff));
-    vga_WritePortWLE(0x3ce, 0x2800 | (uint8_t)(dstaddr & 0xff)); dstaddr >>= 8;
-    vga_WritePortWLE(0x3ce, 0x2900 | (uint8_t)(dstaddr & 0xff)); dstaddr >>= 8;
-    vga_WritePortWLE(0x3ce, 0x2a00 | (uint8_t)(dstaddr & 0xff));
-    vga_WritePortWLE(0x3ce, 0x2000 | (uint8_t)(width_minus_one & 0xff)); width_minus_one >>= 8;
-    vga_WritePortWLE(0x3ce, 0x2100 | (uint8_t)(width_minus_one & 0xff));
-    vga_WritePortWLE(0x3ce, 0x2200 | (uint8_t)(height_minus_one & 0xff)); height_minus_one >>= 8;
-    vga_WritePortWLE(0x3ce, 0x2300 | (uint8_t)(height_minus_one & 0xff));
-
-    /* start blitter and wait until finished */
-    vga_WritePort(0x3ce, 0x31);
-    vga_WritePort(0x3cf, (vga_ReadPort(0x3cf) | 0x02));
-    while (vga_ReadPort(0x3cf) & 1) {
-        cpu_nop();
+    /* constant settings */
+    *regw = (0x3000 | 0x0080 | 0x0040 | ((bytes_per_pixel < 2) ? 0x0000 : 0x0010));
+    *regw = colorexp_set04;
+    *regw = colorexp_set05;
+    *regw = 0x0000 | (col & 0xff);
+    *regw = 0x1000 | (col >> 8);
+    if ((flg & 7) == 0) {
+        *regw = 0x2c00 | (uint8_t)(colorexp_addr & 0xff);
+        *regw = 0x2d00 | (uint8_t)((colorexp_addr >> 8) & 0xff);
+        *regw = 0x2e00 | (uint8_t)((colorexp_addr >> 16) & 0xff);
     }
 
+    /* select status register and draw lines */
+    *(volatile uint8_t*)regw = 0x31;
+    while (num >= 0) {
+        int16_t x = (uint16_t) (*pts++);
+        uint32_t addr = yaddr + x;
+        int16_t width = (*pts++) - x;
+        if (flg & 7) {
+            uint32_t paddr = cl_get_colorexp_pattern(flg, x, ypos); ypos++;
+            while (*regw & 1);
+            *regw = 0x2c00 | (uint8_t)(paddr & 0xff);
+            *regw = 0x2d00 | (uint8_t)((paddr >> 8) & 0xff);
+            *regw = 0x2e00 | (uint8_t)((paddr >> 16) & 0xff);
+        } else  {
+            while (*regw & 1);
+        }
+        *regw = 0x2800 | (uint8_t)(addr & 0xff);
+        *regw = 0x2900 | (uint8_t)((addr >> 8) & 0xff);
+        *regw = 0x2a00 | (uint8_t)((addr >> 16) & 0xff);
+        *regw = 0x2000 | (uint8_t)(width & 0xff);
+        *regw = 0x2100 | (uint8_t)(width >> 8);
+        *regw = 0x2200 | 0;    /* dest height */
+        *regw = 0x2300 | 0;
+        *regw = 0x3100 | 0x02; /* start blitter */
+        yaddr += nova->pitch;
+        num--;
+    }
+    /* wait for blitter */
+    while (*regw & 1);
+
     /* disable color expansion mode */
-    vga_WritePortWLE(0x3ce, colorexp_restore05);
-    vga_WritePortWLE(0x3ce, colorexp_restore04);
-    vga_WritePortWLE(0x3ce, colorexp_restore00);
-    vga_WritePortWLE(0x3ce, colorexp_restore10);
+    *regw = colorexp_restore05;
+    *regw = colorexp_restore04;
+    *regw = colorexp_restore00;
+    *regw = colorexp_restore10;
     return true;
 }
+#endif
 
 static void setbank(uint16_t num) {
     vga_WritePortWLE(0x3ce, 0x0900 | num);
+}
+
+static void setaddr(uint32_t addr) {
+    uint16_t crtc = vga_GetBaseReg(4);
+    uint32_t hiaddr = addr >> 18;
+    hiaddr += (hiaddr & 6);
+    vga_ModifyReg(crtc, 0x1B, 0x0D, hiaddr);
+    vga_WritePortWLE(crtc, 0x0D00 | ((addr >>  2) & 0xff));
+    vga_WritePortWLE(crtc, 0x0C00 | ((addr >> 10) & 0xff));
 }
 
 static bool setmode(mode_t* mode) {
@@ -451,7 +525,8 @@ static bool init(card_t* card, addmode_f addmode) {
     card->setmode = setmode;
     if (cl_support_blitter()) {
         card->blit = blit;
-        card->fill = fill;
+        card->setaddr = setaddr;
+        /*card->hlines = hlines;*/
     }
     if (cl_support_linear()) {
         card->bank_addr = 0x200000UL;
