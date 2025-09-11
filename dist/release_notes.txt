@@ -1,6 +1,10 @@
 Raven.A1
 Hardware and software binary release
 
+xxxxxxxx:
+  rvnova:   *temp* limit cirrus vram to 1mb
+  rvbios:   prevent showing boot screen twice under MagiC
+
 20250827:
   rom:      updated to EmuTOS 1.4
   rom:      x86 emulation bugfix
