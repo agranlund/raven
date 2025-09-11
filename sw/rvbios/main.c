@@ -256,20 +256,30 @@ int setup(void)
 
 long supermain()
 {
-	uint16_t ipl;
+    uint16_t ipl;
+    long cookie;
+    bool tsr_only = false;
 
-	linea_init();
-
-	/* fetch pointer rom bios */	
+    /* fetch pointer rom bios */
 	if (raven()->magic != C_RAVN) {
 		return -1;
 	}
 
-	/* boot screen */
-	bootscreen();
+    /* in magic, skip boot and configuration screens
+     * assume rvbios.prg has already been run before magxboot.prg
+     * so we only install the tsr parts this time around */
+    if (Getcookie(C_MagX, &cookie) == C_FOUND) {
+        tsr_only = true;        
+    }
 
-    if (!RomVersionValid()) {
-        printf("*** ROM version is old, please update ***\n");
+	/* boot screen */
+    if (!tsr_only) {
+        linea_init();
+        bootscreen();
+
+        if (!RomVersionValid()) {
+            printf("*** ROM version is old, please update ***\n");
+        }
     }
 
 	/* install xbios extensions */
@@ -291,7 +301,7 @@ long supermain()
 	ipl_set(ipl);
 
 #if ENABLE_SETUP
-	if (setup() != 0) {
+	if (!tsr_only && (setup() != 0)) {
 		vt_setFgColor(COL_FG);
 		vt_setBgColor(COL_BG);
 		Cconws(CLEAR_HOME "\r\n");
