@@ -1,8 +1,7 @@
 Raven.A1
 Hardware and software binary release
 
-xxxxxxxx:
-  rvnova:   *temp* limit cirrus vram to 1mb
+20250914:
   rvbios:   prevent showing boot screen twice under MagiC
   software: added 3rd party fpupatch
   software: added 3rd party xboot
