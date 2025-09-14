@@ -23,8 +23,6 @@
 
 #if DRV_INCLUDE_CIRRUS
 
-#define CL_DISABLE_2MB_SUPPORT  1   /* todo: remove when 2MB is confirmed working */
-
 typedef enum {
     UNKNOWN = 0, GD5401, GD5402, GD5420, GD5422, GD5424, GD5426, GD5428, GD5429, GD5430, GD5432, GD5434,
 } chipset_e;
@@ -172,10 +170,6 @@ static bool identify(void) {
 
     /* leave card unlocked if supported */
     if (chipset && vram) {
-
-        #if CL_DISABLE_2MB_SUPPORT
-        vram = (vram > 1024) ? 1024 : vram;
-        #endif
 
         /* protected overscan color */
         if ((chipset >= GD5426) && (chipset <= GD5429)) {
