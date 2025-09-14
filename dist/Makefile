@@ -317,5 +317,10 @@ copysw:
 		mv $(SWDIR_TOOLS)/setflags/README $(SWDIR_TOOLS)/setflags/readme
 		mv $(SWDIR_TOOLS)/setflags/SETFLAGS.APP $(SWDIR_TOOLS)/setflags/setflags.app
 
+		unzip -L $(SUPPDIR)/fpupatch.zip -d $(SWDIR_TOOLS)/
+
+		mkdir $(SWDIR_TOOLS)/xboot32e
+		unzip -L $(SUPPDIR)/xboot32E.zip "xboot.prg" -d $(SWDIR_TOOLS)/xboot32e/
+
 		$(COPY) $(SWDIR_TOOLS)/autoexec/autoexec.prg $(SWDIR_AUTO)/
 		$(COPY) $(SWDIR_TOOLS)/setenv/setenv.prg $(SWDIR_AUTO)/

@@ -91,9 +91,11 @@ raven/ymodem        : serial port file transfer
 
 tools/autoexec      : autoexec with support for commandline parameters
 tools/autosort      : utility to set file order in auto folder
+tools/fpupatch      : remove SFP-004 detection from PureC applications
 tools/setenv        : environment variables for TOS
 tools/setflags      : utility to set program flags
 tools/thingpal      : convert nova_col palette to Photoshop and ThingImg
+tools/xboot32e      : boot manager, patched
 
 cpx/serial.cpx      : Serial port control panel extension
 
@@ -139,6 +141,9 @@ fpsp/isp
 M68060 Software Package (c) Motorola Inc.
 https://github.com/mikrosk/ct60tos
 https://github.com/freemint/freemint
+
+fpupatch
+(c) 1993 Hartmut Pfitzinger
 
 NOVA drivers and utilities
 (c) Computerinsel
@@ -186,6 +191,10 @@ x86emu
 (c) 1999 Egbert Eich
 (c) 2007 Joerg Sonnenberger
 https://github.com/firebee-org/BaS_gcc
+
+xboot 3.20e
+(c) Gribnif Software
+Patched by Atarian Computing
 
 ymodem
 (c) 2025 Anders Granlund
