@@ -103,7 +103,7 @@ static void pageprintf(char *format, ...)
 
 static void banner(void)
 {
-    printf("PicoGUSinit v3.7.0 (c) 2025 Ian Scott - licensed under the GNU GPL v2\n");
+    printf("PicoGUSinit v3.7.1 (c) 2025 Ian Scott - licensed under the GNU GPL v2\n");
 }
 
 
