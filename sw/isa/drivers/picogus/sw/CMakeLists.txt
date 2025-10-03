@@ -19,7 +19,7 @@ set(PICO_COPY_TO_RAM 1)
 include(pico_sdk_import.cmake)
 
 project(picogus
-    VERSION "3.2.0"
+    VERSION "3.2.1"
     LANGUAGES C CXX ASM
 )
 
@@ -68,6 +68,7 @@ add_compile_definitions(
     # Set voltage before main so no need to do so on the fly
     SYS_CLK_VREG_VOLTAGE_AUTO_ADJUST=1
     SYS_CLK_VREG_VOLTAGE_MIN=VREG_VOLTAGE_1_25
+    SYS_CLK_VREG_VOLTAGE_AUTO_ADJUST_DELAY_US=10000
     PICO_DEFAULT_UART=0
     PICO_DEFAULT_UART_TX_PIN=28
     PICO_DEFAULT_UART_RX_PIN=-1

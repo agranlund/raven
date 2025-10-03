@@ -1,3 +1,20 @@
+# v3.2.1
+
+## Fixes/improvements
+
+### pgusinit
+
+Fixes several regressions in pgusinit:
+
+- Fixes issue where port settings are parsed as decimal, not hex (fixes /mpuport, /gusport, /cdport, etc.)
+- Fixes /sbport and /gusport commands not passing through option
+- Fixes /wifistatus command
+- Restores /defaults command
+
+### General
+
+- Gives VREG a bit more time to settle at bootup/reset. Should improve stability on initial poweron, after changing modes, or flashing firmware.
+
 # v3.2.0
 
 ## Fixes/improvements
