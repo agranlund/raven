@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <linea.h>
 #include <mint/cookie.h>
 #include <mint/osbind.h>
 
@@ -32,6 +33,10 @@ nova_xcb_t* nova;
 static uint32_t nova_dummy_page;
 static uint8_t nova_dummy_area[PMMU_PAGESIZE + PMMU_PAGEALIGN];
 static uint8_t nova_colormap[16];
+
+extern LINEA *Linea;
+extern VDIESC *Vdiesc;
+extern FONTS *Fonts;
 
 /*-----------------------------------------------------------------------------*/
 #if defined(DEBUG) && DEBUG && DEBUGPRINT_UART
@@ -164,6 +169,8 @@ static void update_nova_resinfo(uint16_t width, uint16_t height, uint16_t bpp) {
  NOVA outward facing API as exposed in the cookie
 
 *-----------------------------------------------------------------------------*/
+
+
 void nova_p_changeres(nova_bibres_t* bib, uint32_t offs) {
     /* bib points directly to the requested resolution data */
     /* sta_vdi respects the final info that we update in the cookie so we */
@@ -199,6 +206,21 @@ void nova_p_changeres(nova_bibres_t* bib, uint32_t offs) {
         }
         cpu_flush_atc();
         card->vsync();
+
+        /* update vt console font */
+        {
+            linea_init();
+            Vdiesc->cur_font = Fonts->font[1];
+            Vdiesc->v_cel_ht = Vdiesc->cur_font->frm_hgt;
+            Vdiesc->v_cel_wr = Linea->v_lin_wr * Vdiesc->cur_font->frm_hgt;
+            Vdiesc->v_cel_mx = (w / Vdiesc->cur_font->wcel_wdt) - 1;
+            Vdiesc->v_cel_my = (h / Vdiesc->cur_font->frm_hgt) - 1;
+            Vdiesc->v_fnt_wd = Vdiesc->cur_font->frm_wdt;
+            Vdiesc->v_fnt_st = Vdiesc->cur_font->ade_lo;
+            Vdiesc->v_fnt_nd = Vdiesc->cur_font->ade_hi;
+            Vdiesc->v_fnt_ad = Vdiesc->cur_font->fnt_dta;
+            Vdiesc->v_off_ad = Vdiesc->cur_font->ch_ofst;
+        }
     }
     cpu_ei(sr);
 }
@@ -280,16 +302,23 @@ void nova_p_setscreen_first(void* addr, void* stack) {
 
 *-----------------------------------------------------------------------------*/
 
-static void *linea0(void) 0xa000;
+static void updatebootfont(void) {
+    Vdiesc->cur_font = Fonts->font[1];
+    Vdiesc->v_cel_ht = Vdiesc->cur_font->frm_hgt;
+    Vdiesc->v_cel_wr = Linea->v_lin_wr * Vdiesc->cur_font->frm_hgt;
+    Vdiesc->v_cel_mx = (Vdiesc->v_rez_hz / Vdiesc->cur_font->wcel_wdt) - 1;
+    Vdiesc->v_cel_my = (Vdiesc->v_rez_vt / Vdiesc->cur_font->frm_hgt) - 1;
+    Vdiesc->v_fnt_wd = Vdiesc->cur_font->frm_wdt;
+    Vdiesc->v_fnt_st = Vdiesc->cur_font->ade_lo;
+    Vdiesc->v_fnt_nd = Vdiesc->cur_font->ade_hi;
+    Vdiesc->v_fnt_ad = Vdiesc->cur_font->fnt_dta;
+    Vdiesc->v_off_ad = Vdiesc->cur_font->ch_ofst;    
+}
 
 static void updatebootvdi(void) {
     /* update resolution */
-    uint32_t la = (uint32_t)linea0();
-    *((uint16_t*)(la-0xc)) = nova->max_x + 1;    /* V_REZ_VT */
-    *((uint16_t*)(la-0x4)) = nova->max_y + 1;    /* V_REZ_HT */
-
-    /* todo: update font and console */
-    
+    Vdiesc->v_rez_hz = nova->max_x + 1;
+    Vdiesc->v_rez_vt = nova->max_y + 1;
     /* update vdi framebuffer pointer */
     *((volatile uint32_t*)0x44eUL) = VADDR_MEM;
 }
@@ -318,18 +347,19 @@ static bool setbootres(void) {
         }
     }
 
+    linea_init();
     if (result >= 0) {
         uint8_t* pal = nova_dummy_area;
         pal[0] = 0xFF; pal[1] = 0xFF; pal[2] = 0xFF;
         pal[3] = 0x00; pal[4] = 0x00; pal[5] = 0x00;
         dprintf("bootres from emulator.bib\n");
         nova_p_changeres(bibres, 0);
-        nova_p_setcolor(0, &pal[0]);
-        nova_p_setcolor(1, &pal[3]);
+        nova_p_setcolor(0, &(pal[0]));
+        nova_p_setcolor(1, &(pal[3]));
         updatebootvdi();
         return true;
     }
-
+    updatebootfont();
     return false;
 }
 
@@ -394,7 +424,7 @@ long supermain(void) {
     nova->mem_size = card->bank_size * card->bank_count;
 
 /* ------ TEMP ------ */
-    *((uint32_t*)(&nova->unknown8A[0])) = (uint32_t)card;
+    *((uint32_t*)(&(nova->unknown8A[0]))) = (uint32_t)card;
 /* ------ TEMP ------ */
 
 

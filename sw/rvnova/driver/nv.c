@@ -141,6 +141,7 @@ void nv_addmode(uint16_t width, uint16_t height, uint8_t bpp, uint8_t flags, uin
 extern driver_t drv_vga;
 extern driver_t drv_cirrus;
 extern driver_t drv_oak;
+extern driver_t drv_s3;
 extern driver_t drv_wdc;
 static driver_t* drivers[] = {
 #if DRV_INCLUDE_CIRRUS
@@ -148,6 +149,9 @@ static driver_t* drivers[] = {
 #endif
 #if DRV_INCLUDE_OAK
     &drv_oak,
+#endif
+#if DRV_INCLUDE_S3
+    &drv_s3,
 #endif
 #if DRV_INCLUDE_WDC
     &drv_wdc,
@@ -251,10 +255,12 @@ bool nv_init(void) {
     nv_dummy_page = ((nv_dummy_page + (PMMU_PAGEALIGN - 1)) & ~(PMMU_PAGEALIGN - 1));
 
     /* initialize default vga */
+    dprintf("vga init\n");
     drv_vga.init(&nvcard, nv_addmode);
 
     /* initialize svga driver */
     for (i = 0; i < (sizeof(drivers) / sizeof(driver_t*)) && !card; i++) {
+        dprintf("svga init %d\n", i);
         if (drivers[i] && drivers[i]->init(&nvcard, nv_addmode)) {
             driver = drivers[i];
             card = &nvcard;

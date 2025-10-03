@@ -3,7 +3,7 @@ emulator.prg
 .C[-I..\..\lib]
 .C[-I..\..\lib\x86]
 .C[-E1 -Y -G -M -Z -P -W2]
-.C[-W-par -W-aus -W-use]
+.C[-W-par -W-aus -W-use -W-rch]
 
 .S[-I..\..\purec\include]
 .S[-S]
@@ -18,7 +18,9 @@ banksw.c
 vdi.c
 cards\vga.c
 cards\cirrus.c
-cards\wdc.c
 cards\oak.c
+cards\s3.c
+cards\wdc.c
 ..\..\purec\lib\pctoslib.lib
 ..\..\purec\lib\pcstdlib.lib
+..\..\purec\lib\pclnalib.lib

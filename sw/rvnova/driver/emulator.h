@@ -51,6 +51,9 @@
 #ifndef DRV_INCLUDE_OAK
 #define DRV_INCLUDE_OAK         0
 #endif
+#ifndef DRV_INCLUDE_S3
+#define DRV_INCLUDE_S3          0
+#endif
 #ifndef DRV_INCLUDE_WDC
 #define DRV_INCLUDE_WDC         1
 #endif
@@ -219,5 +222,6 @@ extern bool vga_setmode(uint16_t code);
 extern void vga_setaddr(uint32_t addr);
 extern void vga_setcolors(uint16_t index, uint16_t count, uint8_t* colors);
 extern void vga_getcolors(uint16_t index, uint16_t count, uint8_t* colors);
+extern void vga_enable_fastclear(bool on);
 
 #endif /* _EMULATOR_H_ */

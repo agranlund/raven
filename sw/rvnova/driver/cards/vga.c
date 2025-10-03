@@ -24,6 +24,10 @@
 /*-------------------------------------------------------------------------------
  * shared vga functionality
  *-----------------------------------------------------------------------------*/
+static bool vga_fastclear = true;
+void vga_enable_fastclear(bool on) {
+    vga_fastclear = on;
+}
 
 void vga_vblank_out(void) {
     while (vga_ReadPort(0x3DA) & 8);
@@ -87,23 +91,27 @@ bool vga_setmode(uint16_t code) {
     bool result;
     if (code >= 0x100) {
         /* vesa */
-        if (!(code & 0x8000)) {
+        uint16_t clearflag = vga_fastclear ? 0x8000 : 0x0000;
+        if (clearflag && !(code & clearflag)) {
             vga_vsync();
             vga_clear();
         }
         vga_vsync();
-        r.x.bx = code | 0x8000;
+        r.x.bx = code | clearflag;
         r.x.ax = 0x4f02;    /* setmode */
+        dprintf("setmode %04x %04x\n", r.x.ax, r.x.bx);
         int86(0x10, &r, &r);
+        dprintf("ax = %04x %02x:%02x\n", r.x.ax, r.h.ah, r.h.al);
         result = (r.h.ah == 0);
     } else {
         /* vga or svga */
-        if (!(code & 0x80)) {
+        uint8_t clearflag = vga_fastclear ? 0x80 : 0x00;
+        if (clearflag && !(code & clearflag)) {
             vga_vsync();
             vga_clear();
         }
         vga_vsync();
-        r.x.ax = code | 0x80;
+        r.x.ax = code | clearflag;
         int86(0x10, &r, &r);
         result = true;
     }
