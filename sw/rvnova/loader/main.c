@@ -63,7 +63,7 @@ static void screen_restore(void) {
 }
 
 static void screen_clear(void) {
-	(void)Cconws("\033E");              /* clear screen */
+	(void)Cconws("\033E\r\n");              /* clear screen */
 }
 
 
