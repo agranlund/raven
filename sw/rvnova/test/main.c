@@ -92,6 +92,7 @@ static long supermain(void)
         uint32_t oldbase;
         waitkey_release();
         clearscreen();
+        printf("ptr:  %08lx\n", (uint32_t)card);
         printf("card: %s\n", card->name);
         printf("vram: %ldKb\n", card->vram_size / 1024);
         printf("bank: %ldKb x %ld\n", card->bank_size / 1024, card->bank_count);
