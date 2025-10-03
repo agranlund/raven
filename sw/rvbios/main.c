@@ -39,8 +39,15 @@
 #define SETUP_ONLY		0
 #define ENABLE_SETUP	1
 
+#if 0
 #define COL_FG			COL_BLACK
 #define COL_BG			COL_WHITE
+#else
+#define COL_FG			COL_WHITE
+#define COL_BG			COL_BLACK
+#endif
+#define COL_FG_TOS		COL_BLACK
+#define COL_BG_TOS		COL_WHITE
 
 #define C__MCH_RAVEN    0x00070000UL
 #define MIN_ROM_VERSION 0x00250807UL
@@ -52,7 +59,6 @@ static bool RomVersionValid(void) {
 /*----------------------------------------
 	Globals
 ----------------------------------------*/
-extern uint8_t LogoPic;
 
 /*----------------------------------------
 	Create or change cookie
@@ -154,39 +160,118 @@ void InstallCookies(void)
 /*----------------------------------------
 	Boot info
 ----------------------------------------*/
+extern uint8_t LogoAtari;
+extern const unsigned char LogoRaven[];
+
 void bootscreen(void)
 {
-	int i;
-	const uint32_t  logo_x = 0;
-	const uint32_t  logo_y = 8;
-	const uint32_t  logo_w = 3;
-	const uint32_t  logo_h = 56+30;
+	int i,j;
+#if 1
+	const uint32_t logo_w = (320>>3);
+	const uint32_t logo_h = 320;
+	uint8_t* logo = (uint8_t*)&LogoRaven;
+#else
+	const uint32_t logo_w = 12;
+	const uint32_t logo_h = 56 /*+30*/;
+	uint8_t* logo = (uint8_t*)&LogoAtari;
+#endif
 
-	uint32_t  vram_w = (uint32_t)(Vdiesc->bytes_lin >> 2);
-	uint32_t* vram = (uint32_t*)Physbase();
-	uint32_t* logo = (uint32_t*)&LogoPic;
+    const uint32_t logo_y = 210 - (logo_h >> 1);
+    const uint32_t logo_x = (320 - (logo_w << 2)) >> 3;
+
+    uint32_t vram_w = (uint32_t)Vdiesc->bytes_lin;
+	uint8_t* vram = (uint8_t*)Physbase();
 
 	vt_setFgColor(COL_FG);
 	vt_setBgColor(COL_BG);
 	Cconws(C_OFF);
-	Cconws(CLEAR_HOME);
-    vt_setCursorPos(0, 7);	
+	Cconws(CLEAR_HOME "\r\n");
+    vt_setCursorPos(0, 7);
 
 	vram += (logo_x + (logo_y * vram_w));
-	for (i=0; i<logo_h; i++) {
 #if (COL_BG == COL_BLACK)
-		*vram++ = 0xffffffffUL ^ *logo++;
-		*vram++ = 0xffffffffUL ^ *logo++;
-		*vram++ = 0xffffffffUL ^ *logo++;
-#else
-		*vram++ = *logo++ ;
-		*vram++ = *logo++;
-		*vram++ = *logo++;
-#endif
+	for (i=0; i<logo_h; i++) {
+        for (j=0; j<logo_w; j++) {
+    		*vram++ = 0xff ^ *logo++;
+        }
 		vram += (vram_w - logo_w);
-	}
+    }
+#else
+	for (i=0; i<logo_h; i++) {
+        for (j=0; j<logo_w; j++) {
+    		*vram++ = *logo++;
+        }
+		vram += (vram_w - logo_w);
+    }
+#endif
 }
 
+extern LINEA *Linea;
+extern VDIESC *Vdiesc;
+extern FONTS *Fonts;
+
+typedef struct
+{
+    bool changed;
+    FONT_HDR* font;
+    short v_cel_ht;
+    short v_cel_wr;
+    short v_cel_mx;
+    short v_cel_my;
+    short v_fnt_wd;
+    short v_fnt_st;
+    short v_fnt_nd;
+    void* v_fnt_ad;
+    short* v_off_ad;
+} fnt_data_t;
+
+static fnt_data_t fnt_data;
+
+void font_init(void) {
+    fnt_data.changed = false;
+    fnt_data.font = Vdiesc->cur_font;
+    fnt_data.v_cel_ht = Vdiesc->v_cel_ht;
+    fnt_data.v_cel_wr = Vdiesc->v_cel_wr;
+    fnt_data.v_cel_mx = Vdiesc->v_cel_mx;
+    fnt_data.v_cel_my = Vdiesc->v_cel_my;
+    fnt_data.v_fnt_wd = Vdiesc->v_fnt_wd;
+    fnt_data.v_fnt_st = Vdiesc->v_fnt_st;
+    fnt_data.v_fnt_nd = Vdiesc->v_fnt_nd;
+    fnt_data.v_fnt_ad = Vdiesc->v_fnt_ad;
+    fnt_data.v_off_ad = Vdiesc->v_off_ad;
+}
+
+void font_small(void) {
+    if (!fnt_data.changed) {
+        fnt_data.changed = true;
+        Vdiesc->cur_font = Fonts->font[1];
+        Vdiesc->v_cel_ht = Vdiesc->cur_font->frm_hgt;
+        Vdiesc->v_cel_wr = Linea->v_lin_wr * Vdiesc->cur_font->frm_hgt;
+        Vdiesc->v_cel_mx = (Vdiesc->v_rez_hz / Vdiesc->cur_font->wcel_wdt) - 1;
+        Vdiesc->v_cel_my = (Vdiesc->v_rez_vt / Vdiesc->cur_font->frm_hgt) - 1;
+        Vdiesc->v_fnt_wd = Vdiesc->cur_font->frm_wdt;
+        Vdiesc->v_fnt_st = Vdiesc->cur_font->ade_lo;
+        Vdiesc->v_fnt_nd = Vdiesc->cur_font->ade_hi;
+        Vdiesc->v_fnt_ad = Vdiesc->cur_font->fnt_dta;
+        Vdiesc->v_off_ad = Vdiesc->cur_font->ch_ofst;
+    }
+}
+
+void font_default(void) {
+    if (fnt_data.changed) {
+        fnt_data.changed = false;
+        Vdiesc->cur_font = fnt_data.font;
+        Vdiesc->v_cel_ht = fnt_data.v_cel_ht;
+        Vdiesc->v_cel_wr = fnt_data.v_cel_wr;
+        Vdiesc->v_cel_mx = fnt_data.v_cel_mx;
+        Vdiesc->v_cel_my = fnt_data.v_cel_my;
+        Vdiesc->v_fnt_wd = fnt_data.v_fnt_wd;
+        Vdiesc->v_fnt_st = fnt_data.v_fnt_st;
+        Vdiesc->v_fnt_nd = fnt_data.v_fnt_nd;
+        Vdiesc->v_fnt_ad = fnt_data.v_fnt_ad;
+        Vdiesc->v_off_ad = fnt_data.v_off_ad;
+    }
+}
 
 /*----------------------------------------
 	Boot delay and setup
@@ -208,9 +293,12 @@ int setup(void)
 		int start_setup = 0;
 
 #if ENABLE_SETUP
-/*
-		Cconws(" Press DEL to enter setup.");
-*/
+        vt_setCursorPos(0, 59);
+        Cconws(DEL_EOL);
+        vt_setCursorPos(1, 58);
+		printf("[DEL] Setup");
+        vt_setCursorPos(79-8, 58);
+        printf("RAVEN060");
 #else
 		Cconws(" ");
 #endif
@@ -239,9 +327,10 @@ int setup(void)
 		
     	Cconws(DEL_BOL "\r");
    		if (ENABLE_SETUP && start_setup) {
+            Cconws(CLEAR_HOME "\r\n");
+            font_default();
+            printf("hello\r\n");
    			setup_main();
-			vt_setFgColor(COL_FG);
-			vt_setBgColor(COL_BG);
    			return 1;
    		}
 	}
@@ -275,6 +364,8 @@ long supermain()
 	/* boot screen */
     if (!tsr_only) {
         linea_init();
+        font_init();
+        font_small();
         bootscreen();
 
         if (!RomVersionValid()) {
@@ -301,12 +392,14 @@ long supermain()
 	ipl_set(ipl);
 
 #if ENABLE_SETUP
-	if (!tsr_only && (setup() != 0)) {
-		vt_setFgColor(COL_FG);
-		vt_setBgColor(COL_BG);
-		Cconws(CLEAR_HOME "\r\n");
-		/* todo: reset */
-	}
+    if (!tsr_only) {
+        setup();
+        vt_setFgColor(COL_FG_TOS);
+        vt_setBgColor(COL_BG_TOS);
+        Cconws(CLEAR_HOME "\r\n");
+        vt_setCursorPos(0, 0);
+        font_default();
+    }
 #endif
 
 	return 1;

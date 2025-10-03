@@ -8,6 +8,7 @@ INSTALL_ROOT = c:/auto
 INSTALL_BINS = $(BIN)
 
 OBJS = main.o xbios_c.o utils.o xbios.o eiffel.o sp060.o \
+	logo_at.o logo_rv.o \
 	setup/setup.o setup/form_vt.o setup/misc.o \
 	setup/f_nvram.o \
 	setup/f_cpu.o \

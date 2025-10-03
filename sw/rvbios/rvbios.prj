@@ -12,13 +12,15 @@ rvbios.prg
 
 .L[-V -S=4096]
 =
-..\purec\lib\cstart0.o
+..\purec\lib\cauto.o
 main.c
 xbios_c.c
 utils.s
 xbios.s
 eiffel.s
 sp060.s
+logo_at.s
+logo_rv.c
 setup\setup.c
 setup\form_vt.c
 setup\misc.c
