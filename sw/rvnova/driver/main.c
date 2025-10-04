@@ -197,7 +197,7 @@ void nova_p_changeres(nova_bibres_t* bib, uint32_t offs) {
         /* sta_vdi needs register access to draw in 16 color planar */
         /* but we prevent them for all other resolutions */
         if (nova->planes == 4) {
-            cpu_map(VADDR_IO, PADDR_IO, VSIZE_IO, PAGE_READWRITE);
+            cpu_map(VADDR_IO, card->isa_io, VSIZE_IO, PAGE_READWRITE);
         } else {
             uint32_t offs;
             for (offs = 0; offs < VSIZE_IO; offs += PMMU_PAGESIZE) {

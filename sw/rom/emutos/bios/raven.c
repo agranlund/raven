@@ -56,6 +56,12 @@ extern void raven_int_vbl(void);
 #define REGL(x,y) *((volatile ULONG*)((x)+(y)))
 
 
+#define RAVEN_BIOS_BASEPTR      0x40000000UL
+#define RAVEN_BIOS_RTCREAD      0x40
+#define RAVEN_BIOS_RTCWRITE     0x44
+#define RAVEN_BIOS_VGADDR       0x8C
+
+
 /*-----------------------------------------------------------------------------------------
  * Screen
  *---------------------------------------------------------------------------------------*/
@@ -65,8 +71,11 @@ extern void raven_int_vbl(void);
 #define BOOT_SCREEN_HEIGHT  480
 #define BOOT_SCREEN_BPL     (BOOT_SCREEN_WIDTH / 8)
 
+typedef ULONG(*raven_screenaddr_func)(void);
+static ULONG raven_screen_addr;
+
 const UBYTE *raven_physbase(void) {
-    return (const UBYTE*)0x820A0000;
+    return (const UBYTE*)raven_screen_addr;
 }
 
 void raven_get_current_mode_info(UWORD *planes, UWORD *hz_rez, UWORD *vt_rez) {
@@ -76,7 +85,10 @@ void raven_get_current_mode_info(UWORD *planes, UWORD *hz_rez, UWORD *vt_rez) {
 }
 
 void raven_screen_init(void) {
-    v_bas_ad = (UBYTE*) raven_physbase();
+    ULONG rv = *((ULONG*)RAVEN_BIOS_BASEPTR);
+    raven_screenaddr_func f = *((raven_screenaddr_func*)(rv + RAVEN_BIOS_VGADDR));
+    raven_screen_addr = f();
+    v_bas_ad = (UBYTE*)raven_screen_addr;
     sshiftmod = ST_HIGH;
     v_planes = BOOT_SCREEN_PLANES;
     V_REZ_HZ = BOOT_SCREEN_WIDTH;
@@ -372,10 +384,6 @@ void raven_rs232_init(void) {
  *---------------------------------------------------------------------------------------*/
 
 #if CONF_WITH_NVRAM
-
-#define RAVEN_BIOS_BASEPTR      0x40000000UL
-#define RAVEN_BIOS_RTCREAD      0x40
-#define RAVEN_BIOS_RTCWRITE     0x44
 
 #define RAVEN_RTC_EMUL_START    14
 #define RAVEN_RTC_REAL_START    8

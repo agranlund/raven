@@ -336,8 +336,10 @@ static void bios_init(void)
      * Initialize the screen address
      * Must be done after calling linea_init().
      */
+#if !defined(MACHINE_RAVEN)
     KDEBUG(("screen_init_address()\n"));
     screen_init_address();
+#endif
 
     KDEBUG(("vt52_init()\n"));
     vt52_init();        /* initialize the vt52 console */

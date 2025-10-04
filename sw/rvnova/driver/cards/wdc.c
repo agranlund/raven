@@ -153,7 +153,7 @@ static bool identify(void) {
 static uint32_t fillpattern_addr;
 static void upload_fillpatterns(uint32_t addr) {
     int i, j, k;
-    uint8_t* vram = (uint8_t*)(PADDR_MEM + addr);
+    uint8_t* vram = (uint8_t*)(card->isa_mem + addr);
     fillpattern_addr = addr;
     for (i=0; i<8; i++) {
         for (j=0; j<2; j++) {

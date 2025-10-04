@@ -81,8 +81,11 @@ static void     cpu_flush_atc(void) { raven()->mmu_Flush(); }
 static void     cpu_flush_cache(void) { raven()->cache_Flush(); }
 
 /*-----------------------------------------------------------------------------*/
-#define PADDR_IO        RV_PADDR_ISA_IO16
-#define PADDR_MEM       RV_PADDR_ISA_RAM16
+#define PADDR_MEM16     RV_PADDR_ISA_RAM16
+#define PADDR_MEM8      RV_PADDR_ISA_RAM
+#define PADDR_IO16      RV_PADDR_ISA_IO16
+#define PADDR_IO8       RV_PADDR_ISA_IO
+
 #define VADDR_MEM       0x44000000UL    /* logical mem space */
 #define VADDR_IO        0x44F00000UL    /* logical io space */
 #define VSIZE_MEM       0x00400000UL    /*  4Mb virtual mem space */
@@ -182,6 +185,8 @@ typedef struct
     uint32_t    bank_addr;
     uint32_t    bank_size;
     uint32_t    bank_step;
+    uint32_t    isa_mem;
+    uint32_t    isa_io;
     bool        (*setmode)(mode_t* mode);
     void        (*setaddr)(uint32_t addr);
     void        (*setbank)(uint16_t num);

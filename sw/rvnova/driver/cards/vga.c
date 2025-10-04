@@ -68,7 +68,7 @@ void vga_clear(void) {
     if (card) {
         uint16_t bank; uint16_t banks = card->bank_count ? card->bank_count : 1;
         for (bank = 0; bank < banks; bank++) {
-            uint32_t* dst  = (uint32_t*)(RV_PADDR_ISA_RAM16 + card->bank_addr);
+            uint32_t* dst  = (uint32_t*)(card->isa_mem + card->bank_addr);
             uint32_t  siz  = card->bank_size >> 2;
             card->setbank(bank);
             for (; siz; siz--) {
@@ -76,7 +76,7 @@ void vga_clear(void) {
             }
         }
     } else {
-        uint32_t* dst = (uint32_t*)(RV_PADDR_ISA_RAM16 + 0xa0000UL);
+        uint32_t* dst = (uint32_t*)card->isa_mem;
         uint32_t  siz = 1024UL * 128;
         for (; siz; siz--) {
             *dst++ = col;
@@ -168,6 +168,9 @@ static bool init(card_t* card, addmode_f addmode) {
     card->bank_size = 1024UL * 64;
     card->bank_step = 1024UL * 4;
     card->bank_count = 1;
+
+    card->isa_mem = raven()->vga_Addr() & 0xfff00000UL;
+    card->isa_io  = PADDR_IO16;
 
     card->setmode = setmode;
     card->setbank = setbank;

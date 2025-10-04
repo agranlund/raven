@@ -53,7 +53,7 @@ void nv_init_vram(uint32_t base, uint32_t size, uint16_t count) {
     static uint16_t cur_count = 0;
 
     uint32_t log = VADDR_MEM;
-    uint32_t phys = (PADDR_MEM + base) & 0xFFFFFFFFUL;
+    uint32_t phys = (card->isa_mem + base) & 0xFFFFFFFFUL;
     uint32_t flag = PMMU_CM_PRECISE;
 
     /* early out if no change */
@@ -289,7 +289,7 @@ bool nv_init(void) {
         nv_init_vram(card->bank_addr, card->bank_size, card->bank_count);
         
         /* prepare logical ioregs */
-        cpu_map(VADDR_IO, PADDR_IO, VSIZE_IO, PAGE_READWRITE);
+        cpu_map(VADDR_IO, card->isa_io, VSIZE_IO, PAGE_READWRITE);
 
         /* install bankswitcher */
         nv_banksw_install();

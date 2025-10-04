@@ -245,7 +245,7 @@ static uint16_t colorexp_restore11;
 static void cl_upload_colorexp_patterns(void) {
     int x, y, w;
     for (w = 0; w < 8; w++) {           /* patterns 0-7 */
-        uint32_t* vram = (uint32_t*)(PADDR_MEM + colorexp_addr + ((w & 7) << 8));
+        uint32_t* vram = (uint32_t*)(card->isa_mem + colorexp_addr + ((w & 7) << 8));
         uint32_t pat = ~nv_fillpatterns[w];
         for (y = 0; y < 4; y++) {       /* y offset 0-3 */
             for (x = 0; x < 8; x++) {   /* x offset 0-7 */

@@ -19,9 +19,10 @@
 static bool vgaBiosInitied = false;
 static struct X86EMU x86emu_static;
 struct X86EMU *x86emu = 0;
+static uint32_t vgaMemBase = ISA_MEMBASE8 + VGAMEM_BASE;
 
 uint32_t vga_Addr() {
-    return RV_PADDR_ISA_RAM + VGAMEM_BASE;
+    return vgaMemBase;
 }
 
 
@@ -110,7 +111,7 @@ void vga_Fill(uint8_t color)
 {
     uint32_t c8 = (uint32_t)color;
     uint32_t c32 = (c8 << 24) | (c8 << 16) | (c8 << 8) | c8;
-    uint32_t* ptr = (uint32_t*) (ISA_MEMBASE + VGAMEM_BASE);
+    uint32_t* ptr = (uint32_t*) (ISA_MEMBASE8 + VGAMEM_BASE);
     for (uint32_t i = 0; i < ((64 * 1024) / 4); i++) {
         *ptr++ = c32;
     }
@@ -158,7 +159,7 @@ void vga_SetColor(uint8_t idx, uint8_t r, uint8_t g, uint8_t b)
 uint32_t vga_Init()
 {
     x86emu = &x86emu_static;
-    x86_Create(x86emu, (void *)X86_EMU_ADDR, X86_EMU_SIZE, ISA_IOBASE, ISA_MEMBASE);
+    x86_Create(x86emu, (void *)X86_EMU_ADDR, X86_EMU_SIZE, ISA_IOBASE, ISA_MEMBASE8);
 
     cpu_CacheOn();
     vgaBiosInitied = vga_RunBios();
@@ -170,11 +171,20 @@ uint32_t vga_Init()
         return 0;
     }
 
-#if 0
-    // clear vga framebuffer
-    vga_Clear();
-#endif
+    // detect 16bit vga memory access
+    vga_SetMode(0x12);
+    *((volatile uint32_t*)(ISA_MEMBASE8+VGAMEM_BASE)) = 0x00000000UL;
+    *((volatile uint32_t*)(ISA_MEMBASE+VGAMEM_BASE)) = 0xdeadbeefUL;
+    if (*((volatile uint32_t*)(ISA_MEMBASE+VGAMEM_BASE)) == 0xdeadbeefUL) {
+        puts(" 16bit vgamem");
+        x86emu->isa_membase = ISA_MEMBASE;
+        vgaMemBase = ISA_MEMBASE + VGAMEM_BASE;
+    } else {
+        puts(" 8bit vgamem");
+    }
 
+    // clear screen
+    vga_Clear();
     return 1;
 }
 
@@ -195,7 +205,7 @@ void vga_Test()
     for (int i = 0; i < 56; i++) { vga_SetColor(i + 200, 0, 0, 0); }
 
     // test image
-    volatile uint8_t *vram = (volatile uint8_t *)(ISA_MEMBASE + VGAMEM_BASE);
+    volatile uint8_t *vram = (volatile uint8_t *)(ISA_MEMBASE8 + VGAMEM_BASE);
     for (int y = 0; y < 200; y++) {
         for (int x = 0; x < 320; x++) {
             *vram++ = y;

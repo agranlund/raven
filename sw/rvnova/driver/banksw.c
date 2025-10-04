@@ -143,7 +143,7 @@ uint8_t nv_banksw_handler(exception_frame04_t* frame) {
         if (bankoffs < maxoffs) {
             uint32_t* src; uint32_t* dst; int i;
             card->setbank(bankoffs);
-            src = (uint32_t*) (PADDR_MEM + card->bank_addr + bank_aligned_offset);
+            src = (uint32_t*) (card->isa_mem + card->bank_addr + bank_aligned_offset);
             dst = (uint32_t*) banksw_readpage;
             i = (int) ((PMMU_PAGESIZE * 2) / 16);
             #if DEBUG_BANKS
@@ -177,7 +177,7 @@ uint8_t nv_banksw_handler(exception_frame04_t* frame) {
     }
 
     new_map_siz = card->bank_size;
-    new_map_phy = PADDR_MEM + (card->bank_addr);
+    new_map_phy = card->isa_mem + (card->bank_addr);
     new_map_log = VADDR_MEM + (card->bank_step * bankoffs);
     #if DEBUG_BANKS
     bprintf("write %08lx -> %08lx\n", new_map_log, new_map_phy);
@@ -269,7 +269,7 @@ void nv_banksw_prepare(uint16_t width, uint16_t height, uint16_t bpp) {
         for (y=0; y<height && y<1024; y++) {
             uint32_t addr = pitch * y;
             banksw_ybanks[y] = addr / card->bank_step;
-            banksw_yaddr[y] = PADDR_MEM + card->bank_addr + (addr - (((uint32_t)banksw_ybanks[y]) * card->bank_step));
+            banksw_yaddr[y] = card->isa_mem + card->bank_addr + (addr - (((uint32_t)banksw_ybanks[y]) * card->bank_step));
         }
         if (bpp == 8) {
             card->caps |= NV_CAPS_BLIT;

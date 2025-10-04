@@ -205,13 +205,6 @@ void detect_nova(void)
     use_16bit_io = 1; /* Default for everything but Volksfarben/ST */
     is_crazydots = 0;
 
-#if defined(MACHINE_RAVEN)
-    has_nova = 1;
-    novaregbase = (UBYTE*)0x81000000;
-    novamembase = (UBYTE*)0x820A0000;
-    return;
-#endif
-
     if (IS_BUS32 && HAS_VME && check_read_byte(0xFE900000UL+VIDSUB))
     {
         /* Nova/Mach32 in Atari TT */
