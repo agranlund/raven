@@ -1,6 +1,13 @@
 Raven.A1
 Hardware and software binary release
 
+xxxxxxxx:
+  rom:      improved generic vga compatibility
+  rvnova:   improved generic vga compatibility
+  rvnova:   Cirrus Logic GD5434 driver
+  rvbios:   bootscreen
+  software: PicoGUS driver updated
+
 20250914:
   rvbios:   prevent showing boot screen twice under MagiC
   software: added 3rd party fpupatch
