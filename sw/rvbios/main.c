@@ -160,27 +160,20 @@ void InstallCookies(void)
 /*----------------------------------------
 	Boot info
 ----------------------------------------*/
-extern uint8_t LogoAtari;
-extern const unsigned char LogoRaven[];
+#include "logo.c"
 
 void bootscreen(void)
 {
-	int i,j;
-#if 1
-	const uint32_t logo_w = (320>>3);
-	const uint32_t logo_h = 320;
-	uint8_t* logo = (uint8_t*)&LogoRaven;
-#else
-	const uint32_t logo_w = 12;
-	const uint32_t logo_h = 56 /*+30*/;
-	uint8_t* logo = (uint8_t*)&LogoAtari;
-#endif
+	int p,i,j,k;
+    uint16_t* logoHdr = (uint16_t*)logo_bin;
+    uint32_t logo_w = (uint32_t)logoHdr[3];
+    uint32_t logo_h = (uint32_t)logoHdr[4];
+    int16_t logo_p  = logoHdr[5];
+	uint8_t* logo = (uint8_t*)(&logo_bin[32]);
 
     const uint32_t logo_y = 210 - (logo_h >> 1);
     const uint32_t logo_x = (320 - (logo_w << 2)) >> 3;
-
     uint32_t vram_w = (uint32_t)Vdiesc->bytes_lin;
-	uint8_t* vram = (uint8_t*)Physbase();
 
 	vt_setFgColor(COL_FG);
 	vt_setBgColor(COL_BG);
@@ -188,22 +181,36 @@ void bootscreen(void)
 	Cconws(CLEAR_HOME "\r\n");
     vt_setCursorPos(0, 7);
 
-	vram += (logo_x + (logo_y * vram_w));
+    for (p=0; p<logo_p; p++) {
+        uint8_t* vram = (uint8_t*)Physbase();
+        vram += (logo_x + (logo_y * vram_w));
+        for (i=0; i<logo_h-1; i++) {
+            for (j=0; j<logo_w; ) {
+                uint8_t ctrl = *logo++;
+                uint8_t runl = ctrl & 0x7f;
+                j += runl;
+                if (ctrl & 0x80) {
 #if (COL_BG == COL_BLACK)
-	for (i=0; i<logo_h; i++) {
-        for (j=0; j<logo_w; j++) {
-    		*vram++ = 0xff ^ *logo++;
-        }
-		vram += (vram_w - logo_w);
-    }
+                    uint8_t data = *logo++;
 #else
-	for (i=0; i<logo_h; i++) {
-        for (j=0; j<logo_w; j++) {
-    		*vram++ = *logo++;
-        }
-		vram += (vram_w - logo_w);
-    }
+                    uint8_t data = 0xff ^ *logo++;
+#endif                    
+                    for (k=0; k<runl; k++) {
+                        *vram++ = data;
+                    }
+                } else {
+                    for (k=0; k<runl; k++) {
+#if (COL_BG == COL_BLACK)
+                        *vram++ = *logo++;
+#else
+                        *vram++ = 0xff ^ *logo++;
 #endif
+                    }
+                }
+            }
+            vram += (vram_w - logo_w);
+        }
+    }
 }
 
 extern LINEA *Linea;

@@ -8,7 +8,7 @@ INSTALL_ROOT = c:/auto
 INSTALL_BINS = $(BIN)
 
 OBJS = main.o xbios_c.o utils.o xbios.o eiffel.o sp060.o \
-	logo_at.o logo_rv.o \
+	logo.o \
 	setup/setup.o setup/form_vt.o setup/misc.o \
 	setup/f_nvram.o \
 	setup/f_cpu.o \
@@ -18,3 +18,11 @@ OBJS = main.o xbios_c.o utils.o xbios.o eiffel.o sp060.o \
 
 ROOTDIR = ..
 include $(ROOTDIR)/Makefile.cmn
+
+.PHONY: logo
+logo: clean
+	gcc genlogo.c -o genlogo.exe
+	cp rvlogo_1bpp.bmp logo.bmp
+	./genlogo.exe
+	xxd -i logo.bin > logo.c
+	rm -f ./genlogo.exe ./logo.bmp ./logo.bin
