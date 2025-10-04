@@ -1,7 +1,7 @@
 Raven.A1
 Hardware and software binary release
 
-xxxxxxxx:
+20251004:
   rom:      improved generic vga compatibility
   rvnova:   improved generic vga compatibility
   rvnova:   Cirrus Logic GD5434 driver
