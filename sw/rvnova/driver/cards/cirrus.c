@@ -587,7 +587,7 @@ static bool init(card_t* card, addmode_f addmode) {
         );
 
         /* todo: temporary workaround for bugged speedstar64 bios */
-        vga_enable_fastclear(false);
+        /*vga_enable_fastclear(false);*/
 
         /* speedstar64 only accept the vesa variants */
         addmode( 800, 600,  4, 0, 0x102);   /* 4 bpp */
@@ -607,7 +607,6 @@ static bool init(card_t* card, addmode_f addmode) {
 
     } else {
 
-        /* gd5428 takes forever to execute the following three bios calls */
         vgabios_SetMonitorTypeH(
             7                       /* 31.5khz - 64.0 khz*/
         );

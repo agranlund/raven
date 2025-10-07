@@ -24,7 +24,7 @@
 /*-------------------------------------------------------------------------------
  * shared vga functionality
  *-----------------------------------------------------------------------------*/
-static bool vga_fastclear = true;
+static bool vga_fastclear = false;
 void vga_enable_fastclear(bool on) {
     vga_fastclear = on;
 }
