@@ -1,6 +1,10 @@
 Raven.A1
 Hardware and software binary release
 
+20251007:
+  rom:      ensure caches enabled during vgabios calls
+  rvnova:   remove temporary vgabios workarounds
+
 20251004:
   rom:      improved generic vga compatibility
   rvnova:   improved generic vga compatibility
