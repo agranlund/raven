@@ -35,10 +35,10 @@ SWDIR_ISA		= $(SWDIR)/raven/drivers
 
 
 .phony: release release-test
-.phony: setup clean copy upload
+.phony: setup clean copy backup upload
 .phony: copydocs copyroms copyfw
 
-release: setup copy zipit upload
+release: setup copy zipit backup upload
 
 release-test: setup copy zipit
 
@@ -96,6 +96,9 @@ copyhw:
 zipit:
 	find raven -name ".DS_Store" -delete
 	zip -r -o $(RELEASE_ZIP) raven/*
+
+backup:
+	$(COPY) $(RELEASE_ZIP) ../local/dist/
 
 upload: github_delete_release github_create_release
 
