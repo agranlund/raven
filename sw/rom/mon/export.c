@@ -66,10 +66,19 @@ static uint32_t b_int86x(uint32_t no, x86_regs_t* regs_in, x86_regs_t* regs_out,
     x86emu->x86.R_SI = regs_in->x.si;
     x86emu->x86.R_DI = regs_in->x.di;
     x86emu->x86.R_FLG = regs_in->x.cflag;
+    x86emu->x86.R_SP = 0xfffe;
+
+    /* force caches enabled during x86 emulation */
+    uint32_t cacr = cpu_GetCACR();
+    if (!(cacr & 0x00008000)) {
+        cacr = cpu_CacheOn();
+    }
 
     /* run emulator */
-    x86emu->x86.R_SP = 0xfffe;
     x86_Int(x86emu, (uint8_t)no);
+
+    /* restore cache settings */
+    cpu_SetCACR(cacr);
 
     /* update sregs_out. sregs should remain unmodified */
     if (regs_out) {
@@ -82,7 +91,7 @@ static uint32_t b_int86x(uint32_t no, x86_regs_t* regs_in, x86_regs_t* regs_out,
         regs_out->x.cflag = x86emu->x86.R_FLG;
     }
 
-    /* return AX*/
+    /* return AX */
     return (uint32_t)x86emu->x86.R_AX;
 }
 

@@ -60,6 +60,9 @@ void vga_WaitVbl()
     do { nop(); } while (!(vga_ReadPort(0x3DA) & 8));
 }
 
+uint32_t vga_CacheOn() {
+    return cpu_CacheOn();
+}
 
 bool vga_RunBios()
 {
@@ -71,6 +74,7 @@ bool vga_RunBios()
         return false;
     }
 
+    uint32_t cacr = vga_CacheOn();
     uint32_t rom_size = 512 * (uint32_t)rom_src[2];
     printf(" %dKb VGA Bios at %08x\n", rom_size / 1024, rom_src);
     memcpy(rom_dst, rom_src, rom_size);
@@ -90,6 +94,7 @@ bool vga_RunBios()
     x86_PushWord(x86emu, x86emu->x86.R_SS);
     x86_PushWord(x86emu, x86emu->x86.R_SP + 2);
     x86_Run(x86emu);
+    cpu_SetCACR(cacr);
     return true;
 }
 
@@ -98,11 +103,13 @@ void vga_SetMode(uint16_t mode)
 {
     if (vgaBiosInitied)
     {
+        uint32_t cacr = vga_CacheOn();
         x86emu->x86.R_SS = 0x0000;
         x86emu->x86.R_SP = 0xfffe;
         x86emu->x86.R_AH = 0x00;
         x86emu->x86.R_AL = (uint8_t)mode;
         x86_Int(x86emu, 0x10);
+        cpu_SetCACR(cacr);
     }
 }
 
@@ -161,10 +168,7 @@ uint32_t vga_Init()
     x86emu = &x86emu_static;
     x86_Create(x86emu, (void *)X86_EMU_ADDR, X86_EMU_SIZE, ISA_IOBASE, ISA_MEMBASE8);
 
-    cpu_CacheOn();
     vgaBiosInitied = vga_RunBios();
-    cpu_CacheOff();
-
     if (!vgaBiosInitied)
     {
         x86emu = 0;

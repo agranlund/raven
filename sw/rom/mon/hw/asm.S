@@ -107,9 +107,6 @@ vecRTE:
 
 
 // ----------------------------------------------------------
-//
-// ----------------------------------------------------------
-
 cpu_Lock:
     move.l  4(%a7),%a0
     bset.b  #0,(%a0)
@@ -124,71 +121,7 @@ cpu_Unlock:
     bclr.b  #0,(%a0)
     rts
 
-cpu_CacheFlush:
-    move.w %sr,%d1         // disable interrupts
-    or.w    #0x0700,%sr
-    movec.l %cacr,%d0
-    btst.l  #31,%d0         // data cache enabled?
-    beq.b   1f
-    nop
-    cpusha  %dc             // push data cache
-1:  nop
-    btst.l  #15,%d0         // instruction cache enabled?
-    beq.b   2f
-    nop
-    cpusha  %ic             // push instruction cache
-2:  nop
-    bset.l  #22,%d0         // clear branch cache
-    nop
-    movec.l %d0,%cacr
-    nop
-    move.w  %d1,%sr         // restore interrupts
-    rts
-
-cpu_CacheOn:
-    move.w  %sr,%d1         // disable interrupts
-    or.w    #0x0700,%sr
-    movec.l %cacr,%d0
-    btst.l  #31,%d0         // data cache enabled?
-    beq.b   1f
-    nop
-    cpusha  %dc             // push data cache
-1:  nop
-    btst.l  #15,%d0         // instruction cache enabled?
-    beq.b   2f
-    nop
-    cpusha  %ic             // push instruction cache
-2:  nop
-    move.l  #0xa0c08000,%d0
-    nop
-    cinva   %bc             // invalidate caches
-    nop
-    movec.l %d0,%cacr       // enable caches
-    nop
-    move.w  %d1,%sr         // restore interrupts
-    rts
-
-cpu_CacheOff:
-    move.w  %sr,%d1         // disable interrupts
-    or.w    #0x0700,%sr
-    movec.l %cacr,%d0
-    btst.l  #31,%d0         // data cache enabled?
-    beq.b   1f
-    nop
-    cpusha  %dc             // push data cache
-1:  nop
-    btst.l  #15,%d0         // instruction cache enabled?
-    beq.b   2f
-    nop
-    cpusha  %ic             // push instruction cache
-2:  nop
-    move.l  #0x00000000,%d0
-    movec.l %d0,%cacr       // disable caches
-    nop
-    move.w  %d1,%sr
-    rts
-
-
+// ----------------------------------------------------------
 cpu_GetIPL:
     move.w  %sr,%d0
     lsr.w   #8,%d0
@@ -209,21 +142,63 @@ cpu_SetIPL:
     nop
     rts
 
+
+cpu_CacheFlush:
+    move.w  %sr,%d1         // disable interrupts
+    or.w    #0x0700,%sr
+    movec.l %cacr,%d0
+    bset.l  #22,%d0         // clear branch cache
+    btst.l  #31,%d0         // data cache enabled?
+    beq.b   1f
+    nop
+    cpusha  %dc             // push data cache
+1:  nop
+    cinva   %bc             // invalidate both caches
+    nop
+    movec.l %d0,%cacr       // clear branch cache
+    nop
+    move.w  %d1,%sr         // restore interrupts
+    rts
+
+cpu_CacheOn:
+    move.l  #0xa0c08000,%d1
+    bra.b   cpu_SetCACR_asmcall
+
+cpu_CacheOff:
+    moveq.l #0,%d1
+    bra.b   cpu_SetCACR_asmcall
+
 cpu_GetCACR:
     movec.l %cacr,%d0
     rts
 
 cpu_SetCACR:
-    move.l  4(%a7),%d1
-    or.l    #0x00400000,%d1       // clear branch cache
+    move.l  4(%a7),%d1          // d1 = new cacr
+cpu_SetCACR_asmcall:
+    movec.l %cacr,%d0           // d0 = old cacr
+    cmp.l   %d0,%d1             // ignore if same
+    bne.b   1f
+    rts
+1:  move.w  %sr,-(%a7)          // save sr
+    or.w    #0x0700,%sr         // disable interrupts
+    move.l  %d2,-(%a7)          // save d2
+    move.l  #0x00400000,%d2     // d2 = tmp cacr
     nop
-    cpusha  %bc
+    movec.l %d2,%cacr           // disabled caches
+    btst    #31,%d0             // datacache was enabled?
+    beq.b   2f
     nop
-    movec.l %cacr,%d0
-    movec.l %d1,%cacr
+    cpusha  %dc                 // yes, push data cache
+2:  nop
+    cinva   %bc                 // invalidate both caches
     nop
+    movec.l %d1,%cacr           // set new cache state
+    nop
+    move.l  (%a7)+,%d2          // restore d2
+    move.w  (%a7)+,%sr          // restore interrupts
     rts
 
+// ----------------------------------------------------------
 cpu_GetPCR:
     movec.l %pcr,%d0
     rts
@@ -236,6 +211,7 @@ cpu_SetPCR:
     nop
     rts
 
+// ----------------------------------------------------------
 cpu_GetVBR:
     movec.l %vbr,%d0
     rts
@@ -250,6 +226,7 @@ cpu_SetVBR:
     nop
     rts
 
+// ----------------------------------------------------------
 cpu_GetMMU:
     move.l  4(%a7),%a0      // mmu struct
     movec.l %urp,%d0
@@ -306,6 +283,7 @@ mmu_Flush:
     rts
 
 
+// ----------------------------------------------------------
 cpu_Call:
     move.l  4(%a7),%d0              // d0 = target address
     movem.l %d2-%d7/%a2-%a6,-(%a7)  // save C registers
@@ -321,7 +299,7 @@ cpu_Call:
 
 
 
-
+// ----------------------------------------------------------
 cpu_SafeReadLong:
     move.l  %a7,%a1             // save stack pointer
     move.l  0x08,%d1            // save berr

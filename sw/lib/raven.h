@@ -121,8 +121,8 @@ typedef struct
     void        _RVAPI (*vga_GetPal)(uint32_t idx, uint32_t num, uint8_t* pal);
 
 /* 0x00A0 */
-    void        _RVAPI (*cache_On)(void);
-    void        _RVAPI (*cache_Off)(void);
+    uint32_t    _RVAPI (*cache_On)(void);
+    uint32_t    _RVAPI (*cache_Off)(void);
     void        _RVAPI (*cache_Flush)(void);
     void        _RVAPI (*mmu_Map)(uint32_t log, uint32_t phys, uint32_t size, uint32_t flags);
     void        _RVAPI (*mmu_Redirect)(uint32_t logsrc, uint32_t logdst, uint32_t size);

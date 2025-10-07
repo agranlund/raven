@@ -354,7 +354,9 @@ bool atari_Init()
     }
 
     initprint("InitVga");
+    uint32_t cacr = cpu_CacheOn();
     atari_InitScreen();
+    cpu_SetCACR(cacr);
 
     puts("Starting TOS");
     cpu_Call(0xe00000);

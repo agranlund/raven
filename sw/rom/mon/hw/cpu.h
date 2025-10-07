@@ -68,8 +68,8 @@ void        cpu_Call(uint32_t address);
 bool        cpu_Lock(bool* sema);
 void        cpu_Unlock(bool* sema);
 
-void        cpu_CacheOn();
-void        cpu_CacheOff();
+uint32_t    cpu_CacheOn();
+uint32_t    cpu_CacheOff();
 void        cpu_CacheFlush();
 
 uint8_t     cpu_SafeReadByte(uint32_t addr);
