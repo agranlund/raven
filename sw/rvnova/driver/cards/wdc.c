@@ -53,10 +53,10 @@ static bool identify(void) {
 
     /* look for known string in vgabios */
     chipset = 0; vram = 0;
-    if (('V' != *((volatile char*)(RV_PADDR_ISA_RAM + 0xC007dUL + 0x00))) ||
-        ('G' != *((volatile char*)(RV_PADDR_ISA_RAM + 0xC007dUL + 0x01))) ||
-        ('A' != *((volatile char*)(RV_PADDR_ISA_RAM + 0xC007dUL + 0x02))) ||
-        ('=' != *((volatile char*)(RV_PADDR_ISA_RAM + 0xC007dUL + 0x03))))
+    if (('V' != *((volatile char*)(PADDR_MEM8 + 0xC007dUL + 0x00))) ||
+        ('G' != *((volatile char*)(PADDR_MEM8 + 0xC007dUL + 0x01))) ||
+        ('A' != *((volatile char*)(PADDR_MEM8 + 0xC007dUL + 0x02))) ||
+        ('=' != *((volatile char*)(PADDR_MEM8 + 0xC007dUL + 0x03))))
     {
         return false;
     }
