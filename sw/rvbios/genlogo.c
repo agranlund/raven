@@ -245,6 +245,7 @@ bool img_generate(char* in, char* out, int planes) {
     *((uint16_t*)(&tempbuf[20])) = bswap16(psize[2]);
     *((uint16_t*)(&tempbuf[22])) = bswap16(psize[3]);
     fsave(out, tempbuf, totalsize);
+    bmp_close(&bmp);
     return true;
 }
 
