@@ -76,8 +76,8 @@ void vga_clear(void) {
             }
         }
     } else {
-        uint32_t* dst = (uint32_t*)card->isa_mem;
-        uint32_t  siz = 1024UL * 128;
+        uint32_t* dst = (uint32_t*)(PADDR_MEM8 + 0xA0000UL);
+        uint32_t  siz = (1024UL * 128) >> 2;
         for (; siz; siz--) {
             *dst++ = col;
         }
