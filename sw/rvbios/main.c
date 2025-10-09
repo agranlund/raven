@@ -39,15 +39,12 @@
 #define SETUP_ONLY		0
 #define ENABLE_SETUP	1
 
-#if 0
-#define COL_FG			COL_BLACK
-#define COL_BG			COL_WHITE
-#else
-#define COL_FG			COL_WHITE
-#define COL_BG			COL_BLACK
-#endif
 #define COL_FG_TOS		COL_BLACK
 #define COL_BG_TOS		COL_WHITE
+
+#define BOOTSCREEN_HELP 1
+#define BOOTSCREEN_NAME 1
+
 
 #define C__MCH_RAVEN    0x00070000UL
 #define MIN_ROM_VERSION 0x00250807UL
@@ -169,15 +166,23 @@ void bootscreen(void)
     uint32_t logo_w = (uint32_t)logoHdr[3];
     uint32_t logo_h = (uint32_t)logoHdr[4];
     int16_t logo_p  = logoHdr[5];
-	uint8_t* logo = (uint8_t*)(&logo_bin[32]);
+	uint8_t* logo = (uint8_t*)(&logo_bin[64]);
 
-    const uint32_t logo_y = 210 - (logo_h >> 1);
-    const uint32_t logo_x = (320 - (logo_w << 2)) >> 3;
+    const uint32_t logo_x = (logo_w < (640 >> 3)) ? ((320 - (logo_w << 2)) >> 3) : 0;
+    const uint32_t logo_y = (logo_h < 480) ? (240 - (logo_h >> 1)) : 0;
+
     uint32_t vram_w = (uint32_t)Vdiesc->bytes_lin;
 
-	vt_setFgColor(COL_FG);
-	vt_setBgColor(COL_BG);
-	Cconws(C_OFF);
+    /* todo: get background color from logo header data */
+    if ((logo[1] & (1<<7)) == 0) {
+        vt_setFgColor(COL_BLACK);
+    	vt_setBgColor(COL_WHITE);
+    } else {
+        vt_setFgColor(COL_WHITE);
+    	vt_setBgColor(COL_BLACK);
+    }
+
+    Cconws(C_OFF);
 	Cconws(CLEAR_HOME "\r\n");
     vt_setCursorPos(0, 7);
 
@@ -190,21 +195,13 @@ void bootscreen(void)
                 uint8_t runl = ctrl & 0x7f;
                 j += runl;
                 if (ctrl & 0x80) {
-#if (COL_BG == COL_BLACK)
                     uint8_t data = *logo++;
-#else
-                    uint8_t data = 0xff ^ *logo++;
-#endif                    
                     for (k=0; k<runl; k++) {
                         *vram++ = data;
                     }
                 } else {
                     for (k=0; k<runl; k++) {
-#if (COL_BG == COL_BLACK)
                         *vram++ = *logo++;
-#else
-                        *vram++ = 0xff ^ *logo++;
-#endif
                     }
                 }
             }
@@ -300,12 +297,16 @@ int setup(void)
 		int start_setup = 0;
 
 #if ENABLE_SETUP
-        vt_setCursorPos(0, 59);
-        Cconws(DEL_EOL);
-        vt_setCursorPos(1, 58);
-		printf("[DEL] Setup");
+
+    #if BOOTSCREEN_NAME
         vt_setCursorPos(79-8, 58);
         printf("RAVEN060");
+    #endif        
+
+    #if BOOTSCREEN_HELP
+        vt_setCursorPos(1, 58);
+		printf("[DEL] Setup");
+    #endif
 #else
 		Cconws(" ");
 #endif

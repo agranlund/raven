@@ -1,6 +1,8 @@
 
 NAME = rvbios
 
+LOGO_BMP = rvlogo_1bpp.bmp
+
 BIN = $(NAME).prg
 PRJ = $(NAME).prj
 
@@ -22,7 +24,7 @@ include $(ROOTDIR)/Makefile.cmn
 .PHONY: logo
 logo: clean
 	gcc genlogo.c -o genlogo.exe
-	cp rvlogo_1bpp.bmp logo.bmp
+	cp $(LOGO_BMP) logo.bmp
 	./genlogo.exe
 	xxd -i logo.bin > logo.c
 	rm -f ./genlogo.exe ./logo.bmp ./logo.bin
