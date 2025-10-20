@@ -1,6 +1,6 @@
 Name     Nessi ;
 PartNo   00 ;
-Date     2025-08-12 ;
+Date     2025-06-27 ;
 Revision 01 ;
 Designer Anders Granlund ;
 Company  HappyDaze ;
@@ -55,9 +55,9 @@ PROPERTY ATMEL{xor_synthesis=on};
 //--------------------------------------------
 // Global inputs
 //--------------------------------------------
-//pin 81 = SPARE_J106_IN_81;      // unused J106 (in)
+pin 81 = SPARE_J106_IN_81;      // unused J106 (in)
 pin 83 = BCLK;
-pin 84 = !OPT_FAST_ISA;
+pin 84 = SPARE_J105_IN_84;      // unused J105 (in - hi/lo jumpered)
 pin 1  = !RSTI;
 pin 2  = PCLK;
 
@@ -124,7 +124,7 @@ pin 68 = ISARDY;
 pin 69 = !RESET;
 pin 70 = !RSTO;
 
-//pin 73 = SPARE_J106_IO_73;            // unused J106 (io)
+pin 73 = SPARE_J106_IO_73;            // unused J106 (io)
 pin 74 = !IACK;
 pin 75 = !IDECS;
 pin 76 = !YMCS;
@@ -215,6 +215,7 @@ DECODE_ISA          = DECODE_ISA_RAM8 # DECODE_ISA_IO8 # DECODE_ISA_RAM16 # DECO
 DECODE_ISA16        = DECODE_ISA_IO16 # DECODE_ISA_RAM16;
 DECODE_68150        = DECODE_IDE # DECODE_YM # DECODE_MFP1 # DECODE_MFP2 # DECODE_ISA;
 
+
 //----------------------------------------------------------------------------------------
 // Localbus
 //----------------------------------------------------------------------------------------
@@ -232,6 +233,7 @@ BSTATE5.d = BSTATE4;
 
 BUSEN = BSTATE0 & !TS & TIP & !BSTATE4;           // 48mhz
 BUSTA = BSTATE3 & !TS & TIP;
+
 
 
 //----------------------------------------------------------------------------------------
@@ -270,38 +272,29 @@ UARTCS = BUSEN & TIP & DECODE_UART;
 //----------------------------------------------------------------------------------------
 // MC68150 bus
 //----------------------------------------------------------------------------------------
-
-node EXCYCLE;
-node [DTACK0..1];           // synchronised dtack from mfp,ym,ide
-node [YMDTACK0..3];         // todo: shared generic waitstate
-node [IDESTART0..2];
-node [IDEDTACK0..5];
-node ISADSACK0;
-node ISADSACK1;
-
-IDESTART = IDESTART0;       // IDE setup delay
-IDEDTACK = IDEDTACK5;       // IDE dtack delay
-YMDTACK  = YMDTACK3;        // YM2149 dtack delay
-
 SELECT_68150 = TIP & (DECODE_68150 # MFPIRQ);
-
-EXCYCLE.ck = !BCLK;
-EXCYCLE.ar = RSTI;
-EXCYCLE.d  = SELECT_68150;
 
 EXCS.ck = !BCLK;
 EXCS.ar = RSTI;
-EXCS.d = SELECT_68150 & (!DECODE_IDE # IDESTART);
+EXCS.d = SELECT_68150;
 
+node [DTACK0..1];           // synchronised dtack from mfp,ym,ide
 [DTACK0..1].ck = BCLK;
 [DTACK0..1].ar = RSTI;
 DTACK0.d = EXDTACK;
 DTACK1.d = DTACK0;
 
+
+node [YMDTACK0..3];         // todo: shared generic waitstate
+node [IDEDTACK0..5];
+
+node ISADSACK0;
+node ISADSACK1;
+
 EXDSACK1 = EXDS & (
     EXDTACK #
-    YMDTACK #
-    IDEDTACK #
+    YMDTACK3 #
+    IDEDTACK3 #
     ISADSACK1
     );
 
@@ -344,33 +337,13 @@ YMDTACK0.d = YMCS;
 
 //----------------------------------------------------------------------------------------
 // 68150 : IDE
-//
-// PIO  Cyc    Set    MB/s
-// 0    600    70     3
-// 1    383    50     5
-// 2    240    30     8
-// 3    180    20     11
-// 4    120    14     16
-// 5    100    12     20
-// 6     80    10     25
 //----------------------------------------------------------------------------------------
+//IDECS = 'b'0;
 
-// Trigger IDE_CS and delay 68150_CS
-// to comply with IDE CS -> RW setup time
 IDECS.ck = BCLK;
 IDECS.ar = RSTI;
-IDECS.d  = EXCYCLE & DECODE_IDE;
+IDECS.d  = EXDS & EXCS & DECODE_IDE;
 
-// IDE_CS -> 68150_CS delay counter
-[IDESTART0..2].ck = !BCLK;
-[IDESTART0..2].ar = RSTI;
-IDESTART2.d = IDESTART1;
-IDESTART1.d = IDESTART0;
-IDESTART0.d = SELECT_68150 & DECODE_IDE;
-
-// IDE dtack delay counter
-// todo: would be better to use the ready signal but
-// only if we're in a PIO mode that supports it.
 [IDEDTACK0..5].ck = BCLK;
 [IDEDTACK0..5].ar = RSTI # !IDECS;
 IDEDTACK5.d = IDEDTACK4;
@@ -381,10 +354,13 @@ IDEDTACK1.d = IDEDTACK0;
 IDEDTACK0.d = IDECS;
 
 
+
+
+
 //----------------------------------------------------------------------------------------
 // 68150 : ISA
 //----------------------------------------------------------------------------------------
-node [ISADTACK0..22];
+node [ISADTACK0..20];
 
 ISA8  = !DECODE_ISA16;
 ISAIO = DECODE_ISA_IO8 # DECODE_ISA_IO16;
@@ -392,7 +368,7 @@ ISADS = EXCS & DECODE_ISA & EXDS;
 ISACS = ISADS & ISADTACK1 & (RW # !ISADTACK19);
 
 ISADSACK16 = DECODE_ISA_RAM16 # (DECODE_ISA_IO16 & IOCS16);
-ISADSACKXX = ISADS & ISADTACK22;
+ISADSACKXX = ISADS & ISADTACK20;
 ISADSACK1  = ISADSACKXX &  ISADSACK16;
 ISADSACK0  = ISADSACKXX & !ISADSACK16;
 
@@ -401,10 +377,8 @@ ISADONE.ck = BCLK;
 ISADONE.ar = RSTI # !ISACS;
 ISADONE.d = ISARDY; // # (!RW & !ISAIO);
 
-[ISADTACK0..22].ck = BCLK;
-[ISADTACK0..22].ar = RSTI # !EXDS;
-ISADTACK22.d = ISADTACK21;
-ISADTACK21.d = ISADTACK20;
+[ISADTACK0..20].ck = BCLK;
+[ISADTACK0..20].ar = RSTI # !EXDS;
 ISADTACK20.d = ISADTACK19;
 ISADTACK19.d = ISADTACK18;
 ISADTACK18.d = ISADTACK17;
@@ -414,14 +388,14 @@ ISADTACK15.d = ISADTACK14;
 ISADTACK14.d = ISADTACK13;
 ISADTACK13.d = ISADTACK12;
 ISADTACK12.d = ISADTACK11;
-ISADTACK11.d = ISADTACK10 # (OPT_FAST_ISA & ISADS & DECODE_ISA_RAM16);
+ISADTACK11.d = ISADTACK10 # (ISADS & DECODE_ISA_RAM16);
 ISADTACK10.d = ISADTACK9;
 ISADTACK9.d = ISADTACK8;
 ISADTACK8.d = ISADTACK7;
 ISADTACK7.d = ISADTACK6;
 ISADTACK6.d = ISADTACK5;
 ISADTACK5.d = ISADTACK4;
-ISADTACK4.d = ISADTACK3;
+ISADTACK4.d = ISADTACK3;    // <--
 ISADTACK3.d = ISADTACK2;
 ISADTACK2.d = ISADTACK1;
 ISADTACK1.d = ISADTACK0;
@@ -436,5 +410,5 @@ LOCTA1 = BUSTA;
 
 TA = AUTOIRQ #              // autovector irq
     (EXCS & EXTA) #         // slowbus ta
-    (!EXCYCLE & LOCTA1);
+    (!EXCS & LOCTA1);
 
