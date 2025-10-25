@@ -2958,7 +2958,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Jumper:SolderJumper_2_Bridged"
+		(symbol "Jumper:SolderJumper_2_Open"
 			(pin_numbers
 				(hide yes)
 			)
@@ -2977,7 +2977,7 @@
 					)
 				)
 			)
-			(property "Value" "SolderJumper_2_Bridged"
+			(property "Value" "SolderJumper_2_Open"
 				(at 0 -2.54 0)
 				(effects
 					(font
@@ -3003,7 +3003,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "Solder Jumper, 2-pole, closed/bridged"
+			(property "Description" "Solder Jumper, 2-pole, open"
 				(at 0 0 0)
 				(effects
 					(font
@@ -3021,7 +3021,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_fp_filters" "SolderJumper*Bridged*"
+			(property "ki_fp_filters" "SolderJumper*Open*"
 				(at 0 0 0)
 				(effects
 					(font
@@ -3030,18 +3030,7 @@
 					(hide yes)
 				)
 			)
-			(symbol "SolderJumper_2_Bridged_0_1"
-				(rectangle
-					(start -0.508 0.508)
-					(end 0.508 -0.508)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
+			(symbol "SolderJumper_2_Open_0_1"
 				(polyline
 					(pts
 						(xy -0.254 1.016) (xy -0.254 -1.016)
@@ -3115,7 +3104,7 @@
 					)
 				)
 			)
-			(symbol "SolderJumper_2_Bridged_1_1"
+			(symbol "SolderJumper_2_Open_1_1"
 				(pin passive line
 					(at -3.81 0 0)
 					(length 2.54)
@@ -25348,7 +25337,7 @@
 		)
 	)
 	(symbol
-		(lib_id "Jumper:SolderJumper_2_Bridged")
+		(lib_id "Jumper:SolderJumper_2_Open")
 		(at 168.275 272.415 0)
 		(unit 1)
 		(exclude_from_sim yes)
@@ -25393,7 +25382,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Solder Jumper, 2-pole, closed/bridged"
+		(property "Description" "Solder Jumper, 2-pole, open"
 			(at 168.275 272.415 0)
 			(effects
 				(font
