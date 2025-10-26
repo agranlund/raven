@@ -24,6 +24,26 @@ Device   f1508ispplcc84;
 // Based on 48mhz bus speed, 2x cpu speed.
 //
 
+// todo:
+//
+//  - implement 1x mode
+//  - CLKEN is inverted compared to how it should be.
+//    this means our BCLK is inverted compared to CPU_BCLK
+//  - lbus is not asserted long enough in reads, preventing <16mhz from working.
+//    caution: consider rom/ram hold time if extending it.
+//  - long term: refactor/replace this whole thing, see nessi_v3.
+//  - long term: defines to easily make builds for different BCLK speeds
+//               all waitstates are currently based on 96/48mhz operation.
+//
+
+//
+// seemingly ok: 12, 16, 20, 25, 40, 48, 50 mhz
+// 4, 8   : reads: CS cuts off before cpu has fetched the data
+// 32.000 : initmfp error
+// 32.768 : no boot, not investigated.
+//
+
+
 
 //--------------------------------------------
 // ATF1508AS-7JX84 : PLCC84, ISP, 7ns
@@ -140,6 +160,7 @@ pin 80 = !UARTCS;
 //
 //--------------------------------------------
 CLKEN = BCLK # CPUX1;
+//CLKEN = !BCLK # CPUX1;	// todo: this will produce correct clken signal
 
 RESET = RSTI # RSTO;        // peripheral reset
 TEA = 'b'0;                 // bus error
@@ -238,6 +259,8 @@ BUSTA = BSTATE3 & !TS & TIP;
 
 //----------------------------------------------------------------------------------------
 // RAM / ROM
+// cycle time: 50ns
+// oe/we time: 30ns
 //----------------------------------------------------------------------------------------
 node ROM_OVERLAY_DISABLED;
 ROM_OVERLAY_DISABLED.ck = TS & RW & DECODE_SIMM3;
@@ -268,6 +291,11 @@ CLA = 'b'0;                 // burst address increment
 //----------------------------------------------------------------------------------------
 UARTCS = BUSEN & TIP & DECODE_UART;
 
+
+//----------------------------------------------------------------------------------------
+// Debug
+//----------------------------------------------------------------------------------------
+//SPARE_J106_IO_73 = !UARTCS;
 
 
 //----------------------------------------------------------------------------------------
