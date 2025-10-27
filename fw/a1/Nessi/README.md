@@ -1,8 +1,15 @@
 
 # Nessi : Main bus logic
 
+- nessi_wip
+    - development version
+
+- nessi_251025
+    - ide access fix to solve issue with 250714
+
 - nessi_250714
     - improved compatibility with slower cf-cards
+    - version reported as broken on one machine with sd-card adapter
 
 - nessi_250627
     - fix for certain 8bit reads from ISA ram, 16-color vga modes now work.
