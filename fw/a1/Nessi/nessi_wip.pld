@@ -36,18 +36,20 @@ PROPERTY ATMEL{xor_synthesis=on};
 
 //------------------------------------------------------------------------------
 // todo:
-//  - defines to build for different waitstates
-//    currently adjusted for 48mhz bclk
+//  - defines to build for different waitstates?
+//    32 or 25 bus clock version perhaps.
+//    everything is currently tuned for 50mhz bus clock.
 //
 // mhz   ns
-//  32 = 31.25
-//  40 = 25
-//  48 = 20.83
-//  50 = 20
+//  25 = 40.000
+//  32 = 31.250
+//  40 = 25.000
+//  48 = 20.833
+//  50 = 20.000
 //  64 = 15.625
-//  80 = 12.5
+//  80 = 12.500
 //  96 = 10.416
-// 100 = 10
+// 100 = 10.000
 //------------------------------------------------------------------------------
 
 
@@ -78,7 +80,7 @@ pin 8  = !TBI;              // out: cpu
 pin 9  = !TCI;              // out: cpu
 pin 10 = CPUX1;             // in:  option jumper: cpu 1x/2x mode
 pin 11 = !TRA;              // out: cpu
-pin 12 = CLKEN;             // out: cpu
+pin 12 = !CLKEN;            // out: cpu
 
 pin 15 = TT1;               // in:  cpu 
 pin 16 = TT0;               // in:  cpu
@@ -144,7 +146,7 @@ pin 80 = !UARTCS;           // out: UART
 // General logic
 //
 //------------------------------------------------------------------------------
-CLKEN = BCLK # CPUX1;       // generate cpu bclk
+CLKEN = !BCLK # CPUX1;       // generate cpu bclk
 RESET = RSTI # RSTO;        // generate peripheral reset
 TEA = 'b'0;                 // bus error
 TRA = 'b'0;                 // bus retry
@@ -222,11 +224,9 @@ DECODE_68150        = DECODE_IDE # DECODE_YM # DECODE_MFP1 # DECODE_MFP2 # DECOD
 
 //------------------------------------------------------------------------------
 // Localbus
-// For simplicity, all local devices share same bus timing at the moment.
-// todo: may want to extend cs period for a more comfortable 60ns cycle.
+// rom/ram/uart share same 60ns cycle length at the moment
 //
-//
-//         0   1   2   3   4   5   6   7   8   
+//         0   1   2   3   4   5   6   0   1   
 // BCLK:   |---|   |---|   |---|   |---|   |---
 //         |   |___|   |___|   |___|   |___|
 //
@@ -244,6 +244,12 @@ DECODE_68150        = DECODE_IDE # DECODE_YM # DECODE_MFP1 # DECODE_MFP2 # DECOD
 //
 //------------------------------------------------------------------------------
 
+// todo:
+//  - no need for different RW state counters, merge to one.
+//  - this deals with non-recognised cycles too which is well dodgy..
+//    only consider BUSCYCLE and specifically check for rom/ram access when sampling TS
+//    IRQCYCLE and it's TA should be handled in other place, not here.
+//  - implement watchdog
 node [BSRD3..6];
 [BSRD3..6].ar = RSTI;
 [BSRD3..6].ck = BCLK2X;
@@ -296,10 +302,22 @@ CLA = 'b'0; // burst address increment
 
 //------------------------------------------------------------------------------
 // UART
+//  30ns cs cycle
+//  30ns minimum delay between cs cycles
+//  25ns cs->data setup on read, 10ns data hold
+//  10ns data setup on write
 //------------------------------------------------------------------------------
-UARTRD = BSRD4 # BSRD5;
-UARTWR = BSWR4;
-UARTCS = (UARTRD # UARTWR) & DECODE_UART;
+node UARTS1;
+node UARTS4;
+UARTS1.ar = RSTI;
+UARTS1.ck = !BCLK; // sample TS on falling bclk (1)
+UARTS1.d  = TS & BUSCYCLE & DECODE_UART;
+UARTCS.ar = RSTI;
+UARTCS.ck = BCLK;   // cs enable on rising bclk (2-3)
+UARTCS.d  = (UARTCS # UARTS1) & !UARTS4;
+UARTS4.ar = RSTI;
+UARTS4.ck = BCLK;  // hold cs for one more bclk (4-5)
+UARTS4.d  = UARTCS & !UARTS4;
 
 
 //------------------------------------------------------------------------------
