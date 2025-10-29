@@ -8,7 +8,7 @@
 #include "config.h"
 
 #define DEBUG_MMU               0
-#define RESERVED_SIZE			(4UL * (1024 * 1024))
+#define RESERVED_SIZE            (4UL * (1024 * 1024))
 #define ACIA_EMULATION          0
 #define ENABLE_CART_TEST        0
 #define DELAY_BOOT              0
@@ -86,19 +86,19 @@ bool atari_InitEMU()
 
 bool atari_InitVBR()
 {
-    vbr_Set(0x10C,  (uint32_t) vecRTE_MFP1I3);        // MFP1I3 - I2C line    - IGNORE  (ST = blitter)
-    vbr_Set(0x13C,  (uint32_t) vecRTE_MFP1I7);        // MFP1I7 - I2C line    - IGNORE  (ST = mono detect)
+    vbr_Set(0x10C,  (uint32_t) vecRTE_MFP1I3);      // MFP1I3 - I2C line    - IGNORE  (ST = blitter)
+    vbr_Set(0x13C,  (uint32_t) vecRTE_MFP1I7);      // MFP1I7 - I2C line    - IGNORE  (ST = mono detect)
 
 #if ACIA_EMULATION
-    vbr_Set(0x74,   (uint32_t) vecRTE);               // IRQ5   - Eiffel      - IGNORE
-    vbr_Set(0x118,  (uint32_t) vecKBD_MFP1I4);        // MFP1I4 - Eiffel      - Emulate (ST = acia)
+    vbr_Set(0x74,   (uint32_t) vecRTE);             // IRQ5   - Eiffel      - IGNORE
+    vbr_Set(0x118,  (uint32_t) vecKBD_MFP1I4);      // MFP1I4 - Eiffel      - Emulate (ST = acia)
 #else
-    vbr_Set(0x118,  (uint32_t) vecRTE_MFP1I4);        // MFP1I4 - Eiffel      - IGNORE  (ST = acia)
+    vbr_Set(0x118,  (uint32_t) vecRTE_MFP1I4);      // MFP1I4 - Eiffel      - IGNORE  (ST = acia)
 #endif
 
-    //vbr_Set(0x11C,  (uint32_t) vecRTE_MFP1I5);        // MFP1I5 - Fdd/Hdd     - IGNORE (todo: can use it, connected to IDE)
+    //vbr_Set(0x11C,  (uint32_t) vecRTE_MFP1I5);    // MFP1I5 - Fdd/Hdd     - IGNORE (todo: can use it, connected to IDE)
 
-    vbr_Set(0x154,  (uint32_t) vecVBL_MPF2TC);        // MFP2 TimerC -> IRQ4 VBLANK emulation
+    vbr_Set(0x154,  (uint32_t) vecVBL_MPF2TC);      // MFP2 TimerC -> IRQ4 VBLANK emulation
     vbr_Apply();
     return true;
 }
@@ -132,11 +132,11 @@ bool atari_InitMMU(uint32_t* simms)
     // auto select st-ram size based on total available ram
     if (stram_size == 0) {
         uint32_t total_mb = (simms[0] + simms[1] + simms[2]) / (1024 * 1024UL);
-        if (total_mb >= 48) {             // 48mb+ : 4mb
+        if (total_mb >= 48) {               // 48mb+ : 4mb
             stram_size = 4 * 1024 * 1024UL;
-        } else if (total_mb >= 32) {      // 32mb+ : 3mb
+        } else if (total_mb >= 32) {        // 32mb+ : 3mb
             stram_size = 3 * 1024 * 1024UL;
-        } else if (total_mb >= 16) {      // 16mb+ : 2mb
+        } else if (total_mb >= 16) {        // 16mb+ : 2mb
             stram_size = 2 * 1024 * 1024UL;
         } else {                            //  8mb+ : 1mb
             stram_size = 1 * 1024 * 1024UL;
@@ -159,26 +159,26 @@ bool atari_InitMMU(uint32_t* simms)
         uint32_t pmem = i << 24;
         for (uint32_t j=0; j<(simms[i] >> 20); j++)
         {
-			if (pmem < reserved_start || pmem >= reserved_end)
+            if (pmem < reserved_start || pmem >= reserved_end)
             {
                 #if DEBUG_MMU
                 fmt("map %l -> %l\n", lmem, pmem);
                 #endif
 
-				if (lmem == 0) {
-					// system vectors + variables
-	                mmu_Map24bit(0x00000000, 0x00000000, 0x00002000, PMMU_READWRITE | PMMU_CM_PRECISE);
+                if (lmem == 0) {
+                    // system vectors + variables
+                    mmu_Map24bit(0x00000000, 0x00000000, 0x00002000, PMMU_READWRITE | PMMU_CM_PRECISE);
                     // st-ram
-	                mmu_Map24bit(0x00002000, 0x00002000, 0x000FE000, PMMU_READWRITE | stram_cache);
-				}
-				else if (lmem >= 0x01000000) {
-					// tt-ram
+                    mmu_Map24bit(0x00002000, 0x00002000, 0x000FE000, PMMU_READWRITE | stram_cache);
+                }
+                else if (lmem >= 0x01000000) {
+                    // tt-ram
                     mmu_Map(lmem, pmem, 0x00100000, PMMU_READWRITE | ttram_cache);
-				}
-				else {
-					// st-ram
+                }
+                else {
+                    // st-ram
                     mmu_Map24bit(lmem, pmem, 0x00100000, PMMU_READWRITE | stram_cache);
-				}
+                }
                 lmem += 0x00100000;
             }
             if (lmem == stram_size) {
@@ -195,9 +195,9 @@ bool atari_InitMMU(uint32_t* simms)
     mmu_Invalid24bit(stram_size, 0x00100000);
 
     // map internally reserved ram
-	for (uint32_t addr = reserved_start; addr < reserved_end; addr += 0x00100000) {
-	    mmu_Map(addr, addr, 0x00100000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
-	}
+    for (uint32_t addr = reserved_start; addr < reserved_end; addr += 0x00100000) {
+        mmu_Map(addr, addr, 0x00100000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
+    }
 
     // peripheral access flags
     mmu_Map(0x40000000, 0x40000000,   simms[3], PMMU_READONLY  | PMMU_CM_WRITETHROUGH);    // ROM
@@ -232,57 +232,59 @@ bool atari_InitMMU(uint32_t* simms)
     // 0xFF0000 : reserved io space
 
     // 0xFF8000 : standard io space, todo: add bus-errors
-    mmu_Map24bit(0x00FF8000, 0xA1000000, 0x00001000, PMMU_READWRITE | PMMU_CM_PRECISE);                 // YM2149   ($ff8800 -> $a1000800)
-    // ACIA : ffffc00 goes to ram0 reserved area  (by help of cpld)                                     // ACIA     ($fffc00 -> BIOS_EMU_MEM)
+    mmu_Map24bit(0x00FF8000, 0xA1000000, 0x00001000, PMMU_READWRITE | PMMU_CM_PRECISE);                     // YM2149   ($ff8800 -> $a1000800)
+    // ACIA : ffffc00 goes to ram0 reserved area  (by help of cpld)                                         // ACIA     ($fffc00 -> BIOS_EMU_MEM)
     // MFP1 : ffffx00 goes to 0xA1xxxxxx as usual (emu address bits ignored)
-    mmu_Map24bit(0x00FFF000, 0xA1000000 + RV_ACIAEMU_BASE, 0x00001000, PMMU_READWRITE | PMMU_CM_PRECISE);  // MFP1     ($fffa00 -> $a1000a00)
+    mmu_Map24bit(0x00FFF000, 0xA1000000 + RV_ACIAEMU_BASE, 0x00001000, PMMU_READWRITE | PMMU_CM_PRECISE);   // MFP1     ($fffa00 -> $a1000a00)
 
 
     // special case graphics card access to satisfy existing Atari drivers
-	if (id_gfx == 3) {
-		// Mach32
-	    mmu_Redirect(0xFE900000, 0x83000000, 0x00100000);      // TT Nova Mach32 reg base : 1024 kb
-	    mmu_Redirect(0xFE800000, 0x82000000, 0x00100000);      // TT Nova Mach32 vga base :  128 kb
-	    mmu_Redirect(0xFEA00000, 0x82200000, 0x00100000);      // TT Nova Mach32 mem base : 2048 kb ?? target addr ??
-	    mmu_Redirect(0xFEB00000, 0x82300000, 0x00100000);      // TT Nova Mach32 mem base : 2048 kb ?? target addr ??
+    if (id_gfx == 3) {
+        // Mach32
+        mmu_Redirect(0xFE900000, 0x83000000, 0x00100000);      // TT Nova Mach32 reg base : 1024 kb
+        mmu_Redirect(0xFE800000, 0x82000000, 0x00100000);      // TT Nova Mach32 vga base :  128 kb
+        mmu_Redirect(0xFEA00000, 0x82200000, 0x00100000);      // TT Nova Mach32 mem base : 2048 kb ?? target addr ??
+        mmu_Redirect(0xFEB00000, 0x82300000, 0x00100000);      // TT Nova Mach32 mem base : 2048 kb ?? target addr ??
 
-	}
-	else if (id_gfx == 4) {
-		// Mach64
-	    mmu_Redirect(0xFEC00000, 0x83000000, 0x00080000);      // TT Nova Mach32 reg base :  512 kb
-	    mmu_Redirect(0xFEC80000, 0x82000000, 0x00080000);      // TT Nova Mach32 vga base :  512 kb
-	    mmu_Redirect(0xFE800000, 0x82000000, 0x00100000);      // TT Nova Mach32 mem base : 4096 kb ?? target addr ??
-	    mmu_Redirect(0xFE900000, 0x82100000, 0x00100000);      // TT Nova Mach32 mem base : 4096 kb ?? target addr ??
-	    mmu_Redirect(0xFEA00000, 0x82200000, 0x00100000);      // TT Nova Mach32 mem base : 4096 kb ?? target addr ??
-	    mmu_Redirect(0xFEB00000, 0x82300000, 0x00100000);      // TT Nova Mach32 mem base : 4096 kb ?? target addr ??
+    }
+    else if (id_gfx == 4) {
+        // Mach64
+        mmu_Redirect(0xFEC00000, 0x83000000, 0x00080000);      // TT Nova Mach32 reg base :  512 kb
+        mmu_Redirect(0xFEC80000, 0x82000000, 0x00080000);      // TT Nova Mach32 vga base :  512 kb
+        mmu_Redirect(0xFE800000, 0x82000000, 0x00100000);      // TT Nova Mach32 mem base : 4096 kb ?? target addr ??
+        mmu_Redirect(0xFE900000, 0x82100000, 0x00100000);      // TT Nova Mach32 mem base : 4096 kb ?? target addr ??
+        mmu_Redirect(0xFEA00000, 0x82200000, 0x00100000);      // TT Nova Mach32 mem base : 4096 kb ?? target addr ??
+        mmu_Redirect(0xFEB00000, 0x82300000, 0x00100000);      // TT Nova Mach32 mem base : 4096 kb ?? target addr ??
 
-	}
-	else {
-		// ET4000
-	    mmu_Invalid(0xFE800000, 0x00100000);
-	    mmu_Invalid(0xFE900000, 0x00100000);
-	    mmu_Redirect(0xFED00000, 0x83000000, 0x00100000);      // TT Nova ET4k reg base : 1024 kb
-	    mmu_Redirect(0xFEC00000, 0x82000000, 0x00100000);      // TT Nova ET4k mem base	: 1024 kb
-	    mmu_Redirect(0x00D00000, 0x83000000, 0x00100000);      // ST Nova ET4k reg base : 1024 kb
-	    mmu_Redirect(0x00C00000, 0x82000000, 0x00100000);      // ST Nova ET4k mem base : 1024 kb
-	}
+    }
+    else {
+        // ET4000
+        mmu_Invalid(0xFE800000, 0x00100000);
+        mmu_Invalid(0xFE900000, 0x00100000);
+        mmu_Redirect(0xFED00000, 0x83000000, 0x00100000);      // TT Nova ET4k reg base : 1024 kb
+        mmu_Redirect(0xFEC00000, 0x82000000, 0x00100000);      // TT Nova ET4k mem base : 1024 kb
+        mmu_Redirect(0x00D00000, 0x83000000, 0x00100000);      // ST Nova ET4k reg base : 1024 kb
+        mmu_Redirect(0x00C00000, 0x82000000, 0x00100000);      // ST Nova ET4k mem base : 1024 kb
+    }
 
     // hades compatible ISA I/O to take advantage of existing drivers
-	mmu_Redirect(0xFFF30000, 0x81000000, 0x00010000);
+    mmu_Redirect(0xFFF30000, 0x81000000, 0x00010000);
+    // milan compatible ISA I/O to take advantage of existing drivers
+    //mmu_Redirect(0xC0000000, 0x83000000, 0x00010000);
 
-	// ST emulation space
-    mmu_Redirect(0x41000000, reserved_start + 0x00100000, 0x00100000);		// ram	1024kb
-    mmu_Redirect(0x41E00000, reserved_start + 0x00200000, 0x00040000);		// tos	 256kb
+    // ST emulation space
+    mmu_Redirect(0x41000000, reserved_start + 0x00100000, 0x00100000);      // ram    1024kb
+    mmu_Redirect(0x41E00000, reserved_start + 0x00200000, 0x00040000);      // tos     256kb
     mmu_Redirect(0x41FC0000, reserved_start + 0x00200000, 0x00030000);      // tos   192kb
-    mmu_Redirect(0x41FA0000, reserved_start + 0x00240000, 0x00020000);		// cart  128kb
-    mmu_Redirect(0x41FF0000, reserved_start + 0x00260000, 0x00010000);		// io	  64kb
+    mmu_Redirect(0x41FA0000, reserved_start + 0x00240000, 0x00020000);      // cart  128kb
+    mmu_Redirect(0x41FF0000, reserved_start + 0x00260000, 0x00010000);      // io      64kb
     // x86 emulation space
-    mmu_Redirect(0x42000000, reserved_start + 0x00300000, 0x000a0000);		// 640kb ram    : 00000
-    mmu_Redirect(0x420a0000, reserved_start + 0x003a0000, 0x00020000);		// 128kb video  : A0000
-    //mmu_Redirect(0x420a0000, 0x80000000     + 0x000a0000, 0x00020000);		// 128kb video  : A0000
-    mmu_Redirect(0x420c0000, reserved_start + 0x003c0000, 0x00030000);		// 160kb ebios  : C0000
-    //mmu_Redirect(0x420c0000, 0x80000000     + 0x000c0000, 0x00030000);		// 160kb ebios  : C0000
-    mmu_Redirect(0x420f0000, reserved_start + 0x003f0000, 0x00010000);		// 160kb sbios  : F0000
+    mmu_Redirect(0x42000000, reserved_start + 0x00300000, 0x000a0000);      // 640kb ram    : 00000
+    mmu_Redirect(0x420a0000, reserved_start + 0x003a0000, 0x00020000);      // 128kb video  : A0000
+    //mmu_Redirect(0x420a0000, 0x80000000     + 0x000a0000, 0x00020000);    // 128kb video  : A0000
+    mmu_Redirect(0x420c0000, reserved_start + 0x003c0000, 0x00030000);      // 160kb ebios  : C0000
+    //mmu_Redirect(0x420c0000, 0x80000000     + 0x000c0000, 0x00030000);    // 160kb ebios  : C0000
+    mmu_Redirect(0x420f0000, reserved_start + 0x003f0000, 0x00010000);      // 160kb sbios  : F0000
 
 /*
     for (uint32_t i = 0; i < 4 * 1024 * 1024UL; i += 64 * 1024) {
@@ -324,9 +326,9 @@ bool atari_Init()
     atari_InitEMU();
 
     initprint("InitTos");
-	for (int i=0x400; i<0x700; i+=4) {
-		IOL(0, i) = 0;
-	}
+    for (int i=0x400; i<0x700; i+=4) {
+        IOL(0, i) = 0;
+    }
 
     if (!atari_DetectTos()) {
         puts("No TOS detected");
