@@ -1,0 +1,13 @@
+*.abs
+*.doc
+*.fit
+*.io
+*.lst
+*.pdf
+*.pin
+*.pla
+*.sim
+*.tt2
+*.tt3
+*.log
+
