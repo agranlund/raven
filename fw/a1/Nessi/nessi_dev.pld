@@ -1,6 +1,6 @@
 Name     Nessi ;
 PartNo   00 ;
-Date     2024-09-01 ;
+Date     2025-06-20 ;
 Revision 01 ;
 Designer Anders Granlund ;
 Company  HappyDaze ;
@@ -99,12 +99,12 @@ pin 39 = A29;
 pin 40 = A30;
 pin 41 = A31;
 
-pin 44 = !RB0RD;
-pin 45 = !RB0WR;
+pin 44 = !RB2RD;
+pin 45 = !RB2WR;
 pin 46 = !RB1RD;
 pin 48 = !RB1WR;
-pin 49 = !RB2RD;
-pin 50 = !RB2WR;
+pin 49 = !RB0RD;
+pin 50 = !RB0WR;
 pin 51 = !RB3RD;
 pin 52 = !RB3WR;
 
