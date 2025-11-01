@@ -1,7 +1,7 @@
 
 # Nessi : Main bus logic
 
-- nessi_wip (development version)
+- nessi_dev (development version)
     - 
 
 - nessi_251029
