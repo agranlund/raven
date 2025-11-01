@@ -1,0 +1,45 @@
+#!/bin/bash
+
+if [ ! \( -f "$1" -a $# -ge 2 -a -d $(dirname "$2") \) ]; then
+    cat 1>&2 <<-"EOF"
+	Usage: $0 ORIGINAL copy1 [... copyN]
+
+	Copy ORIGINAL, preserving history for git blame
+	New history will have N+3 commits
+	EOF
+    exit 1
+fi
+
+ORIGINAL="$1"; shift
+KEEP=$(mktemp ./"$1".XXXXXXXX)
+MESSAGE="Copy $ORIGINAL to $@ keep history"
+SPLIT=""
+
+# Remember current commit
+ROOT=$(git rev-parse HEAD)
+
+# Create branch where $2 has $ORIGINAL's history
+for f in "$@"; do
+    git reset --soft $ROOT
+    git checkout $ROOT "$ORIGINAL"
+    git mv -f "$ORIGINAL" "$f"
+    git commit -n -m "* $MESSAGE: create $f"
+    SPLIT="$(git rev-parse HEAD) $SPLIT"
+done
+
+# Go back to initial branch and move $ORIGINAL out of the way
+git reset --hard HEAD^
+git mv "$ORIGINAL" -f "$KEEP"
+git commit -n -m "* $MESSAGE: keep $ORIGINAL"
+
+# Merge $2's branch back into the original
+git merge $SPLIT -m "* $MESSAGE: merge"
+git commit -a -n -m "* $MESSAGE: merge"
+
+# Move $ORIGINAL back where it was
+git mv "$KEEP" "$ORIGINAL"
+git commit -n -m "$MESSAGE"
+
+# Report
+echo -e \\nNew history $(git rev-parse --short $ROOT)..$(git rev-parse --short HEAD)
+exit 0
