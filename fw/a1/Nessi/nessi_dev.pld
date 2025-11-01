@@ -1,6 +1,6 @@
 Name     Nessi ;
 PartNo   00 ;
-Date     2025-06-27 ;
+Date     2025-07-14 ;
 Revision 01 ;
 Designer Anders Granlund ;
 Company  HappyDaze ;
@@ -272,29 +272,38 @@ UARTCS = BUSEN & TIP & DECODE_UART;
 //----------------------------------------------------------------------------------------
 // MC68150 bus
 //----------------------------------------------------------------------------------------
+
+node EXCYCLE;
+node [DTACK0..1];           // synchronised dtack from mfp,ym,ide
+node [YMDTACK0..3];         // todo: shared generic waitstate
+node [IDESTART0..2];
+node [IDEDTACK0..5];
+node ISADSACK0;
+node ISADSACK1;
+
+IDESTART = IDESTART1;       // IDE setup delay
+IDEDTACK = IDEDTACK4;       // IDE dtack delay
+YMDTACK  = YMDTACK3;        // YM2149 dtack delay
+
 SELECT_68150 = TIP & (DECODE_68150 # MFPIRQ);
+
+EXCYCLE.ck = !BCLK;
+EXCYCLE.ar = RSTI;
+EXCYCLE.d  = SELECT_68150;
 
 EXCS.ck = !BCLK;
 EXCS.ar = RSTI;
-EXCS.d = SELECT_68150;
+EXCS.d = SELECT_68150 & (!DECODE_IDE # IDESTART);
 
-node [DTACK0..1];           // synchronised dtack from mfp,ym,ide
 [DTACK0..1].ck = BCLK;
 [DTACK0..1].ar = RSTI;
 DTACK0.d = EXDTACK;
 DTACK1.d = DTACK0;
 
-
-node [YMDTACK0..3];         // todo: shared generic waitstate
-node [IDEDTACK0..5];
-
-node ISADSACK0;
-node ISADSACK1;
-
 EXDSACK1 = EXDS & (
     EXDTACK #
-    YMDTACK3 #
-    IDEDTACK3 #
+    YMDTACK #
+    IDEDTACK #
     ISADSACK1
     );
 
@@ -337,13 +346,33 @@ YMDTACK0.d = YMCS;
 
 //----------------------------------------------------------------------------------------
 // 68150 : IDE
+//
+// PIO  Cyc    Set    MB/s
+// 0    600    70     3
+// 1    383    50     5
+// 2    240    30     8
+// 3    180    20     11
+// 4    120    14     16
+// 5    100    12     20
+// 6     80    10     25
 //----------------------------------------------------------------------------------------
-//IDECS = 'b'0;
 
+// Trigger IDE_CS and delay 68150_CS
+// to comply with IDE CS -> RW setup time
 IDECS.ck = BCLK;
 IDECS.ar = RSTI;
-IDECS.d  = EXDS & EXCS & DECODE_IDE;
+IDECS.d  = EXCYCLE & DECODE_IDE;
 
+// IDE_CS -> 68150_CS delay counter
+[IDESTART0..2].ck = !BCLK;
+[IDESTART0..2].ar = RSTI;
+IDESTART2.d = IDESTART1;
+IDESTART1.d = IDESTART0;
+IDESTART0.d = SELECT_68150 & DECODE_IDE;
+
+// IDE dtack delay counter
+// todo: would be better to use the ready signal but
+// only if we're in a PIO mode that supports it.
 [IDEDTACK0..5].ck = BCLK;
 [IDEDTACK0..5].ar = RSTI # !IDECS;
 IDEDTACK5.d = IDEDTACK4;
@@ -352,9 +381,6 @@ IDEDTACK3.d = IDEDTACK2;
 IDEDTACK2.d = IDEDTACK1;
 IDEDTACK1.d = IDEDTACK0;
 IDEDTACK0.d = IDECS;
-
-
-
 
 
 //----------------------------------------------------------------------------------------
@@ -410,5 +436,5 @@ LOCTA1 = BUSTA;
 
 TA = AUTOIRQ #              // autovector irq
     (EXCS & EXTA) #         // slowbus ta
-    (!EXCS & LOCTA1);
+    (!EXCYCLE & LOCTA1);
 
