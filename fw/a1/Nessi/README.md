@@ -1,8 +1,13 @@
 
 # Nessi : Main bus logic
 
-- nessi_wip
-    - development version
+- nessi_wip (development version)
+    - 
+
+- nessi_251029
+    - improved bus timing
+    - now works with many different oscillators
+    - now works with 1x cpu clock
 
 - nessi_251025
     - ide access fix to solve issue with 250714
