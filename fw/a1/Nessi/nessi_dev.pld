@@ -1,6 +1,6 @@
 Name     Nessi ;
 PartNo   00 ;
-Date     2024-07-05 ;
+Date     2024-09-01 ;
 Revision 01 ;
 Designer Anders Granlund ;
 Company  HappyDaze ;
@@ -287,8 +287,16 @@ node [IDEDTACK0..5];
 node ISADSACK0;
 node ISADSACK1;
 
-EXDSACK1 = EXDTACK # YMDTACK3 # IDEDTACK3 # ISADSACK1;
-EXDSACK0 = ISADSACK0;
+EXDSACK1 = EXDS & (
+    EXDTACK #
+    YMDTACK3 #
+    IDEDTACK3 #
+    ISADSACK1
+    );
+
+EXDSACK0 = EXDS & (
+    ISADSACK0
+    );
 
 
 //----------------------------------------------------------------------------------------
@@ -350,31 +358,27 @@ IDEDTACK0.d = IDECS;
 //----------------------------------------------------------------------------------------
 node [ISADTACK0..20];
 
-ISA8 = !DECODE_ISA16;
+ISA8  = !DECODE_ISA16;
 ISAIO = DECODE_ISA_IO8 # DECODE_ISA_IO16;
-
 ISADS = EXCS & DECODE_ISA & EXDS;
-
-ISACS.ck = PCLK;
-ISACS.ar = (ISADSACK0 # ISADSACK1);
-ISACS.d = ISADS;
-
-[ISADTACK0..20].ck = BCLK;
-[ISADTACK0..20].ar = RSTI # !ISADS # ISADTACK20;
+ISACS = ISADS & ISADTACK1 & (RW # !ISADTACK19);
 
 ISADSACK16 = DECODE_ISA_RAM16 # (DECODE_ISA_IO16 & IOCS16);
-ISADSACK1 = ISADS & ISADSACK16 & ISADTACK18;
-ISADSACK0 = ISADS & !ISADSACK16 & ISADTACK18;
+ISADSACKXX = ISADS & ISADTACK20;
+ISADSACK1  = ISADSACKXX &  ISADSACK16;
+ISADSACK0  = ISADSACKXX & !ISADSACK16;
 
 node ISADONE;
 ISADONE.ck = BCLK;
 ISADONE.ar = RSTI # !ISACS;
-ISADONE.d = ISARDY # (!RW & !ISAIO);    // special case writes to gfxcard ram
+ISADONE.d = ISARDY; // # (!RW & !ISAIO);
 
+[ISADTACK0..20].ck = BCLK;
+[ISADTACK0..20].ar = RSTI # !EXDS;
 ISADTACK20.d = ISADTACK19;
 ISADTACK19.d = ISADTACK18;
 ISADTACK18.d = ISADTACK17;
-ISADTACK17.d = ISADTACK16 & ISADONE;
+ISADTACK17.d = (ISADTACK16 & ISADONE) # ISADTACK17;
 ISADTACK16.d = ISADTACK15;
 ISADTACK15.d = ISADTACK14;
 ISADTACK14.d = ISADTACK13;
@@ -403,7 +407,4 @@ LOCTA1 = BUSTA;
 TA = AUTOIRQ #              // autovector irq
     (EXCS & EXTA) #         // slowbus ta
     (!EXCS & LOCTA1);
-//    !EXCS;                  // fastbus ta
-
-
 
