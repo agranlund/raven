@@ -1,9 +1,6 @@
 
 # Nessi : Main bus logic
 
-- nessi_dev (development version)
-    - 
-
 - nessi_251029
     - improved bus timing
     - now works with many different oscillators
