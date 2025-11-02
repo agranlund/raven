@@ -3,9 +3,9 @@
 # WinCUPL in wine, and how to add the latest fitters
 CUPL=./5vcomp
 
-IKSI   = Iksi/iksi_240418.jed
-NARNIA = Narnia/narnia_240422.jed
-NESSI  = Nessi/nessi_wip.jed
+IKSI   = Iksi/iksi.jed
+NARNIA = Narnia/narnia.jed
+NESSI  = Nessi/nessi.jed
 
 DEPS	= $(CUPL) Makefile
 OPTS	= m3jn
