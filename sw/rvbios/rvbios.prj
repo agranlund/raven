@@ -1,12 +1,12 @@
 rvbios.prg
 .C[-I..\purec\include]
 .C[-I..\lib]
-.C[-DXBTIME=0]
+.C[-DXBTIME=1]
 .C[-DXBNVM=0]
 .C[-E1 -2 -P -W2]
 
 .S[-I..\purec\include]
-.S[-DXBTIME=0]
+.S[-DXBTIME=1]
 .S[-DXBNVM=0]
 .S[-4 -8 -S]
 
