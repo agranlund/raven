@@ -41,21 +41,22 @@ uint32_t xbc_gettime(void)
 	uint8_t r[8];
 	uint32_t t=0;
 	raven()->rtc_Read(0x00, r, 0x07);
-	t |= bcd_to_int(r[0] & 0x7f) >>  1;		/* seconds 	*/
-	t |= bcd_to_int(r[1] & 0x3f) <<  5;		/* minutes 	*/
-	t |= bcd_to_int(r[2] & 0x3f) << 11;		/* hours 	*/
-	t |= bcd_to_int(r[4] & 0x3f) << 16;		/* date 	*/
-	t |= bcd_to_int(r[5] & 0x1f) << 21;		/* month 	*/
-	t |= ((bcd_to_int(r[6] & 0xff) + RTC_YEAR_OFFSET) & 0x7f)  << 25;	/* year */
+	t |= ((bcd_to_int(r[0] & 0x7f) & 0x3f) >>  1);		/* seconds 	*/
+	t |= ((bcd_to_int(r[1] & 0x7f) & 0x3f) <<  5);		/* minutes 	*/
+	t |= ((bcd_to_int(r[2] & 0x3f) & 0x1f) << 11);		/* hours 	*/
+	t |= ((bcd_to_int(r[4] & 0x3f) & 0x1f) << 16);		/* date 	*/
+	t |= ((bcd_to_int(r[5] & 0x1f) & 0x0f) << 21);		/* month 	*/
+	t |= (((bcd_to_int(r[6] & 0xff) + RTC_YEAR_OFFSET) & 0x7f) << 25);	/* year */
 	return t;
 }
+
 void xbc_settime(
 	uint32_t t)			/* d0 */
 {
 	uint8_t r[8];
 	uint8_t y = (uint8_t)(((t>>25) - RTC_YEAR_OFFSET) & 0xff);
-	r[0] = int_to_bcd((t<< 1) & 0x3f);		/* seconds 	*/
-	r[1] = int_to_bcd((t>> 5) & 0x3f);		/* minutes	*/
+	r[0] = int_to_bcd((t<<1) & 0x3f);		/* seconds 	*/
+	r[1] = int_to_bcd((t>>5) & 0x3f);		/* minutes	*/
 	r[2] = int_to_bcd((t>>11) & 0x1f);		/* hours	*/
 	r[3] = 0;
 	r[4] = int_to_bcd((t>>16) & 0x1f);		/* date		*/
@@ -64,7 +65,6 @@ void xbc_settime(
 	r[7] = 0;
 	raven()->rtc_Write(0x00, r, 0x07);
 }
-
 
 int16_t xbc_nvmaccess(
 	int16_t op,			/* d0 */

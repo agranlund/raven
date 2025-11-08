@@ -173,41 +173,32 @@ xb_ct60_rwparam:
 
 ;----------------------------------------------------------
 xb_ct60_vmalloc:
-	or.w	#0x0700,sr		; disable interrupts
+	or.w	#0x0700,sr		    ; disable interrupts
 	moveq.l	#0,d0
 	rte
 
 	
 ;----------------------------------------------------------
 xb_settime:
-	or.w	#0x0700,sr		; disable interrupts
-	; call tos settime
-	move.l	2(a0),-(sp)		; time
-	move.w	(a0),-(sp)		; opcode
-	move.w	#0,-(sp)		; fake
-	move.l	#.1,-(sp)		; return
-	move.w	sr,-(sp)		; sr
-	movea.l	xbios_old(pc),a0
-	jmp		(a0)
-	; call our settime
-.1:	addq.l	#2,sp			; ignore opcode
-	move.l	(sp)+,d0		; time parameter
-	bsr		xbc_settime
-	rte
-	
+	or.w	#0x0700,sr          ; disable interrupts
+    move.l  2(a0),d0            ; call our settime
+    bsr     xbc_settime
+	movea.l	xbios_old(pc),a0    ; call original settime
+	jmp		(a0)                ; to update internal tos variables
+
 ;----------------------------------------------------------
 xb_gettime:
-	or.w	#0x0700,sr		; disable interrupts
+	or.w	#0x0700,sr		    ; disable interrupts
 	bsr		xbc_gettime
 	rte
 	
 ;----------------------------------------------------------
 xb_nvmaccess:
-	or.w	#0x0700,sr		; disable interrupts
-	move.w	2(a0),d0		; op
-	move.w	4(a0),d1		; start
-	move.w	6(a0),d2		; count
-	move.l	8(a0),a0		; buffer
+	or.w	#0x0700,sr		    ; disable interrupts
+	move.w	2(a0),d0		    ; op
+	move.w	4(a0),d1		    ; start
+	move.w	6(a0),d2		    ; count
+	move.l	8(a0),a0		    ; buffer
 	bsr		xbc_nvmaccess
 	rte
 	
