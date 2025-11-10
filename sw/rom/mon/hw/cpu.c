@@ -14,6 +14,10 @@ uint32_t*   mmuInvalidPageDesc;
 
 uint32_t*   vbrTable;
 
+
+//-----------------------------------------------------------------------
+// cpu
+//-----------------------------------------------------------------------
 void cpu_NullNMI(regs_t* r) {
 }
 
@@ -63,6 +67,9 @@ NMIFunc_t cpu_SetNMI(NMIFunc_t func)
 }
 
 
+//-----------------------------------------------------------------------
+// mmu
+//-----------------------------------------------------------------------
 uint32_t* mmu_Init(uint32_t unmapped_desc)
 {
     mmuRootTable        = (uint32_t*) mem_Alloc(128 * 4, 512);
@@ -170,9 +177,9 @@ void mmu_Invalid(uint32_t log, uint32_t size)
 }
 
 
-
-
-
+//-----------------------------------------------------------------------
+// vbr
+//-----------------------------------------------------------------------
 #if VBR_PROXY_IN_ROM
 const uint16_t vbrProxy[] =
 {
@@ -272,7 +279,6 @@ bool vbr_Init()
     return true;
 }
 
-
 void vbr_Set(uint32_t vec, uint32_t addr)
 {
     vbrTable[vec >> 2] = addr;
@@ -281,4 +287,21 @@ void vbr_Set(uint32_t vec, uint32_t addr)
 void vbr_Apply()
 {
     cpu_SetVBR((uint32_t)vbrTable);
+}
+
+
+//-----------------------------------------------------------------------
+// motorola support package
+//-----------------------------------------------------------------------
+extern void cpu_InstallSP();
+
+bool msp_Init() {
+#ifndef EXCLUDE_SP060    
+    if (cpu_GetVBR() == 0) {
+        return false;
+    }
+    cpu_InstallSP();
+    vbr_Apply();
+#endif    
+    return true;
 }

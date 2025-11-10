@@ -156,6 +156,9 @@ bool sys_Init()
 
         initprint("InitVbr");
         vbr_Init();
+
+        initprint("InitMsp");
+        msp_Init();
     }
 
     initprint("InitMonitor");

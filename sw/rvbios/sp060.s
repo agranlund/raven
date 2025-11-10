@@ -30,12 +30,13 @@
 ;     (sp060_real_snan and friends)
 ;
 
-
 	.EXPORT Install060sp
-	
 	.TEXT
 
-
+IFEQ ISP060
+Install060sp:
+    rts
+ELSE
 
 ;---------------------------------------------------------
 ; install
@@ -419,3 +420,4 @@ sp060_fsp_table:
 	.dc.l 0
 	include "motorola\fpsp.sa"
 
+ENDIF ;MISP

@@ -47,7 +47,7 @@
 
 
 #define C__MCH_RAVEN    0x00070000UL
-#define MIN_ROM_VERSION 0x00250807UL
+#define MIN_ROM_VERSION 0x00251110UL
 
 static bool RomVersionValid(void) {
     return ((raven()->version & 0x00ffffffUL) >= MIN_ROM_VERSION) ? true : false;
