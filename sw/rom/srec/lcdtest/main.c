@@ -75,10 +75,15 @@ void lcd1602_font(uint8_t idx, uint8_t num, uint8_t* data) {
     idx = idx & 7;
     num = ((idx + num) > 8) ? (8 - idx) : num;
     
-    raven()->i2c_Aquire();
     for (i = 0; i < num; i++) {
-        lcd1602_write(_lcdaddr, 0x80, 0x40 | ((idx + i) << 3));
         raven()->i2c_Aquire();
+        /* set character index */
+        raven()->i2c_Start();
+        raven()->i2c_Write(_lcdaddr << 1);
+        raven()->i2c_Write(0x80);
+        raven()->i2c_Write(0x40 | ((idx + i) << 3));
+        raven()->i2c_Stop();
+        /* set character pixels */
         raven()->i2c_Start();
         raven()->i2c_Write(_lcdaddr << 1);
         raven()->i2c_Write(0x40);
@@ -88,7 +93,8 @@ void lcd1602_font(uint8_t idx, uint8_t num, uint8_t* data) {
         raven()->i2c_Stop();
         raven()->i2c_Release();
     }
-
+    /* cursor location appears to get trashed after font upload
+       so reset it back to a sensible and known location */
     lcd1602_pos(0, 0);
 }
 
@@ -134,15 +140,15 @@ void lcd1602_init(uint8_t lcdaddr, uint8_t rgbaddr, uint8_t width, uint8_t heigh
     lcd1602_clear();
     lcd1602_delay(2);
 
-    // left to right entry mode
+    /* left to right entry mode */
     lcd1602_write(_lcdaddr, 0x80, 0x04 | 0x02 | 0x00);
 
-    // write a blank character else the screen wont init properly
+    /* write a blank character else the screen wont init properly */
     lcd1602_pos(0, 0);
     lcd1602_putc(' ');
     lcd1602_pos(0, 0);
 
-    // init backlight
+    /* init backlight */
     if (_rgbaddr) {
         switch (_rgbaddr) {
             case 0x30: {
@@ -163,11 +169,11 @@ void lcd1602_init(uint8_t lcdaddr, uint8_t rgbaddr, uint8_t width, uint8_t heigh
                 lcd1602_write(_rgbaddr, 0x03, 0x04);
             } break;
         }
-        // default off
+        /* default off */
         lcd1602_rgb(0x00, 0x00, 0x00);
     }
 
-    // custom bargraph font
+    /* custom bargraph font */
     lcd1602_font(0, 8, lcd1602_fontdata);
     lcd1602_pos(0, 0);
 }
@@ -175,7 +181,7 @@ void lcd1602_init(uint8_t lcdaddr, uint8_t rgbaddr, uint8_t width, uint8_t heigh
 void main() {
     int i;
 
-    // DFRobot RGB-LCD
+    /* DFRobot RGB-LCD */
     lcd1602_init(0x3e, 0x2d, 16, 2);
 
     lcd1602_puts("  RAVEN  68060  ");
