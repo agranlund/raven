@@ -109,19 +109,14 @@ void Setcookie(uint32_t c, uint32_t d)
 void InitTime(void)
 {
 #if XBTIME
-	/* Init TOS time and date from RTC before installing
-	   our own xbios override.
-	   This is a workaround for EmuTOS's internal timekeep
-	   variable. Atari TOS does not have this problem.
-	   We can skip this if TOS has nvram support built-in
-	*/
-	if (Getcookie(C__IDT,(long*)&cookie) != C_FOUND) {
-		uint32_t dt   = xbc_gettime();
-		uint16_t date = (uint16_t) ((dt>>16)&0xffff);
-		uint16_t time = (uint16_t) ((dt>> 0)&0xffff);
-		Tsetdate(date);
-		Tsettime(time);
-	}
+    /* init gemdos time from rtc */
+    /*if (Getcookie(C__IDT,(long*)&cookie) != C_FOUND)*/ {
+        uint32_t dt   = xbc_gettime();
+        uint16_t date = (uint16_t) ((dt>>16)&0xffff);
+        uint16_t time = (uint16_t) ((dt>> 0)&0xffff);
+        Tsetdate(date);
+        Tsettime(time);
+    }
 #endif
 }
 
