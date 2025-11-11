@@ -28,9 +28,15 @@ bool cpu_Init()
     NMIFunc = cpu_NullNMI;
     NMIBusy = 0;
 
-    // enable superscalar dispatch
-    cpu_SetPCR(1);
+    uint32_t rev;
+    cpu_Detect(&rev, 0);
 
+    uint32_t pcr = 0;
+    pcr |= (1 << 0);        // enable superscalar dispatch
+    if ((rev == 1) || (rev == 5)) {
+        pcr |= (1 << 5);    // disable store/load bypass (errata I14)
+    }
+    cpu_SetPCR(pcr);
     return true;
 }
 
