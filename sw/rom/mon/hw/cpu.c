@@ -302,12 +302,10 @@ void vbr_Apply()
 extern void cpu_InstallSP();
 
 bool msp_Init() {
-#ifndef EXCLUDE_SP060    
     if (cpu_GetVBR() == 0) {
         return false;
     }
     cpu_InstallSP();
     vbr_Apply();
-#endif    
     return true;
 }

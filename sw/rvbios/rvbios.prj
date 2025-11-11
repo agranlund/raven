@@ -8,7 +8,6 @@ rvbios.prg
 .S[-I..\purec\include]
 .S[-DXBTIME=1]
 .S[-DXBNVM=0]
-.S[-DISP060=0]
 .S[-4 -8 -S]
 
 .L[-V -S=4096]
@@ -19,7 +18,6 @@ xbios_c.c
 utils.s
 xbios.s
 eiffel.s
-sp060.s
 setup\setup.c
 setup\form_vt.c
 setup\misc.c

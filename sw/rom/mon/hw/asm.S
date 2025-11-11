@@ -363,7 +363,6 @@ cpu_SafeWriteLong:
 
 
 // ----------------------------------------------------------
-#ifndef EXCLUDE_SP060
 cpu_InstallSP:
     movec.l     %vbr,%a1
     move.l      #sp060_isp+0x80+0x00,0xf4(%a1) // unsupported integer instruction
@@ -649,5 +648,3 @@ sp060_fsp:
     .dc.l 0
     .dc.l 0
     .include "hw/motorola_fpsp.sa"
-
-#endif // !EXCLUDE_SP060
