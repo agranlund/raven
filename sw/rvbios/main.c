@@ -386,8 +386,6 @@ long supermain()
 
 	InstallEiffel();
 
-	Install060sp();
-
 	InstallCookies();
 #endif
 	cache_clear();

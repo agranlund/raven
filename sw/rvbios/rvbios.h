@@ -54,12 +54,6 @@ extern void		InstallEiffel(void);
 
 
 /*
-	sp060.s
-*/
-extern void 	Install060sp(void);
-
-
-/*
 	utils.s
 */
 extern uint16_t	ipl_set(uint16_t ipl);
