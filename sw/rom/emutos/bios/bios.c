@@ -821,6 +821,11 @@ void biosmain(void)
     if (shiftbits & MODE_CTRL)
         bootflags |= BOOTFLAG_SKIP_AUTO_ACC;
 
+
+#ifdef MACHINE_RAVEN        
+    bootflags |= raven_bootflags();
+#endif
+
     KDEBUG(("bootflags = 0x%02x\n", bootflags));
 
     /* boot eventually from a block device (floppy or harddisk) */

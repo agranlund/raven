@@ -23,6 +23,7 @@
 
 #ifndef __RAVEN__ASM__
 
+UBYTE raven_bootflags(void);
 void raven_screen_init(void);
 void raven_kbd_init(void);
 void raven_init_keyboard_interrupt(void);
