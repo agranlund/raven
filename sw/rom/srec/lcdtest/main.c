@@ -180,6 +180,7 @@ void lcd1602_init(uint8_t lcdaddr, uint8_t rgbaddr, uint8_t width, uint8_t heigh
 
 void main() {
     int i;
+    char str2[16];
 
     /* DFRobot RGB-LCD */
     lcd1602_init(0x3e, 0x2d, 16, 2);
@@ -192,4 +193,53 @@ void main() {
 
     lcd1602_display(true);
     lcd1602_rgb(0xff, 0xff, 0xff);
+
+
+
+    for (i=0; i<=7; i++) { str2[i+0] = (7-i); }
+    for (i=0; i<=7; i++) { str2[i+8] = i; }
+
+    int wx = 0;
+    int r = 0;
+    int c = 2;
+    int d = 0;
+
+    int scroll_time = 0;
+
+    while(1) {
+        lcd1602_delay(1);
+        scroll_time++;
+        if (scroll_time > 2) {
+            scroll_time = 0;
+            lcd1602_pos(0,1);
+            for (i=0; i<16; i++) {
+                lcd1602_putc(str2[(wx+i)&15]);
+            }
+            wx++;
+        }
+
+        r += d;
+        if (r > 254) {
+            r = 255;
+            d = -4;
+        } else if (r < 1) {
+            r = 0;
+            d = 4;
+            c++;
+            if (c > 2) {
+                c = 0;
+            }
+        }
+        switch (c) {
+            case 0:
+                lcd1602_rgb(r, 0, 0);
+                break;
+            case 1:
+                lcd1602_rgb(0, r, 0);
+                break;
+            case 2:
+                lcd1602_rgb(0, 0, r);
+                break;
+        }
+    }
 }
