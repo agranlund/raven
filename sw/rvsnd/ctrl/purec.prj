@@ -1,0 +1,11 @@
+rvsctrl.prg
+.C[-I..\..\purec\include]
+.C[-I..\..]
+.C[-E1 -M -P -Z -W2]
+.S[-S]
+.L[-V]
+=
+..\..\purec\lib\cstartn.o
+main.c
+..\..\purec\lib\pctoslib.lib
+..\..\purec\lib\pcstdlib.lib

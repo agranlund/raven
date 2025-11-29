@@ -12,11 +12,7 @@
  * GNU General Public License for more details.
  */
 
-#include <stdint.h>
-#include <stdbool.h>
-#include <math.h>
-#include <limits.h>
-#include <string.h>
+#include "driver.h"
 #include "gmtimbre.h"
 
 #define OPL_LSI             0x00
@@ -61,15 +57,15 @@ typedef struct
 {
     opl_timbre *timbre;
     int32_t pitch;
-    uint32_t volume;
-    uint32_t pan;
+    uint16_t volume;
+    uint16_t pan;
     bool sustained;
 } opl_channel;
 
 typedef struct
 {
-    uint32_t num;
-    uint32_t mod, car;
+    uint16_t num;
+    uint16_t mod, car;
     uint32_t freq;
     uint32_t freqpitched;
     uint32_t time;
@@ -81,27 +77,20 @@ typedef struct
     opl_channel *channel;
 } opl_voice;
 
-const uint8_t opl_pitchfrac = 8;
+#define opl_pitchfrac 8
 
-static uint32_t opl_voice_num;
+static uint16_t opl_voice_num;
 static opl_channel opl_channels[16];
 static opl_voice opl_voices[18];
 static uint32_t opl_freq[12];
 static uint32_t opl_time;
-static int32_t opl_uppitch;
-static int32_t opl_downpitch;
+static int16_t opl_uppitch;
+static int16_t opl_downpitch;
 
-bool opl_opl3mode;
+static bool opl_opl3mode;
 
+extern void opl_writereg(uint32_t reg, uint8_t data);
 
-
-extern void adlib_write(uint16_t reg, uint8_t data);
-
-static void opl_writereg(uint32_t reg, uint8_t data) {
-    adlib_write((uint16_t)reg, data);
-}
-
-#if 1
 static void opl_buildfreqtable(void) {
     opl_freq[0]  = 2743;
     opl_freq[1]  = 2906;
@@ -118,33 +107,6 @@ static void opl_buildfreqtable(void) {
     opl_uppitch = 31;
     opl_downpitch = 27;
 }
-#else
-
-const double opl_samplerate = 50000.0;
-const double opl_tune = 440.0;
-
-static uint32_t opl_tofnum(double freq) {
-    return (uint32_t)(((1 << 19) * freq) / opl_samplerate);
-}
-
-static void opl_buildfreqtable(void) {
-    double opl_semitone = pow(2.0, 1.0 / 12.0);
-    opl_freq[0] = opl_tofnum(opl_tune * pow(opl_semitone, -9));
-    opl_freq[1] = opl_tofnum(opl_tune * pow(opl_semitone, -8));
-    opl_freq[2] = opl_tofnum(opl_tune * pow(opl_semitone, -7));
-    opl_freq[3] = opl_tofnum(opl_tune * pow(opl_semitone, -6));
-    opl_freq[4] = opl_tofnum(opl_tune * pow(opl_semitone, -5));
-    opl_freq[5] = opl_tofnum(opl_tune * pow(opl_semitone, -4));
-    opl_freq[6] = opl_tofnum(opl_tune * pow(opl_semitone, -3));
-    opl_freq[7] = opl_tofnum(opl_tune * pow(opl_semitone, -2));
-    opl_freq[8] = opl_tofnum(opl_tune * pow(opl_semitone, -1));
-    opl_freq[9] = opl_tofnum(opl_tune * pow(opl_semitone, 0));
-    opl_freq[10] = opl_tofnum(opl_tune * pow(opl_semitone, 1));
-    opl_freq[11] = opl_tofnum(opl_tune * pow(opl_semitone, 2));
-    opl_uppitch = (uint32_t)((opl_semitone * opl_semitone - 1.0)*(1 << opl_pitchfrac));
-    opl_downpitch = (uint32_t)((1.0 - 1.0 / (opl_semitone * opl_semitone))*(1 << opl_pitchfrac));
-}
-#endif
 
 static uint32_t opl_calcblock(uint32_t freq) {
     uint8_t block = 1;
@@ -172,7 +134,7 @@ static uint32_t opl_applypitch(uint32_t freq, int32_t pitch) {
 
 static opl_voice* opl_allocvoice(opl_timbre *timbre) {
     uint32_t time;
-    int32_t id;
+    int16_t id;
     uint16_t i;
 
     for (i = 0; i < opl_voice_num; i++) {
@@ -221,16 +183,16 @@ static opl_voice* opl_findvoice(opl_channel *channel, uint8_t note) {
             return &opl_voices[i];
         }
     }
-    return NULL;
+    return 0;
 }
 
 static void opl_midikeyon(opl_channel *channel, uint8_t note, opl_timbre *timbre, uint8_t velocity) {
     opl_voice *voice;
     uint32_t freq;
     uint32_t freqpitched;
-    uint32_t octave;
-    uint32_t carvol;
-    uint32_t modvol;
+    uint16_t octave;
+    uint16_t carvol;
+    uint16_t modvol;
     uint8_t fb;
 
     octave = note / 12;
@@ -303,6 +265,7 @@ static void opl_midikeyon(opl_channel *channel, uint8_t note, opl_timbre *timbre
 static void opl_midikeyoff(opl_channel *channel, uint8_t note, opl_timbre *timbre, bool sustained)
 {
     opl_voice *voice;
+    (void)timbre;
     voice = opl_findvoice(channel, note);
     if (!voice) {
         return;
@@ -379,10 +342,11 @@ static void opl_updatepan(opl_channel *channel, uint8_t pan)
 }
 
 static void opl_updatesustain(opl_channel *channel, uint8_t sustain) {
+    uint16_t i;
+
     if (sustain >= 64) {
         channel->sustained = true;
     } else {
-        uint16_t i;
         channel->sustained = false;
         for (i = 0; i < opl_voice_num; i++) {
             if (opl_voices[i].channel == channel && opl_voices[i].sustained) {
@@ -394,7 +358,7 @@ static void opl_updatesustain(opl_channel *channel, uint8_t sustain) {
 
 static void opl_updatepitch(opl_channel *channel)
 {
-    uint32_t i;
+    uint16_t i;
     uint32_t freqpitch;
 
     for (i = 0; i < opl_voice_num; i++) {
@@ -446,10 +410,10 @@ static void opl_midipitchbend(opl_channel *channel, uint8_t parm1, uint8_t parm2
 }
 
 
-bool OPLWIN_MIDI_init(bool opl3mode)
+bool OPLWIN_MIDI_init(int16_t opltype)
 {
-    uint32_t i;
-    opl_opl3mode = opl3mode;
+    uint16_t i;
+    opl_opl3mode = (opltype == 3) ? true : false;
 
     opl_writereg(OPL_LSI, 0x00);
     opl_writereg(OPL_TIMER, 0x60);
@@ -517,10 +481,11 @@ bool OPLWIN_MIDI_init(bool opl3mode)
 
 void OPLWIN_MIDI_write(uint32_t data)
 {
-    uint8_t event_type = data & 0xf0;
-    uint8_t channel = data & 0x0f;
-    uint8_t parm1 = (data >> 8) & 0x7f;
-    uint8_t parm2 = (data >> 16) & 0x7f;
+    uint8_t* msg = (uint8_t*)&data;
+    uint8_t event_type = msg[1] & 0xf0;
+    uint8_t channel = msg[1] & 0x0f;
+    uint8_t parm1 = msg[2] & 0x7f;
+    uint8_t parm2 = msg[3] & 0x7f;
     opl_channel *channelp = &opl_channels[channel];
 
     switch (event_type)
@@ -557,7 +522,7 @@ void OPLWIN_MIDI_write(uint32_t data)
     }
 }
 
-void OPLWIN_MIDI_panic()
+void OPLWIN_MIDI_panic(void)
 {
     uint16_t c;
     for (c = 0; c < 16; ++c) {
@@ -565,7 +530,7 @@ void OPLWIN_MIDI_panic()
     }
 }
 
-void OPLWIN_MIDI_reset()
+void OPLWIN_MIDI_reset(void)
 {
     uint16_t i;
     OPLWIN_MIDI_panic();

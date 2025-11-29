@@ -1,0 +1,11 @@
+opl.rvs
+.C[-I..\..]
+.C[-I..\..\..\..]
+.C[-I..\..\..\..\purec\include]
+.C[-E1 -M -P -Z -W2]
+.S[-S]
+.L[-V -S=0]
+=
+..\..\driver.s
+main.c
+winmidi.c
