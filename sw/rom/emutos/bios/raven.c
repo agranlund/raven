@@ -256,11 +256,10 @@ static LONG rs232_bconout(WORD dev, WORD b) {
     return 1;
 }
 
-#if RAVEN_DEBUG_PRINT
-void raven_rs232_write_byte(UBYTE b) { rs232_bconout(7, b); }
-#endif /* RAVEN_DEBUG_PRINT */
-
-
+void raven_rs232_write_byte(UBYTE b) {
+    while(rs232_txrdy()==0);
+    rs232_tx(b);
+}
 
 static ULONG rs232_rsconf(WORD baud, WORD ctrl, WORD ucr, WORD rsr, WORD tsr, WORD scr) {
     ULONG old, lcr, mcr;

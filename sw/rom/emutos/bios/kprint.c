@@ -53,6 +53,13 @@ int stonx_kprintf_available;
 
 static void cprintf_outc(int c)
 {
+#ifdef MACHINE_RAVEN
+    /* add a CR to Unix LF for VT52 convenience */
+    if ( c == '\n')
+        raven_rs232_write_byte('\r');
+
+    raven_rs232_write_byte((char)c);
+#endif
     /* add a CR to Unix LF for VT52 convenience */
     if ( c == '\n')
         bconout2(2,'\r');
