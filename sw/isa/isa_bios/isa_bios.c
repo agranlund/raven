@@ -7,7 +7,12 @@
 #include "isa_rw.h"
 #include "isa_pnp.h"
 
+#ifdef __PUREC__
+uint32_t    _StkSize = 4096;
+#endif
+
 isa_core_t  isa;
+isa_dev_t   isa_bus_devs[ISA_MAX_DEVS];
 
 /*-----------------------------------------------------------------------------------
  * interrupts
@@ -70,15 +75,6 @@ isa_dev_t* _ISA_API dev_find(const char* idstr, uint16l_t idx) {
     return 0;
 }
 
-void _ISA_API isa_delayus(uint32_t us) {
-    delayus(us);
-}
-
-void _ISA_API isa_delayms(uint32_t ms) {
-    delayus(ms * 1000);
-}
-
-
 /*-----------------------------------------------------------------------------------
  * 
  * Hardware specific bus config
@@ -87,40 +83,47 @@ void _ISA_API isa_delayms(uint32_t ms) {
 static bool bus_hwconf(void) {
     long cookie = 0;
 
-    isa.bus.endian      = ISA_ENDIAN_BE;
-    isa.bus.irqmask     = 0xFFFF;
-    isa.bus.drqmask     = 0x0F;
+    isa.bus.endian      = ISA_ENDIAN_LELS;
+    isa.bus.irqmask     = 0x0000;
+    isa.bus.drqmask     = 0x00;
+    isa.bus.membase     = 0x00000000UL;
+    isa.bus.iobase      = 0x00000000UL;
 
-    if (Getcookie(C_hade, &cookie) == C_FOUND)            /* Hades */
+    if (Getcookie(C_hade, &cookie) == C_FOUND)          /* Hades */
     {
-        isa.bus.endian = ISA_ENDIAN_LELS;
         isa.bus.iobase  = 0xFFF30000UL;
         isa.bus.membase = 0xFF000000UL;
     }
-    else if (Getcookie(C__MIL, &cookie) == C_FOUND)       /* Milan */
+    else if (Getcookie(C__MIL, &cookie) == C_FOUND)     /* Milan */
     {
         #if 1
-        isa.bus.endian = ISA_ENDIAN_LELS;
         isa.bus.iobase = 0xC0000000UL;
         #else        
         isa.bus.endian = ISA_ENDIAN_LEAS;
         isa.bus.iobase = 0x80000000;
         #endif
     }
-    else if (Getcookie(C__P2I, &cookie) == C_FOUND)       /* Panther2 */
+    else if (Getcookie(C__P2I, &cookie) == C_FOUND)     /* Panther2 */
     {
         uint32_t* cardpth2 = (uint32_t*) (cookie+6);
-        isa.bus.endian = ISA_ENDIAN_LELS;
         isa.bus.iobase  = *cardpth2;
         cardpth2 += 2;
         isa.bus.membase = *cardpth2;
     }    
-    else if (Getcookie(C_RAVN, &cookie) == C_FOUND)       /* Raven */
+    else if (Getcookie(C_RAVN, &cookie) == C_FOUND)     /* Raven */
     {
-        isa.bus.endian = ISA_ENDIAN_LELS;
-        isa.bus.irqmask = 0x4CF0;       /* 14,11,10,7,5,4,3 (2/9) */
         isa.bus.iobase  = 0x81000000UL;
         isa.bus.membase = 0x82000000UL;
+        isa.bus.irqmask = (0
+            | (1UL << 14)
+            | (1UL << 11)
+            | (1UL << 10)
+            | (1UL <<  7)
+            | (1UL <<  5)
+            | (1UL <<  4)
+            | (1UL <<  3)
+            | (1UL <<  2)
+        );
         #if 0
         isa.bus.irq_set = irq_set_raven;
         isa.bus.irq_en  = irq_en_raven;
@@ -132,6 +135,7 @@ static bool bus_hwconf(void) {
 bool bus_init(void)
 {
     memset((void*)&isa, 0, sizeof(isa_core_t));
+    isa.bus.devs = isa_bus_devs;
 
     /* hardware autodetect */
     if (!bus_hwconf())
@@ -167,30 +171,18 @@ bool bus_init(void)
             isa.bus.outp = isa.bus.outp ? isa.bus.outp : outp_be;
             isa.bus.inpw = isa.bus.inpw ? isa.bus.inpw : inpw_be;
             isa.bus.outpw = isa.bus.outpw ? isa.bus.outpw : outpw_be;
-            isa.bus.inp_buf = isa.bus.inp_buf ? isa.bus.inp_buf : inp_be_buf;
-            isa.bus.outp_buf = isa.bus.outp_buf ? isa.bus.outp_buf : outp_be_buf;
-            isa.bus.inpw_buf = isa.bus.inpw_buf ? isa.bus.inpw_buf : inpw_be_buf; 
-            isa.bus.outpw_buf = isa.bus.outpw_buf ? isa.bus.outpw_buf : outpw_be_buf;
             break;
         case ISA_ENDIAN_LELS:
             isa.bus.inp = isa.bus.inp ? isa.bus.inp : inp_lels;
             isa.bus.outp = isa.bus.outp ? isa.bus.outp : outp_lels;
             isa.bus.inpw = isa.bus.inpw ? isa.bus.inpw : inpw_lels;
             isa.bus.outpw = isa.bus.outpw ? isa.bus.outpw : outpw_lels;
-            isa.bus.inp_buf = isa.bus.inp_buf ? isa.bus.inp_buf : inp_lels_buf;
-            isa.bus.outp_buf = isa.bus.outp_buf ? isa.bus.outp_buf : outp_lels_buf;
-            isa.bus.inpw_buf = isa.bus.inpw_buf ? isa.bus.inpw_buf : inpw_lels_buf; 
-            isa.bus.outpw_buf = isa.bus.outpw_buf ? isa.bus.outpw_buf : outpw_lels_buf;
             break;
         case ISA_ENDIAN_LEAS:
             isa.bus.inp = isa.bus.inp ? isa.bus.inp : inp_leas;
             isa.bus.outp = isa.bus.outp ? isa.bus.outp : outp_leas;
             isa.bus.inpw = isa.bus.inpw ? isa.bus.inpw : inpw_leas;
             isa.bus.outpw = isa.bus.outpw ? isa.bus.outpw : outpw_leas;
-            isa.bus.inp_buf = isa.bus.inp_buf ? isa.bus.inp_buf : inp_leas_buf;
-            isa.bus.outp_buf = isa.bus.outp_buf ? isa.bus.outp_buf : outp_leas_buf;
-            isa.bus.inpw_buf = isa.bus.inpw_buf ? isa.bus.inpw_buf : inpw_leas_buf; 
-            isa.bus.outpw_buf = isa.bus.outpw_buf ? isa.bus.outpw_buf : outpw_leas_buf;
             break;
     }
 
@@ -202,6 +194,7 @@ bool bus_init(void)
 }
 
 long super_main(void) {
+
     OpenFiles();
     if (!bus_init() || (isa.bus.iobase == 0)) {
         return 0;

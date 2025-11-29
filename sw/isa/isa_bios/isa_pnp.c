@@ -341,7 +341,7 @@ static bool pnp_waitstatus(void) {
         if (isa.bus.inp(pnp_rdport) & 0x1) {
             return true;
         }
-        delayus(10);
+        delayus(100);
     }
     return false;
 }
@@ -728,31 +728,39 @@ static int pnp_detect(void)
     }
     memset(resbuf, 0, memsize_res);
 
+    pnp_regwr(REG_CONFIG_CONTROL, CONFIG_CONTROL_RESET | CONFIG_CONTROL_WAIT_KEY | CONFIG_CONTROL_RESET_CSN);
+    delayus(4000);
     pnp_initiation_key();
-    pnp_regwr(REG_CONFIG_CONTROL, CONFIG_CONTROL_RESET_CSN);
+    delayus(4000);
+    pnp_regwr(REG_CONFIG_CONTROL, CONFIG_CONTROL_RESET | CONFIG_CONTROL_RESET_CSN);
+    delayus(4000);
     pnp_regwr(REG_WAKE_CSN, 0);
+    delayus(4000);
     pnp_regwr(REG_SET_RDPORT, pnp_rdport >> 2);
+    delayus(4000);
     for (csn = (isa.numcards+1); csn <= ISA_MAX_CARDS; csn++ ) {
+        int try;
         uint32_t card_vendor = 0; uint32_t card_serial = 0;
-        isa.bus.outp(pnp_wraddr, REG_SERIAL_ISOLATION);
-        delayus(1000);
+        bool id_valid = false;
 
         /* get vendor and device id */
-        {
+        for (try=0; try<2 && !id_valid; try++) {
             int i;
-            bool id_valid = false;
             uint8_t data[9];
             int32_t crc = 0x6a;
 
+            pnp_regwr(REG_WAKE_CSN, 0);
+            delayus(10000UL);
+
             memset(data, 0, sizeof(data));
             isa.bus.outp(pnp_wraddr, REG_SERIAL_ISOLATION);
-            delayus(1000);
+            delayus(4000);
 
             for (i=0; i<72; i++) {
                 int bit = (isa.bus.inp(pnp_rdport) == 0x55) ? 1 : 0;
-                delayus(250);
+                delayus(500);
                 bit = ((isa.bus.inp(pnp_rdport) == 0xAA) && bit) ? 1 : 0;
-                delayus(250);
+                delayus(500);
                 id_valid = id_valid || bit;
                 if (i < 64) {
                     crc = (crc >> 1) | (((crc ^ (crc >> 1) ^ bit) << 7) & 0xff);
@@ -761,13 +769,14 @@ static int pnp_detect(void)
             }
 
             id_valid = id_valid && (data[8] == crc);
-            if (!id_valid) {
-                break;
-            } else {
+            if (id_valid) {
                 uint32_t* d = (uint32_t*)data;
                 card_vendor = swap32(d[0]); 
                 card_serial = swap32(d[1]);
             }
+        }
+        if (!id_valid) {
+            break;
         }
 
         /* read card resources */
@@ -808,6 +817,7 @@ static int pnp_detect(void)
             }
 
             pnp_regwr(REG_WAKE_CSN, 0);
+            delayus(10000UL);
         }
     }
 

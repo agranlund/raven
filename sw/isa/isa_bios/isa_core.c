@@ -308,54 +308,31 @@ static void nop(void) { __asm__ volatile ( "nop\n\t" : : : ); }
 static void nop(void) 0x4E71;
 #endif
 
-
-#define get200hz() *((volatile uint32_t*)0x4ba)
-
-static uint32_t delayus_count = 0;
-uint32_t delayus_calibrate(void) {
-    uint32_t tick_start = get200hz();
+static int32_t delayus_calibrate_super(void) {
+    uint32_t tick_start = *((volatile uint32_t*)0x4ba);
     uint32_t tick_end = tick_start;
-    uint32_t counter = 0;
+    uint32_t calib = 0;
     do {
         nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); 
         nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); 
-        tick_end = get200hz();
-        counter++;
-        if (counter > 1000000UL) {
-            return 0xffffffffUL;
-        }
+        tick_end = *((volatile uint32_t*)0x4ba); calib++;
+        if (calib > 1000000UL) { return 1000000UL; }
     } while ((tick_end - tick_start) <= 50);
-    return counter;
+    return calib;
 }
 
-static void delayms(uint32_t ms)
-{
-	uint32_t cycles = ms / 5;
-	uint32_t start  = get200hz();
-    cycles = (cycles < 1) ? 1 : cycles;
-    while (1) {
-        volatile uint32_t now = get200hz();
-        if (now < start) {
-            start = now;
-        } else if ((now - start) >= cycles) {
-            break;
+void delayus(uint32_t us) {
+    static uint32_t calib = 0;
+    if (calib == 0) {
+        calib = (uint32_t)Supexec(delayus_calibrate_super);
+    } else {
+        while (us) {
+            uint32_t loops = (us > 1000) ? 1000 : us; us -= loops;
+            loops = 1 + ((4 * calib * loops) / (1000 * 1000UL));
+            for (; loops; loops--) {
+                nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); 
+                nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); 
+            }
         }
     }
-}
-
-void delayus(uint32_t us)
-{
-    if (delayus_count == 0) {
-        delayus_count = delayus_calibrate();
-        return;
-    }
-    if ((us < 1000) && (delayus_count != 0xffffffffUL)) {
-        uint32_t i; uint32_t loops = 1 + ((4 * delayus_count * us) / (1000 * 1000UL));
-        for (i=0; i<=loops; i++) {
-            nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); 
-            nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop(); 
-        }
-        return;
-    }
-    delayms(us / 1000);
 }

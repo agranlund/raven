@@ -2,8 +2,6 @@
  *
  * Atari ISA bus header only library
  * 
- * todo: fallback interface if isa_bios is not installed
- * 
  *--------------------------------------------------------------------*/
 #ifndef _ISA_H_
 #define _ISA_H_
@@ -15,6 +13,7 @@
 /*----------------------------------------------------------------------
  *
  * GCC / PureC compatibility
+ * cdecl calling convention and 32bit arguments only
  * 
  *--------------------------------------------------------------------*/
 #ifdef __GNUC__
@@ -60,8 +59,7 @@
 #define ISA_MAX_DEV_IRQ     2
 #define ISA_MAX_DEV_DMA     2
 
-typedef struct
-{
+typedef struct {
     uint32_t    id[ISA_MAX_DEV_IDS];
     uint32_t    mem[ISA_MAX_DEV_MEM];
     uint16_t    port[ISA_MAX_DEV_PORT];
@@ -69,9 +67,7 @@ typedef struct
     uint8_t     dma[ISA_MAX_DEV_DMA];
 } isa_dev_t;
 
-
-typedef struct
-{
+typedef struct {
     uint16_t    version;
     uint32_t    iobase;
     uint32_t    membase;
@@ -84,10 +80,7 @@ typedef struct
     uint8_t     _ISA_API (*inp)(uint16l_t port);
     uint16_t    _ISA_API (*inpw)(uint16l_t addr);
 
-    void        _ISA_API (*outp_buf)(uint16l_t port, uint8_t* buf, int32_t count);
-    void        _ISA_API (*outpw_buf)(uint16l_t port, uint16_t* buf, int32_t count);
-    void        _ISA_API (*inp_buf)(uint16l_t port, uint8_t* buf, int32_t count);
-    void        _ISA_API (*inpw_buf)(uint16l_t port, uint16_t* buf, int32_t count);
+    uint32_t    reserved[4];
 
     uint32_t    _ISA_API (*irq_set)(uint8l_t irq, uint32_t func);
     uint32_t    _ISA_API (*irq_en)(uint8l_t irq, uint8l_t enabled);
@@ -100,119 +93,103 @@ typedef struct
 #endif
 
     uint16_t    numdevs;
-    isa_dev_t   devs[ISA_MAX_DEVS];
+    isa_dev_t*  devs;
 
 } isa_t;
 
 
 /*----------------------------------------------------------------------
  * Small header-only helper library
- * Can work without ISA_BIOS to a limited degree
+ * Can work without ISA_BIOS in a very limited fashion
  * 
- * bool isa_init(void)
- * void isa_delay(uint32_t microseconds)
- * void isa_writeb(uint8_t data)
- * void isa_writew(uint16_t data)
- * uint8_t isa_readb(void)
- * uint16_t isa_readw(void)
+ * isa_t*       isa_init(void)
+ * isa_t*       isa_get(void)
+ * void         isa_delay(uint32_t microseconds)
+ * void         isa_writeb(uint8_t data)
+ * void         isa_writew(uint16_t data)
+ * uint8_t      isa_readb(void)
+ * uint16_t     isa_readw(void)
  * 
  * MS-DOS compatible interface:
  *
- *  void outp(uint16_t port, uint8_t data)
- *  void outpw(uint16_t port, uint8_t data)
- *  uint8_t inp(uint16_t port)
- *  uint16_t inpw(uint16_t port)
+ *  void        outp(uint16_t port, uint8_t data)
+ *  void        outpw(uint16_t port, uint8_t data)
+ *  uint8_t     inp(uint16_t port)
+ *  uint16_t    inpw(uint16_t port)
  * 
  * defines before including header:
  * 
  * ISA_EXCLUDE_LIB          : exclude this stuff
  * ISA_EXCLUDE_LIB_MSDOS    : exclude ms-dos api
- * ISA_EXCLUDE_LIB_FALLBACK : exclude non ISA_BIOS support
+ * ISA_EXCLUDE_LIB_FALLBACK : exclude fallback ISA_BIOS
  *--------------------------------------------------------------------*/
 #ifndef ISA_EXCLUDE_LIB
+
 #include <mint/cookie.h>
+#include <mint/osbind.h>
 
 static isa_t* isa_if = NULL;
-static bool isa_inited = false;
 
 #if defined(__GNUC__)
-static inline void _isa_nop(void) { __asm__ volatile ( "nop\n\t" : : : ); }
+static inline void _isapriv_nop(void) { __asm__ volatile ( "nop\n\t" : : : ); }
 #else
-static void _isa_nop(void) 0x4E71;
+static void _isapriv_nop(void) 0x4E71;
 #endif
 
-static long _isa_get200hz_super(void) { return *((volatile uint32_t*)0x4ba); }
-_ISA_INL uint32_t _isa_get200hz(bool super) { return super ? (uint32_t)_isa_get200hz_super() : (uint32_t)Supexec(_isa_get200hz_super); }
-static void _isa_delay(uint32_t microseconds, bool super)
-{
-    /* calibration */
-    static uint32_t loops_count = 0;
-    if (loops_count == 0) {
-        uint32_t tick_start = _isa_get200hz(super);
-        uint32_t tick_end = tick_start;
-        do {
-            _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); 
-            _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); 
-            tick_end = _isa_get200hz(super);
-            loops_count++;
-            if (loops_count > 1000000UL) {
-                loops_count = 0xffffffffUL;
-                break;
-            }
-        } while ((tick_end - tick_start) <= 25UL);
-    }
-    if ((microseconds < 1000) && (loops_count != 0xffffffffUL)) {
-        /* microseconds delay using calibration data */
-        uint32_t i; uint32_t loops = 1 + ((2 * 4 * loops_count * microseconds) / (1000 * 1000UL));
-        for (i=0; i<=loops; i++) {
-            _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); 
-            _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); 
-        }
-        return;
+static int32_t _isapriv_delayus_calibrate(void) {
+    uint32_t tick_start = *((volatile uint32_t*)0x4ba);
+    uint32_t tick_end = tick_start; uint32_t calib = 0;
+    do {
+        _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop();
+        _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop();
+        _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop();
+        _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop();
+        tick_end = *((volatile uint32_t*)0x4ba); calib++;
+        if (calib > 1000000UL) { return 1000000UL; }
+    } while ((tick_end - tick_start) <= 50);
+    return calib;
+}
+
+static void isa_delay(uint32_t us) {
+    static uint32_t calib = 0L;
+    if (!calib) {
+        calib = (uint32_t)Supexec(_isapriv_delayus_calibrate);
     } else {
-        /* millisecond delay using 200hz counter */
-        uint32_t ticks = microseconds / 5000;
-        uint32_t start  = _isa_get200hz(super);
-        ticks = (ticks < 1) ? 1 : ticks;
-        while (1) {
-            volatile uint32_t now = _isa_get200hz(super);
-            if (now < start) {
-                start = now;
-            } else if ((now - start) >= ticks) {
-                break;
+        while (us) {
+            uint32_t loops = (us > 1000) ? 1000 : us; us -= loops;
+            loops = 1 + ((4 * calib * loops) / (1000 * 1000UL));
+            for (; loops; loops--) {
+                _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop();
+                _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop();
+                _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop();
+                _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop();
             }
         }
     }
 }
 
-static void isa_delay(uint32_t microseconds) { _isa_delay(microseconds, false); }
-static void isa_delay_super(uint32_t microseconds) { _isa_delay(microseconds, true); }
-
 #ifndef ISA_EXCLUDE_LIB_FALLBACK
 #if defined(__GNUC__) && (__GNUC__ > 4)
-    static inline uint16_t _isa_swap16(uint16_t data) { return __builtin_bswap16(data); }
+    static inline uint16_t  _isa_swap16(uint16_t data) { return __builtin_bswap16(data); }
 #else
-    static uint16_t _isa_swap16(uint16_t data) { return ((data>>8)|(data<<8)); }
+    static uint16_t         _isa_swap16(uint16_t data) { return ((data>>8)|(data<<8)); }
 #endif
-    static void     _ISA_API _isa_outp_fallback(uint16l_t port, uint8l_t data)  { *((volatile uint8_t*)(isa_if->iobase + port)) = (uint8_t)data; }
-    static void     _ISA_API _isa_outpw_fallback(uint16l_t port, uint16l_t data) { *((volatile uint16_t*)(isa_if->iobase + port)) = _isa_swap16(data); }
-    static uint8_t  _ISA_API _isa_inp_fallback(uint16l_t port) { return *((volatile uint8_t*)(isa_if->iobase + port)); }
-    static uint16_t _ISA_API _isa_inpw_fallback(uint16l_t port) { return _isa_swap16(*((volatile uint16_t*)(isa_if->iobase + port))); }
-    static void     _ISA_API _isa_outp_buf_fallback(uint16l_t port, uint8_t* buf, int32_t count) { int i; for (i = 0; i < count; i++) { _isa_outp_fallback(port, *buf++); } }
-    static void     _ISA_API _isa_outpw_buf_fallback(uint16l_t port, uint16_t* buf, int32_t count) { int i; for (i = 0; i < count; i++) { _isa_outpw_fallback(port, *buf++); } }
-    static void     _ISA_API _isa_inp_buf_fallback(uint16l_t port, uint8_t* buf, int32_t count) { int i; for (i = 0; i < count; i++) { *buf++ = _isa_inp_fallback(port); } }
-    static void     _ISA_API _isa_inpw_buf_fallback(uint16l_t port, uint16_t* buf, int32_t count) { int i; for (i = 0; i < count; i++) { *buf++ = _isa_inp_fallback(port); } }
-    static isa_dev_t* _ISA_API _isa_find_dev_fallback(const char* id, uint16l_t idx) { (void)id; (void)idx; return NULL; }
-    static uint32_t _ISA_API _isa_irq_set_fallback(uint8l_t irq, uint32_t func) { (void)irq; (void)func; return 0; }
-    static uint32_t _ISA_API _isa_irq_en_fallback(uint8l_t irq, uint8l_t en) { (void)irq; (void)en; return 0; }
-    static isa_t isa_if_fallback;
+    static isa_t            _isapriv_if_fallback;
+    static void             _ISA_API _isa_outp_fallback(uint16l_t port, uint8l_t data)  { *((volatile uint8_t*)(_isapriv_if_fallback.iobase + port)) = (uint8_t)data; }
+    static void             _ISA_API _isa_outpw_fallback(uint16l_t port, uint16l_t data) { *((volatile uint16_t*)(_isapriv_if_fallback.iobase + port)) = _isa_swap16(data); }
+    static uint8_t          _ISA_API _isa_inp_fallback(uint16l_t port) { return *((volatile uint8_t*)(_isapriv_if_fallback.iobase + port)); }
+    static uint16_t         _ISA_API _isa_inpw_fallback(uint16l_t port) { return _isa_swap16(*((volatile uint16_t*)(_isapriv_if_fallback.iobase + port))); }
+    static isa_dev_t*       _ISA_API _isa_find_dev_fallback(const char* id, uint16l_t idx) { (void)id; (void)idx; return NULL; }
+    static uint32_t         _ISA_API _isa_irq_set_fallback(uint8l_t irq, uint32_t func) { (void)irq; (void)func; return 0; }
+    static uint32_t         _ISA_API _isa_irq_en_fallback(uint8l_t irq, uint8l_t en) { (void)irq; (void)en; return 0; }
 #endif /* ISA_EXCLUDE_LIB_FALLBACK */
 
 _ISA_INL isa_t* isa_init(void) {
+    static bool inited = false;
     uint32_t cookie;
-    if (!isa_inited) {
-        isa_inited = true;
-        if ((Getcookie(C__ISA, (long*)&cookie) == C_FOUND) && (cookie != 0)) {
+    if (!inited) {
+        inited = true;
+        if ((Getcookie(C__ISA, (long*)&cookie) == 0) && (cookie != 0)) {
             isa_if = (isa_t*)cookie;
         }
 #ifndef ISA_EXCLUDE_LIB_FALLBACK
@@ -221,51 +198,52 @@ _ISA_INL isa_t* isa_init(void) {
             /* todo: should we really bother? */
             uint32_t cookie, iobase, membase;
             cookie = iobase = membase = 0;
-            if (Getcookie(0x68616465L, (long*)&cookie) == C_FOUND) {           /* Hades */
+            if (Getcookie(0x68616465L, (long*)&cookie) == 0) {           /* Hades */
                 iobase = 0xFFF30000UL;
                 membase = 0xFF000000UL;
-            } else if (Getcookie(0x5F4D494CL, (long*)&cookie) == C_FOUND) {    /* Milan */
+            } else if (Getcookie(0x5F4D494CL, (long*)&cookie) == 0) {    /* Milan */
                 iobase = 0xC0000000UL;
-            } else if (Getcookie(0x502F3249L, (long*)&cookie) == C_FOUND) {    /* Panther2 */
+            } else if (Getcookie(0x502F3249L, (long*)&cookie) == 0) {    /* Panther2 */
                 uint32_t* cardpth2 = (uint32_t*) (cookie+6);
                 iobase = *cardpth2;
                 cardpth2 += 2;
                 membase = *cardpth2;
-            } else if (Getcookie(0x5241564EL, (long*)&cookie) == C_FOUND) {    /* Raven */
+            } else if (Getcookie(0x5241564EL, (long*)&cookie) == 0) {    /* Raven */
                 iobase = 0x81000000UL;
                 membase = 0x82000000UL;
             }
             if (iobase) {
-                isa_if = &isa_if_fallback;
+                isa_if = &_isapriv_if_fallback;
                 isa_if->version = ISA_BIOS_VERSION;
                 isa_if->iobase = iobase;
                 isa_if->membase = membase;
                 isa_if->irqmask = 0;
                 isa_if->drqmask = 0;
                 isa_if->numdevs = 0;
+                isa_if->devs = 0;
                 isa_if->endian = ISA_ENDIAN_LELS;
                 isa_if->outp = _isa_outp_fallback;
                 isa_if->outpw = _isa_outpw_fallback;
                 isa_if->inp = _isa_inp_fallback;
                 isa_if->inpw = _isa_inpw_fallback;
-                isa_if->outp_buf = _isa_outp_buf_fallback;
-                isa_if->outpw_buf = _isa_outpw_buf_fallback;
-                isa_if->inp_buf = _isa_inp_buf_fallback;
-                isa_if->inpw_buf = _isa_inpw_buf_fallback;
                 isa_if->find_dev = _isa_find_dev_fallback;
                 isa_if->irq_set = _isa_irq_set_fallback;
                 isa_if->irq_en = _isa_irq_en_fallback;
             }
         }
 #endif /* ISA_EXCLUDE_LIB_FALLBACK */
+        /* calibrate microsecond delay counter */
+        isa_delay(1);
     }
     return isa_if;
 }
 
-_ISA_INL void isa_writeb(uint16_t port, uint8_t data) { if (isa_init()) { isa_if->outp((uint16l_t)port, (uint8l_t)data); } }
-_ISA_INL void isa_writew(uint16_t port, uint16_t data) { if (isa_init()) { isa_if->outpw((uint16l_t)port, (uint16l_t)data); } }
-_ISA_INL uint8_t isa_readb(uint16_t port) { return isa_init() ? isa_if->inp(port) : 0xff; }
-_ISA_INL uint16_t isa_readw(uint16_t port) { return isa_init() ? isa_if->inpw(port) : 0xffff; }
+#define isa_get() isa_init()
+_ISA_INL void isa_writeb(uint16_t port, uint8_t data) { isa_t* isa = isa_get(); if (isa) { isa->outp((uint16l_t)port, (uint8l_t)data); } }
+_ISA_INL void isa_writew(uint16_t port, uint16_t data) { isa_t* isa = isa_get(); if (isa) { isa->outpw((uint16l_t)port, (uint16l_t)data); } }
+_ISA_INL uint8_t isa_readb(uint16_t port) { isa_t* isa = isa_get(); return isa ? isa->inp(port) : 0xff; }
+_ISA_INL uint16_t isa_readw(uint16_t port) { isa_t* isa = isa_get(); return isa ? isa_if->inpw(port) : 0xffff; }
+_ISA_INL isa_dev_t* isa_find(const char* id, uint16_t idx) { isa_t* isa = isa_get(); return isa ? isa->find_dev(id, idx) : 0; }
 
 /*----------------------------------------------------------------------
  *
@@ -273,10 +251,10 @@ _ISA_INL uint16_t isa_readw(uint16_t port) { return isa_init() ? isa_if->inpw(po
  * 
  *--------------------------------------------------------------------*/
 #ifndef ISA_EXCLUDE_LIB_MSDOS
-_ISA_INL void outp(uint16_t port, uint8_t data) { isa_writeb(port, data); }
-_ISA_INL void outpw(uint16_t port, uint16_t data) { isa_writew(port, data); }
-_ISA_INL uint8_t inp(uint16_t port) { return isa_readb(port); }
-_ISA_INL uint16_t inpw(uint16_t port) { return isa_readw(port); }
+#define outp(p,d)   isa_writeb(p,d)
+#define outw(p,d)   isa_writew(p,d)
+#define inp(p)      isa_readb(p)
+#define inpw(p)     isa_readw(p)
 #endif /* ISA_EXCLUDE_LIB_MSDOS */
 
 #endif /* ISA_EXCLUDE_LIB */
