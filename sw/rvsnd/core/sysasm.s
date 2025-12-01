@@ -74,7 +74,7 @@
  ; uint16_t sys_di(void)
  sys_di:
     move.w  sr,d0
-    or.w    #$700,sr
+    or.w    #$0700,sr
     and.w   #$0700,d0
     rts
 
@@ -197,6 +197,9 @@ tos_bconin3:
     dc.l    0x00000000
 new_bconin3:
     movem.l d2/a2,-(sp)
+    move.l  cur_bconstat3,a0
+.1: jsr     (a0)
+    beq.b   .1
     move.l  cur_bconin3,a0
     jsr     (a0)
     movem.l (sp)+,d2/a2
@@ -230,6 +233,9 @@ tos_bconout3:
 new_bconout3:
     move.l  4(sp),d0
     movem.l d0/d2/a2,-(sp)
+    move.l  cur_bcostat3,a0
+.1: jsr     (a0)
+    beq.b   .1
     move.l  cur_bconout3,a0
     jsr     (a0)
     movem.l (sp)+,d0/d2/a2

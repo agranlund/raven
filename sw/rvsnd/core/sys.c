@@ -36,6 +36,8 @@
 
 rvsnd_sysvars_t sys;
 
+extern void pubapi_Init(void);
+
 /* ------------------------------------------------------------------- */
 #if defined(DEBUG) && DEBUG
 #ifdef DEBUG_RAVEN
@@ -82,9 +84,41 @@ bool sys_getcookie(const char* c, uint32_t* v) {
 }
 
 void sys_setcookie(const char* c, uint32_t v) {
-    UNUSED(c);
-    UNUSED(v);
-    /* todo */
+    /* find free slot */
+    uint32_t id = *((uint32_t*)c);
+    int32_t cookies_size = 0;
+	int32_t cookies_used = 0;
+    int32_t cookies_avail = 0;
+	uint32_t* jar = (uint32_t*) *((uint32_t*)0x5a0);
+	uint32_t* cok = jar;
+	while (1) {
+		cookies_used++;
+		if (cok[0] == id) {
+			cok[1] = v;
+			return;
+		} else if (cok[0] == 0) {
+            cookies_size = cok[1];
+			break;
+		}
+		cok += 2;
+	}
+    /* grow jar when necessary */
+    cookies_avail = cookies_size - cookies_used;
+	if (cookies_avail <= 0) {
+        uint32_t* newjar;
+        int32_t oldsize = (2*4*(cookies_size + 0));
+        int32_t newsize = (2*4*(cookies_size + 8));
+        cookies_size += 8;
+        newjar = (uint32_t*)malloc(newsize);
+        memcpy(newjar, jar, oldsize);
+        *((uint32_t*)0x5a0) = (uint32_t)newjar;
+        jar = newjar;
+	}
+	/* install cookie */
+	jar[(cookies_used<<1)-2] = id;                  /* overwrite end marker */
+	jar[(cookies_used<<1)-1] = v;
+	jar[(cookies_used<<1)+0] = 0;                   /* write new end marker */
+	jar[(cookies_used<<1)+1] = cookies_size;
 }
 
 /* ------------------------------------------------------------------- */
@@ -180,6 +214,10 @@ long super_main(int args, char** argv) {
     dprintf("install xbios...\n");
     sys_InstallBios();
 
+    /* init public api */
+    pubapi_Init();
+
+#if 0    
     /* temp */
     {
         uint16_t i;
@@ -190,8 +228,10 @@ long super_main(int args, char** argv) {
             dprintf(" [%08lx] [%02x] [%s]\n", (uint32_t)devs[i], (uint8_t)devs[i]->type, devs[i]->names[0]);
         }
     }
-    /* temp */
+#endif
+
 #if 0
+    /* temp */
     {
         int32_t r;
         dprintf("test xbios start\n");
@@ -200,11 +240,22 @@ long super_main(int args, char** argv) {
     }
 #endif
 
+#if 0
     /* temp */
     {
+#if 1
         rvdev_t* dev = driver_FindDevice(RVDEV_MIDI_OUT, "OPL");
+#else        
+        rvdev_t* dev = driver_FindDevice(RVDEV_MIDI_OUT, "MPU401");
+#endif
         midi_SetTxDevice(rvdev_cast(rvdev_miditx_t, dev));
     }
+#endif
+    {
+        rvdev_t* dev = driver_FindDevice(RVDEV_MIDI_OUT, "Raven");
+        midi_SetTxDevice(rvdev_cast(rvdev_miditx_t, dev));
+    }
+
 
     return 0;
 }

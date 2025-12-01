@@ -22,7 +22,7 @@
 /* -------------------------------------------------------------------- */
 /* null driver                                                          */
 /* -------------------------------------------------------------------- */
-static const char* mididev_null_names[] = {"None", 0};
+static const char* mididev_null_names[] = {"Null", 0};
 static int32_t cdecl mididev_nulltx_st(void)       { return -1L; }
 static void    cdecl mididev_nulltx_tx(uint32_t d) { UNUSED(d); }
 static int32_t cdecl mididev_nullrx_st(void)       { return 0L; }
@@ -52,12 +52,46 @@ static rvdev_midirx_t mididev_tosrx = { RVDEV_MIDI_IN,  0, 0, mididev_tos_names,
 static rvdev_miditx_t* miditx = 0;
 static rvdev_midirx_t* midirx = 0;
 
+static bool midi_SendWithTimeout(rvdev_miditx_t* dev, uint8_t data) {
+    uint32_t start = *((volatile uint32_t*)0x4ba);
+    uint32_t timeout = (2000 / 5);
+    while (dev->st() == 0) {
+        uint32_t now = *((volatile uint32_t*)0x4ba);
+        if (now < start) { start = now; }
+        if ((now - start) > timeout) { return false; }
+    }
+    dev->tx(data);
+    return true;
+}
+
+static void midi_AllNotesOff(rvdev_miditx_t* dev) {
+    uint8_t ch;
+    for (ch=0; ch<16; ch++) {
+        #if 0
+        /* omni mode off */
+        if (!midi_SendWithTimeout(dev, 0xb0|ch)) return;
+        if (!midi_SendWithTimeout(dev, 0x7c)) return;
+        if (!midi_SendWithTimeout(dev, 0x00)) return;
+        #endif        
+        /* all notes off */
+        if (!midi_SendWithTimeout(dev, 0xb0|ch)) return;
+        if (!midi_SendWithTimeout(dev, 0x7b)) return;
+        if (!midi_SendWithTimeout(dev, 0x00)) return;
+        #if 1
+        /* all sound off */
+        if (!midi_SendWithTimeout(dev, 0xb0|ch)) return;
+        if (!midi_SendWithTimeout(dev, 0x78)) return;
+        if (!midi_SendWithTimeout(dev, 0x00)) return;
+        #endif        
+    }
+}
+
 void midi_SetTxDevice(rvdev_miditx_t* dev) {
     dev = dev ? dev : &mididev_nulltx;
     if (dev != miditx) {
         uint16_t sr;
         if (miditx) {
-            /* todo: send noteoff */
+            midi_AllNotesOff(miditx);
             if (miditx->stop) {
                 miditx->stop();
             }
@@ -91,6 +125,14 @@ void midi_SetRxDevice(rvdev_midirx_t* dev) {
     }
 }
 
+rvdev_miditx_t* midi_GetTxDevice(void) {
+    return miditx;
+}
+
+rvdev_midirx_t* midi_GetRxDevice(void) {
+    return midirx;
+}
+
 
 /* -------------------------------------------------------------------- */
 /* sys                                                                  */
@@ -105,6 +147,7 @@ bool midi_Init(void) {
     midi_SetRxDevice(&mididev_nullrx);
    
     /* standard tos device */
+#if 0    
     mididev_tostx.st = tos_bcostat3;
     mididev_tostx.tx = tos_bconout3;
     mididev_tosrx.st = tos_bconstat3;
@@ -115,6 +158,7 @@ bool midi_Init(void) {
         midi_SetTxDevice(&mididev_tostx);
         midi_SetRxDevice(&mididev_tosrx);
     }
+#endif        
 
     /* load drivers */
 

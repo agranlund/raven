@@ -28,4 +28,7 @@ extern bool     midi_Init(void);
 extern void     midi_SetTxDevice(rvdev_miditx_t* dev);
 extern void     midi_SetRxDevice(rvdev_midirx_t* dev);
 
+extern rvdev_miditx_t* midi_GetTxDevice(void);
+extern rvdev_midirx_t* midi_GetRxDevice(void);
+
 #endif /* _SYS_MIDI_H_*/

@@ -23,23 +23,24 @@
 /* -------------------------------------------------------------------- */
 /* midi out                                                             */
 /* -------------------------------------------------------------------- */
+
 static int32_t cdecl miditx_st(void) {
-    uint8_t tsr = *((uint8_t*)(RV_PADDR_MFP2+45));
+    volatile uint8_t tsr = *((volatile uint8_t*)(RV_PADDR_MFP2+45));
     return (tsr & 0x80) ? -1L : 0L;
 }
 static void cdecl miditx_tx(uint32_t c) {
-    *((uint8_t*)(RV_PADDR_MFP2+47)) = (uint8_t)c;
+    *((volatile uint8_t*)(RV_PADDR_MFP2+47)) = (uint8_t)(c & 0xff);
 }
 
 /* -------------------------------------------------------------------- */
 /* midi in                                                              */
 /* -------------------------------------------------------------------- */
 static int32_t cdecl midirx_st(void) {
-    uint8_t rsr = *((uint8_t*)(RV_PADDR_MFP2+43));
+    volatile uint8_t rsr = *((volatile uint8_t*)(RV_PADDR_MFP2+43));
     return (rsr & 0x80) ? -1L : 0L;
 }
 static int32_t cdecl midirx_rx(void) {
-    return (int32_t) *((uint8_t*)(RV_PADDR_MFP2+47));
+    return (int32_t) *((volatile uint8_t*)(RV_PADDR_MFP2+47));
 }
 
 /* -------------------------------------------------------------------- */
