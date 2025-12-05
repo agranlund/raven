@@ -25,10 +25,12 @@
 #include "sys.h"
 #include "driver.h"
 #include "midi.h"
+#include "mixer.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdlib.h>
 #include "mint/cookie.h"
 #include "mint/osbind.h"
 #include "mint/falcon.h"
@@ -40,7 +42,7 @@ extern void pubapi_Init(void);
 
 /* ------------------------------------------------------------------- */
 #if defined(DEBUG) && DEBUG
-#ifdef DEBUG_RAVEN
+#if defined(DEBUG_RAVEN) && DEBUG_RAVEN
 #undef DEBUG_DEV
 #define DEBUG_DEV 7
 #include "lib/raven.h"
@@ -175,7 +177,7 @@ static bool sys_Init(void) {
     if (Getcookie(C__SND, (long*)&cookie) == C_FOUND) { sys.cookie_snd = cookie; }
 
     /* load ini file */
-    ini_Load(&sys.ini, "c:\\rvsnd.ini");
+    ini_Load(&sys.ini, "c:\\rvsnd.inf");
 
     /* calibrate delays */
     cookie = sys_icache_enable();
@@ -191,6 +193,43 @@ static bool sys_Init(void) {
 extern void sys_InstallBios(void);
 
 
+void load_drivers(void) {
+    ini_t ini;
+    dprintf("load drivers...\n");
+    if (ini_GetSection(&ini, &sys.ini, "drivers")) {
+        const char* name = ini.data;
+        while (name) {
+            /* get next name or wildcard search from inifile */
+            name = ini_NextEntry(&ini, name);
+            if (name && *name) {
+                int16_t result;
+                _DTA *dtaold, dta;
+                dtaold = Fgetdta();
+                Fsetdta(&dta);
+                result = Fsfirst(name, 0);
+                while (result >= 0) {
+                    /* ignore folders or volume labels */
+                    if ((dta.dta_attribute >= 0) && (dta.dta_attribute != 0x10)) {
+                        /* create full filename*/
+                        char fullname[256]; char* s;
+                        strcpy(fullname, name);
+                        s = strrchr(fullname, '\\');
+                        if (!s) { s = strrchr(fullname, '/'); }
+                        if (s) { strcpy(s+1, dta.dta_name); }
+                        /* load driver */
+                        driver_Load(fullname);
+                    }
+                    result = Fsnext();
+                }
+                Fsetdta(dtaold);
+                name += strlen(name);
+            } else {
+                break;
+            }
+        }
+    }
+}
+
 /* ------------------------------------------------------------------- */
 long super_main(int args, char** argv) {
     UNUSED(args); UNUSED(argv);
@@ -201,62 +240,79 @@ long super_main(int args, char** argv) {
     sys_Init();
     driver_Init();
     midi_Init();
+    mixer_Init();
 
     /* temp load drivers */
-    /* todo: auto load from folders, based on inifile settings */
-    dprintf("load drivers...\n");
-    driver_Load("chip\\opl.rvs");
-    driver_Load("midi\\raven.rvs");
-    driver_Load("midi\\mpu401.rvs");
-    driver_Load("midi\\opl.rvs");
+    /* todo: driver load is not happy with copyback enabled */
+    load_drivers();
+
+    /* prepare mixer */
+    mixer_Setup();
 
     /* inject bios overrides */
     dprintf("install xbios...\n");
     sys_InstallBios();
 
     /* init public api */
+    dprintf("finalize...\n");
     pubapi_Init();
 
-#if 0    
-    /* temp */
+    /* apply settings from inifile */
     {
-        uint16_t i;
-        uint16_t num = driver_NumDevs();
-        rvdev_t** devs = driver_GetDevs();
-        dprintf("\nnum devs = %d\n", driver_NumDevs());
-        for (i=0; i<num; i++) {
-            dprintf(" [%08lx] [%02x] [%s]\n", (uint32_t)devs[i], (uint8_t)devs[i]->type, devs[i]->names[0]);
+        ini_t ini;
+        const char* name;
+
+        /* mixer */
+        if (ini_GetSection(&ini, &sys.ini, "mixer")) {
+            const char* skey; const char* sval;
+            const char* where = ini.data;
+            while (where) {
+                where = ini_NextKeyValue(&ini, where, &skey, &sval);
+                if (where && skey && sval) {
+                    uint16_t val = atoi(sval);
+                    val = (val <= 0) ? 0 : (val >= 255) ? 255 : val;
+                    mixer_SetValueByName(skey, val);
+                }
+            }
         }
-    }
-#endif
 
-#if 0
+        /* midi */
+        if (ini_GetSection(&ini, &sys.ini, "midi")) {
+            name = ini_GetStr(&ini, "in", 0);
+            if (name) {
+                rvdev_t* dev = driver_FindDevice(RVDEV_MIDI_IN, name);
+                if (dev) { midi_SetRxDevice(rvdev_cast(rvdev_midirx_t, dev)); }
+            }
+            name = ini_GetStr(&ini, "out", 0);
+            if (name) {
+                rvdev_t* dev = driver_FindDevice(RVDEV_MIDI_OUT, name);
+                if (dev) { midi_SetTxDevice(rvdev_cast(rvdev_miditx_t, dev)); }
+            }
+        }
+
+        /* sound */
+    #if 0
+        if (ini_GetSection(&ini, &sys.ini, "sound")) {
+            name = ini_GetStr(&ini, "in", 0);
+            if (name) {
+                rvdev_t* dev = driver_FindDevice(RVDEV_AUDIO_IN, name);
+                if (dev) { midi_SetRxDevice(rvdev_cast(rvdev_audio_rx_t, dev)); }
+            }
+            name = ini_GetStr(&ini, "out", 0);
+            if (name) {
+                rvdev_t* dev = driver_FindDevice(RVDEV_AUDIO_OUT, name);
+                if (dev) { midi_SetTxDevice(rvdev_cast(rvdev_audio_tx_t, dev)); }
+            }
+        }
+    #endif
+    }
+
+
     /* temp */
-    {
-        int32_t r;
-        dprintf("test xbios start\n");
-        r = Locksnd();
-        dprintf("test xbios done, r = %d\n", (int)r);
-    }
-#endif
+    sys_setcookie("_SND", 0x00000025UL);
+    /*sys_setcookie("GSXB", 0x00000001UL);*/
 
-#if 0
-    /* temp */
-    {
-#if 1
-        rvdev_t* dev = driver_FindDevice(RVDEV_MIDI_OUT, "OPL");
-#else        
-        rvdev_t* dev = driver_FindDevice(RVDEV_MIDI_OUT, "MPU401");
-#endif
-        midi_SetTxDevice(rvdev_cast(rvdev_miditx_t, dev));
-    }
-#endif
-    {
-        rvdev_t* dev = driver_FindDevice(RVDEV_MIDI_OUT, "Raven");
-        midi_SetTxDevice(rvdev_cast(rvdev_miditx_t, dev));
-    }
-
-
+    dprintf("done.\n");
     return 0;
 }
 

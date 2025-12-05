@@ -81,28 +81,18 @@ devlist_t devs;
 
 
 /*-------------------------------------------------------------------------------
- * 
+ * driver api
  *-----------------------------------------------------------------------------*/
 
 bool drvapi_publish(rvdev_t* dev) {
-    if (!dev) { return false; }
-    if (devlist_add(&devs, dev)) {
-        if ((dev->type == RVDEV_NONE) || (dev->type >= RVDEV_NUMTYPES)) {
-            return false;
-        }
-        dprintf("dev publish [%08lx] [%s] [%s]\n", (uint32_t)dev, devtype_names[dev->type], dev->names[0]);
-    }
-    return true;
+    return driver_AddDevice(dev);
 }
 
 rvdev_t* drvapi_retrieve(uint32_t type, const char* name) {
     return driver_FindDevice(type, name);
 }
 
-/*-------------------------------------------------------------------------------
- * libc functions
- *-----------------------------------------------------------------------------*/
- void* drvapi_malloc(uint32_t l) {
+void* drvapi_malloc(uint32_t l) {
     void* d = l ? malloc(l) : 0;
     if (d) { memset(d, 0, l); }
     return d;
@@ -346,27 +336,42 @@ void driver_Init(void) {
     rvsnd_driver_api.c_mch = sys.cookie_mch;
 }
 
-bool driver_AddDevice(rvdev_t* dev) {
-    if (!devlist_add(&devs, dev)) {
-        return false;
-    }
-    return true;
-}
-
-rvdev_t* driver_FindDevice(uint32_t type, const char* name) {
+static rvdev_t** driver_GetDeviceEntry(uint32_t type, const char* name) {
     uint16_t i;
     for (i=0; i<devs.num; i++) {
         rvdev_t* dev = devs.devs[i];
         if (dev && (dev->type == type)) {
             const char** names = dev->names;
             for (; *names; names++) {
-                if (strcmp(name, *names) == 0) {
-                    return dev;
+                if (stricmp(name, *names) == 0) {
+                    return &devs.devs[i];
                 }
             }
         }
     }
-    return 0;
+    return 0;    
+}
+
+bool driver_AddDevice(rvdev_t* dev) {
+
+    if (dev && (dev->type > RVDEV_NONE) && (dev->type < RVDEV_NUMTYPES)) {
+        /* replace existing */
+        rvdev_t** devpp_old = driver_GetDeviceEntry(dev->type, dev->names[0]);
+        if (devpp_old) {
+            dprintf("driver_chg [%08lx][%08lx] %02x [%s] [%s]\n", (uint32_t)(*devpp_old), (uint32_t)dev, dev->type, devtype_names[dev->type], dev->names[0]);
+            *devpp_old = dev;
+            return true;
+        }
+        /* add new */
+        dprintf("driver_add [%08lx][%08lx] %02x [%s] [%s]\n", 0UL, (uint32_t)dev, dev->type, devtype_names[dev->type], dev->names[0]);
+        return driver_AddDevice(dev);
+    }
+    return false;
+}
+
+rvdev_t* driver_FindDevice(uint32_t type, const char* name) {
+    rvdev_t** devpp = driver_GetDeviceEntry(type, name);
+    return (devpp && *devpp) ? *devpp : 0;
 }
 
 uint16_t driver_NumDevs(void) {

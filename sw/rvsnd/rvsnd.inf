@@ -1,0 +1,26 @@
+
+[mixer]
+sys:master = 196
+sys:pcm    = 196
+sys:fm     = 196
+sys:mic    = 0
+sys:line   = 196
+sys:tv     = 196
+sys:aux    = 196
+
+[midi]
+in  = Raven
+out = Raven
+
+[sound]
+in  = x
+out = x
+
+[drivers]
+chip\*.rvs
+sound\*.rvs
+midi\*.rvs
+
+
+[sound\sb.rvs]
+ess_auxb = 0
