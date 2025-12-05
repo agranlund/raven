@@ -113,7 +113,37 @@ int main_select(int args, char** argv) {
 }
 
 /* ------------------------------------------------------------------- */
+int main_mixer(int args, char** argv) {
+    if (args == 2) {
+        rvsnd->SetMixerValueByName(argv[0], atoi(argv[1]));
+    }
+    
+    if (args >= 0) {
+        uint16_t i, j;
+        uint16_t numdevs = rvsnd->GetNumDevices(RVSND_DEVTYPE_MIXER);
+        printf("dev  ctr  xb vol id\n");
+        for (i=0; i<numdevs; i++) {
+            uint16_t controls;
+            rvsnd_devinfo_t devinfo;
+            rvsnd->GetDeviceInfo(&devinfo, RVSND_DEVTYPE_MIXER, i);
+            controls = rvsnd->GetNumMixerControls(i);
+            /*printf("%04x %s\n", devinfo.id, devinfo.name);*/
+            for (j=0; j<controls; j++) {
+                uint16_t val = 0;
+                rvsnd_mixinfo_t mixinfo;
+                rvsnd->GetMixerControlInfo(&mixinfo, i, j);
+                val = rvsnd->GetMixerValueById(mixinfo.id);
+                printf("%04x:%04x ", devinfo.id, mixinfo.id);
+                if (mixinfo.flg == 0) { printf(".. "); }
+                else { printf("%2d ", mixinfo.flg); }
+                printf("%3d %s:%s\n", val, devinfo.name, mixinfo.name);
+            } printf("\n");
+        }
+    }
+}
 
+
+/* ------------------------------------------------------------------- */
 static rvsnd_t* rvsnd_Get(void) {
     if (Getcookie(C_RSND, (long*)&rvsnd) != C_FOUND) { rvsnd = 0; }
     if ((rvsnd == 0) || (rvsnd->magic != C_RSND)) { rvsnd = 0; }
@@ -124,6 +154,7 @@ static rvsnd_t* rvsnd_Get(void) {
 int info(void) {
     printf("usage: rvsctrl [options]\n");
     printf("  devs   {type}\n");
+    printf("  mix    {id}\n");
     printf("  select [id]\n");
     return 0;
 }
@@ -140,11 +171,14 @@ int super_main(int args, char** argv) {
         return info();
     }
 
-    if (strcmp(argv[1], "devs") == 0) {
+    if (stricmp(argv[1], "devs") == 0) {
         return main_devs(args-2, &argv[2]);
     }
-    if (strcmp(argv[1], "select") == 0) {
+    if (stricmp(argv[1], "select") == 0) {
         return main_select(args-2, &argv[2]);
+    }
+    if (stricmp(argv[1], "mix") == 0) {
+        return main_mixer(args-2, &argv[2]);
     }
 
     return 0;
