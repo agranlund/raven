@@ -160,9 +160,5 @@ bool midi_Init(void) {
     }
 #endif        
 
-    /* load drivers */
-
-    /* select driver */
-
     return true;
 }
