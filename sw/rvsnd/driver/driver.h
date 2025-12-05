@@ -53,6 +53,10 @@ extern ini_t*               rvini;      /* driver.s */
 
 #define delayus(a)          rvsnd->delayus(a)
 
+#define min(a,b)            (((a)<=(b)) ? (a) : (b))
+#define max(a,b)            (((a)>=(b)) ? (a) : (b))
+#define clamp(a,l,u)        (((a)<=(l)) ? (l) : ((a)>=(u)) ? (u) : (a))
+
 static bool ini_GetSection(ini_t* out, ini_t* ini, const char* name) { return rvsnd->ini_getsection(out, ini, name); }
 static const char* ini_GetStr(ini_t* ini, const char* name, const char* def) { return rvsnd->ini_getstr(ini, name, def); }
 static int32_t ini_GetInt(ini_t* ini, const char* name, int32_t def) { return rvsnd->ini_getint(ini, name, def); }
