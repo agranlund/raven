@@ -27,6 +27,14 @@
 #define ISA_EXCLUDE_LIB
 #include "../../isa/isa.h"
 
+#define RVMIX_XBIOS_MASTER      12
+#define RVMIX_XBIOS_MIC         14
+#define RVMIX_XBIOS_FM          16
+#define RVMIX_XBIOS_LINE        18
+#define RVMIX_XBIOS_CD          20
+#define RVMIX_XBIOS_TV          22
+#define RVMIX_XBIOS_AUX         24
+#define RVMIX_XBIOS_PCM         26  /* this is a new fabrication */
 
 typedef enum {
     RVDEV_NONE = 0,
@@ -64,6 +72,20 @@ typedef struct _rvdev_raw_t { RVDEV_COMMON
     uint16_t    (*rdb)(uint16_t reg);
     uint16_t    (*rdw)(uint16_t reg);
 } rvdev_raw_t;
+
+/* mixer device */
+typedef struct {
+    const char* name;
+    uint16_t    id;
+    uint8_t     bits;
+    uint8_t     flags;
+} rvmixctrl_t;
+
+typedef struct _rvdev_mix_t { RVDEV_COMMON
+    void            (*set)(uint16_t idx, uint16_t data);
+    uint16_t        (*get)(uint16_t idx);
+    rvmixctrl_t*    ctrls;
+} rvdev_mix_t;
 
 /* midi out device */
 typedef struct _rvdev_miditx_t { RVDEV_COMMON

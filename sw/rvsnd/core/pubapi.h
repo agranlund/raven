@@ -48,15 +48,33 @@ typedef struct {
     uint16_t    flags;
 } rvsnd_devinfo_t;
 
+/* mixer info */
+typedef struct {
+    const char* name;
+    uint16_t    id;
+    uint8_t     max;
+    uint8_t     flg;
+} rvsnd_mixinfo_t;
+
 /* public cookie api */
 typedef struct {
     uint32_t magic;
     uint32_t version;
-    uint32_t reserved[126];
+    uint32_t reserved0[126];
 
     int32_t _RVSND_API (*GetNumDevices)(uint32_t type);
     int32_t _RVSND_API (*GetDeviceInfo)(rvsnd_devinfo_t* out, uint32_t type, uint32_t idx);
     void    _RVSND_API (*SetDefaultDevice)(uint32_t type, uint32_t idx);
+
+    uint32_t reserved1[5];
+
+    int32_t  _RVSND_API (*GetNumMixerControls)(uint32_t devid);
+    int32_t  _RVSND_API (*GetMixerControlInfo)(rvsnd_mixinfo_t* out, uint32_t devid, uint32_t idx);
+    int32_t  _RVSND_API (*GetMixerValueById)(uint32_t ctrid);
+    void     _RVSND_API (*SetMixerValueById)(uint32_t ctrid, uint32_t val);
+    int32_t  _RVSND_API (*GetMixerValueByName)(const char* name);
+    void     _RVSND_API (*SetMixerValueByName)(const char* name, uint32_t val);
+
 } rvsnd_t;
 
 #endif /* _RVSND_PUBAPI_H_*/

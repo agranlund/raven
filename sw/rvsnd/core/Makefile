@@ -9,6 +9,7 @@ OBJS = 	sys.o \
 		driver.o \
 		pubapi.o \
 		midi.o \
+		mixer.o \
 		sndxbios.o \
 		#
 		

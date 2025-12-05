@@ -13,6 +13,7 @@ sysasm.s
 driver.c
 pubapi.c
 midi.c
+mixer.c
 sndxbios.c
 ..\..\purec\lib\pctoslib.lib
 ..\..\purec\lib\pcstdlib.lib
