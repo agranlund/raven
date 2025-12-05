@@ -19,29 +19,29 @@
 
 #include "driver.h"
 
-#define OPL_DEFAULT_PORT 0x388
-
-static isa_t* isa = 0;
+static isa_t* bus = 0;
 static uint16_t opl_port = 0;
 static uint16_t opl_chip = 0;
 static uint16_t opl_delay_idx = 8;      /* opl2 index write delay */
 static uint16_t opl_delay_val = 32;     /* opl2 value write delay */
 
+#define SUPPORT_PNP             0
+#define SUPPORT_PNP_SUBDEVICE   0 && SUPPORT_PNP
+
 static void opl_write(uint16_t idx, uint8_t val) {
     if (opl_chip != 0) {
         if (idx >= 0x100) {
             /* opl3 second register set */
-            isa->outp(opl_port + 2, (idx - 0x100));
+            bus->outp(opl_port + 2, (idx - 0x100));
             delayus(opl_delay_idx);
-            isa->outp(opl_port + 3, val);
+            bus->outp(opl_port + 3, val);
             delayus(opl_delay_val);
         } else {
             /* opl2 or opl3 first register set */
-            isa->outp(opl_port + 0, idx);
+            bus->outp(opl_port + 0, idx);
             delayus(opl_delay_idx);
-            isa->outp(opl_port + 1, val);
+            bus->outp(opl_port + 1, val);
             delayus(opl_delay_val);
-
         }
     }
 }
@@ -72,17 +72,23 @@ static rvdev_raw_t dev = {
 bool detect(uint16_t port) {
     uint8_t result1, result2;
 
+    if (port == 0) {
+        opl_chip = 0;
+        opl_port = 0;
+        return false;
+    }
+
     /* detect opl version */
     opl_chip = 2;               /* assume opl2 for now */
     opl_port = port;
-    opl_write(0x04, 0x60);    /* reset timer1+2 and irq */
+    opl_write(0x04, 0x60);      /* reset timer1+2 and irq */
     opl_write(0x04, 0x80);
-    result1 = isa->inp(opl_port);
-    opl_write(0x02, 0xff);    /* set timer1 */
-    opl_write(0x04, 0x21);    /* start timer1 */
+    result1 = bus->inp(opl_port);
+    opl_write(0x02, 0xff);      /* set timer1 */
+    opl_write(0x04, 0x21);      /* start timer1 */
     delayus(2000);
-    result2 = isa->inp(opl_port);
-    opl_write(0x04, 0x60);    /* reset timer1+2 and irq */
+    result2 = bus->inp(opl_port);
+    opl_write(0x04, 0x60);      /* reset timer1+2 and irq */
     opl_write(0x04, 0x80);
 
     /* now work out if we actually have an opl chip */
@@ -91,37 +97,83 @@ bool detect(uint16_t port) {
         opl_chip = 2;
         if ((result2 & 0x06) == 0x00) {
             opl_chip = 3;
-            opl_delay_idx = 4;      /* less delay required on opl3 */
+            opl_delay_idx = 4;  /* less delay required on opl3 */
             opl_delay_val = 4;
         }
     }
 
-    return (opl_chip != 0) ? true : false;
+    if (!opl_chip) {
+        opl_port = 0;
+        return false;
+    }
+
+    return true;
 }
 
 
 
 /* ------------------------------------------------------------------- */
 int32_t init(void) {
+    bool use_pnp = true;
+    bool use_probe = true;
+    static const uint16_t probe_ports[] = { 0x388, 0 };
 
     /* isa bus required */
-    isa = rvsnd->isa;
-    if (!rvsnd->isa) {
+    bus = rvsnd->isa;
+    if (!bus) {
         return -1;
     }
 
+    /* todo: port override from inifile */
+    opl_port = 0;
 
-    /* todo: port from pnp */
-    /* todo: port from ini */
-    if (!detect(OPL_DEFAULT_PORT)) {
-        return -1;
+    /* ask pnp for an opl device */
+    #if SUPPORT_PNP
+    if (!opl_port && use_pnp) {
+        uint16_t type, idx;
+        static const struct { const char* id; const uint16_t io; } pnpids[] = {
+            { "PNPB020", 0 },   /* opl3 */
+            { "PNPB005", 0 },   /* opl2 */
+            #if SUPPORT_PNP_SUBDEVICE
+            { "PNPB001", 1 },   /* soundblaster 2.0 compatible */
+            { "PNPB002", 1 },   /* soundblaster pro compatible */
+            { "PNPB003", 1 },   /* soundblaster 16  compatible */
+            { "ESS1868", 1 },   /* */
+            { "ESS1869", 1 },   /* */
+            #endif /* SUPPORT_PNP_SB */
+            { 0,         0 }
+        };
+        for (type = 0; !opl_port && pnpids[type].id; type++) {
+            for (idx = 0; !opl_port && (idx < 16); idx++) {
+                isa_dev_t* dev = bus->find_dev(pnpids[type].id, idx);
+                if (!dev || detect(dev->port[pnpids[type].io])) {
+                    break;
+                }
+            }
+        }
+    }
+    #endif /* SUPPORT_PNP */
+
+    /* manual probing */
+    if (!opl_port && use_probe) {
+        uint16_t idx;
+        for (idx = 0; !opl_port && probe_ports[idx]; idx++) {
+            if (detect(probe_ports[idx])) {
+                break;
+            }
+        }
     }
 
-    dev.addr = isa->iobase + opl_port;
-    if (opl_chip < 3) {
-        dev.names = &dnames[1];
+    /* prepare and publish device */
+    if (opl_port && opl_chip) {
+        dev.addr = bus->iobase + opl_port;
+        if (opl_chip < 3) {
+            dev.names = &dnames[1];
+        }
+        dev_publish(&dev);
+        return 0;
     }
 
-    dev_publish(&dev);
-    return 0;
+    /* nothing to see here */
+    return -1;
 }
