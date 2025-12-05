@@ -19,29 +19,21 @@
 
 #include "driver.h"
 
-static isa_t* isa = 0;
+static isa_t* bus = 0;
 static uint16_t mpu401_port = 0;
 
-/* -------------------------------------------------------------------- */
-#define MPU401_MODE_OFF         0
-#define MPU401_MODE_IN          (1 << 0)
-#define MPU401_MODE_OUT         (1 << 1)
-#define MPU401_MODE_INOUT       (MPU401_MODE_IN | MPU401_MODE_OUT)
+#define SUPPORT_PNP             0
+#define SUPPORT_PNP_SUBDEVICE   0 && SUPPORT_PNP
 
+/* -------------------------------------------------------------------- */
 #define MPU401_REG_DATA         0
 #define MPU401_REG_COMMAND      1
 #define MPU401_REG_STATUS       1
-
 #define MPU401_STAT_READ        0x80
 #define MPU401_STAT_WRITE       0x40
 
-#define MPU401_DEFAULT_PORT     0x330
-#define MPU401_DEFAULT_MODE     MPU401_MODE_OUT
-
-
-/* -------------------------------------------------------------------- */
 static bool mpu401_CheckStatus(uint8_t stat) {
-    return ((isa->inp(mpu401_port + MPU401_REG_STATUS) & stat) == 0) ? true : false;
+    return ((bus->inp(mpu401_port + MPU401_REG_STATUS) & stat) == 0) ? true : false;
 }
 
 static bool mpu401_WaitStatus(uint8_t stat) {
@@ -62,7 +54,7 @@ static bool mpu401_WaitAck(void) {
         if (!mpu401_WaitStatus(MPU401_STAT_READ)) {
             return false;
         }
-        if (isa->inp(mpu401_port + MPU401_REG_DATA) == 0xFE) {
+        if (bus->inp(mpu401_port + MPU401_REG_DATA) == 0xFE) {
             return true;
         }
         timeout -= 1L;
@@ -72,7 +64,7 @@ static bool mpu401_WaitAck(void) {
 
 static bool mpu401_WriteCommand(uint8_t data) {
     if (mpu401_port && mpu401_WaitStatus(MPU401_STAT_WRITE)) {
-        isa->outp(mpu401_port + MPU401_REG_COMMAND, data);
+        bus->outp(mpu401_port + MPU401_REG_COMMAND, data);
         return true;
     }
     return false;
@@ -80,13 +72,13 @@ static bool mpu401_WriteCommand(uint8_t data) {
 
 static void mpu401_WriteData(uint8_t data) {
     if (mpu401_port && mpu401_WaitStatus(MPU401_STAT_WRITE)) {
-        isa->outp(mpu401_port + MPU401_REG_DATA, data);
+        bus->outp(mpu401_port + MPU401_REG_DATA, data);
     }
 }
 
 static uint8_t mpu401_ReadData(void) {
     if (mpu401_port && mpu401_WaitStatus(MPU401_STAT_READ)) {
-        return isa->inp(mpu401_port + MPU401_REG_DATA);
+        return bus->inp(mpu401_port + MPU401_REG_DATA);
     }
     return 0x00;
 }
@@ -139,6 +131,7 @@ static rvdev_midirx_t rxdev = {
 /* -------------------------------------------------------------------- */
 bool detect(uint16_t port) {
     mpu401_port = port;
+    if (mpu401_port == 0) { goto fail; }
     if (!mpu401_WriteCommand(0xff)) {   /* reset */
         goto fail;
     }
@@ -160,21 +153,58 @@ fail:
 
 /* -------------------------------------------------------------------- */
 int32_t init(void) {
+    bool use_pnp = true;
+    bool use_probe = true;
+    static const uint16_t probe_ports[] = { 0x330, /*0x300,*/ 0 };
+
     /* isa bus required */
-    if (!rvsnd->isa) {
+    bus = rvsnd->isa;
+    if (!bus) {
         return -1;
     }
 
-    /* todo: get port suggestion from ini section */
-    /* todo: ask pnp for "PNPB006" */
-    isa = rvsnd->isa;
-    if (!mpu401_Detect(MPU401_DEFAULT_PORT)) {
-        return -1;
+    /* todo: port override from inifile */
+    mpu401_port = 0;
+
+    /* ask pnp for mpu401 compatible device */
+    #if SUPPORT_PNP
+    if (!mpu401_port && use_pnp) {
+        uint16_t type, idx;
+        static const struct { const char* id; const uint16_t io; } pnpids[] = {
+            { "PNPB006", 0 },   /* mpu401 */
+            #if SUPPORT_PNP_SUBDEVICE
+            { "PNPB001", 2 },   /* soundblaster 2.0 compatible */
+            { "PNPB002", 2 },   /* soundblaster pro compatible */
+            { "PNPB003", 2 },   /* soundblaster 16  compatible */
+            { "ESS1868", 2 },   /* */
+            { "ESS1869", 2 },   /* */
+            #endif /* SUPPORT_PNP_SB */
+            { 0,         0 }
+        };
+        for (type = 0; !mpu401_port && pnpids[type].id; type++) {
+            for (idx = 0; !mpu401_port && (idx < 16); idx++) {
+                isa_dev_t* dev = bus->find_dev(pnpids[type].id, idx);
+                if (!dev || mpu401_Detect(dev->port[pnpids[type].io])) {
+                    break;
+                }
+            }
+        }
+    }
+    #endif
+
+    /* manually probe at common mpu401 ports */
+    if (!mpu401_port && use_probe) {
+        uint16_t idx;
+        for (idx = 0; !mpu401_port && probe_ports[idx]; idx++) {
+            if (mpu401_Detect(probe_ports[idx])) {
+                break;
+            }
+        }
     }
 
     /* publish driver */
-    txdev.addr = isa->iobase + mpu401_port;
-    rxdev.addr = isa->iobase + mpu401_port;
+    txdev.addr = bus->iobase + mpu401_port;
+    rxdev.addr = bus->iobase + mpu401_port;
     dev_publish(&txdev);
     dev_publish(&rxdev);
     return 0;
