@@ -358,13 +358,13 @@ bool driver_AddDevice(rvdev_t* dev) {
         /* replace existing */
         rvdev_t** devpp_old = driver_GetDeviceEntry(dev->type, dev->names[0]);
         if (devpp_old) {
-            dprintf("driver_chg [%08lx][%08lx] %02x [%s] [%s]\n", (uint32_t)(*devpp_old), (uint32_t)dev, dev->type, devtype_names[dev->type], dev->names[0]);
+            dprintf("driver_chg [%08lx][%08lx] %02x [%s] [%s]\n", (uint32_t)(*devpp_old), (uint32_t)dev, (uint8_t)dev->type, devtype_names[dev->type], dev->names[0]);
             *devpp_old = dev;
             return true;
         }
         /* add new */
-        dprintf("driver_add [%08lx][%08lx] %02x [%s] [%s]\n", 0UL, (uint32_t)dev, dev->type, devtype_names[dev->type], dev->names[0]);
-        return driver_AddDevice(dev);
+        dprintf("driver_add [%08lx][%08lx] %02x [%s] [%s]\n", 0UL, (uint32_t)dev, (uint8_t)dev->type, devtype_names[dev->type], dev->names[0]);
+        return devlist_add(&devs, dev);
     }
     return false;
 }
