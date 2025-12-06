@@ -310,7 +310,7 @@ long super_main(int args, char** argv) {
 
     /* temp */
     sys_setcookie("_SND", 0x00000025UL);
-    /*sys_setcookie("GSXB", 0x00000001UL);*/
+    sys_setcookie("GSXB", 0x00000024UL);
 
     dprintf("done.\n");
     return 0;
