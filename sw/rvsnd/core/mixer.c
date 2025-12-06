@@ -49,6 +49,7 @@ static uint8_t mixer_GetControlValueInternal(mixer_ctr_t* ctr) {
     uint8_t val = ctr->dev->get(ctr->ctr->id);
     uint8_t mask = 0;
     uint8_t shift = 0;
+
     if (bits <= 8) {
         mask = masks[bits];
         shift = 8 - bits;
@@ -99,22 +100,28 @@ static void mixer_SetXbiosValue(uint16_t xbiosid, uint8_t data) {
 
 uint8_t mixer_GetValue(mixer_ctr_t* ctr) {
     if (ctr) {
+        uint8_t val;
+        uint16_t sr = sys_di();
         if (ctr->ctr->flags) {
-            return mixer_GetXbiosValue(ctr->ctr->flags);
+            val = mixer_GetXbiosValue(ctr->ctr->flags);
         } else {
-            return mixer_GetControlValueInternal(ctr);
+            val = mixer_GetControlValueInternal(ctr);
         }
+        sys_ei(sr);
+        return val;
     }
     return 0;
 }
 
 void mixer_SetValue(mixer_ctr_t* ctr, uint8_t data) {
     if (ctr) {
+        uint16_t sr = sys_di();
         if (ctr->ctr->flags) {
             mixer_SetXbiosValue(ctr->ctr->flags, data);
         } else {
             mixer_SetControlValueInternal(ctr, data);
         }
+        sys_ei(sr);
     }
 }
 

@@ -54,4 +54,13 @@ extern mixer_dev_t* mixer_FindDev(const char* name);
 extern mixer_ctr_t* mixer_FindCtr(const char* name);    /* "dev:ctr" or just "ctr" for system mixer */
 extern mixer_ctr_t* mixer_FindDevCtr(mixer_dev_t* dev, const char* name);
 
+#define SYSMIXER_ID_MASTER  0x0000
+#define SYSMIXER_ID_PCM     0x0001
+#define SYSMIXER_ID_FM      0x0002
+#define SYSMIXER_ID_MIC     0x0003
+#define SYSMIXER_ID_LINE    0x0004
+#define SYSMIXER_ID_CD      0x0005
+#define SYSMIXER_ID_TV      0x0006
+#define SYSMIXER_ID_AUX     0x0007
+
 #endif /* _SYS_MIXER_H_*/
