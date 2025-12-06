@@ -310,6 +310,7 @@ new_xbios:
     bmi.b   .3
     cmp.w   #16,d0
     bge.b   .3
+    or.w    #$2700,sr
     jsr     ([xbfunc_sound,d0*4])
     rte
 .3: jmp     ([old_xbios])
