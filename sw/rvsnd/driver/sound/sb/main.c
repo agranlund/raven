@@ -21,19 +21,29 @@
 #include "isa/isa.h"
 #include "sb.h"
 
-#define SB_SUPPORT_PNP          1
-#define SB_DEFAULT_PORT_MIN     0x220
-#define SB_DEFAULT_PORT_MAX     0x280
+#define SB_SUPPORT_PNP      1
 
 isa_t* bus;                 /* isa bus */
-volatile uint8_t* sbase;    /* base address */
-uint16_t sbport;            /* base port */
-uint16_t sbirq;             /* base irq */
-uint16_t sbtype;            /* soundblaster variation */
-uint16_t wssport;           /* windows soundsystem port */
 
-const uint16_t sb_port_list[]  = { 0x220, 0x230, 0x240, 0x250, 0x260, 0x270, 0x280 };
-const uint16_t wss_port_list[] = { 0x530, 0x604, 0xE80, 0xF40 };
+uint16_t sb_type;           /* card type */
+uint16_t sb_port;           /* soundblaster port */
+uint16_t sb_irq;            /* soundblaster irq */
+
+uint16_t opl_port;          /* opl port */
+uint16_t mpu_port;          /* mpu port */
+uint16_t wss_port;          /* windows soundsystem port */
+uint16_t sax_port;          /* opl3sa control port */
+
+/* base address pointers */
+volatile uint8_t* sb_base;
+volatile uint8_t* opl_base;
+volatile uint8_t* mpu_base;
+volatile uint8_t* wss_base;
+volatile uint8_t* sax_base;
+
+const uint16_t sb_port_list[]  = { 0x220, 0x230, 0x240, 0x250, 0x260, 0x270, 0x280, 0 };
+const uint16_t wss_port_list[] = { 0x530, 0x604, 0xE80, 0xF40, 0 };
+const uint16_t sax_port_list[] = { 0xf86, 0x370, 0x100, 0 };
 
 
 /* todo:
@@ -41,7 +51,6 @@ const uint16_t wss_port_list[] = { 0x530, 0x604, 0xE80, 0xF40 };
  * - settings from inifile
  *   - option to use FM control for wavetable volume like standard soundblaster
  *     (binding AUX2 with FM together)
- *   - autodetect force disable
  *   - pnp force disable
  *   - manual hardware settings
  *     - sb_port, wss_port, sb_irq
@@ -73,8 +82,8 @@ const uint16_t wss_port_list[] = { 0x530, 0x604, 0xE80, 0xF40 };
 #define PUBLISH_RAWDEV  0
 
 #if PUBLISH_RAWDEV
-uint16_t dev_read_byte(uint16_t reg) { return bus->inp(sbport + reg); }
-void dev_write_byte(uint16_t reg, uint16_t data) { bus->outp(sbport + reg, data); }
+uint16_t dev_read_byte(uint16_t reg) { return bus->inp(sb_port + reg); }
+void dev_write_byte(uint16_t reg, uint16_t data) { bus->outp(sb_port + reg, data); }
 static const char* dnames[] = {"SB", 0 };
 static rvdev_raw_t dev = {
     RVDEV_RAW, 0, 0,
@@ -86,9 +95,9 @@ static rvdev_raw_t dev = {
 static void publish_rawdev(void) {
     static const char* names[8];
     uint16_t count = 0;
-    if (sbtype == SBTYPE_ESS)        { names[count++] = "ES186X"; }
-    else if (sbtype == SBTYPE_SB16)  { names[count++] = "SB16";   }
-    if (sbtype >= SBTYPE_SBPRO)      { names[count++] = "SBPRO";  }
+    if (sb_type == SBTYPE_ESS)        { names[count++] = "ES186X"; }
+    else if (sb_type == SBTYPE_SB16)  { names[count++] = "SB16";   }
+    if (sb_type >= SBTYPE_SBPRO)      { names[count++] = "SBPRO";  }
     names[count++] = "SB";
     names[count++] = 0;
     dev.names = names;
@@ -100,6 +109,47 @@ static void publish_rawdev(void) {
 /* -------------------------------------------------------------------- */
 /* driver                                                               */
 /* -------------------------------------------------------------------- */
+
+bool detect_sax(uint16_t port) {
+    const uint32_t dsp_init_delay = 3000UL;
+    bool found = false;
+    uint8_t old_dspversion_hi = 0;
+    uint8_t old_dspversion_lo = 0;
+    uint8_t old00, old01;
+    uint8_t temp1, temp2;
+
+    /* get soundblaster dsp version */
+    bus->outp(sb_port + 0x0C, 0xE1); delayus(dsp_init_delay);
+    old_dspversion_hi = bus->inp(sb_port + 0x0A); delayus(dsp_init_delay);
+    old_dspversion_lo = bus->inp(sb_port + 0x0A); delayus(dsp_init_delay);
+
+    /* verify in opl3sa register */
+    old00 = bus->inp(port + 0x00);
+    bus->outp(port + 0x00, 0x02);
+    temp1 = bus->inp(port + 0x01);
+    temp1 = 3 - ((temp1 >> 1) & 3);
+
+    if (temp1 == old_dspversion_hi) {
+        /* test opl3sa volume register */
+        bus->outp(port + 0x00, 0x07);
+        old01 = bus->inp(port + 0x01);
+        bus->outp(port + 0x00, 0x07);
+        bus->outp(port + 0x01, 0x80);
+        bus->outp(port + 0x00, 0x07);
+        temp1 = bus->inp(port + 0x01);
+        bus->outp(port + 0x00, 0x07);
+        bus->outp(port + 0x01, 0x07);
+        bus->outp(port + 0x00, 0x07);
+        temp2 = bus->inp(port + 0x01);
+        /* restore */
+        bus->outp(port + 0x00, 0x07);
+        bus->outp(port + 0x01, old01);
+        found = ((temp1 == 0x80) && (temp2 == 0x07));
+    }
+    /* restore and return */
+    bus->outp(port + 0x00, old00);
+    return found;
+}
 
 bool detect_wss(uint16_t port) {
     uint8_t old04,old05,test;
@@ -161,9 +211,9 @@ bool detect_sb(uint16_t port) {
         delayus(dsp_init_delay);
         bus->outp(port + 0x06, save06);
         delayus(dsp_init_delay);
-        sbport = 0;
-        sbase = 0;
-        sbtype = SBTYPE_NONE;
+        sb_port = 0;
+        sb_base = 0;
+        sb_type = SBTYPE_NONE;
         return false;
     }
 
@@ -177,24 +227,17 @@ bool detect_sb(uint16_t port) {
 
     /* use this device */
     if (version_hi >= 4) {
-        sbtype = SBTYPE_SB16;
+        sb_type = SBTYPE_SB16;
     } else if (version_hi >= 3) {
-        sbtype = SBTYPE_SBPRO;
+        sb_type = SBTYPE_SBPRO;
     } else if ((version_hi >= 2) && (version_lo > 0)) {
-        sbtype = SBTYPE_SB2;
+        sb_type = SBTYPE_SB2;
     } else {
-        sbtype = SBTYPE_SB1;
+        sb_type = SBTYPE_SB1;
     }
 
-    /* detect ES186X soundblaster clones */
-    if (sbtype != SBTYPE_NONE) {
-        if (detect_ess(port)) {
-            sbtype = SBTYPE_ESS;
-        }
-    }
-
-    sbport = port;
-    sbase = (volatile uint8_t*)((uint32_t)bus->iobase + sbport);
+    sb_port = port;
+    sb_base = (volatile uint8_t*)((uint32_t)bus->iobase + sb_port);
     return true;
 }
 
@@ -202,10 +245,10 @@ static bool detect_pnp(void) {
     #if SB_SUPPORT_PNP
     typedef struct { const char* id; uint16_t type; } sbpnp_t;
     static const sbpnp_t pnpids[] = {
-        { "ESS1869", SBTYPE_SBPRO   },          /* es186x */
-        { "ESS1868", SBTYPE_SBPRO   },          /* ex186x */
-        { "YMH0021", SBTYPE_SBPRO   },          /* opl3-sa2 */
-        { "NMX2210", SBTYPE_SBPRO   },          /* opl3-sa2 */
+        { "ESS1869", SBTYPE_ESS     },          /* es186x */
+        { "ESS1868", SBTYPE_ESS     },          /* ex186x */
+        { "YMH0021", SBTYPE_OPL3SA  },          /* opl3-sa2 */
+        { "NMX2210", SBTYPE_OPL3SA  },          /* opl3-sa2 */
         { "PNPB003", SBTYPE_SB16    },          /* soundblaster 16  */
         { "PNPB002", SBTYPE_SBPRO   },          /* soundblaster pro */
         { "PNPB001", SBTYPE_SB2     },          /* soundblaster 2.0 */
@@ -220,10 +263,31 @@ static bool detect_pnp(void) {
             isa_dev_t* dev = bus->find_dev(pnp->id, idx);
             if (!dev) { break; }
             else if (dev && dev->port[0]) {
+                /* detect standard soundblasters */
                 if (detect_sb(dev->port[0])) {
-                    sbirq = dev->irq[0];
-                    if ((bus->irqmask & (1 << sbirq)) == 0) {
-                        sbirq = 0;
+                    sb_irq = dev->irq[0];
+                    if ((bus->irqmask & (1 << sb_irq)) == 0) {
+                        sb_irq = 0;
+                    }
+
+                    switch (pnp->type) {
+                        case SBTYPE_OPL3SA: {
+                            sb_type = SBTYPE_OPL3SA;
+                            wss_port = dev->port[1]; wss_base = (volatile uint8_t*) (bus->iobase + wss_port);
+                            opl_port = dev->port[2]; opl_base = (volatile uint8_t*) (bus->iobase + opl_port);
+                            mpu_port = dev->port[3]; mpu_base = (volatile uint8_t*) (bus->iobase + mpu_port);
+                            sax_port = dev->port[4]; sax_base = (volatile uint8_t*) (bus->iobase + sax_port);
+                        } break;
+
+                        case SBTYPE_ESS: {
+                            opl_port = dev->port[1]; opl_base = (volatile uint8_t*) (bus->iobase + opl_port);
+                            mpu_port = dev->port[2]; mpu_base = (volatile uint8_t*) (bus->iobase + mpu_port);
+                            sb_type = SBTYPE_ESS;
+                        } break;
+                    }
+
+                    /* clones with extended features */
+                    if (pnp->type == SBTYPE_OPL3SA) {
                     }
                     return true;
                 }
@@ -237,51 +301,58 @@ static bool detect_pnp(void) {
 int32_t init(void) {
 
     bool use_pnp = true;
-    bool use_probe = true;
 
     bus = rvsnd->isa;
     if (!bus) {
         return -1;
     }
 
-    /* todo: try port from inifile */
-    sbtype = SBTYPE_NONE;
-
-    /* plug and play detect*/
-    if (use_pnp && (sbtype == SBTYPE_NONE)) {
+    /* plug and play detect */
+    if (use_pnp && (sb_type == SBTYPE_NONE)) {
         detect_pnp();
     }
     
     /* brute force detect */
-    if (use_probe && (sbtype == SBTYPE_NONE)) {
-        uint16_t i;
-        for (i = 0; i < sizeof(sb_port_list) / sizeof(sb_port_list[0]); i++) {
-            uint16_t port = sb_port_list[i];
-            if (detect_sb(port)) {
+    if (sb_type == SBTYPE_NONE) {
+
+        /* todo: inifile overrides */
+        const uint16_t* sbports = sb_port_list;
+        const uint16_t* wsports = wss_port_list;
+        const uint16_t* saports = sax_port_list;
+
+        while (sbports && *sbports) {
+            if (detect_sb(*sbports)) {
+                /* found a soundblaster compatible, detect extended clones */
+                if (sb_type == SBTYPE_SBPRO) {
+                    /* windows sound system */
+                    while (wsports && *wsports) {
+                        if (detect_wss(*wsports)) {
+                            wss_port = *wsports;
+                            wss_base = (volatile uint8_t*)(bus->iobase + wss_port);
+                            break;
+                        }
+                        wsports++;
+                    }
+                    /* opl3sa because they have buggy soundblaster compatibility */
+                    while (saports && *saports) {
+                        if (detect_sax(*saports)) {
+                            sax_port = *saports;
+                            sax_base = (volatile uint8_t*)(bus->iobase + sax_port);
+                            sb_type = SBTYPE_OPL3SA;
+                            break;
+                        }
+                        saports++;
+                    }
+                }
+                /* use this card */
                 break;
             }
+            sbports++;
         }
     }
 
-    if (sbtype == SBTYPE_NONE) {
+    if (sb_type == SBTYPE_NONE) {
         return -1;
-    }
-
-    /* detect wss support */
-    if (sbtype == SBTYPE_SBPRO) {
-        /* todo: from inifile */
-
-        /* brute force detect */
-        if (wssport == 0) {
-            uint16_t i;
-            for (i = 0; i < sizeof(wss_port_list) / sizeof(wss_port_list[0]); i++) {
-                uint16_t port = wss_port_list[i];
-                if (detect_wss(port)) {
-                    wssport = port;
-                    break;
-                }
-            }
-        }
     }
 
     /* initialize mixer and devices */

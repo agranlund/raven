@@ -26,20 +26,26 @@
 #define SBTYPE_SBPRO        3
 #define SBTYPE_SB16         4
 #define SBTYPE_ESS          5
+#define SBTYPE_OPL3SA       6
 
-extern isa_t* bus;                  /* isa bus */
-extern volatile uint8_t* sbase;     /* base address */
-extern uint16_t sbport;             /* soundblaster port */
-extern uint16_t sbirq;              /* soundblaster irq */
-extern uint16_t sbtype;             /* soundblaster type  */
-extern uint16_t wssport;            /* windows soundsystem port */
+extern isa_t* bus;                 /* isa bus */
 
-#define reg_read(r)     *((volatile uint8_t*)(sbase+(r)))
-#define reg_write(r,d)  *((volatile uint8_t*)(sbase+(r))) = d
+extern uint16_t sb_type;           /* card type */
+extern uint16_t sb_port;           /* soundblaster port */
+extern uint16_t sb_irq;            /* soundblaster irq */
 
+extern uint16_t opl_port;          /* opl port */
+extern uint16_t mpu_port;          /* mpu port */
+extern uint16_t wss_port;          /* windows soundsystem port */
+extern uint16_t sax_port;          /* opl3sa control port */
+
+extern volatile uint8_t* sb_base;
+extern volatile uint8_t* opl_base;
+extern volatile uint8_t* mpu_base;
+extern volatile uint8_t* wss_base;
+extern volatile uint8_t* sax_base;
 
 /* mixer */
 extern bool mixer_init(void);
-
 
 #endif /* _SBDRIVER_H_ */

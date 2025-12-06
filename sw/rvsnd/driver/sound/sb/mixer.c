@@ -24,18 +24,19 @@
 /* todo: from inifile */
 static bool ess_bind_fm_aux2 = true;
 
-
 /* -------------------------------------------------------------------- */
 /* common hardware access to soundblaster compatible mixer              */
 /* -------------------------------------------------------------------- */
-static void sbmix_outp(uint8_t reg, uint8_t data) {
-    sbase[4] = reg;
-    sbase[5] = data;
-}
-static uint8_t sbmix_inp(uint8_t reg) {
-    sbase[4] = reg;
-    return sbase[5];
-}
+
+static void sbmix_outp(uint8_t _r, uint8_t _d)  {sb_base[4] = _r; sb_base[5]  = _d; }
+static void wsmix_outp(uint8_t _r, uint8_t _d)  {wss_base[4] = _r; wss_base[5] = _d; }
+static void samix_outp(uint8_t _r, uint8_t _d)  {sax_base[0] = _r; sax_base[1] = _d; }
+
+static uint8_t sbmix_inp(uint8_t _r) { sb_base[4]  = _r; return sb_base[5]; }
+static uint8_t wsmix_inp(uint8_t _r) { wss_base[4] = _r; return wss_base[5]; }
+static uint8_t samix_inp(uint8_t _r) { sax_base[0] = _r; return sax_base[1]; }
+
+
 
 /* -------------------------------------------------------------------- */
 /* device and controls                                                  */
@@ -116,7 +117,7 @@ static void mixer_set_ct1345(uint16_t idx, uint16_t data) {
             data = min(data, 7) << 1;
             sbmix_outp(idx, (data | (data << 4)));
             return;
-        } default: {
+        } default: {    /* soundblaster 2.0 */
             mixer_set_ct1335(idx, data);
             return;
         }
@@ -132,7 +133,7 @@ static uint16_t mixer_get_ct1345(uint16_t idx) {
         case 0x002E: {  /* sbpro: line      */
             uint8_t d = sbmix_inp(idx);
             return ((((d >> 1) & 7) + ((d >> 5) & 7)) >> 1);
-        } default: {
+        } default: {    /* soundblaster 2.0 */
             return mixer_get_ct1335(idx);
         }
     }
@@ -195,7 +196,7 @@ static void mixer_set_ess(uint16_t idx, uint16_t data) {
             sbmix_outp(idx, min(data, 7));
             return;
         }
-        default: {
+        default: {      /* soundblaster pro */
             mixer_set_ct1345(idx, data);
             return;
         }
@@ -214,10 +215,10 @@ static uint16_t mixer_get_ess(uint16_t idx) {
             uint8_t d = sbmix_inp(idx);
             return (((d & 0xf) + ((d >> 4) & 0xf)) >> 1);
         }
-        case 0x003C: {    /* ess: pc speaker  */
+        case 0x003C: {  /* ess: pc speaker  */
             return (sbmix_inp(idx) & 3);
         }
-        default: {
+        default: {      /* soundblaster pro */
             return mixer_get_ct1345(idx);
         }
     }
@@ -244,56 +245,66 @@ static bool mixer_init_ess(void) {
 }
 
 /* -------------------------------------------------------------------- */
-/* WSS, only used for Aux2                                              */
+/* OPL3SA, gets own mixer because of buggy soundblaster compatibility   */
 /* -------------------------------------------------------------------- */
-static rvmixctrl_t ctrls_wss[] = {
-    /* soundblaster pro */
-    { "Master", 0x0022, 3, RVMIX_XBIOS_MASTER   },  /* master volume        default: 4 */
-    { "Voice",  0x0004, 3, RVMIX_XBIOS_PCM      },  /* dac playback volume  default: 4 */
-    { "FM",     0x0026, 3, RVMIX_XBIOS_FM       },  /* midi + fm            default: 4 */
-    { "Mic",    0x000A, 2, RVMIX_XBIOS_MIC      },  /* mic mix volume       default: 0 */
-    { "Line",   0x002E, 3, RVMIX_XBIOS_LINE     },  /* line volume          default: 0 */
-    { "CD",     0x0028, 3, RVMIX_XBIOS_CD       },  /* aux1 volume          default: 0 */
-    /* windows soundsystem */
-    { "Aux2",   0x0034, 6, RVMIX_XBIOS_AUX      },  /* aux2 volume          default: 0 */
+static rvmixctrl_t ctrls_sax[] = {
+    { "Master", 0x0040, 4, RVMIX_XBIOS_MASTER   },  /* sax: master volume   */
+    { "Voice",  0x0004, 3, RVMIX_XBIOS_PCM      },  /* sb:  voice           */
+    { "FM",     0x0026, 3, RVMIX_XBIOS_FM       },  /* sb:  midi + fm       */
+    { "Mic",    0x0041, 5, RVMIX_XBIOS_MIC      },  /* sax  mic             */
+    { "Line",   0x0028, 3, RVMIX_XBIOS_LINE     },  /* sb:  line            */
+    { "CD",     0x002E, 3, RVMIX_XBIOS_CD       },  /* sb:  aux1            */
+    /* todo: wide, bass, treble */
     { 0,        0,      0, 0                    }
 };
 
-static void mixer_set_wss(uint16_t idx, uint16_t data) {
-    if (idx >= 0x30) {
-        if (data == 0) { data = 0x80; }
-        else { data = 63 - min(data, 63); }
-        bus->outp(wssport + 0x04, (idx & 0x0f) + 0);
-        bus->outp(wssport + 0x05, data);
-        bus->outp(wssport + 0x04, (idx & 0x0f) +1);
-        bus->outp(wssport + 0x05, data);
-    } else {
-        mixer_set_ct1345(idx, data);
+static void mixer_set_sax(uint16_t idx, uint16_t data) {
+    switch (idx) {
+        case 0x40: {    /* master */
+            uint8_t vol = min(data, 15);
+            vol = (vol == 0) ? 0x80 : 15 - vol;
+            samix_outp(0x07, vol);
+            samix_outp(0x08, vol);
+        } break;
+        case 0x41: {    /* mic */
+            uint8_t vol = min(data, 31);
+            vol = (vol == 0) ? 0x80 : 31 - vol;
+            samix_outp(0x09, vol);
+        } break;
+        default: {      /* soundblaster pro */
+            mixer_set_ct1345(idx, data);
+        } break;
     }
 }
 
-static uint16_t mixer_get_wss(uint16_t idx) {
-    if (idx >= 0x30) {
-        uint16_t l, r;
-        bus->outp(wssport + 0x04, (idx & 0x0f) + 0);
-        l = bus->inp(wssport + 0x05);
-        l = (l & 0x80) ? 0 : (63 - (l & 0x3f));
-        bus->outp(wssport + 0x04, (idx & 0x0f) + 1);
-        r = bus->inp(wssport + 0x05);
-        r = (r & 0x80) ? 0 : (63 - (r & 0x3f));
-        return (((l << 6) + r) >> 1);
-    } else {
-        return mixer_get_ct1345(idx);
+static uint16_t mixer_get_sax(uint16_t idx) {
+    switch (idx) {
+        case 0x40: {    /* master */
+            uint16_t l = samix_inp(0x07);
+            uint16_t r = samix_inp(0x08);
+            l = (l & 0x80) ? 0 : (15 - (l & 0x0f));
+            r = (r & 0x80) ? 0 : (15 - (r & 0x0f));
+            return ((l + r) >> 1);
+        }
+        case 0x41: {    /* mic */
+            uint16_t vol = samix_inp(0x09);
+            return (vol & 0x80) ? 0 : (31 - (vol & 0x1f));
+        }
+        default: {      /* soundblaster pro */
+            return mixer_get_ct1345(idx);
+        }
     }
 }
 
-static bool mixer_init_wss(void) {
-    dev.ctrls = ctrls_wss;
-    dev.set = mixer_set_wss;
-    dev.get = mixer_get_wss;
+static bool mixer_init_sax(void) {
+    dev.ctrls = ctrls_sax;
+    dev.set = mixer_set_sax;
+    dev.get = mixer_get_sax;
+    /* soundblaster compatible master volume is not soundblaster compatible     */
+    /* must be set to 1 for other controls to work like a real soundblaster     */
+    sbmix_outp(0x22, 0x22);
     return true;
 }
-
 
 /* -------------------------------------------------------------------- */
 /* common initialization                                                */
@@ -305,15 +316,18 @@ bool mixer_init(void) {
     sbmix_outp(0x00, 0x00);
 
     /* initialize device and controls */
-    switch (sbtype) {
+    switch (sb_type) {
         case SBTYPE_ESS:
             result = mixer_init_ess();
+            break;
+        case SBTYPE_OPL3SA:
+            result = mixer_init_sax();
             break;
         case SBTYPE_SB16:
             result = mixer_init_ct1745();
             break;
         case SBTYPE_SBPRO:
-            result = wssport ? mixer_init_wss() : mixer_init_ct1345();
+            result = mixer_init_ct1345();
             break;
         default:
             result = mixer_init_ct1335();
