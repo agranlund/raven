@@ -10658,6 +10658,128 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "power:+12V"
+			(power)
+			(pin_names
+				(offset 0)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#PWR"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "+12V"
+				(at 0 3.556 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"+12V\""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "+12V_0_1"
+				(polyline
+					(pts
+						(xy -0.762 1.27) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy 0.762 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "+12V_1_1"
+				(pin power_in line
+					(at 0 0 90)
+					(length 0)
+					(hide yes)
+					(name "+12V"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "power:+3.3V"
 			(power)
 			(pin_names
@@ -11638,6 +11760,28 @@
 			(justify left top)
 		)
 		(uuid "552ae3c1-e165-4d5b-aece-2e7c23261592")
+	)
+	(text_box "todo:\nMake this a JTAG-reset header\n(12V to /OE1 resets locked jtag pins)\n12V, resistor, jumper.\n"
+		(exclude_from_sim no)
+		(at 708.025 293.37 0)
+		(size 48.895 13.335)
+		(margins 0.9525 0.9525 0.9525 0.9525)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(fill
+			(type color)
+			(color 255 230 63 0.53)
+		)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 0 0 0 1)
+			)
+			(justify left top)
+		)
+		(uuid "62341196-4533-4dcd-9b9f-d49c77e92941")
 	)
 	(text_box "68060UM + Errata:\n\nTHERM1 and THERM0 are connected to an internal thermal resistor\nand provide information about the average temperature of the die.\n\nThe resistance across these two pins is proportional to the average\ntemperature of the die.\n\nThe temperature coefficient of the resistor is approximately\n2.8 Ω/°C with a nominal resistance of 780 ohm at 25°C.\n"
 		(exclude_from_sim no)
@@ -32491,24 +32635,24 @@
 		)
 		(uuid "ff975c60-1230-4ae4-83d9-b32008b3328c")
 	)
-	(global_label "~{OPT1}"
+	(global_label "~{JTAG_RESET}"
 		(shape output)
-		(at 711.835 320.675 180)
+		(at 761.365 320.675 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify left)
 		)
 		(uuid "002dd6b3-c6ef-45c6-b8b5-421c412e8882")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 704.0722 320.675 0)
+			(at 775.3567 320.675 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -35703,7 +35847,7 @@
 			)
 		)
 	)
-	(global_label "~{OPT1}"
+	(global_label "~{JTAG_RESET}"
 		(shape input)
 		(at 612.14 319.405 180)
 		(fields_autoplaced yes)
@@ -35715,7 +35859,7 @@
 		)
 		(uuid "e831dba5-504c-43c6-ab21-23dfba0cdc6f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 604.3772 319.405 0)
+			(at 598.1483 319.405 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39376,7 +39520,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x03")
-		(at 733.425 320.675 0)
+		(at 762.635 340.36 0)
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
@@ -39385,7 +39529,7 @@
 		(dnp no)
 		(uuid "2be3c622-582c-4a61-873c-6cdb7a7b49ec")
 		(property "Reference" "J105"
-			(at 735.965 323.215 0)
+			(at 765.175 342.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39394,7 +39538,7 @@
 			)
 		)
 		(property "Value" "Pinhdr_01x03"
-			(at 735.965 320.675 0)
+			(at 765.175 340.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39403,7 +39547,7 @@
 			)
 		)
 		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
-			(at 733.425 320.675 0)
+			(at 762.635 340.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39412,7 +39556,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 733.425 320.675 0)
+			(at 762.635 340.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39421,7 +39565,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 733.425 320.675 0)
+			(at 762.635 340.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39429,7 +39573,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "Wurth Elektronik"
-			(at 733.425 320.675 0)
+			(at 762.635 340.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39438,7 +39582,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "61300311121"
-			(at 733.425 320.675 0)
+			(at 762.635 340.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41588,6 +41732,70 @@
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
 					(reference "RN111")
 					(unit 3)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+12V")
+		(at 737.87 316.865 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "42d97195-968a-4fc3-9776-b053fcdd0d96")
+		(property "Reference" "#PWR0567"
+			(at 737.87 320.675 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+12V"
+			(at 737.87 311.15 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 737.87 316.865 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 737.87 316.865 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 737.87 316.865 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "711594c1-3182-4bdf-a095-9244c8815eb0")
+		)
+		(instances
+			(project "raven"
+				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
+					(reference "#PWR0567")
+					(unit 1)
 				)
 			)
 		)
