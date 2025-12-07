@@ -89,16 +89,30 @@ static void ini_free(void* buf) { }
 
 void ini_Init(ini_t* ini, char* buf) {
     bool quote = false;
+    bool comment = false;
     ini->data = buf;
     while (buf && *buf) {
         char c = *buf;
-        if (c == '\"') { quote = !quote; *buf = 0; }
-        if (!quote) {
-            if ((c >= 'A') && (c <= 'Z') && !quote) { *buf = c - 'A' + 'a'; }
-            else if (c == 32) { *buf = 0; }
-            else if (c == '=') { *buf = 0; }
+        if (c == '#') {
+            comment = true;
         }
-        if ((c >= 127) || (c <= 31)) { *buf = 0; }
+        if (comment) {
+            *buf = 0;
+            if (c == '\r' || c == '\n') {
+                comment = false;
+            }
+        } else {
+            if (c == '\"') {
+                *buf = 0;
+                quote = !quote;
+            }
+            if (!quote) {
+                if ((c >= 'A') && (c <= 'Z') && !quote) { *buf = c - 'A' + 'a'; }
+                else if (c == 32) { *buf = 0; }
+                else if (c == '=') { *buf = 0; }
+            }
+            if ((c >= 127) || (c <= 31)) { *buf = 0; }
+        }
         buf++;
     }
     ini->end = buf;
