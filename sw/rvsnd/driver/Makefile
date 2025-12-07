@@ -5,6 +5,7 @@ all: clean
 	make -C midi/opl
 	make -C midi/raven
 	make -C sound/sb
+	make -C sound/gus
 
 clean:
 	make -C chip/opl clean
@@ -12,4 +13,6 @@ clean:
 	make -C midi/opl clean
 	make -C midi/raven clean
 	make -C sound/sb clean
+	make -C sound/gus clean
+
 
