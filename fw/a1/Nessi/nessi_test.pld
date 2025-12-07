@@ -1,0 +1,542 @@
+//------------------------------------------------------------------------------
+// Copyright Anders Granlund 2024-2025.
+// This source describes Open Hardware and is licensed under the CERN-OHLW v2
+// You may redistribute and modify this documentation and make products
+// using it under the terms of the CERN-OHL-W v2 (https:/cern.ch/cern-ohl).
+// This documentation is distributed WITHOUT ANY EXPRESS OR IMPLIED
+// WARRANTY, INCLUDING OF MERCHANTABILITY, SATISFACTORY QUALITY
+// AND FITNESS FOR A PARTICULAR PURPOSE.
+// Please see the CERN-OHL-W v2 for applicable conditions.
+//------------------------------------------------------------------------------
+Name     Nessi ;
+PartNo   00 ;
+Date     2025-xx-xx ;
+Revision 01 ;
+Designer Anders Granlund ;
+Company  HappyDaze ;
+Assembly None ;
+Location  ;
+Device   f1508ispplcc84;
+
+//------------------------------------------------------------------------------
+// ATF1508AS-7JX84 : PLCC84, ISP, 7ns
+//------------------------------------------------------------------------------
+PROPERTY ATMEL{JTAG=on};
+PROPERTY ATMEL{TDI_pullup=on};
+PROPERTY ATMEL{TMS_pullup=on};
+PROPERTY ATMEL{pd1=off};
+PROPERTY ATMEL{pd2=off};
+PROPERTY ATMEL{cascade_logic=off};
+PROPERTY ATMEL{logic_doubling=off};
+PROPERTY ATMEL{output_fast=on};    // set to on for specific pins only?
+PROPERTY ATMEL{pin_keep=off};
+PROPERTY ATMEL{preassign=keep};
+PROPERTY ATMEL{security=off};
+PROPERTY ATMEL{xor_synthesis=on};
+
+//------------------------------------------------------------------------------
+// todo:
+//  - defines to build for 1x or 2x cpu clock
+//  - defines to build for different waitstates?
+//    32 or 25 bus clock version perhaps.
+//    everything is currently tuned for 50mhz bus clock.
+//
+//   mhz  ns
+//   25 = 40.000,  32 = 31.250,  40 = 25.000
+//   48 = 20.833,  50 = 20.000,  64 = 15.625
+//   80 = 12.500,  96 = 10.416, 100 = 10.000
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+// JTAG reserved
+//------------------------------------------------------------------------------
+//pin 14 = ;                // JTAG_TDI
+//pin 23 = ;                // JTAG_TMS
+//pin 62 = ;                // JTAG_TCK
+//pin 71 = ;                // JTACK_TDO
+
+//------------------------------------------------------------------------------
+// Global inputs
+//------------------------------------------------------------------------------
+pin 81 = SPARE_J106_IN_81;  // in:  unused J106
+pin 83 = BCLK;              // in:  global clock x1
+pin 84 = SPARE_J105_IN_84;  // in:  unused J105 (hi/lo jumpered)
+pin 1  = !RSTI;             // in:  hardware reset in
+pin 2  = BCLK2X;            // in:  global clock x2
+
+//------------------------------------------------------------------------------
+// I/O blocks
+//------------------------------------------------------------------------------
+pin 4  = !TA;               // out: cpu
+pin 5  = !TEA;              // out: cpu
+pin 6  = !AVEC;             // out: cpu
+pin 8  = !TBI;              // out: cpu
+pin 9  = !TCI;              // out: cpu
+pin 10 = CPUX1;             // in:  option jumper: cpu 1x/2x mode
+pin 11 = !TRA;              // out: cpu
+pin 12 = !CLKEN;            // out: cpu
+
+pin 15 = TT1;               // in:  cpu 
+pin 16 = TT0;               // in:  cpu
+pin 17 = !TIP;              // in:  cpu
+pin 18 = !TS;               // in:  cpu
+pin 20 = TM1;               // in:  cpu
+pin 21 = TM0;               // in:  cpu
+pin 22 = TM2;               // in:  cpu
+
+pin 24 = !SAS;              // in:  cpu
+pin 25 = SIZ1;              // in:  cpu
+pin 27 = SIZ0;              // in:  cpu
+pin 28 = RW;                // in:  cpu
+pin 29 = !CLA;              // out: cpu
+pin 30 = A0;                // in:  cpu
+pin 31 = A1;                // in:  cpu
+
+pin 33 = A9;                // in:  cpu
+pin 34 = A5;                // in:  cpu
+pin 35 = A25;               // in:  cpu
+pin 36 = A10;               // in:  cpu
+pin 37 = A24;               // in:  cpu
+pin 39 = A29;               // in:  cpu
+pin 40 = A30;               // in:  cpu
+pin 41 = A31;               // in:  cpu
+
+pin 44 = !SMRD2;            // out: simm2
+pin 45 = !SMWR2;            // out: simm2
+pin 46 = !SMRD1;            // out: simm1
+pin 48 = !SMWR1;            // out: simm1
+pin 49 = !SMRD0;            // out: simm0
+pin 50 = !SMWR0;            // out: simm0
+pin 51 = !SMRD3;            // out: simm3
+pin 52 = !SMWR3;            // out: simm3
+
+pin 54 = !IOCS16;           // in:  ISA bus
+pin 55 = !EXCS;             // out: 68150 (and transcievers)
+pin 56 = !EXDSACK0;         // out: 68150
+pin 57 = !EXTA;             // in:  68150
+pin 58 = !EXDS;             // in:  68150
+pin 60 = !EXDTACK;          // in:  MFP1, MPF2, Iksi
+pin 61 = !EXDSACK1;         // out: 68150
+
+pin 63 = !ISA8;             // out: Narnia
+pin 64 = !ISAIO;            // out: Narnia
+pin 65 = !ISACS;            // out: Narnia
+pin 67 = !ISANOWS;          // in:  ISA bus
+pin 68 = ISARDY;            // in:  ISA bus
+pin 69 = !RESET;            // out: peripheral reset
+pin 70 = !RSTO;             // in:  cpu
+
+pin 73 = SPARE_J106_IO_73;  // xxx: unused J106 (io)
+pin 74 = !IACK;             // out: MFP1, MFP2
+pin 75 = !IDECS;            // out: Iksi
+pin 76 = !YMCS;             // out: Iksi
+pin 77 = !MFP2CS;           // out: MFP2
+pin 79 = !MFP1CS;           // out: MFP1
+pin 80 = !UARTCS;           // out: UART
+
+
+//------------------------------------------------------------------------------
+// Memory map : 32bit
+//------------------------------------------------------------------------------
+DECODE_SIMM0        = [A31..0]:'b'000XXX00XXXXXXXXXXXXXXXXXXXXXXXX;    // $00000000
+DECODE_SIMM1        = [A31..0]:'b'000XXX01XXXXXXXXXXXXXXXXXXXXXXXX;    // $01000000
+DECODE_SIMM2        = [A31..0]:'b'000XXX10XXXXXXXXXXXXXXXXXXXXXXXX;    // $02000000
+DECODE_SIMM3        = [A31..0]:'b'010XXX00XXXXXXXXXXXXXXXXXXXXXXXX;    // $40000000
+DECODE_UART         = [A31..0]:'b'001XXX00XXXXXXXXXXXXXXXXXXXXXXXX;    // $20000000
+
+
+//------------------------------------------------------------------------------
+// Memory map : 16/8 bit
+//------------------------------------------------------------------------------
+DECODE_IDE          = [A31..0]:'b'101XXX00XXXXXXXXXXXXX00XXXXXXXXX;    // $A0000000
+DECODE_MFP2         = [A31..0]:'b'101XXX00XXXXXXXXXXXXX01XXXXXXXXX;    // $A0000A00
+
+DECODE_YM           = [A31..0]:'b'101XXX01XXXXXXXXXXXXX00XXXXXXXXX;    // $A1000800    ($ff8800)
+DECODE_MFP1         = [A31..0]:'b'101XXX01XXXXXXXXXXXXX01XXXXXXXXX;    // $A1000A00    ($fffa00)
+DECODE_ACIA         = [A31..0]:'b'101XXX01XXXXXXXXXXXXX10XXXXXXXXX;    // $A1000C00    ($fffc00)
+DECODE_INV1         = [A31..0]:'b'101XXX01XXXXXXXXXXXXX11XXXXXXXXX;    // $A1000e00    ($fffe00)
+
+DECODE_ISA_A_RAM8   = [A31..0]:'b'100XXX00XXXXXXXXXXXXXXXXXXXXXXXX;    // $80000000
+DECODE_ISA_A_IO8    = [A31..0]:'b'100XXX01XXXXXXXXXXXXXXXXXXXXXXXX;    // $81000000
+DECODE_ISA_A_RAM16  = [A31..0]:'b'100XXX10XXXXXXXXXXXXXXXXXXXXXXXX;    // $82000000
+DECODE_ISA_A_IO16   = [A31..0]:'b'100XXX11XXXXXXXXXXXXXXXXXXXXXXXX;    // $83000000
+
+BYTE_CYCLE          = (SIZ0 & !SIZ1);
+BYTE_READ           = BYTE_CYCLE & RW;
+
+DECODE_ISA_RAM8     = DECODE_ISA_A_RAM8 # (DECODE_ISA_A_RAM16 & BYTE_READ & !A0);
+DECODE_ISA_RAM16    = DECODE_ISA_A_RAM16 & !DECODE_ISA_RAM8;
+
+DECODE_ISA_IO16     = DECODE_ISA_A_IO16 # (DECODE_ISA_A_IO8 & !BYTE_CYCLE);
+DECODE_ISA_IO8      = DECODE_ISA_A_IO8 & !DECODE_ISA_IO16;
+
+DECODE_ISA          = DECODE_ISA_RAM8 # DECODE_ISA_IO8 # DECODE_ISA_RAM16 # DECODE_ISA_IO16;
+DECODE_ISA16        = DECODE_ISA_IO16 # DECODE_ISA_RAM16;
+DECODE_68150        = DECODE_IDE # DECODE_YM # DECODE_MFP1 # DECODE_MFP2 # DECODE_ISA;
+
+
+//------------------------------------------------------------------------------
+// Interrupts
+//  TT1:0 = 11
+//  TM2:0 = IPL
+//  A31:0 = $ffffffff
+//
+// Breakpoint
+//  TT1:0 = 11
+//  TM2:0 = 0
+//  A32:0 = 00000000
+//
+// LPSTOP
+//  TT1:0 = 11
+//  TM2:0 = 0
+//  A32:0 = $fffffffe
+//------------------------------------------------------------------------------
+IRQCYCLE    = [TT1..0]:'b'11;
+BUSCYCLE    = [TT1..0]:'b'0X;
+MFPIRQ      = IRQCYCLE &  [TM2..0]:'b'110;  // MFP interrupt = IRQ6
+AUTOIRQ     = IRQCYCLE & ![TM2..0]:'b'110;  // autovector everything else
+AVEC        = !MFPIRQ;
+
+// todo: breakpoint cycle can be misstaken for a SIMM0 cycle
+//       when only decoding address. need to check BUSCYCLE also.
+
+
+//------------------------------------------------------------------------------
+//
+// General logic
+//
+//------------------------------------------------------------------------------
+
+// works in <= 40mhz, 2x
+//CLKEN.d = !BCLK # CPUX1;    // generate cpu bclk enable
+//CLKEN.ck = !BCLK2X;         // 5ns delay as per MC68060UM
+
+CLKEN = !BCLK # CPUX1;      // rely on pin-to-pin delay for suggested ~5ns
+RESET = RSTI # RSTO;        // generate peripheral reset
+TEA = 'b'0;                 // bus error
+TRA = 'b'0;                 // bus retry
+
+
+// todo:
+// this could violate BCLK->TS timing in the worst case when running at 50/50mhz.
+// min-max range for the CPU pin is 2 - 13.5ns
+// !BCLK would be at the 10ns mark
+
+node TS_TRIGGER;
+TS_TRIGGER.ar = RSTI;
+//TS_TRIGGER.ck = !BCLK2X;  // 5ns, 15ns -> 25ns
+TS_TRIGGER.ck = !BCLK;
+TS_TRIGGER.d  = TS;
+
+
+
+//------------------------------------------------------------------------------
+// Localbus
+// rom/ram/uart share same 60ns cycle length at the moment
+//
+//         0   1   2   3   4   5   0   1   2   
+// BCLK:   |---|   |---|   |---|   |---|   |---
+//         |   |___|   |___|   |___|   |___|
+//                                             
+//            a                    b   c   d
+// TIP:    --\______________________/----------
+// TS:     --\_____/---------------------------
+// SAS:    --------\_______/-------------------
+// TA:     ----------------\_______|___/-------
+//
+// (a) address and signals valid
+// (b) cpu samples TA and ends cycle
+// (c) global TA held for additional half clock
+// (d) trash remaining on databus ~20ns
+//------------------------------------------------------------------------------
+/*
+node LB_TRIGGER;
+LB_TRIGGER.ar = RSTI;
+LB_TRIGGER.ck = !BCLK;
+LB_TRIGGER.d  = SAS;
+*/
+$define LB_TRIGGER TS_TRIGGER
+
+node [LBSTATE0..1];
+[LBSTATE0..1].ar = RSTI;
+[LBSTATE0..1].ck = BCLK;
+LBSTATE0.d = !LBSTATE1 & (LB_TRIGGER & BUSCYCLE & !DECODE_68150);
+LBSTATE1.d = !LBSTATE1 & LBSTATE0;
+/*
+TS_LBUS = TS_TRIGGER & BUSCYCLE & !DECODE_68150;
+TA_LBUS = LBSTATE1;
+LBUS_TRIGGER = TS_TRIGGER & BUSCYCLE & !DECODE_68150;
+*/
+LBUS_DONE    = LBSTATE1;
+TA_LBUS      = LBSTATE1;
+
+
+
+//------------------------------------------------------------------------------
+// RAM / ROM
+// cycle time: 50ns
+// oe/we time: 30ns
+// hold time:  20ns (garbage on bus until next S2)
+//
+// assumptions and potential violations on 50mhz bclk
+// - TS must asserts in under 10ns
+// - AX ready in 5ns or less to avoid ram/rom timing violations
+//
+//    MC68060    50mhz      66mhz      100mhz (guess)
+//  - BCLK->TS:  2 - 12.3   2 -  9.5   1 - 6.15
+//  - BCLK->TIP: 2 - 13.5   2 - 10.4   1 - 6.75
+//  - BCLK->AX:  2 - 13.5   2 - 10.4   1 - 6.75
+//
+// risks when considering maximum 060 delays.
+//  - sampling TS on falling edge could miss in 50/50 configs
+//  - rom/ram cycle can be violated by up to 8.50ns in  50/50 configs
+//  - rom/ram cycle can be violated by up to 1.75ns in 100/50 configs
+//
+//------------------------------------------------------------------------------
+DECODE_SIMM = DECODE_SIMM0 # DECODE_SIMM1 # DECODE_SIMM2 # DECODE_SIMM3;
+
+node ROM_OVERLAY_DISABLED;
+ROM_OVERLAY_DISABLED.ar = RSTI;
+ROM_OVERLAY_DISABLED.ck = BCLK;
+ROM_OVERLAY_DISABLED.d  = ROM_OVERLAY_DISABLED # (SMRD3 & DECODE_SIMM3);
+
+[SMRD0..3].ar = RSTI;
+[SMRD0..3].ck = BCLK;
+SMRD0.d = !LBUS_DONE & (SMRD0 # (RW & LB_TRIGGER & ((DECODE_SIMM0 # DECODE_ACIA) & ROM_OVERLAY_DISABLED)));
+SMRD1.d = !LBUS_DONE & (SMRD1 # (RW & LB_TRIGGER & DECODE_SIMM1));
+SMRD2.d = !LBUS_DONE & (SMRD2 # (RW & LB_TRIGGER & DECODE_SIMM2));
+SMRD3.d = !LBUS_DONE & (SMRD3 # (RW & LB_TRIGGER & (DECODE_SIMM3 # (DECODE_SIMM0 & !ROM_OVERLAY_DISABLED))));
+
+[SMWR0..3].ar = RSTI;
+[SMWR0..3].ck = BCLK;
+SMWR0.d = !LBUS_DONE & (SMWR0 # (!RW & LB_TRIGGER & DECODE_SIMM0));
+SMWR1.d = !LBUS_DONE & (SMWR1 # (!RW & LB_TRIGGER & DECODE_SIMM1));
+SMWR2.d = !LBUS_DONE & (SMWR2 # (!RW & LB_TRIGGER & DECODE_SIMM2));
+SMWR3.d = !LBUS_DONE & (SMWR3 # (!RW & LB_TRIGGER & DECODE_SIMM3));
+
+TCI = !(TIP & DECODE_SIMM);
+TBI = 'b'1; // burst inhibit
+CLA = 'b'0; // burst address increment
+
+
+//------------------------------------------------------------------------------
+// UART
+//  30ns cs cycle
+//  30ns minimum delay between cs cycles
+//  25ns cs->data setup on read, 10ns data hold
+//  10ns data setup on write
+//------------------------------------------------------------------------------
+UARTCS.ar = RSTI;
+UARTCS.ck = BCLK;
+UARTCS.d  = !LBUS_DONE & (UARTCS # (LB_TRIGGER & DECODE_UART)); // s2,s3,s4,s5
+
+/*
+node UARTS4;
+node UARTS1;
+UARTS1.ar = RSTI;
+UARTS1.ck = !BCLK;  // sample TS on falling bclk (1)
+UARTS1.d  = TS & BUSCYCLE & DECODE_UART;
+UARTCS.ar = RSTI;
+UARTCS.ck = BCLK;   // cs enable on rising bclk (2-3)
+UARTCS.d  = (UARTCS # UARTS1) & !UARTS4;
+UARTS4.ar = RSTI;
+UARTS4.ck = BCLK;   // hold cs for one more bclk (4-5)
+UARTS4.d  = UARTCS & !UARTS4;
+*/
+
+
+//------------------------------------------------------------------------------
+// Debug
+//------------------------------------------------------------------------------
+//SPARE_J106_IO_73 = !UARTCS;
+
+
+//------------------------------------------------------------------------------
+//
+// MC68150, 16/8bit bus
+//
+//------------------------------------------------------------------------------
+node [YMDTACK0..3];     // todo: shared waitstate counter
+node [IDEDTACK0..5];
+node ISADSACK0;
+node ISADSACK1;
+
+EXDSACK1 = EXDS & (
+    EXDTACK #
+    YMDTACK3 #
+    IDEDTACK4 #
+    ISADSACK1
+    );
+
+EXDSACK0 = EXDS & (
+    ISADSACK0
+    );
+
+
+// enable 68150 after SAS to ensure enough time has passed
+// for things to settle on that side of the bus.
+node TS_EBUS;
+TS_EBUS.ar = RSTI;
+TS_EBUS.ck = !BCLK;
+TS_EBUS.d  = SAS & (DECODE_68150 # MFPIRQ);
+
+// disable 68150 at the rising edge _after_ it has signalled TA.
+// this ensures asynchronous termination which is an unfortunate
+// necessity due to EXCS being connected to both the 68150 as well
+// as the databus transcievers.
+EXCS.ar = RSTI;
+EXCS.ck = BCLK;
+EXCS.d  = !EXTA & (EXCS # TS_EBUS);
+
+
+//------------------------------------------------------------------------------
+// 68150 : IRQ
+//------------------------------------------------------------------------------
+IACK.ck = !BCLK;
+IACK.ar = RSTI;
+IACK.d = EXDS & EXCS & MFPIRQ;
+
+
+//------------------------------------------------------------------------------
+// 68150 : MFP
+//------------------------------------------------------------------------------
+MFP1CS.ck = !BCLK;
+MFP1CS.ar = RSTI;
+MFP1CS.d = EXDS & EXCS & DECODE_MFP1;
+
+MFP2CS.ck = !BCLK;
+MFP2CS.ar = RSTI;
+MFP2CS.d = EXDS & EXCS & DECODE_MFP2;
+
+
+//------------------------------------------------------------------------------
+// 68150 : YM
+//------------------------------------------------------------------------------
+YMCS.ck = !BCLK;
+YMCS.ar = RSTI;// # !EXDS;
+YMCS.d  = EXDS & EXCS & DECODE_YM;
+
+[YMDTACK0..3].ck = !BCLK;
+[YMDTACK0..3].ar = RSTI # !YMCS # !EXDS;
+YMDTACK3.d = YMDTACK2;
+YMDTACK2.d = YMDTACK1;
+YMDTACK1.d = YMDTACK0;
+YMDTACK0.d = YMCS;
+
+
+//------------------------------------------------------------------------------
+// 68150 : IDE
+//
+// PIO  Cyc    Set    MB/s
+// 0    600    70     3
+// 1    383    50     5
+// 2    240    30     8
+// 3    180    20     11
+// 4    120    14     16
+// 5    100    12     20
+// 6     80    10     25
+//------------------------------------------------------------------------------
+
+// Trigger IDE_CS early to comply with IDE_CS -> IDE_RW setup time
+IDECS.ar = RSTI;
+IDECS.ck = BCLK;
+IDECS.d  = !EXTA & (IDECS # (TS_TRIGGER & DECODE_IDE));
+
+// IDE dtack delay counter
+// todo: would be better to use the ready signal but
+// only if we're in a PIO mode that supports it.
+[IDEDTACK0..5].ck = !BCLK;
+[IDEDTACK0..5].ar = RSTI # !IDECS # !EXDS;
+IDEDTACK5.d = IDEDTACK4;
+IDEDTACK4.d = IDEDTACK3;
+IDEDTACK3.d = IDEDTACK2;
+IDEDTACK2.d = IDEDTACK1;
+IDEDTACK1.d = IDEDTACK0;
+IDEDTACK0.d = IDECS & EXCS & EXDS;
+
+
+//------------------------------------------------------------------------------
+// 68150 : ISA
+//------------------------------------------------------------------------------
+node [ISADTACK0..20];
+
+ISA8  = !DECODE_ISA16;
+ISAIO = DECODE_ISA_IO8 # DECODE_ISA_IO16;
+ISADS = EXCS & DECODE_ISA & EXDS;
+ISACS = ISADS & ISADTACK1 & (RW # !ISADTACK19);
+
+ISADSACK16 = DECODE_ISA_RAM16 # (DECODE_ISA_IO16 & IOCS16);
+ISADSACKXX = ISADS & ISADTACK20;
+ISADSACK1  = ISADSACKXX &  ISADSACK16;
+ISADSACK0  = ISADSACKXX & !ISADSACK16;
+
+node ISADONE;
+ISADONE.ck = !BCLK;
+ISADONE.ar = RSTI # !ISACS;
+ISADONE.d = ISARDY; // # (!RW & !ISAIO);
+
+[ISADTACK0..20].ck = !BCLK;
+[ISADTACK0..20].ar = RSTI # !EXDS;
+ISADTACK20.d = ISADTACK19;
+ISADTACK19.d = ISADTACK18;
+ISADTACK18.d = ISADTACK17;
+ISADTACK17.d = (ISADTACK16 & ISADONE) # ISADTACK17;
+ISADTACK16.d = ISADTACK15;
+ISADTACK15.d = ISADTACK14;
+ISADTACK14.d = ISADTACK13;
+ISADTACK13.d = ISADTACK12;
+ISADTACK12.d = ISADTACK11;
+ISADTACK11.d = ISADTACK10 # (ISADS & DECODE_ISA_RAM16);
+ISADTACK10.d = ISADTACK9;
+ISADTACK9.d = ISADTACK8;
+ISADTACK8.d = ISADTACK7;
+ISADTACK7.d = ISADTACK6;
+ISADTACK6.d = ISADTACK5;
+ISADTACK5.d = ISADTACK4;
+ISADTACK4.d = ISADTACK3;    // <--
+ISADTACK3.d = ISADTACK2;
+ISADTACK2.d = ISADTACK1;
+ISADTACK1.d = ISADTACK0;
+ISADTACK0.d = ISADS;
+
+
+//------------------------------------------------------------------------------
+// Bus cycle end
+//------------------------------------------------------------------------------
+
+// todo: this is wrong. should be no need for the
+// second register -- which prevents ta one bclk
+// "too late" anyway?
+//
+// it was meant to force TA off after one bclk
+// but this does it after two.
+//
+
+// TA_IRQ is probably ok since it only triggers
+// on TS_TRIGGER
+//
+// TA is "probably" ok in reality too if the trigger
+// signals do end at rising bclk.
+//
+// still, fix this properly as the current logic
+// is just confusing and does nothing at best.
+// at worst TA could be held for one extra cycle
+// (maybe ok too but unnecessary)
+//
+
+// autovector irq and unhandled cycles
+node [TA_IRQ0..1];
+[TA_IRQ0..1].ck = BCLK;
+[TA_IRQ0..1].ar = RSTI;
+TA_IRQ0.d = !TA_IRQ1 & (TS_TRIGGER & !BUSCYCLE & !MFPIRQ);
+TA_IRQ1.d = !TA_IRQ1 & TA_IRQ0;
+
+// generate TA and hold for half bclk after rising edge
+node TA2;
+TA.ar  = RSTI;
+TA2.ar = RSTI;
+TA.ck  = !BCLK;
+TA2.ck = !BCLK;
+TA.d   = !TA2 & ((EXCS & EXTA) # (!EXCS & (TA_LBUS # TA_IRQ0)));
+TA2.d  = !TA2 & TA;
