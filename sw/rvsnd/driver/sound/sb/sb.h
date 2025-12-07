@@ -28,24 +28,50 @@
 #define SBTYPE_ESS          5
 #define SBTYPE_OPL3SA       6
 
-extern isa_t* bus;                 /* isa bus */
+typedef struct {
+    volatile uint8_t* base;
+    uint16_t irq;
+    uint16_t port;
+    uint16_t version;
+    uint16_t type;
+} sb_info_t;
 
-extern uint16_t sb_type;           /* card type */
-extern uint16_t sb_port;           /* soundblaster port */
-extern uint16_t sb_irq;            /* soundblaster irq */
+typedef struct {
+    volatile uint8_t* base;
+    uint8_t port;
+} wss_info_t;
 
-extern uint16_t opl_port;          /* opl port */
-extern uint16_t mpu_port;          /* mpu port */
-extern uint16_t wss_port;          /* windows soundsystem port */
-extern uint16_t sax_port;          /* opl3sa control port */
+typedef struct {
+    volatile uint8_t* base;
+    uint16_t port;
+} opl3sa_info_t;
 
-extern volatile uint8_t* sb_base;
-extern volatile uint8_t* opl_base;
-extern volatile uint8_t* mpu_base;
-extern volatile uint8_t* wss_base;
-extern volatile uint8_t* sax_base;
+typedef struct {
+    uint16_t version;
+} ess_info_t;
 
-/* mixer */
-extern bool mixer_init(void);
+
+extern isa_t*           bus;
+
+extern sb_info_t        sb;
+extern wss_info_t       wss;
+extern opl3sa_info_t    sax;
+extern ess_info_t       ess;
+
+extern bool sb_detect(sb_info_t* out, uint16_t port);
+extern bool wss_detect(wss_info_t* out, uint16_t port);
+extern bool sax_detect(opl3sa_info_t* out, sb_info_t* sb, uint16_t port);
+extern bool ess_detect(ess_info_t* out, sb_info_t* sb);
+
+extern void sb_init_mixer(rvdev_mix_t* out);
+extern void sax_init_mixer(rvdev_mix_t* out);
+extern void ess_init_mixer(rvdev_mix_t* out, bool midivol_auxb);
+
+static void sb_mixer_outp(uint8_t _r, uint8_t _d)  {sb.base[4] = _r; sb.base[5]  = _d; }
+static uint8_t sb_mixer_inp(uint8_t _r) { sb.base[4]  = _r; return sb.base[5]; }
+
+extern void ct1345_mixer_set(uint16_t idx, uint16_t data);
+extern uint16_t ct1345_mixer_get(uint16_t idx);
+
 
 #endif /* _SBDRIVER_H_ */

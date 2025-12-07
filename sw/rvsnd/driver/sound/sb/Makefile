@@ -7,7 +7,10 @@ PRJ = purec.prj
 OBJS = 	../../driver.o \
 		../../driverlm.o \
 		main.o \
-		mixer.o \
+		blaster.o \
+		wss.o \
+		ess.o \
+		opl3sa.o \
 		#
 		
 ROOTDIR = ../../../..

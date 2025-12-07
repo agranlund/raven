@@ -9,5 +9,8 @@ sb.rvs
 ..\..\driver.s
 ..\..\driverlm.s
 main.c
-mixer.c
+blaster.c
+wss.c
+ess.c
+opl3sa.c
 
