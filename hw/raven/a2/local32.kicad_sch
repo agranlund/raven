@@ -13487,6 +13487,28 @@
 		)
 		(uuid "51443a09-2d0f-494f-82f2-182034767e67")
 	)
+	(text_box "todo:\n? i2c on P1.2, P1.3\n - for ikbd rtc without need for software driver\n - for eiffel-lcd support\n - generic uart<->i2c interface\n\n? spi on p1.4, p1.5, p.16\n - plus suitable CS pins (2 or so)\n - routed to spi header(s) on motherboard\n - generic uart<->spi interface\n"
+		(exclude_from_sim no)
+		(at 347.98 97.155 0)
+		(size 46.99 26.035)
+		(margins 0.9525 0.9525 0.9525 0.9525)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(fill
+			(type color)
+			(color 255 230 63 0.53)
+		)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 0 0 0 1)
+			)
+			(justify left top)
+		)
+		(uuid "8c44461d-244e-4c58-96d2-5c708cb22f09")
+	)
 	(text_box ""
 		(exclude_from_sim no)
 		(at 560.07 140.335 0)
