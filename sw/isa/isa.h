@@ -252,7 +252,7 @@ _ISA_INL isa_dev_t* isa_find(const char* id, uint16_t idx) { isa_t* isa = isa_ge
  *--------------------------------------------------------------------*/
 #ifndef ISA_EXCLUDE_LIB_MSDOS
 #define outp(p,d)   isa_writeb(p,d)
-#define outw(p,d)   isa_writew(p,d)
+#define outpw(p,d)  isa_writew(p,d)
 #define inp(p)      isa_readb(p)
 #define inpw(p)     isa_readw(p)
 #endif /* ISA_EXCLUDE_LIB_MSDOS */
