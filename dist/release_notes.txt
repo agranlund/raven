@@ -1,6 +1,12 @@
 Raven.A1
 Hardware and software binary release
 
+xxxxxxxx:
+  rom:      disable store/load bypass on rev1+5 cpu
+  rom:      moved motorola sp060 into bootrom
+  rvbios:   moved motorola sp060 into bootrom
+  rvbios:   settime/gettime for rtc
+
 20251007:
   rom:      ensure caches enabled during vgabios calls
   rvnova:   remove temporary vgabios workarounds
