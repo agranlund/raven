@@ -262,8 +262,38 @@ long super_main(int args, char** argv) {
         ini_t ini;
         const char* name;
 
-        /* mixer */
-        if (ini_GetSection(&ini, &sys.ini, "mixer")) {
+        /* mixer mapping*/
+        if (ini_GetSection(&ini, &sys.ini, "mixer-map")) {
+            const char* skey; const char* sval;
+            const char* where = ini.data;
+            while (where) {
+                where = ini_NextKeyValue(&ini, where, &skey, &sval);
+                if (where && skey && sval) {
+                    mixer_ctr_t* ctr1 = mixer_FindCtr(skey);
+                    mixer_ctr_t* ctr2 = mixer_FindCtr(sval);
+                    if (ctr1 && ctr1->ctr && (ctr1->ctr != ctr2->ctr)) {
+                        /* get new target xbios value */
+                        uint8_t xb = 0;
+                        if (ctr2 && ctr2->ctr) {
+                            xb = ((ctr2->id & 0xff00) == 0) ? ctr2->ctr->id : ctr2->ctr->flags;
+                        }
+                        /* apply */
+                        if ((ctr1->id & 0xff00) == 0) {
+                            /* target is also a system control */
+                            if (xb) {
+                                ctr1->ctr->id = xb;
+                            }
+                        } else {
+                            /* target is a normal control */
+                            ctr1->ctr->flags = xb;
+                        }
+                    }
+                }
+            }
+        }
+
+        /* mixer volumes */
+        if (ini_GetSection(&ini, &sys.ini, "mixer-vol")) {
             const char* skey; const char* sval;
             const char* where = ini.data;
             while (where) {
