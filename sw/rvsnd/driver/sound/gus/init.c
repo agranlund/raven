@@ -241,6 +241,9 @@ static rvmixctrl_t mixer_amd_ctrls[] = {
 1A       mono in/out             4bit    000x0000    atten   0db to -45db
 */
 
+/* get rid of the +12db part to avoid risks of clipping synth playback */
+#define GUS_GAIN_REDUCE (1 << 3)
+
 static void mixer_amd_outp(uint8_t _r, uint8_t _d)  {
     uint8_t r1 = _r + 0;
     uint8_t r2 = _r + ((_r == 0x19) ? 2 : 1);
@@ -266,13 +269,33 @@ static uint8_t mixer_amd_inp(uint8_t _r, uint8_t mask) {
 }
 
 static void mixer_amd_set(uint16_t idx, uint16_t data) {
-    uint8_t v = (0x0f - min(data, 0x0f));
-    if (v == 0x0f) { v |= 0x80; }
-    mixer_amd_outp(idx, v);
+    switch (idx) {
+        case 0x0002: {
+            uint8_t v = (0x0f - min(data, 0x0f));
+            uint8_t m = (v == 0x0f) ? 0x80 : 0;
+            v = min(0x1f, (v + GUS_GAIN_REDUCE));
+            mixer_amd_outp(idx, (v | m));
+        } break;
+
+        default: {
+            uint8_t v = (0x0f - min(data, 0x0f));
+            uint8_t m = (v == 0x0f) ? 0x80 : 0;
+            mixer_amd_outp(idx, (v | m));
+        } break;
+    }
 }
 
 static uint16_t mixer_amd_get(uint16_t idx) {
-    return (0x0f - min(0x0f, mixer_amd_inp(idx, 0x0f)));
+    switch (idx) {
+        case 0x0002: {
+            uint8_t v = mixer_amd_inp(idx, 0x1f);
+            v = (v > GUS_GAIN_REDUCE) ? (v - GUS_GAIN_REDUCE) : 0;
+            return (0x0f - min(0x0f, v));
+        }
+        default: {
+            return (0x0f - min(0x0f, mixer_amd_inp(idx, 0x0f)));
+        }
+    }
 }
 
 
