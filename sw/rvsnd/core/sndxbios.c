@@ -20,19 +20,24 @@
 #include "sys.h"
 #include "mixer.h"
 
-/* todo: most of this is temp hacks for now */
-
-/*
- * control ID 26 is a new extended xbios PCM volume
- * control ID 00 is also PCM according to MilanBlaster, this is the same
- *  as the one and only volume control on STe/Falcon.
- * 
- *  add option to allow treating 00 as either PCM or Master.
- */
-
+/* todo: most of this is a mixture or WIP and temporary hacks for now */
 
 #define XBDEBUG 0
-#define BROKEN_GSXB_WORKAROUND 1
+
+/* GSXB considers the data argument to be attenuation           */
+/*   0 = least attenuation = highest volume                     */
+/* 255 = most attenuation  = lowest volume                      */
+/*                                                              */
+/* TOS.HYP and MilanBlaster specifies this argument as Gain     */
+/* I do not know if they mean 0 is <max> and 255 is <min>       */
+/* If they don't then there could be a problem with GSXB doing  */
+/* the exact opposite of MilanBlaster / what TOS.HYP says       */
+/*                                                              */
+/* If we're going to create a GSXB cookie to claim compatible   */
+/* then we might want to do what GSXB does (right or wrong)     */
+
+#define SNDCMD_IS_ATTENUATION 1
+
 
 /*------------------------------------------------------------------------------*/
 /* $80 : locksnd                                                                */
@@ -65,14 +70,14 @@ int32_t xb_soundcmd(xb_soundcmd_args* args) {
 #endif
     switch (args->mode) {
 
-        /* Falcon / DAC attenuation */
+        /* Falcon DAC output attenuation */
         case 0: case 1: {
             uint8_t val = (255 - (args->data & 0xff));
-            if (!enquire) { mixer_SetValueById(0x0001, val); }
-            return (255 - mixer_GetValueById(0x0001));
+            if (!enquire) { mixer_SetValueById(SYSMIXER_ID_PCM, val); }
+            return (255 - mixer_GetValueById(SYSMIXER_ID_PCM));
         }
 
-        /* Falcon / ADC gain */
+        /* Falcon ADC input gain */
         case 2: case 3: {
             return 0;
         }
@@ -123,7 +128,7 @@ int32_t xb_soundcmd(xb_soundcmd_args* args) {
             return v;
         }
 
-        /* MilanBlaster volume controls */
+        /* mixer controls (MilanBlater/GSXB) */
         case 12: case 13:   /* master   */
         case 14: case 15:   /* mic      */
         case 16: case 17:   /* fm       */
@@ -142,10 +147,7 @@ int32_t xb_soundcmd(xb_soundcmd_args* args) {
             };
             uint16_t id = map[(args->mode - 12) >> 1];
             uint8_t val = (args->data <= 0) ? 0 : (args->data >= 255) ? 255 : args->data;
-#if BROKEN_GSXB_WORKAROUND
-            /* gsxb thought it was a clever idea to have these as attenuation */
-            /* instead of gain as was set by the previous MilanBlaster standard */
-            /* and documented in tos.hyp... sigh... */
+#if SNDCMD_IS_ATTENUATION
             if (!enquire) { mixer_SetValueById(id, 255 - val); }
             return 255 - mixer_GetValueById(id);
 #else
@@ -246,6 +248,8 @@ int32_t xb_dsptristate(xb_dsptristate_args* args) {
 /*------------------------------------------------------------------------------*/
 typedef struct {int16_t mode; int16_t data; } xb_gpio_args;
 int32_t xb_gpio(xb_gpio_args* args) {
+    /* this is sometimes used to detect the presence of an external */
+    /* clock on Falcon, used for standard pc sound frequencies      */
     (void)args;
 #if XBDEBUG
     dprintf("xb_gpio %04x\n", args->mode, args->data);
@@ -275,21 +279,34 @@ int32_t xb_sndstatus(xb_sndstatus_args* args) {
     dprintf("xb_sndstatus %04x\n", args->reset);
 #endif
     switch (args->reset) {
-        /* reset or check dac+adc status */
         case 0: case 1: {
+            if (args->reset) {
+                /*
+                - Gain and attentuation are zeroed
+                - Old matrix connections are reset
+                - ADDERIN is disabled
+                - Mode is set to 8-Bit Stereo
+                - Play and record tracks are set to 0
+                - Monitor track is set to 0
+                - Interrupts are disabled
+                - Buffer operation is disabled
+                */
+            }
+            /* return dac+adc error status, always ok */
             return 0;
         }
 
         /* inquire bit-depth (MilanBlaster / GSXB) */
         case 2: {
             return
-                (1 << 0) |  /*  8bit */
-                (1 << 1) |  /* 16bit */
+                (1 << 0) |  /*  8bit, supported */
+                (1 << 1) |  /* 16bit, supported */
                 (0 << 2) |  /* 24bit, not supported */
                 (0 << 3);   /* 32bit, not supported */
         }
         /* inquire available inputs */
         case 3: {
+            /* todo: we should ask the mixer about this... */
             return
                 (0 << 0) |  /* adc      */
                 (1 << 1) |  /* dac      */
@@ -303,6 +320,8 @@ int32_t xb_sndstatus(xb_sndstatus_args* args) {
 
         /* inquire available inputs for ADC */
         case 4: {
+            /* todo: we should ask the mixer about this...  */
+            /*       when and if we support recording.      */
             return 0;
         }
 
@@ -323,7 +342,7 @@ int32_t xb_sndstatus(xb_sndstatus_args* args) {
         
         /* inquire 24/32 bit sample format */
         case 10: case 11: {
-            return 0x0; /* nothing */
+            return 0x0; /* we don't support them */
         }
 
         /* inquire value of falcon register ff8900 */
