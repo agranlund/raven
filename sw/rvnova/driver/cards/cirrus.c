@@ -485,6 +485,11 @@ static void setbank(uint16_t num) {
     vga_WritePortWLE(0x3ce, 0x0900 | num);
 }
 
+/* todo:
+    currently, this function assumes a 5426+ card
+    GD5426/28/29 supports CR1B:bits 0,2,3 (address bits 16, 17, 18)
+    GD542x       supports CR1B:bits 0,2   (address bits 16, 17    )
+*/
 static void setaddr(uint32_t addr) {
     uint16_t crtc = vga_GetBaseReg(4);
     uint32_t hiaddr = addr >> 18;
@@ -557,7 +562,7 @@ static bool init(card_t* card, addmode_f addmode) {
     card->setmode = setmode;
     if (cl_support_blitter()) {
         card->blit = blit;
-        card->setaddr = setaddr;
+        card->setaddr = setaddr;    /* todo: should be for all cards, but see note in setaddr() */
         /*card->hlines = hlines;*/
     }
     if (cl_support_linear()) {
