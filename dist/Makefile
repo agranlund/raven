@@ -24,11 +24,12 @@ ROMDIR		= $(OUTDIR)/roms
 SRECDIR		= $(ROMDIR)/srec
 SWDIR		= $(OUTDIR)/software
 COPY		= cp -p
-
+MKDIR		= mkdir -p
 
 SWDIR_AUTO		= $(SWDIR)/auto
 SWDIR_CPX		= $(SWDIR)/cpx
 SWDIR_NOVA		= $(SWDIR)/nova
+SWDIR_RVSND		= $(SWDIR)/rvsnd
 SWDIR_TOOLS		= $(SWDIR)/tools
 SWDIR_RTOOLS	= $(SWDIR)/raven
 SWDIR_ISA		= $(SWDIR)/raven/drivers
@@ -43,7 +44,7 @@ release: setup copy zipit backup upload
 release-test: setup copy zipit
 
 setup: clean
-	mkdir -p $(OUTDIR)
+	$(MKDIR) $(OUTDIR)
 
 clean:
 	rm -r -f $(OUTDIR)
@@ -56,7 +57,7 @@ copydocs:
 	$(COPY) $(DISTDIR)/license.gpl $(OUTDIR)/license.gpl
 
 copyroms:
-	mkdir -p $(ROMDIR)
+	$(MKDIR) $(ROMDIR)
 	$(COPY) $(DISTDIR)/readme_rom.txt $(ROMDIR)/readme.txt
 	make -C $(ROOTDIR)/sw/rom clean
 	make -C $(ROOTDIR)/sw/rom tos-dbg
@@ -66,13 +67,13 @@ copyroms:
 	$(COPY) $(ROOTDIR)/sw/rom/rom_tos.bin $(ROMDIR)/
 	make -C $(ROOTDIR)/sw/rom mon
 	$(COPY) $(ROOTDIR)/sw/rom/rom_mon.bin $(ROMDIR)/
-	mkdir -p $(SRECDIR)
+	$(MKDIR) $(SRECDIR)
 	make -C $(ROOTDIR)/sw/rom/srec clean
 	make -C $(ROOTDIR)/sw/rom/srec all
 	$(COPY) $(ROOTDIR)/sw/rom/srec/selftest/selftest.s19 $(SRECDIR)/
 
 copyfw:
-	mkdir -p $(FWDIR)
+	$(MKDIR) $(FWDIR)
 	$(COPY) $(DISTDIR)/readme_fw.txt $(FWDIR)/readme.txt
 	$(COPY) $(ROOTDIR)/fw/$(BOARD)/Nessi/$(FW_NESSI) $(FWDIR)/
 	$(COPY) $(ROOTDIR)/fw/$(BOARD)/Narnia/$(FW_NARNIA) $(FWDIR)/
@@ -85,7 +86,7 @@ copyfw:
 
 
 copyhw:
-	mkdir -p $(HWDIR)
+	$(MKDIR) $(HWDIR)
 	$(COPY) $(ROOTDIR)/hw/raven/$(BOARD)/production/raven-a1_gerber.zip $(HWDIR)/
 	$(COPY) $(ROOTDIR)/hw/raven/$(BOARD)/production/raven-a1_bom.md $(HWDIR)/
 	$(COPY) $(ROOTDIR)/hw/raven/$(BOARD)/production/raven-a1_ibom.html $(HWDIR)/
@@ -115,12 +116,12 @@ github_create_release:
 
 
 copysw:
-	mkdir -p $(SWDIR)
-	mkdir -p $(SWDIR_AUTO)
-	mkdir -p $(SWDIR_CPX)
-	mkdir -p $(SWDIR_TOOLS)
-	mkdir -p $(SWDIR_RTOOLS)
-	mkdir -p $(SWDIR_ISA)
+	$(MKDIR) $(SWDIR)
+	$(MKDIR) $(SWDIR_AUTO)
+	$(MKDIR) $(SWDIR_CPX)
+	$(MKDIR) $(SWDIR_TOOLS)
+	$(MKDIR) $(SWDIR_RTOOLS)
+	$(MKDIR) $(SWDIR_ISA)
 
 	# --------------------------------------------------
 	# General stuff
@@ -137,6 +138,28 @@ copysw:
 
 
 	# --------------------------------------------------
+	# RVSND
+	# --------------------------------------------------
+	make -C $(ROOTDIR)/sw/rvsnd clean
+	make -C $(ROOTDIR)/sw/rvsnd
+
+	$(MKDIR) $(SWDIR_RVSND)
+	$(MKDIR) $(SWDIR_RVSND)/chip
+	$(MKDIR) $(SWDIR_RVSND)/midi
+	$(MKDIR) $(SWDIR_RVSND)/sound
+	$(COPY) $(ROOTDIR)/sw/rvsnd/core/rvsnd.prg $(SWDIR_RVSND)
+	$(COPY) $(ROOTDIR)/sw/rvsnd/ctrl/rvsctrl.prg $(SWDIR_RVSND)
+	$(COPY) $(ROOTDIR)/sw/rvsnd/example.inf $(SWDIR_RVSND)/rvsnd.inf
+
+	$(COPY) $(ROOTDIR)/sw/rvsnd/driver/chip/opl/*.rvs $(SWDIR_RVSND)/chip
+	$(COPY) $(ROOTDIR)/sw/rvsnd/driver/midi/opl/*.rvs $(SWDIR_RVSND)/midi
+	$(COPY) $(ROOTDIR)/sw/rvsnd/driver/midi/mpu401/*.rvs $(SWDIR_RVSND)/midi
+	$(COPY) $(ROOTDIR)/sw/rvsnd/driver/midi/raven/*.rvs $(SWDIR_RVSND)/midi
+	$(COPY) $(ROOTDIR)/sw/rvsnd/driver/sound/sb/*.rvs $(SWDIR_RVSND)/sound
+	$(COPY) $(ROOTDIR)/sw/rvsnd/driver/sound/gus/*.rvs $(SWDIR_RVSND)/sound
+
+
+	# --------------------------------------------------
 	# RVNOVA
 	# --------------------------------------------------
 	make -C $(ROOTDIR)/sw/rvnova/loader/ clean
@@ -145,6 +168,7 @@ copysw:
 
 	make -C $(ROOTDIR)/sw/rvnova/driver/ clean
 	make -C $(ROOTDIR)/sw/rvnova/driver
+
 
 	# --------------------------------------------------
 	# TOOLS
@@ -165,6 +189,7 @@ copysw:
 	$(COPY) $(ROOTDIR)/sw/tools/flash/flash.ttp $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/serial.cpx/serial.cpx $(SWDIR_CPX)/
 
+
 	# --------------------------------------------------
 	# ISA BIOS
 	# --------------------------------------------------
@@ -181,7 +206,7 @@ copysw:
 		# --------------------------------------------------
 		# FMRADIO
 		# --------------------------------------------------
-		mkdir -p $(SWDIR_ISA)/fmradio
+		$(MKDIR) $(SWDIR_ISA)/fmradio
 		make -C $(ROOTDIR)/sw/isa/drivers/fmradio clean
 		make -C $(ROOTDIR)/sw/isa/drivers/fmradio
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/fmradio/fmradio.prg $(SWDIR_ISA)/fmradio/fmradio.prg
@@ -190,7 +215,7 @@ copysw:
 		# --------------------------------------------------
 		# MPU401
 		# --------------------------------------------------
-		mkdir -p $(SWDIR_ISA)/mpu401
+		$(MKDIR) $(SWDIR_ISA)/mpu401
 		make -C $(ROOTDIR)/sw/isa/drivers/mpu401 clean
 		make -C $(ROOTDIR)/sw/isa/drivers/mpu401
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/mpu401/mpu401.prg $(SWDIR_ISA)/mpu401/mpu401.prg
@@ -199,7 +224,7 @@ copysw:
 		# --------------------------------------------------
 		# OPL-MIDI
 		# --------------------------------------------------
-		mkdir -p $(SWDIR_ISA)/oplmidi
+		$(MKDIR) $(SWDIR_ISA)/oplmidi
 		make -C $(ROOTDIR)/sw/isa/drivers/oplmidi clean
 		make -C $(ROOTDIR)/sw/isa/drivers/oplmidi
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/oplmidi/oplmidi.prg $(SWDIR_ISA)/oplmidi/oplmidi.prg
@@ -208,7 +233,7 @@ copysw:
 		# --------------------------------------------------
 		# GUS
 		# --------------------------------------------------
-		mkdir -p $(SWDIR_ISA)/gus
+		$(MKDIR) $(SWDIR_ISA)/gus
 		make -C $(ROOTDIR)/sw/isa/drivers/gus clean
 		make -C $(ROOTDIR)/sw/isa/drivers/gus
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/gus/ultrinit.prg $(SWDIR_ISA)/gus/ultrinit.prg
@@ -216,7 +241,7 @@ copysw:
 		# --------------------------------------------------
 		# PicoGUS
 		# --------------------------------------------------
-		mkdir -p $(SWDIR_ISA)/picogus
+		$(MKDIR) $(SWDIR_ISA)/picogus
 		make -C $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit -f Makefile-atari clean
 		make -C $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit -f Makefile-atari
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit/pgusinit.prg $(SWDIR_ISA)/picogus/pgusinit.prg
@@ -225,7 +250,7 @@ copysw:
 		# --------------------------------------------------
 		# NE2000
 		# --------------------------------------------------
-		mkdir -p $(SWDIR_ISA)/ne2000
+		$(MKDIR) $(SWDIR_ISA)/ne2000
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/ENEH.MIF $(SWDIR_ISA)/ne2000/eneh.xif
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/ENEH.STX $(SWDIR_ISA)/ne2000/eneh.stx
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/ETHERNE.TXT $(SWDIR_ISA)/ne2000/etherne.txt
@@ -239,7 +264,7 @@ copysw:
 	# --------------------------------------------------
 	# Castaway
 	# --------------------------------------------------
-		mkdir -p $(SWDIR_RTOOLS)/castaway
+		$(MKDIR) $(SWDIR_RTOOLS)/castaway
 		# todo: clean and recompile?
 		$(COPY) $(ROOTDIR)/../castaway/bin/* $(SWDIR_RTOOLS)/castaway/
 		$(COPY) $(ROOTDIR)/../castaway/readme.txt $(SWDIR_RTOOLS)/castaway/
@@ -249,7 +274,7 @@ copysw:
 	# --------------------------------------------------
 	# Eiffel
 	# --------------------------------------------------
-		mkdir -p $(SWDIR_RTOOLS)/eiffel
+		$(MKDIR) $(SWDIR_RTOOLS)/eiffel
 		unzip -L $(SUPPDIR)/eiffel/eiffel1110.zip "eiffel/eiffelcf.app" -d $(SWDIR_RTOOLS)
 		unzip -L $(SUPPDIR)/eiffel/eiffel1110.zip "eiffel/copying" -d $(SWDIR_RTOOLS)
 		unzip -L $(SUPPDIR)/eiffel/eiffel1110.zip "eiffel/eiffel_g.rsc" -d $(SWDIR_RTOOLS)
@@ -266,7 +291,7 @@ copysw:
 	# --------------------------------------------------
 	# NOVA
 	# --------------------------------------------------
-		mkdir -p $(SWDIR_NOVA)
+		$(MKDIR) $(SWDIR_NOVA)
 		unzip $(SUPPDIR)/nova/TT_ET4000T8_V300.zip -d $(SWDIR_NOVA)
 		mv $(SWDIR_NOVA)/T8 $(SWDIR_NOVA)/DEFAULT
 		$(COPY) $(ROOTDIR)/sw/rvnova/driver/emulator.prg $(SWDIR_NOVA)/DEFAULT/AUTO/EMULATOR.PRG
@@ -301,21 +326,21 @@ copysw:
 	# --------------------------------------------------
 	# Additional support tools
 	# --------------------------------------------------
-		mkdir -p $(SWDIR_TOOLS)/autosort
+		$(MKDIR) $(SWDIR_TOOLS)/autosort
 		unzip -j -L $(SUPPDIR)/Autosort.zip "autosort/autosort.prg" -d $(SWDIR_TOOLS)/autosort/
 		unzip -j -L $(SUPPDIR)/Autosort.zip "autosort/autosort.doc" -d $(SWDIR_TOOLS)/autosort/
 
-		mkdir -p $(SWDIR_TOOLS)/autoexec
+		$(MKDIR) $(SWDIR_TOOLS)/autoexec
 		unzip -j -L $(SUPPDIR)/autoexec-for-tos-main.zip "autoexec-for-tos-main/autoexec.prg" -d $(SWDIR_TOOLS)/autoexec/
 		unzip -j -L $(SUPPDIR)/autoexec-for-tos-main.zip "autoexec-for-tos-main/readme.md" -d $(SWDIR_TOOLS)/autoexec/
 		$(COPY) $(SUPPDIR)/autoexec.cnf $(SWDIR)/
 
-		mkdir -p $(SWDIR_TOOLS)/setenv
+		$(MKDIR) $(SWDIR_TOOLS)/setenv
 		unzip -j -L $(SUPPDIR)/setenv-main.zip "setenv-main/setenv.prg" -d $(SWDIR_TOOLS)/setenv/
 		unzip -j -L $(SUPPDIR)/setenv-main.zip "setenv-main/readme.md" -d $(SWDIR_TOOLS)/setenv/
 		$(COPY) $(SUPPDIR)/setenv.txt $(SWDIR)/
 
-		mkdir -p $(SWDIR_TOOLS)/setflags
+		$(MKDIR) $(SWDIR_TOOLS)/setflags
 		unzip -j -L $(SUPPDIR)/setfl200.zip -d $(SWDIR_TOOLS)/setflags/
 		mv $(SWDIR_TOOLS)/setflags/README $(SWDIR_TOOLS)/setflags/readme
 		mv $(SWDIR_TOOLS)/setflags/SETFLAGS.APP $(SWDIR_TOOLS)/setflags/setflags.app
