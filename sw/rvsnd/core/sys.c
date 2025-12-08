@@ -72,7 +72,7 @@ void dprintf(const char* s, ...)
     #endif
 }
 #else
-void dprintf(const char*, ...) { }
+void dprintf(const char* s, ...) { (void)s; }
 #endif /* DEBUG*/
 
 
