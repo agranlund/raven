@@ -2,8 +2,7 @@ rvsnd.prg
 .C[-I..\..\purec\include]
 .C[-I..\..]
 .C[-E1 -M -P -Z -W2]
-.C[-DDEBUG=1]
-.C[-DRAVEN=0]
+.C[-DDEBUG=0]
 .S[-S -4]
 .L[-V]
 =
