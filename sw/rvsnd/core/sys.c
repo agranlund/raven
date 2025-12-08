@@ -177,7 +177,9 @@ static bool sys_Init(void) {
     if (Getcookie(C__SND, (long*)&cookie) == C_FOUND) { sys.cookie_snd = cookie; }
 
     /* load ini file */
-    ini_Load(&sys.ini, "c:\\rvsnd.inf");
+    if (!ini_Load(&sys.ini, "rvsnd.inf")) {
+        ini_Load(&sys.ini, "c:\\rvsnd.inf");
+    }
 
     /* calibrate delays */
     cookie = sys_icache_enable();
