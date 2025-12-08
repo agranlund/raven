@@ -212,25 +212,33 @@ static uint16_t mixer_gf1_get(uint16_t idx) {
 }
 
 /* -------------------------------------------------------------------- */
+
+/*
+ hacks galore:
+ gus attenuation goes from 0 to about twice the -db compared to soundblaster
+ se we only using 4 of the 5 bits to end up with a roughly equivalent range.
+ Better would be if we exposed db ranges instead of bitdepths.
+*/
+
 static rvmixctrl_t mixer_amd_ctrls[] = {
-    { "Master", 0x0019, 5, RVMIX_XBIOS_MASTER   },  /* gus: line-out attenuation    */
-    { "Voice",  0x0002, 5, RVMIX_XBIOS_PCM      },  /* gus: dac gain                */
-    { "Line",   0x0012, 5, RVMIX_XBIOS_LINE     },  /* gus: line-in gain            */
-    { "Mic",    0x0016, 5, RVMIX_XBIOS_MIC      },  /* gus: mic gain                */
-    { "Aux2",   0x0004, 5, RVMIX_XBIOS_AUX      },  /* gus: aux2 gain               */
+    { "Master", 0x0019, 4, RVMIX_XBIOS_MASTER   },  /* gus: line-out attenuation    */
+    { "Voice",  0x0002, 4, RVMIX_XBIOS_PCM      },  /* gus: synth/aux1 gain         */
+    { "Line",   0x0012, 4, RVMIX_XBIOS_LINE     },  /* gus: line-in gain            */
+    { "Mic",    0x0016, 4, RVMIX_XBIOS_MIC      },  /* gus: mic gain                */
+    { "Aux2",   0x0004, 4, RVMIX_XBIOS_AUX      },  /* gus: aux2 gain               */
     { 0,        0,      0, 0                    }
 };
 
 /*
     bit7 = mute
  0, 1    adc                     4bit    000x0000
- 2, 3    aux1 / synth gain       5bit        1xx01000    gain    +12db to -34.5db
- 4, 5    aux2 gain               5bit        1xx01000
- 6, 7    dac                     6bit        1x000000    atten   0db to -94.5db
-12,13    line-in                 5bit        1xx00000    gain    +12db to -34.5db
-16,17    mic                     5bit        1x010000    gain    +12db to -34.5db
-19,1B    line-out                5bit        1xx00000    atten   0db to -46.5db
-1A       mono in/out             4bit        000x0000    atten   0db to -45db
+ 2, 3    aux1 / synth gain       5bit    1xx01000    gain    +12db to -34.5db
+ 4, 5    aux2 gain               5bit    1xx01000
+ 6, 7    dac                     6bit    1x000000    atten   0db to -94.5db
+12,13    line-in                 5bit    1xx00000    gain    +12db to -34.5db
+16,17    mic                     5bit    1x010000    gain    +12db to -34.5db
+19,1B    line-out                5bit    1xx00000    atten   0db to -46.5db
+1A       mono in/out             4bit    000x0000    atten   0db to -45db
 */
 
 static void mixer_amd_outp(uint8_t _r, uint8_t _d)  {
@@ -258,13 +266,13 @@ static uint8_t mixer_amd_inp(uint8_t _r, uint8_t mask) {
 }
 
 static void mixer_amd_set(uint16_t idx, uint16_t data) {
-    uint8_t v = (0x1f - min(data, 0x1f));
-    if (v == 0x1f) { v |= 0x80; }
+    uint8_t v = (0x0f - min(data, 0x0f));
+    if (v == 0x0f) { v |= 0x80; }
     mixer_amd_outp(idx, v);
 }
 
 static uint16_t mixer_amd_get(uint16_t idx) {
-    return (0x1f - mixer_amd_inp(idx, 0x1f));
+    return (0x0f - min(0x0f, mixer_amd_inp(idx, 0x0f)));
 }
 
 
@@ -310,14 +318,14 @@ void gus_init(void) {
         bus->outp(gus.pcod+1, 0x9f);            /* mic */
 
         bus->outp(gus.pcod+0, b | 0x02);        /* synth/aux1 left gain */
-        bus->outp(gus.pcod+1, 0x07);
+        bus->outp(gus.pcod+1, 0x10);
         bus->outp(gus.pcod+0, b | 0x03);        /* synth/aux1 right gain */
-        bus->outp(gus.pcod+1, 0x07);
+        bus->outp(gus.pcod+1, 0x10);
 
         bus->outp(gus.pcod+0, b | 0x04);        /* aux2 left gain */
-        bus->outp(gus.pcod+1, 0x07);
+        bus->outp(gus.pcod+1, 0x10);
         bus->outp(gus.pcod+0, b | 0x05);        /* aux2 right gain */
-        bus->outp(gus.pcod+1, 0x07);
+        bus->outp(gus.pcod+1, 0x10);
 
         bus->outp(gus.pcod+0, b | 0x06);        /* dac left gain */
         bus->outp(gus.pcod+1, 0x9f);
@@ -325,14 +333,14 @@ void gus_init(void) {
         bus->outp(gus.pcod+1, 0x9f);
 
         bus->outp(gus.pcod+0, b | 0x12);        /* line-in left gain */
-        bus->outp(gus.pcod+1, 0x07);
+        bus->outp(gus.pcod+1, 0x10);
         bus->outp(gus.pcod+0, b | 0x13);        /* line-in right gain */
-        bus->outp(gus.pcod+1, 0x07);
+        bus->outp(gus.pcod+1, 0x10);
 
         bus->outp(gus.pcod+0, b | 0x16);        /* mic-in left gain */
-        bus->outp(gus.pcod+1, 0x07);
+        bus->outp(gus.pcod+1, 0x10);
         bus->outp(gus.pcod+0, b | 0x17);        /* mic-in right gain */
-        bus->outp(gus.pcod+1, 0x07);
+        bus->outp(gus.pcod+1, 0x10);
 
         bus->outp(gus.pcod+0, b | 0x19);        /* line-out left attenuation */
         bus->outp(gus.pcod+1, 0x00);
