@@ -27,9 +27,8 @@
 #define ISA_EXCLUDE_LIB
 #include "isa/isa.h"
 
-/*
-#define DEBUG_RAVEN
-*/
+
+#define DEBUG_RAVEN 1
 
 #ifndef DEBUG
 #define DEBUG 0
