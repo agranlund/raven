@@ -29,12 +29,12 @@ static bool mixer_combine_midi_fm = true;   /* FM controls both Wavetable and OP
 
 static rvmixctrl_t mixer_ctrls[] = {
     { "Master", 0x0032, 4, RVMIX_XBIOS_MASTER   },  /* master volume        default: 8 */
-    { "Voice",  0x0014, 4, RVMIX_XBIOS_PCM      },  /* dac playback volume  default: 8 */
-    { "Music",  0x0036, 4, RVMIX_XBIOS_FM       },  /* fm volume            default: 8 */
+    { "PCM",    0x0014, 4, RVMIX_XBIOS_PCM      },  /* dac playback volume  default: 8 */
+    { "FM",     0x0036, 4, RVMIX_XBIOS_FM       },  /* fm volume            default: 8 */
     { "Mic",    0x001A, 4, RVMIX_XBIOS_MIC      },  /* mic mix volume       default: 0 */
     { "Line",   0x003E, 4, RVMIX_XBIOS_LINE     },  /* line volume          default: 0 */
     { "CD",     0x0038, 4, RVMIX_XBIOS_CD       },  /* aux1 volume          default: 0 */ 
-    { "Aux2",   0x003A, 4, RVMIX_XBIOS_AUX      },  /* aux2 volume (midi)   default: 0 */
+    { "Aux",    0x003A, 4, RVMIX_XBIOS_AUX      },  /* aux2 volume (midi)   default: 0 */
     { "Beeper", 0x003C, 3, 0                    },  /* pc speaker volume    default: 8 */
     { 0,        0,      0, 0,                   }
 };

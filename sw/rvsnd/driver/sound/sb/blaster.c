@@ -26,7 +26,7 @@
 /* -------------------------------------------------------------------- */
 static rvmixctrl_t ct1335_mixer_ctrls[] = {
     { "Master", 0x0002, 3, RVMIX_XBIOS_MASTER   },  /* master volume        default: 4 */
-    { "Voice",  0x000A, 2, RVMIX_XBIOS_PCM      },  /* dac playback volume  default: 0 */
+    { "PCM",    0x000A, 2, RVMIX_XBIOS_PCM      },  /* dac playback volume  default: 0 */
     { "FM",     0x0006, 3, RVMIX_XBIOS_FM       },  /* midi + fm            default: 4 */
     { "CD",     0x0008, 3, RVMIX_XBIOS_CD       },  /* aux1 volume          default: 0 */
     { 0,        0,      0, 0                    }
@@ -67,7 +67,7 @@ static uint16_t ct1335_mixer_get(uint16_t idx) {
 /* -------------------------------------------------------------------- */
 static rvmixctrl_t ct1345_mixer_ctrls[] = {
     { "Master", 0x0022, 3, RVMIX_XBIOS_MASTER   },  /* master volume        default: 4 */
-    { "Voice",  0x0004, 3, RVMIX_XBIOS_PCM      },  /* dac playback volume  default: 4 */
+    { "PCM",    0x0004, 3, RVMIX_XBIOS_PCM      },  /* dac playback volume  default: 4 */
     { "FM",     0x0026, 3, RVMIX_XBIOS_FM       },  /* midi + fm            default: 4 */
     { "Mic",    0x000A, 2, RVMIX_XBIOS_MIC      },  /* mic mix volume       default: 0 */
     { "Line",   0x002E, 3, RVMIX_XBIOS_LINE     },  /* line volume          default: 0 */

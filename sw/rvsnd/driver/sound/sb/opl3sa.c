@@ -27,7 +27,7 @@
 /* -------------------------------------------------------------------- */
 static rvmixctrl_t mixer_ctrls[] = {
     { "Master", 0x0040, 4, RVMIX_XBIOS_MASTER   },  /* sax: master volume   */
-    { "Voice",  0x0004, 3, RVMIX_XBIOS_PCM      },  /* sb:  voice           */
+    { "PCM",    0x0004, 3, RVMIX_XBIOS_PCM      },  /* sb:  voice           */
     { "FM",     0x0026, 3, RVMIX_XBIOS_FM       },  /* sb:  midi + fm       */
     { "Mic",    0x0041, 5, RVMIX_XBIOS_MIC      },  /* sax  mic             */
     { "Line",   0x0028, 3, RVMIX_XBIOS_LINE     },  /* sb:  line            */
