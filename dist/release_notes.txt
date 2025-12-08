@@ -1,11 +1,14 @@
 Raven.A1
 Hardware and software binary release
 
-xxxxxxxx:
+20251208:
   rom:      disable store/load bypass on rev1+5 cpu
   rom:      moved motorola sp060 into bootrom
+  rom:      emutos panic message now outputs on raven serial
   rvbios:   moved motorola sp060 into bootrom
-  rvbios:   settime/gettime for rtc
+  rvbios:   settime/gettime implemention for rtc
+  software: rvsnd added (work in progress)
+  firmware: (nessi) included version 251029
 
 20251007:
   rom:      ensure caches enabled during vgabios calls
