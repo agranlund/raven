@@ -149,6 +149,7 @@ copysw:
 	$(MKDIR) $(SWDIR_RVSND)/sound
 	$(COPY) $(ROOTDIR)/sw/rvsnd/core/rvsnd.prg $(SWDIR_RVSND)
 	$(COPY) $(ROOTDIR)/sw/rvsnd/ctrl/rvsctrl.prg $(SWDIR_RVSND)
+	$(COPY) $(ROOTDIR)/sw/rvsnd/readme.txt $(SWDIR_RVSND)
 	$(COPY) $(ROOTDIR)/sw/rvsnd/example.inf $(SWDIR_RVSND)/rvsnd.inf
 
 	$(COPY) $(ROOTDIR)/sw/rvsnd/driver/chip/opl/*.rvs $(SWDIR_RVSND)/chip
