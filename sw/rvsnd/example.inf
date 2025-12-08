@@ -1,0 +1,53 @@
+#------------------------------------------------------------------
+# rvsnd configuration
+#
+# - everything from a '#' character and until the end of
+#   a line will is considered a comment and will be ignored.
+#
+# - most things in this file is commented out and only here
+#   for visibility in case one wants to change the defaults.
+#------------------------------------------------------------------
+
+[drivers]
+    c:\rvsnd\chip\*.rvs
+    c:\rvsnd\midi\*.rvs
+    c:\rvsnd\sound\*.rvs
+
+[midi]
+    in  = Raven
+    out = Raven
+
+[pcm]
+    in  = *
+    out = *
+
+[mixer-map]
+    #sb:master   = sys:master
+    #sb:pcm      = sys:pcm
+    #sb:fm       = sys:fm
+    #sb:mic      = sys:mic
+    #sb:line     = sys:line
+    #sb:cd       = sys:cd
+    #sb:aux      = sys:aux
+
+    #gus:master  = sys:master
+    #gus:voice   = sys:pcm
+    #gus:mic     = sys:mic
+    #gus:line    = sys:line
+    #gus:aux2    = sys:aux
+
+[mixer-vol]
+    #sys:master  = 196
+    #sys:pcm     = 196
+    #sys:fm      = 196
+    #sys:mic     = 0
+    #sys:line    = 196
+    #sys:tv      = 196
+    #sys:aux     = 196
+
+    #gus:master  = 255
+    #gus:voice   = 128
+    #gus:mic     = 0
+    #gus:line    = 128
+    #gus:aux2    = 128
+
