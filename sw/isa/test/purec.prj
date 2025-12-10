@@ -1,0 +1,13 @@
+isa_test.prg
+.C[-I..\..\purec\include]
+.C[-DXBTIME=0]
+.C[-DXBNVM=0]
+.C[-E1 -P -W2]
+.S[-S]
+.L[-V -S=4096]
+=
+..\..\purec\lib\cstartn.o
+main.c
+..\..\purec\lib\pctoslib.lib
+..\..\purec\lib\pcstdlib.lib
+
