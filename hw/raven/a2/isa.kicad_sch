@@ -3998,6 +3998,28 @@
 		)
 		(uuid "a2a86d44-2200-4c83-a1cc-a2cedcc2c8d0")
 	)
+	(text_box "FIXME:\n\nISA interrupts should be pulled high.\nCards will pull them low for x cycles and release.\n\nPC detects it on the low->high transition.\n"
+		(exclude_from_sim no)
+		(at 147.955 374.015 0)
+		(size 46.355 20.32)
+		(margins 0.9525 0.9525 0.9525 0.9525)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(fill
+			(type color)
+			(color 255 230 63 0.53)
+		)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 0 0 0 1)
+			)
+			(justify left top)
+		)
+		(uuid "e0c2fb4f-d3a0-4384-8fb8-ffc7dab4b568")
+	)
 	(text_box "Changes from rev.A1:\n\nIOCS16 and MEMCS16 are tied\ntogether as wired-or.\n"
 		(exclude_from_sim no)
 		(at 147.32 192.405 0)
