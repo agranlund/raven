@@ -84,6 +84,7 @@ Tested with 48mhz oscillator for 96mhz CPU, 48mhz BUS speed.
 - PCB: Add hardware debounce the NMI switch
 - PCB: Add header for one of MFP2 timer-outs (for pc-speaker type applications)
 - PCB: Realtime clock should use +5VSB instead of +5V to reduce battery usage
+- PCB: ISA interrupts are not working. IRQ lines should be pulled to +5V rather than GND
 
 ## Future:
 - PCB: Direct 060 bus expansion slot similar to Macintosh PDS
