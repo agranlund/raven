@@ -3,11 +3,12 @@ isa_bios.prg
 .C[-DXBTIME=0]
 .C[-DXBNVM=0]
 .C[-E1 -P -W2]
-
+.S[-S]
 .L[-V -S=4096]
 =
 ..\..\purec\lib\cstart0.o
 isa_bios.c
+isa_asm.s
 isa_core.c
 isa_rw.c
 isa_pnp.c

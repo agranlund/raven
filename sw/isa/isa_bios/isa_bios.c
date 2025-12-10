@@ -14,45 +14,81 @@ uint32_t    _StkSize = 4096;
 isa_core_t  isa;
 isa_dev_t   isa_bus_devs[ISA_MAX_DEVS];
 
+#define MAX_IRQ_FUNCS 14
+
+typedef struct {
+    uint32_t count;
+    uint32_t func[MAX_IRQ_FUNCS+1];
+} irqlist_t;
+
+irqlist_t irq_lists[16];
+
+extern void irqvec_isa02_mfp2B0(void);
+extern void irqvec_isa03_mfp2B1(void);
+extern void irqvec_isa04_mfp2B2(void);
+extern void irqvec_isa05_mfp2B3(void);
+extern void irqvec_isa07_mfp2B6(void);
+extern void irqvec_isa10_mfp2B7(void);
+extern void irqvec_isa11_mfp2A6(void);
+extern void irqvec_isa14_mfp2A7(void);
+
 /*-----------------------------------------------------------------------------------
  * interrupts
- *  todo: implement and move these to a separate isa_irq.c file
  *---------------------------------------------------------------------------------*/
-uint32_t _ISA_API irq_set_hades(uint8l_t irq, uint32_t funct) {
-    (void)irq; (void)funct;
-    return 0;
-}
-uint8_t _ISA_API irq_en_hades(uint8l_t irq, uint8_t enabled) {
-    (void)irq; (void)enabled;
-    return 0;
-}
-
-uint32_t _ISA_API irq_set_milan(uint8l_t irq, uint32_t funct) {
-    (void)irq; (void)funct;
-    return 0;
-}
-uint8_t _ISA_API irq_en_milan(uint8l_t irq, uint8_t enabled) {
-    (void)irq; (void)enabled;
+uint32_t irq_attach_s(uint8l_t irq, uint32_t func) {
+    irqlist_t* il;
+    if (irq == 9) { irq = 2; }  /* isa interrupts 2 and 9 are the same */
+    il = &irq_lists[irq];
+    if (il->count < MAX_IRQ_FUNCS) {
+        il->func[il->count] = func;
+        il->count++;
+        return il->count;
+    }
     return 0;
 }
 
-uint32_t _ISA_API irq_set_panther(uint8l_t irq, uint32_t funct) {
-    (void)irq; (void)funct;
-    return 0;
-}
-uint8_t _ISA_API irq_en_panther(uint8l_t irq, uint8_t enabled) {
-    (void)irq; (void)enabled;
+uint32_t irq_remove_s(uint8l_t irq, uint32_t func) {
+    uint32_t i;
+    irqlist_t* il;
+    if (irq == 9) { irq = 2; }  /* isa interrupts 2 and 9 are the same */
+    il = &irq_lists[irq];
+    for (i=0; i<il->count; i++) {
+        if (il->func[i] == func) {
+            il->count--;
+            il->func[i] = il->func[il->count];
+            return il->count + 1;
+        }
+    }
     return 0;
 }
 
-uint32_t _ISA_API irq_set_raven(uint8l_t irq, uint32_t funct) {
-    (void)irq; (void)funct;
-    return 0;
+static uint16_t irq_disable_interrupt_save = 0;
+long irq_di(void) { irq_disable_interrupt_save = disable_interrupts(); return 0; }
+long irq_ei(void) { restore_interrupts(irq_disable_interrupt_save); return 0; }
+
+
+uint32_t _ISA_API irq_attach(uint8l_t irq, uint32_t func) {
+    int32_t rt;
+    Supexec(irq_di);
+    rt = irq_attach_s(irq, func);
+    if (rt == 1) {
+        /* first handler was added */
+    }
+    Supexec(irq_ei);
+    return rt;
 }
-uint8_t _ISA_API irq_en_raven(uint8l_t irq, uint8_t enabled) {
-    (void)irq; (void)enabled;
-    return 0;
+
+uint32_t _ISA_API irq_remove(uint8l_t irq, uint32_t func) {
+    int32_t rt;
+    Supexec(irq_di);
+    rt = irq_remove_s(irq, func);
+    if (rt == 1) {
+        /* last hander was removed */
+    }
+    Supexec(irq_ei);
+    return rt;
 }
+
 
 /*-----------------------------------------------------------------------------------
  * device helpers
@@ -124,9 +160,69 @@ static bool bus_hwconf(void) {
             | (1UL <<  3)
             | (1UL <<  2)
         );
+
+        /* enable ISA interrupts */
+        
+        /*
+         * todo:
+         *  this is disabled for now because Raven.A1 board has a hardware
+         *  error preventing ISA interrupts from being detected.
+         *  
+         *  IRQ lines should be pulled high to +5V rather than low to GND.
+         * 
+         *  Cards trigger IRQ by pulling the line low for x cycles and then
+         *  release, making it go back high so that we can detect
+         *  that low -> high transition.
+         * 
+         *  Raven.A1 board pulls them low, thinking that cards were
+         *  supposed to drive the lines high on interrupts.
+         * 
+         *  Will be fixed in Raven.A2 and some kind of hardware patch
+         *  might make it's way to the A1 version.
+         *
+         */
         #if 0
-        isa.bus.irq_set = irq_set_raven;
-        isa.bus.irq_en  = irq_en_raven;
+        {
+            /*            
+            mfp2_B0 =  0 = I0 = irq2/9
+            mfp2_B1 =  1 = I1 = irq3
+            mfp2_B2 =  2 = I2 = irq4
+            mfp2_B3 =  3 = I3 = irq5
+            mfp2_B6 =  6 = I4 = irq7
+            mfp2_B7 =  7 = I5 = irq10
+            mfp2_A6 = 14 = I6 = irq11
+            mfp2_A7 = 15 = I7 = irq14
+            */
+            const uint8_t ia_mask = 0xC0; /* xx...... */
+            const uint8_t ib_mask = 0xCF; /* xx..xxxx */
+
+            volatile uint8_t *mfpbase = (volatile uint8_t*) 0xA0000A00UL;
+            uint32_t* mfpvecs = (uint32_t*)0x140;
+
+            /* disable interrupts */
+            mfpbase[0x07] &= ~ia_mask;
+            mfpbase[0x09] &= ~ib_mask;
+
+            /* set vectors */
+            mfpvecs[ 0] = (uint32_t)irqvec_isa02_mfp2B0;    /* also irq 9 */
+            mfpvecs[ 1] = (uint32_t)irqvec_isa03_mfp2B1;
+            mfpvecs[ 2] = (uint32_t)irqvec_isa04_mfp2B2;
+            mfpvecs[ 3] = (uint32_t)irqvec_isa05_mfp2B3;
+            mfpvecs[ 6] = (uint32_t)irqvec_isa07_mfp2B6;
+            mfpvecs[ 7] = (uint32_t)irqvec_isa10_mfp2B7;
+            mfpvecs[14] = (uint32_t)irqvec_isa11_mfp2A6;
+            mfpvecs[15] = (uint32_t)irqvec_isa14_mfp2A7;
+
+            /* enable isa interrupts */
+            mfpbase[0x0b] &= ~ia_mask;  /* clear pending    */
+            mfpbase[0x0f] &= ~ia_mask;  /* clear service    */
+            mfpbase[0x13] |=  ia_mask;  /* clear mask       */
+            mfpbase[0x0d] &= ~ib_mask;  /* clear pending    */
+            mfpbase[0x11] &= ~ib_mask;  /* clear service    */
+            mfpbase[0x15] |=  ib_mask;  /* clear mask       */
+            mfpbase[0x07] |= ia_mask;   /* enable interrupt */
+            mfpbase[0x09] |= ib_mask;   /* enable interrupt */
+        }
         #endif
     }
     return true;
@@ -185,6 +281,9 @@ bool bus_init(void)
             isa.bus.outpw = isa.bus.outpw ? isa.bus.outpw : outpw_leas;
             break;
     }
+
+    isa.bus.irq_attach = irq_attach;
+    isa.bus.irq_remove = irq_remove;
 
     /* plug-and-pray */
     pnp_init();

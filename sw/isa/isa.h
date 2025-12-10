@@ -82,8 +82,8 @@ typedef struct {
 
     uint32_t    reserved[4];
 
-    uint32_t    _ISA_API (*irq_set)(uint8l_t irq, uint32_t func);
-    uint32_t    _ISA_API (*irq_en)(uint8l_t irq, uint8l_t enabled);
+    uint32_t    _ISA_API (*irq_attach)(uint8l_t irq, uint32_t func);
+    uint32_t    _ISA_API (*irq_remove)(uint8l_t irq, uint32_t func);
 
     isa_dev_t*  _ISA_API (*find_dev)(const char* id, uint16l_t idx);
 
@@ -180,8 +180,8 @@ static void isa_delay(uint32_t us) {
     static uint8_t          _ISA_API _isa_inp_fallback(uint16l_t port) { return *((volatile uint8_t*)(_isapriv_if_fallback.iobase + port)); }
     static uint16_t         _ISA_API _isa_inpw_fallback(uint16l_t port) { return _isa_swap16(*((volatile uint16_t*)(_isapriv_if_fallback.iobase + port))); }
     static isa_dev_t*       _ISA_API _isa_find_dev_fallback(const char* id, uint16l_t idx) { (void)id; (void)idx; return NULL; }
-    static uint32_t         _ISA_API _isa_irq_set_fallback(uint8l_t irq, uint32_t func) { (void)irq; (void)func; return 0; }
-    static uint32_t         _ISA_API _isa_irq_en_fallback(uint8l_t irq, uint8l_t en) { (void)irq; (void)en; return 0; }
+    static uint32_t         _ISA_API _isa_irq_attach_fallback(uint8l_t irq, uint32_t func) { (void)irq; (void)func; return 0; }
+    static uint32_t         _ISA_API _isa_irq_remove_fallback(uint8l_t irq, uint8l_t en) { (void)irq; (void)en; return 0; }
 #endif /* ISA_EXCLUDE_LIB_FALLBACK */
 
 _ISA_INL isa_t* isa_init(void) {
@@ -227,8 +227,8 @@ _ISA_INL isa_t* isa_init(void) {
                 isa_if->inp = _isa_inp_fallback;
                 isa_if->inpw = _isa_inpw_fallback;
                 isa_if->find_dev = _isa_find_dev_fallback;
-                isa_if->irq_set = _isa_irq_set_fallback;
-                isa_if->irq_en = _isa_irq_en_fallback;
+                isa_if->irq_attach = _isa_irq_attach_fallback;
+                isa_if->irq_remove = _isa_irq_remove_fallback;
             }
         }
 #endif /* ISA_EXCLUDE_LIB_FALLBACK */

@@ -73,7 +73,7 @@ extern isa_core_t isa;
 /*----------------------------------------------------------------------
  * helpers
  *--------------------------------------------------------------------*/
-#define ENTER_SUPER()   uint32_t sstack = Super(1) ? Super(0) : 0;
+#define ENTER_SUPER()   void* sstack = (void*) ((Super((void*)1L) != 0) ? Super((void*)0L) : 0L);
 #define EXIT_SUPER()    if (sstack) { Super(sstack); }
 
 
@@ -83,6 +83,8 @@ static uint32_t swap32(uint32_t d) { return __builtin_bswap32(d); }
 #else
 static uint16_t swap16(uint16_t d) { return ((d >> 8) & 0xff) | (( d & 0xff) << 8); }
 static uint32_t swap32(uint32_t d) { return (((d >> 24) & 0x000000ffUL) | ((d & 0x000000ffUL) << 24) | ((d >> 8) & 0x0000ff00UL) | ((d & 0x0000ff00UL) << 8) ); }
+extern uint16_t disable_interrupts(void);
+extern void     restore_interrupts(uint16_t);
 #endif
 
 /*----------------------------------------------------------------------
