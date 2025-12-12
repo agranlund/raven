@@ -3,6 +3,8 @@ isa_test.prg
 .C[-DXBTIME=0]
 .C[-DXBNVM=0]
 .C[-E1 -P -W2]
+.C[-I../]
+.C[-I../../lib]
 .S[-S]
 .L[-V -S=4096]
 =
