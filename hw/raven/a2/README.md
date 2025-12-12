@@ -42,8 +42,6 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 ## Planned:
 - get rid of old ym pins expansion header
 - route A6 instead of A5 to CPLD to generate BERR on SFP004 access
-- ISA interrupt lines should be pulled to +5V rather than GND
-  (RN503 and parts of RN504)
 
 ## Optional / non-critical:
 - Pushbuttons:     SW101, SW201, SW202
