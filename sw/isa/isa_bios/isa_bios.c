@@ -14,15 +14,22 @@ uint32_t    _StkSize = 4096;
 isa_core_t  isa;
 isa_dev_t   isa_bus_devs[ISA_MAX_DEVS];
 
-#define MAX_IRQ_FUNCS 14
+#define IRQ_SUPPORT_RAVEN   1
+#define IRQ_OPT_VECS        1
+#define IRQ_MAX_CB          14
 
 typedef struct {
     uint32_t count;
-    uint32_t func[MAX_IRQ_FUNCS+1];
+    uint32_t func[IRQ_MAX_CB+1];
 } irqlist_t;
 
 irqlist_t irq_lists[16];
+static void (*irq_assign_vectors)(void);
 
+/*-----------------------------------------------------------------------------------
+ * Raven specific interrupt vectors
+ *---------------------------------------------------------------------------------*/
+#if IRQ_SUPPORT_RAVEN
 extern void irqvec_isa02_mfp2B0(void);
 extern void irqvec_isa03_mfp2B1(void);
 extern void irqvec_isa04_mfp2B2(void);
@@ -32,17 +39,132 @@ extern void irqvec_isa10_mfp2B7(void);
 extern void irqvec_isa11_mfp2A6(void);
 extern void irqvec_isa14_mfp2A7(void);
 
+#if IRQ_OPT_VECS
+extern void irqvec_isa02_mfp2B0_0(void); extern void irqvec_isa02_mfp2B0_1(void); extern void irqvec_isa02_mfp2B0_2(void); extern void irqvec_isa02_mfp2B0_3(void); extern void irqvec_isa02_mfp2B0_4(void); extern void irqvec_isa02_mfp2B0_5(void); extern void irqvec_isa02_mfp2B0_6(void);
+extern void irqvec_isa03_mfp2B1_0(void); extern void irqvec_isa03_mfp2B1_1(void); extern void irqvec_isa03_mfp2B1_2(void); extern void irqvec_isa03_mfp2B1_3(void); extern void irqvec_isa03_mfp2B1_4(void); extern void irqvec_isa03_mfp2B1_5(void); extern void irqvec_isa03_mfp2B1_6(void);
+extern void irqvec_isa04_mfp2B2_0(void); extern void irqvec_isa04_mfp2B2_1(void); extern void irqvec_isa04_mfp2B2_2(void); extern void irqvec_isa04_mfp2B2_3(void); extern void irqvec_isa04_mfp2B2_4(void); extern void irqvec_isa04_mfp2B2_5(void); extern void irqvec_isa04_mfp2B2_6(void);
+extern void irqvec_isa05_mfp2B3_0(void); extern void irqvec_isa05_mfp2B3_1(void); extern void irqvec_isa05_mfp2B3_2(void); extern void irqvec_isa05_mfp2B3_3(void); extern void irqvec_isa05_mfp2B3_4(void); extern void irqvec_isa05_mfp2B3_5(void); extern void irqvec_isa05_mfp2B3_6(void);
+extern void irqvec_isa07_mfp2B6_0(void); extern void irqvec_isa07_mfp2B6_1(void); extern void irqvec_isa07_mfp2B6_2(void); extern void irqvec_isa07_mfp2B6_3(void); extern void irqvec_isa07_mfp2B6_4(void); extern void irqvec_isa07_mfp2B6_5(void); extern void irqvec_isa07_mfp2B6_6(void);
+extern void irqvec_isa10_mfp2B7_0(void); extern void irqvec_isa10_mfp2B7_1(void); extern void irqvec_isa10_mfp2B7_2(void); extern void irqvec_isa10_mfp2B7_3(void); extern void irqvec_isa10_mfp2B7_4(void); extern void irqvec_isa10_mfp2B7_5(void); extern void irqvec_isa10_mfp2B7_6(void);
+extern void irqvec_isa11_mfp2A6_0(void); extern void irqvec_isa11_mfp2A6_1(void); extern void irqvec_isa11_mfp2A6_2(void); extern void irqvec_isa11_mfp2A6_3(void); extern void irqvec_isa11_mfp2A6_4(void); extern void irqvec_isa11_mfp2A6_5(void); extern void irqvec_isa11_mfp2A6_6(void);
+extern void irqvec_isa14_mfp2A7_0(void); extern void irqvec_isa14_mfp2A7_1(void); extern void irqvec_isa14_mfp2A7_2(void); extern void irqvec_isa14_mfp2A7_3(void); extern void irqvec_isa14_mfp2A7_4(void); extern void irqvec_isa14_mfp2A7_5(void); extern void irqvec_isa14_mfp2A7_6(void);
+#endif
+
+void irq_assign_vectors_raven(void) {
+    volatile uint32_t* mfpvecs = (volatile uint32_t*)0x140;
+    switch ((uint16_t)(irq_lists[2].count)) {
+        #if IRQ_OPT_VECS
+        case 0:     mfpvecs[0] = (uint32_t)irqvec_isa02_mfp2B0_0; break;
+        case 1:     mfpvecs[0] = (uint32_t)irqvec_isa02_mfp2B0_1; break;
+        case 2:     mfpvecs[0] = (uint32_t)irqvec_isa02_mfp2B0_2; break;
+        case 3:     mfpvecs[0] = (uint32_t)irqvec_isa02_mfp2B0_3; break;
+        case 4:     mfpvecs[0] = (uint32_t)irqvec_isa02_mfp2B0_4; break;
+        case 5:     mfpvecs[0] = (uint32_t)irqvec_isa02_mfp2B0_5; break;
+        #endif
+        default:    mfpvecs[0] = (uint32_t)irqvec_isa02_mfp2B0;   break;
+    }
+    switch ((uint16_t)(irq_lists[3].count)) {
+        #if IRQ_OPT_VECS
+        case 0:     mfpvecs[1] = (uint32_t)irqvec_isa03_mfp2B1_0; break;
+        case 1:     mfpvecs[1] = (uint32_t)irqvec_isa03_mfp2B1_1; break;
+        case 2:     mfpvecs[1] = (uint32_t)irqvec_isa03_mfp2B1_2; break;
+        case 3:     mfpvecs[1] = (uint32_t)irqvec_isa03_mfp2B1_3; break;
+        case 4:     mfpvecs[1] = (uint32_t)irqvec_isa03_mfp2B1_4; break;
+        case 5:     mfpvecs[1] = (uint32_t)irqvec_isa03_mfp2B1_5; break;
+        #endif
+        default:    mfpvecs[1] = (uint32_t)irqvec_isa03_mfp2B1;   break;
+    }
+    switch ((uint16_t)(irq_lists[4].count)) {
+        #if IRQ_OPT_VECS
+        case 0:     mfpvecs[2] = (uint32_t)irqvec_isa04_mfp2B2_0; break;
+        case 1:     mfpvecs[2] = (uint32_t)irqvec_isa04_mfp2B2_1; break;
+        case 2:     mfpvecs[2] = (uint32_t)irqvec_isa04_mfp2B2_2; break;
+        case 3:     mfpvecs[2] = (uint32_t)irqvec_isa04_mfp2B2_3; break;
+        case 4:     mfpvecs[2] = (uint32_t)irqvec_isa04_mfp2B2_4; break;
+        case 5:     mfpvecs[2] = (uint32_t)irqvec_isa04_mfp2B2_5; break;
+        #endif
+        default:    mfpvecs[2] = (uint32_t)irqvec_isa04_mfp2B2;   break;
+    }
+    switch ((uint16_t)(irq_lists[5].count)) {
+        #if IRQ_OPT_VECS
+        case 0:     mfpvecs[3] = (uint32_t)irqvec_isa05_mfp2B3_0; break;
+        case 1:     mfpvecs[3] = (uint32_t)irqvec_isa05_mfp2B3_1; break;
+        case 2:     mfpvecs[3] = (uint32_t)irqvec_isa05_mfp2B3_2; break;
+        case 3:     mfpvecs[3] = (uint32_t)irqvec_isa05_mfp2B3_3; break;
+        case 4:     mfpvecs[3] = (uint32_t)irqvec_isa05_mfp2B3_4; break;
+        case 5:     mfpvecs[3] = (uint32_t)irqvec_isa05_mfp2B3_5; break;
+        #endif
+        default:    mfpvecs[3] = (uint32_t)irqvec_isa05_mfp2B3;   break;
+    }
+    switch ((uint16_t)(irq_lists[7].count)) {
+        #if IRQ_OPT_VECS
+        case 0:     mfpvecs[6] = (uint32_t)irqvec_isa07_mfp2B6_0; break;
+        case 1:     mfpvecs[6] = (uint32_t)irqvec_isa07_mfp2B6_1; break;
+        case 2:     mfpvecs[6] = (uint32_t)irqvec_isa07_mfp2B6_2; break;
+        case 3:     mfpvecs[6] = (uint32_t)irqvec_isa07_mfp2B6_3; break;
+        case 4:     mfpvecs[6] = (uint32_t)irqvec_isa07_mfp2B6_4; break;
+        case 5:     mfpvecs[6] = (uint32_t)irqvec_isa07_mfp2B6_5; break;
+        #endif
+        default:    mfpvecs[6] = (uint32_t)irqvec_isa07_mfp2B6;   break;
+    }
+    switch ((uint16_t)(irq_lists[10].count)) {
+        #if IRQ_OPT_VECS
+        case 0:     mfpvecs[7] = (uint32_t)irqvec_isa10_mfp2B7_0; break;
+        case 1:     mfpvecs[7] = (uint32_t)irqvec_isa10_mfp2B7_1; break;
+        case 2:     mfpvecs[7] = (uint32_t)irqvec_isa10_mfp2B7_2; break;
+        case 3:     mfpvecs[7] = (uint32_t)irqvec_isa10_mfp2B7_3; break;
+        case 4:     mfpvecs[7] = (uint32_t)irqvec_isa10_mfp2B7_4; break;
+        case 5:     mfpvecs[7] = (uint32_t)irqvec_isa10_mfp2B7_5; break;
+        #endif
+        default:    mfpvecs[7] = (uint32_t)irqvec_isa10_mfp2B7;   break;
+    }
+    switch ((uint16_t)(irq_lists[11].count)) {
+        #if IRQ_OPT_VECS
+        case 0:     mfpvecs[14] = (uint32_t)irqvec_isa11_mfp2A6_0; break;
+        case 1:     mfpvecs[14] = (uint32_t)irqvec_isa11_mfp2A6_1; break;
+        case 2:     mfpvecs[14] = (uint32_t)irqvec_isa11_mfp2A6_2; break;
+        case 3:     mfpvecs[14] = (uint32_t)irqvec_isa11_mfp2A6_3; break;
+        case 4:     mfpvecs[14] = (uint32_t)irqvec_isa11_mfp2A6_4; break;
+        case 5:     mfpvecs[14] = (uint32_t)irqvec_isa11_mfp2A6_5; break;
+        #endif
+        default:    mfpvecs[14] = (uint32_t)irqvec_isa11_mfp2A6;   break;
+    }
+    switch ((uint16_t)(irq_lists[14].count)) {
+        #if IRQ_OPT_VECS
+        case 0:     mfpvecs[15] = (uint32_t)irqvec_isa14_mfp2A7_0; break;
+        case 1:     mfpvecs[15] = (uint32_t)irqvec_isa14_mfp2A7_1; break;
+        case 2:     mfpvecs[15] = (uint32_t)irqvec_isa14_mfp2A7_2; break;
+        case 3:     mfpvecs[15] = (uint32_t)irqvec_isa14_mfp2A7_3; break;
+        case 4:     mfpvecs[15] = (uint32_t)irqvec_isa14_mfp2A7_4; break;
+        case 5:     mfpvecs[15] = (uint32_t)irqvec_isa14_mfp2A7_5; break;
+        #endif
+        default:    mfpvecs[15] = (uint32_t)irqvec_isa14_mfp2A7;   break;
+    }
+}
+#endif /* IRQ_SUPPORT_RAVEN */
+
 /*-----------------------------------------------------------------------------------
- * interrupts
+ * machine independent interrupt handling
  *---------------------------------------------------------------------------------*/
-uint32_t irq_attach_s(uint8l_t irq, uint32_t func) {
-    irqlist_t* il;
-    if (irq == 9) { irq = 2; }  /* isa interrupts 2 and 9 are the same */
-    il = &irq_lists[irq];
-    if (il->count < MAX_IRQ_FUNCS) {
-        il->func[il->count] = func;
-        il->count++;
-        return il->count;
+
+ uint32_t irq_attach_s(uint8l_t irq, uint32_t func) {
+    /* IRQ2 and IRQ9 are the same */
+    if (irq == 9) {
+        irq = 2;
+    }
+    /* make sure platform supports this irq number */
+    if (isa.bus.irqmask & (1UL << irq)) {
+        irqlist_t* il = &irq_lists[irq];
+        /* put callback in next free slot */
+        if (il->count < IRQ_MAX_CB) {
+            il->func[il->count] = func;
+            il->count++;
+            /* reassign platform vectors if needed */
+            if (irq_assign_vectors) {
+                irq_assign_vectors();
+            }
+            return il->count;
+        }
     }
     return 0;
 }
@@ -50,12 +172,21 @@ uint32_t irq_attach_s(uint8l_t irq, uint32_t func) {
 uint32_t irq_remove_s(uint8l_t irq, uint32_t func) {
     uint32_t i;
     irqlist_t* il;
-    if (irq == 9) { irq = 2; }  /* isa interrupts 2 and 9 are the same */
+    /* IRQ2 and IRQ9 are the same */
+    if (irq == 9) {
+        irq = 2;
+    }
+    /* search for the callback */
     il = &irq_lists[irq];
     for (i=0; i<il->count; i++) {
+        /* remove it */
         if (il->func[i] == func) {
             il->count--;
             il->func[i] = il->func[il->count];
+            /* reassign platform vectors if needed */
+            if (irq_assign_vectors) {
+                irq_assign_vectors();
+            }
             return il->count + 1;
         }
     }
@@ -66,26 +197,28 @@ static uint16_t irq_disable_interrupt_save = 0;
 long irq_di(void) { irq_disable_interrupt_save = disable_interrupts(); return 0; }
 long irq_ei(void) { restore_interrupts(irq_disable_interrupt_save); return 0; }
 
+#define IRQ_CRITICAL_BEGIN() Supexec(irq_di)
+#define IRQ_CRITICAL_END()   Supexec(irq_ei)
 
-uint32_t _ISA_API irq_attach(uint8l_t irq, uint32_t func) {
+uint32_t _ISA_API irq_attach(uint8l_t irq, void(*func)(void)) {
     int32_t rt;
-    Supexec(irq_di);
-    rt = irq_attach_s(irq, func);
+    IRQ_CRITICAL_BEGIN();
+    rt = irq_attach_s(irq, (uint32_t)func);
     if (rt == 1) {
         /* first handler was added */
     }
-    Supexec(irq_ei);
+    IRQ_CRITICAL_END();
     return rt;
 }
 
-uint32_t _ISA_API irq_remove(uint8l_t irq, uint32_t func) {
+uint32_t _ISA_API irq_remove(uint8l_t irq, void(*func)(void)) {
     int32_t rt;
-    Supexec(irq_di);
-    rt = irq_remove_s(irq, func);
+    IRQ_CRITICAL_BEGIN();
+    rt = irq_remove_s(irq, (uint32_t)func);
     if (rt == 1) {
         /* last hander was removed */
     }
-    Supexec(irq_ei);
+    IRQ_CRITICAL_END();
     return rt;
 }
 
@@ -124,6 +257,7 @@ static bool bus_hwconf(void) {
     isa.bus.drqmask     = 0x00;
     isa.bus.membase     = 0x00000000UL;
     isa.bus.iobase      = 0x00000000UL;
+    irq_assign_vectors  = 0;
 
     if (Getcookie(C_hade, &cookie) == C_FOUND)          /* Hades */
     {
@@ -162,26 +296,7 @@ static bool bus_hwconf(void) {
         );
 
         /* enable ISA interrupts */
-        
-        /*
-         * todo:
-         *  this is disabled for now because Raven.A1 board has a hardware
-         *  error preventing ISA interrupts from being detected.
-         *  
-         *  IRQ lines should be pulled high to +5V rather than low to GND.
-         * 
-         *  Cards trigger IRQ by pulling the line low for x cycles and then
-         *  release, making it go back high so that we can detect
-         *  that low -> high transition.
-         * 
-         *  Raven.A1 board pulls them low, thinking that cards were
-         *  supposed to drive the lines high on interrupts.
-         * 
-         *  Will be fixed in Raven.A2 and some kind of hardware patch
-         *  might make it's way to the A1 version.
-         *
-         */
-        #if 0
+        #if IRQ_SUPPORT_RAVEN
         {
             /*            
             mfp2_B0 =  0 = I0 = irq2/9
@@ -197,21 +312,15 @@ static bool bus_hwconf(void) {
             const uint8_t ib_mask = 0xCF; /* xx..xxxx */
 
             volatile uint8_t *mfpbase = (volatile uint8_t*) 0xA0000A00UL;
-            uint32_t* mfpvecs = (uint32_t*)0x140;
 
             /* disable interrupts */
             mfpbase[0x07] &= ~ia_mask;
             mfpbase[0x09] &= ~ib_mask;
 
-            /* set vectors */
-            mfpvecs[ 0] = (uint32_t)irqvec_isa02_mfp2B0;    /* also irq 9 */
-            mfpvecs[ 1] = (uint32_t)irqvec_isa03_mfp2B1;
-            mfpvecs[ 2] = (uint32_t)irqvec_isa04_mfp2B2;
-            mfpvecs[ 3] = (uint32_t)irqvec_isa05_mfp2B3;
-            mfpvecs[ 6] = (uint32_t)irqvec_isa07_mfp2B6;
-            mfpvecs[ 7] = (uint32_t)irqvec_isa10_mfp2B7;
-            mfpvecs[14] = (uint32_t)irqvec_isa11_mfp2A6;
-            mfpvecs[15] = (uint32_t)irqvec_isa14_mfp2A7;
+            /* initialize interrupt vectors */
+            memset((void*)irq_lists, 0, sizeof(irq_lists));
+            irq_assign_vectors = irq_assign_vectors_raven;
+            irq_assign_vectors_raven();
 
             /* enable isa interrupts */
             mfpbase[0x0b] &= ~ia_mask;  /* clear pending    */
@@ -223,7 +332,7 @@ static bool bus_hwconf(void) {
             mfpbase[0x07] |= ia_mask;   /* enable interrupt */
             mfpbase[0x09] |= ib_mask;   /* enable interrupt */
         }
-        #endif
+        #endif /* IRQ_SUPPORT_RAVEN */
     }
     return true;
 }
