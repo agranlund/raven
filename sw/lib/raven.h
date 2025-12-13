@@ -138,11 +138,14 @@ typedef struct
     int32_t     _RVAPI (**mon_fgetchar)(void);
     void        _RVAPI (**mon_fputchar)(int32_t c);
 
-/* 0x00D0 */
+/* 0x00E0 */
     uint32_t    _RVAPI (*int86x)(uint32_t no, x86_regs_t* regs_in, x86_regs_t* regs_out, x86_sregs_t* sregs);
     uint32_t    reserved00D0[7]; /* reserved for future x86 related things */
 
-/* 0x00E0 */
+/* 0x0100 */
+    uint32_t    _RVAPI (*sys_reset)(uint32_t arg);      /* 0 = available, 1 = soft, 2 = hard */
+    uint32_t    _RVAPI (*sys_poweroff)(uint32_t arg);   /* 0 = available, 1 = poweroff */
+    uint32_t    reserved00E0[6];
 
 } raven_t;
 
