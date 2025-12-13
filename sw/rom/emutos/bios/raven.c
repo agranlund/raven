@@ -60,6 +60,24 @@ extern void raven_int_vbl(void);
 #define RAVEN_BIOS_RTCREAD      0x40
 #define RAVEN_BIOS_RTCWRITE     0x44
 #define RAVEN_BIOS_VGADDR       0x8C
+#define RAVEN_BIOS_POWERCTRL    0x104
+
+/*-----------------------------------------------------------------------------------------
+ * Poweroff
+ *---------------------------------------------------------------------------------------*/
+typedef ULONG(*raven_power_func)(ULONG);
+
+ BOOL raven_can_shutdown(void) {
+    ULONG rv = *((ULONG*)RAVEN_BIOS_BASEPTR);
+    raven_power_func f = *((raven_power_func*)(rv + RAVEN_BIOS_POWERCTRL));
+    return f(0) ? TRUE : FALSE;
+ }
+
+ void raven_shutdown(void) {
+    ULONG rv = *((ULONG*)RAVEN_BIOS_BASEPTR);
+    raven_power_func f = *((raven_power_func*)(rv + RAVEN_BIOS_POWERCTRL));
+    f(1);
+ }
 
 
 /*-----------------------------------------------------------------------------------------

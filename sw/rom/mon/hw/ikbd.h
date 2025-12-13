@@ -40,6 +40,8 @@ void        ikbd_ReadSetting(uint8_t idx);
 void        ikbd_WriteSetting(uint8_t idx, uint8_t val);
 void        ikbd_Flash(uint8_t* data, uint32_t size);
 
+void        ikbd_SystemPoweroff();
+
 #endif //!__ASM__
 #endif // _IKBD_H_
 

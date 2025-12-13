@@ -666,6 +666,9 @@
 # ifndef CONF_WITH_ROMDISK
 #  define CONF_WITH_ROMDISK 1
 # endif
+# ifndef CONF_WITH_SHUTDOWN
+#  define CONF_WITH_SHUTDOWN 1
+# endif
 # ifndef CONF_WITH_BUS_ERROR
 #  define CONF_WITH_BUS_ERROR 1
 # endif

@@ -95,6 +95,34 @@ static uint32_t b_int86x(uint32_t no, x86_regs_t* regs_in, x86_regs_t* regs_out,
     return (uint32_t)x86emu->x86.R_AX;
 }
 
+static uint32_t b_sys_reset(uint32_t arg) {
+    /* todo: hard reset on boards that supports it */
+    uint32_t r = (1 << 0);
+    if (arg >= 2) {
+        if (r & (1 << 1)) {
+            /* do hard reset */
+        }
+    }
+    if (arg >= 1) {
+        if (r & (1 << 0)) {
+            /* do soft reset */
+            extern void start();
+            start();
+        }
+    }
+    return r;
+}
+
+static uint32_t b_sys_poweroff(uint32_t arg) {
+    uint32_t r = (ikbd_Version() & 0xF0) ? 1 : 0;
+    if (arg >= 1) {
+        if (r & (1 << 0)) {
+            ikbd_SystemPoweroff();
+        }
+    }
+    return r;
+}
+
 extern uint8_t __toc_start;
 extern uint8_t __config_start;
 
@@ -152,7 +180,11 @@ const raven_t ravenBios __attribute__((section(".export"))) =
     {0,0,0},
     &getchar,
     &putchar,
-// 0x00D0
+// 0x00E0
     b_int86x,
-    {0,0,0,0,0,0,0}
+    {0,0,0,0,0,0,0},
+// 0x0100
+    b_sys_reset,
+    b_sys_poweroff,
+    {0,0,0,0,0,0}
 };

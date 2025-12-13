@@ -262,7 +262,8 @@ uint8_t ikbd_recv()
 
 
 //-----------------------------------------------------------------------
-uint32_t ikbd_Version(void) {
+uint32_t ikbd_Version(void)
+{
     return ikbd_version;
 }
 
@@ -279,7 +280,8 @@ uint32_t ikbd_Info(void)
     return ikbd_version;
 }
 
-uint8_t ikbd_Baud(void) {
+uint8_t ikbd_Baud(void)
+{
     return ikbd_baud;
 }
 
@@ -287,6 +289,15 @@ void ikbd_Reset(void)
 {
     ikbd_send(0x80);
     ikbd_send(0x01);
+}
+
+//-----------------------------------------------------------------------
+void ikbd_SystemPoweroff(void)
+{
+    if (ckbd_version()) {
+        ikbd_send(0x2F);
+        ikbd_send(0x5A);
+    }
 }
 
 //-----------------------------------------------------------------------
@@ -318,7 +329,8 @@ void ikbd_HardReset(bool bootloader)
     }
 }
 
-void ikbd_WriteSetting(uint8_t idx, uint8_t val) {
+void ikbd_WriteSetting(uint8_t idx, uint8_t val)
+{
     if (!ckbd_version()) {
         printf("requires ckbd controller\n");
     } else {
@@ -328,7 +340,8 @@ void ikbd_WriteSetting(uint8_t idx, uint8_t val) {
     }
 }
 
-void ikbd_ReadSetting(uint8_t idx) {
+void ikbd_ReadSetting(uint8_t idx)
+{
     if (!ckbd_version()) {
         printf("requires ckbd controller\n");
     } else {

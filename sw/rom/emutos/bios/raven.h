@@ -23,6 +23,9 @@
 
 #ifndef __RAVEN__ASM__
 
+BOOL raven_can_shutdown(void);
+void raven_shutdown(void);
+
 UBYTE raven_bootflags(void);
 void raven_screen_init(void);
 void raven_kbd_init(void);

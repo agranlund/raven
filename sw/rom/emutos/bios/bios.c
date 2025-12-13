@@ -749,6 +749,8 @@ static void shutdown(void)
     amiga_shutdown();
 #elif defined(MACHINE_LISA)
     lisa_shutdown();
+#elif defined(MACHINE_RAVEN)
+    raven_shutdown();
 #endif
 }
 
@@ -766,6 +768,8 @@ BOOL can_shutdown(void)
     return amiga_can_shutdown();
 #elif defined(MACHINE_LISA)
     return TRUE;
+#elif defined(MACHINE_RAVEN)
+    return raven_can_shutdown();
 #else
     return FALSE;
 #endif
