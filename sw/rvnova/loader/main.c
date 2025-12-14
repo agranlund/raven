@@ -26,6 +26,7 @@
 #include <mint/cookie.h>
 #include <mint/osbind.h>
 
+#include "raven.h"
 #include "rvnova.h"
 #include "vga.h"
 
@@ -64,6 +65,51 @@ static void screen_restore(void) {
 
 static void screen_clear(void) {
 	(void)Cconws("\033E\r\n");              /* clear screen */
+}
+
+
+/*----------------------------------------
+	Driver pre-load
+----------------------------------------*/
+void drv_preload(rvnova_menuinf_t* inf) {
+    raven_t* rv = 0;
+    if ((Getcookie(C_RAVN, (long*)&rv) == C_FOUND) && rv) {
+        /* Nova driver specific VME -> ISA remap */
+        if (stricmp(inf->drvpath, "MACH32") == 0) {
+            rv->mmu_Redirect(0xFE900000UL, 0x83000000UL, 0x00100000UL);      /* TT Nova Mach32 reg base : 1024 kb                   */
+            rv->mmu_Redirect(0xFE800000UL, 0x82000000UL, 0x00100000UL);      /* TT Nova Mach32 vga base :  128 kb                   */
+            rv->mmu_Redirect(0xFEA00000UL, 0x82200000UL, 0x00100000UL);      /* TT Nova Mach32 mem base : 2048 kb ?? target addr ?? */
+            rv->mmu_Redirect(0xFEB00000UL, 0x82300000UL, 0x00100000UL);      /* TT Nova Mach32 mem base : 2048 kb ?? target addr ?? */
+        } else if (stricmp(inf->drvpath, "MACH64") == 0) {
+            rv->mmu_Redirect(0xFEC00000UL, 0x83000000UL, 0x00080000UL);      /* TT Nova Mach32 reg base :  512 kb                   */
+            rv->mmu_Redirect(0xFEC80000UL, 0x82000000UL, 0x00080000UL);      /* TT Nova Mach32 vga base :  512 kb                   */
+            rv->mmu_Redirect(0xFE800000UL, 0x82000000UL, 0x00100000UL);      /* TT Nova Mach32 mem base : 4096 kb ?? target addr ?? */
+            rv->mmu_Redirect(0xFE900000UL, 0x82100000UL, 0x00100000UL);      /* TT Nova Mach32 mem base : 4096 kb ?? target addr ?? */
+            rv->mmu_Redirect(0xFEA00000UL, 0x82200000UL, 0x00100000UL);      /* TT Nova Mach32 mem base : 4096 kb ?? target addr ?? */
+            rv->mmu_Redirect(0xFEB00000UL, 0x82300000UL, 0x00100000UL);      /* TT Nova Mach32 mem base : 4096 kb ?? target addr ?? */
+        } else if (strnicmp(inf->drvpath, "ET4000", 6) == 0) {
+            rv->mmu_Invalid( 0xFE800000UL, 0x00100000UL);
+            rv->mmu_Invalid( 0xFE900000UL, 0x00100000UL);
+            rv->mmu_Redirect(0xFED00000UL, 0x83000000UL, 0x00100000UL);      /* TT Nova ET4k reg base : 1024 kb                     */
+            rv->mmu_Redirect(0xFEC00000UL, 0x82000000UL, 0x00100000UL);      /* TT Nova ET4k mem base : 1024 kb                     */
+            rv->mmu_Redirect(0x00D00000UL, 0x83000000UL, 0x00100000UL);      /* ST Nova ET4k reg base : 1024 kb                     */
+            rv->mmu_Redirect(0x00C00000UL, 0x82000000UL, 0x00100000UL);      /* ST Nova ET4k mem base : 1024 kb                     */
+        }
+    }
+}
+
+
+/*----------------------------------------
+	Driver post-load
+----------------------------------------*/
+void drv_postload(rvnova_menuinf_t* inf) {
+    if (stricmp(inf->drvpath, "ET4000.W32") == 0) {
+        if (inf->flags & FLG_W32I_INTERLEAVE) {
+            screen_clear();
+            w32i_EnableInterleaveMode();
+            screen_clear();
+        }
+    }
 }
 
 
@@ -122,7 +168,12 @@ long supermain()
 
 	/* launch driver */
 	if (inf.drv_enable) {
-		screen_off();
+
+        /* Card specific hackery before driver has loaded */
+        drv_preload(&inf);
+
+        /* Load driver */
+        screen_off();
 		sprintf(fname, "%s\\%s\\%s\\%s", path_root, path_nova, inf.drvpath, path_emulator);
 		Pexec(0, fname, "", 0L);
 
@@ -137,27 +188,12 @@ long supermain()
 		} else {
 			screen_restore();
 		}
+
+        /* Card specific hackery after the driver has loaded */
+        drv_postload(&inf);
 	}
 
-    /* Card specific hackery after the driver has loaded */
-
-    /* ET4000/W32i interleaved memory mode */
-    if (strcmp(inf.drvpath, "ET4000.W32") == 0) {
-        if (inf.flags & FLG_W32I_INTERLEAVE) {
-            screen_clear();
-            w32i_EnableInterleaveMode();
-            screen_clear();
-        }
-    }
-
-    /* Mach32 cookie hackery */
-#if 0
-    if (strncmp(inf.drvpath, "MACH", 4) == 0) {
-        xcb_create();
-    }
-#endif
-
-	return 1;
+    return 1;
 }
 
 unsigned long _StkSize = 4096;

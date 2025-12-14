@@ -180,11 +180,11 @@ uint32_t vga_Init()
     *((volatile uint32_t*)(ISA_MEMBASE8+VGAMEM_BASE)) = 0x00000000UL;
     *((volatile uint32_t*)(ISA_MEMBASE+VGAMEM_BASE)) = 0xdeadbeefUL;
     if (*((volatile uint32_t*)(ISA_MEMBASE+VGAMEM_BASE)) == 0xdeadbeefUL) {
-        puts(" 16bit vgamem");
+        puts(" 16bit VRAM access");
         x86emu->isa_membase = ISA_MEMBASE;
         vgaMemBase = ISA_MEMBASE + VGAMEM_BASE;
     } else {
-        puts(" 8bit vgamem");
+        puts(" 8bit VRAM access");
     }
 
     // clear screen

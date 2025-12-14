@@ -119,16 +119,6 @@ bool atari_InitMMU(uint32_t* simms)
     uint32_t stram_cache = (cfg_GetValue(cfg_Find("st_ram_cache")) & 0x03) << 5;
     uint32_t ttram_cache = (cfg_GetValue(cfg_Find("tt_ram_cache")) & 0x03) << 5;
 
-    // identify gfx
-    uint8_t id_gfx = 1; // assume ET4000
-    if ((IOB(RV_PADDR_ISA_RAM16, 0xC0032)) == '6' && (IOB(RV_PADDR_ISA_RAM16, 0xC0034) == '2')) {
-        IOB(RV_PADDR_ISA_IO16, 0x56EE) = 0x55;
-        if (IOB(RV_PADDR_ISA_IO16, 0x56EE) == 0x55) {
-            id_gfx = 3; // todo: further detect Mach32 vs Mach64
-        }
-    }
-    //fmt("GFX:  %s\n", gfxNames[id_gfx]);
-
     // auto select st-ram size based on total available ram
     if (stram_size == 0) {
         uint32_t total_mb = (simms[0] + simms[1] + simms[2]) / (1024 * 1024UL);
@@ -236,36 +226,6 @@ bool atari_InitMMU(uint32_t* simms)
     // ACIA : ffffc00 goes to ram0 reserved area  (by help of cpld)                                         // ACIA     ($fffc00 -> BIOS_EMU_MEM)
     // MFP1 : ffffx00 goes to 0xA1xxxxxx as usual (emu address bits ignored)
     mmu_Map24bit(0x00FFF000, 0xA1000000 + RV_ACIAEMU_BASE, 0x00001000, PMMU_READWRITE | PMMU_CM_PRECISE);   // MFP1     ($fffa00 -> $a1000a00)
-
-
-    // special case graphics card access to satisfy existing Atari drivers
-    if (id_gfx == 3) {
-        // Mach32
-        mmu_Redirect(0xFE900000, 0x83000000, 0x00100000);      // TT Nova Mach32 reg base : 1024 kb
-        mmu_Redirect(0xFE800000, 0x82000000, 0x00100000);      // TT Nova Mach32 vga base :  128 kb
-        mmu_Redirect(0xFEA00000, 0x82200000, 0x00100000);      // TT Nova Mach32 mem base : 2048 kb ?? target addr ??
-        mmu_Redirect(0xFEB00000, 0x82300000, 0x00100000);      // TT Nova Mach32 mem base : 2048 kb ?? target addr ??
-
-    }
-    else if (id_gfx == 4) {
-        // Mach64
-        mmu_Redirect(0xFEC00000, 0x83000000, 0x00080000);      // TT Nova Mach32 reg base :  512 kb
-        mmu_Redirect(0xFEC80000, 0x82000000, 0x00080000);      // TT Nova Mach32 vga base :  512 kb
-        mmu_Redirect(0xFE800000, 0x82000000, 0x00100000);      // TT Nova Mach32 mem base : 4096 kb ?? target addr ??
-        mmu_Redirect(0xFE900000, 0x82100000, 0x00100000);      // TT Nova Mach32 mem base : 4096 kb ?? target addr ??
-        mmu_Redirect(0xFEA00000, 0x82200000, 0x00100000);      // TT Nova Mach32 mem base : 4096 kb ?? target addr ??
-        mmu_Redirect(0xFEB00000, 0x82300000, 0x00100000);      // TT Nova Mach32 mem base : 4096 kb ?? target addr ??
-
-    }
-    else {
-        // ET4000
-        mmu_Invalid(0xFE800000, 0x00100000);
-        mmu_Invalid(0xFE900000, 0x00100000);
-        mmu_Redirect(0xFED00000, 0x83000000, 0x00100000);      // TT Nova ET4k reg base : 1024 kb
-        mmu_Redirect(0xFEC00000, 0x82000000, 0x00100000);      // TT Nova ET4k mem base : 1024 kb
-        mmu_Redirect(0x00D00000, 0x83000000, 0x00100000);      // ST Nova ET4k reg base : 1024 kb
-        mmu_Redirect(0x00C00000, 0x82000000, 0x00100000);      // ST Nova ET4k mem base : 1024 kb
-    }
 
     // hades compatible ISA I/O to take advantage of existing drivers
     mmu_Redirect(0xFFF30000, 0x81000000, 0x00010000);
