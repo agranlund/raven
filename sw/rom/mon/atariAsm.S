@@ -21,6 +21,10 @@
     .global vecKBD_MFP1I4
     .extern vecKBD_Busy
 
+    .global rom_toc
+    .global cart_start
+    .global cart_end
+
 // ----------------------------------------------------------
 // MFP interrupt blockers
 // ----------------------------------------------------------
@@ -122,3 +126,29 @@ vecKBD_MFP1I4:
     move.l  (%sp)+,%d1                          // restore regs
     dbra.w  %d1,1b                              // next byte from fifo
 
+
+
+// ----------------------------------------------------------
+// cartridge (unused)
+// could be mapped to 0x00fa0000
+// ----------------------------------------------------------
+
+    .align  4096
+cart_start:
+    .dcb.l  1,0xABCDEF42    // magic
+    .dcb.l  1,0x00000000    // next
+    .dcb.l  1,0x03000000 | 0x00fa0000 | (cart_main - cart_start)
+cart_main:
+    // look for 'CRT3' in rom TOC
+    move.l  #rom_toc-16,%a0
+.1: add.l   #16,%a0
+    cmp.l   #0x43525433,(%a0)    // CRT3
+    beq.b   .2
+    cmp.l   #0,(%a0)
+    bne.b   .1
+    rts
+.2: // 4(a0) = start
+    // 8(a0) = size
+    rts
+
+cart_end:

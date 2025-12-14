@@ -12,6 +12,10 @@
 
     #define UART_RTS_FLOW   1
 
+    .global rom_vectors
+    .global rom_toc
+    .global rom_export
+    .global rom_config
     .global start
 
     .extern sys_Init
