@@ -28,12 +28,14 @@
 #include "isa/isa.h"
 
 
-#define DEBUG_RAVEN 1
+#define DEBUG_RAVEN     1
 
 #ifndef DEBUG
 #define DEBUG 0
 #endif
 #define DEBUG_DEV 2
+
+#define IMPERSONATE_GSXB    1
 
 extern void dprintf(const char* s, ...);
 

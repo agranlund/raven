@@ -34,6 +34,8 @@
 #include "mint/cookie.h"
 #include "mint/osbind.h"
 #include "mint/falcon.h"
+#include "falcon.h"
+
 #include "pubapi.h"
 
 rvsnd_sysvars_t sys;
@@ -339,10 +341,12 @@ long super_main(int args, char** argv) {
     #endif
     }
 
-
-    /* temp */
-    sys_setcookie("_SND", 0x00000025UL);
-    sys_setcookie("GSXB", 0x00000024UL);
+    /* everyone loves a cookie */
+    sys_setcookie("_SND", SND_8BIT | SND_16BIT | SND_EXT);
+   
+#if IMPERSONATE_GSXB    
+    sys_setcookie("GSXB", SND_8BIT | SND_16BIT | SND_EXT);
+#endif
 
     dprintf("done.\n");
     return 0;

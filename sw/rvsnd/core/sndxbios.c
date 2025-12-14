@@ -36,7 +36,7 @@
 /* If we're going to create a GSXB cookie to claim compatible   */
 /* then we might want to do what GSXB does (right or wrong)     */
 
-#define SNDCMD_IS_ATTENUATION 1
+#define SNDCMD_IS_ATTENUATION IMPERSONATE_GSXB
 
 
 /*------------------------------------------------------------------------------*/
