@@ -1,6 +1,10 @@
 Raven.A1
 Hardware and software binary release
 
+xxxxxxxx:
+  rom:      removed nova driver specific pmmu mapping
+  rvnova:   add nova driver specific pmmu mapping
+
 20251208:
   rom:      disable store/load bypass on rev1+5 cpu
   rom:      moved motorola sp060 into bootrom
