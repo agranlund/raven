@@ -79,10 +79,10 @@ void drv_preload(rvnova_menuinf_t* inf) {
             /* driver code references fea00000 */
             /* also fe908000 for register writes (adding 0x8000) to reg number */
             /* VME adapter is supposed to be on ST jumper setting which grounds A22 */
-            rv->mmu_Redirect(0xFE900000UL, 0x83000000UL, 0x00100000UL);      /* TT Nova Mach32 reg */
-            rv->mmu_Redirect(0xFE800000UL, 0x82000000UL, 0x00100000UL);      /* TT Nova Mach32 vga */
-            rv->mmu_Redirect(0xFEA00000UL, 0x82200000UL, 0x00100000UL);      /* TT Nova Mach32 mem0 -> isa2 */
-            rv->mmu_Redirect(0xFEB00000UL, 0x82300000UL, 0x00100000UL);      /* TT Nova Mach32 mem1 -> isa3 */
+            rv->mmu_Redirect(0xFE900000UL, 0x83000000UL, 0x00100000UL); /* TT Nova Mach32 reg */
+            rv->mmu_Redirect(0xFE800000UL, 0x82000000UL, 0x00100000UL); /* TT Nova Mach32 vga */
+            rv->mmu_Redirect(0xFEA00000UL, 0x82200000UL, 0x00100000UL); /* TT Nova Mach32 mem0 -> isa2 */
+            rv->mmu_Redirect(0xFEB00000UL, 0x82300000UL, 0x00100000UL); /* TT Nova Mach32 mem1 -> isa3 */
         } else if (stricmp(inf->drvpath, "MACH64") == 0) {
             /* --> this is based on guessing and has not been tested <-- */
             /* driver code references fec00000 and fee00000 */
@@ -100,10 +100,10 @@ void drv_preload(rvnova_menuinf_t* inf) {
         } else if (strnicmp(inf->drvpath, "ET4000", 6) == 0) {
             rv->mmu_Invalid( 0xFE800000UL, 0x00100000UL);
             rv->mmu_Invalid( 0xFE900000UL, 0x00100000UL);
-            rv->mmu_Redirect(0xFED00000UL, 0x83000000UL, 0x00100000UL);      /* TT Nova ET4000 reg */
-            rv->mmu_Redirect(0xFEC00000UL, 0x82000000UL, 0x00100000UL);      /* TT Nova ET4000 mem0 -> isa0 */
-            rv->mmu_Redirect(0x00D00000UL, 0x83000000UL, 0x00100000UL);      /* ST Nova ET4000 reg */
-            rv->mmu_Redirect(0x00C00000UL, 0x82000000UL, 0x00100000UL);      /* ST Nova ET4000 mem0 -> isa0 */
+            rv->mmu_Redirect(0xFED00000UL, 0x83000000UL, 0x00100000UL); /* TT Nova ET4000 reg */
+            rv->mmu_Redirect(0xFEC00000UL, 0x82000000UL, 0x00100000UL); /* TT Nova ET4000 mem0 -> isa0 */
+            rv->mmu_Redirect(0x00D00000UL, 0x83000000UL, 0x00100000UL); /* ST Nova ET4000 reg */
+            rv->mmu_Redirect(0x00C00000UL, 0x82000000UL, 0x00100000UL); /* ST Nova ET4000 mem0 -> isa0 */
         }
     }
 }
