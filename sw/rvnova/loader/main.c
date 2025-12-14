@@ -98,8 +98,8 @@ void drv_preload(rvnova_menuinf_t* inf) {
             rv->mmu_Redirect(0xFEE00000UL, 0x82600000UL, 0x00100000UL); /* TT Nova Mach64 mem2 -> isa6 */
             rv->mmu_Redirect(0xFEF00000UL, 0x82700000UL, 0x00100000UL); /* TT Nova Mach64 mem3 -> isa7 */
         } else if (strnicmp(inf->drvpath, "ET4000", 6) == 0) {
-            rv->mmu_Invalid( 0xFE800000UL, 0x00100000UL);
-            rv->mmu_Invalid( 0xFE900000UL, 0x00100000UL);
+            rv->mmu_Invalid( 0xFE900000UL, 0x00100000UL);               /* probably unnecessary */
+            rv->mmu_Invalid( 0xFE800000UL, 0x00100000UL);               /* probably unnecessary */
             rv->mmu_Redirect(0xFED00000UL, 0x83000000UL, 0x00100000UL); /* TT Nova ET4000 reg */
             rv->mmu_Redirect(0xFEC00000UL, 0x82000000UL, 0x00100000UL); /* TT Nova ET4000 mem0 -> isa0 */
             rv->mmu_Redirect(0x00D00000UL, 0x83000000UL, 0x00100000UL); /* ST Nova ET4000 reg */
