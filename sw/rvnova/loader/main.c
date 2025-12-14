@@ -76,24 +76,34 @@ void drv_preload(rvnova_menuinf_t* inf) {
     if ((Getcookie(C_RAVN, (long*)&rv) == C_FOUND) && rv) {
         /* Nova driver specific VME -> ISA remap */
         if (stricmp(inf->drvpath, "MACH32") == 0) {
-            rv->mmu_Redirect(0xFE900000UL, 0x83000000UL, 0x00100000UL);      /* TT Nova Mach32 reg base : 1024 kb                   */
-            rv->mmu_Redirect(0xFE800000UL, 0x82000000UL, 0x00100000UL);      /* TT Nova Mach32 vga base :  128 kb                   */
-            rv->mmu_Redirect(0xFEA00000UL, 0x82200000UL, 0x00100000UL);      /* TT Nova Mach32 mem base : 2048 kb ?? target addr ?? */
-            rv->mmu_Redirect(0xFEB00000UL, 0x82300000UL, 0x00100000UL);      /* TT Nova Mach32 mem base : 2048 kb ?? target addr ?? */
+            /* driver code references fea00000 */
+            /* also fe908000 for register writes (adding 0x8000) to reg number */
+            /* VME adapter is supposed to be on ST jumper setting which grounds A22 */
+            rv->mmu_Redirect(0xFE900000UL, 0x83000000UL, 0x00100000UL);      /* TT Nova Mach32 reg */
+            rv->mmu_Redirect(0xFE800000UL, 0x82000000UL, 0x00100000UL);      /* TT Nova Mach32 vga */
+            rv->mmu_Redirect(0xFEA00000UL, 0x82200000UL, 0x00100000UL);      /* TT Nova Mach32 mem0 -> isa2 */
+            rv->mmu_Redirect(0xFEB00000UL, 0x82300000UL, 0x00100000UL);      /* TT Nova Mach32 mem1 -> isa3 */
         } else if (stricmp(inf->drvpath, "MACH64") == 0) {
-            rv->mmu_Redirect(0xFEC00000UL, 0x83000000UL, 0x00080000UL);      /* TT Nova Mach32 reg base :  512 kb                   */
-            rv->mmu_Redirect(0xFEC80000UL, 0x82000000UL, 0x00080000UL);      /* TT Nova Mach32 vga base :  512 kb                   */
-            rv->mmu_Redirect(0xFE800000UL, 0x82000000UL, 0x00100000UL);      /* TT Nova Mach32 mem base : 4096 kb ?? target addr ?? */
-            rv->mmu_Redirect(0xFE900000UL, 0x82100000UL, 0x00100000UL);      /* TT Nova Mach32 mem base : 4096 kb ?? target addr ?? */
-            rv->mmu_Redirect(0xFEA00000UL, 0x82200000UL, 0x00100000UL);      /* TT Nova Mach32 mem base : 4096 kb ?? target addr ?? */
-            rv->mmu_Redirect(0xFEB00000UL, 0x82300000UL, 0x00100000UL);      /* TT Nova Mach32 mem base : 4096 kb ?? target addr ?? */
+            /* --> this is based on guessing and has not been tested <-- */
+            /* driver code references fec00000 and fee00000 */
+            /* also fe908000 for register writes (adding 0x8000 to reg number )*/
+            /* VME adapter is supposed to be on TT jumper setting and this let's A22 */
+            /* pass onto the ISA bus instead of forced to GND */
+            rv->mmu_Redirect(0xFE900000UL, 0x83000000UL, 0x00100000UL); /* TT Nova Mach64 reg  */
+            rv->mmu_Redirect(0xFE800000UL, 0x82000000UL, 0x00100000UL); /* TT Nova Mach64 vga  */
+            rv->mmu_Redirect(0xFEA00000UL, 0x82200000UL, 0x00100000UL); /* probably unused */
+            rv->mmu_Redirect(0xFEB00000UL, 0x82300000UL, 0x00100000UL); /* probably unused */
+            rv->mmu_Redirect(0xFEC00000UL, 0x82400000UL, 0x00100000UL); /* TT Nova Mach64 mem0 -> isa4 */  
+            rv->mmu_Redirect(0xFED00000UL, 0x82500000UL, 0x00100000UL); /* TT Nova Mach64 mem1 -> isa5 */
+            rv->mmu_Redirect(0xFEE00000UL, 0x82600000UL, 0x00100000UL); /* TT Nova Mach64 mem2 -> isa6 */
+            rv->mmu_Redirect(0xFEF00000UL, 0x82700000UL, 0x00100000UL); /* TT Nova Mach64 mem3 -> isa7 */
         } else if (strnicmp(inf->drvpath, "ET4000", 6) == 0) {
             rv->mmu_Invalid( 0xFE800000UL, 0x00100000UL);
             rv->mmu_Invalid( 0xFE900000UL, 0x00100000UL);
-            rv->mmu_Redirect(0xFED00000UL, 0x83000000UL, 0x00100000UL);      /* TT Nova ET4k reg base : 1024 kb                     */
-            rv->mmu_Redirect(0xFEC00000UL, 0x82000000UL, 0x00100000UL);      /* TT Nova ET4k mem base : 1024 kb                     */
-            rv->mmu_Redirect(0x00D00000UL, 0x83000000UL, 0x00100000UL);      /* ST Nova ET4k reg base : 1024 kb                     */
-            rv->mmu_Redirect(0x00C00000UL, 0x82000000UL, 0x00100000UL);      /* ST Nova ET4k mem base : 1024 kb                     */
+            rv->mmu_Redirect(0xFED00000UL, 0x83000000UL, 0x00100000UL);      /* TT Nova ET4000 reg */
+            rv->mmu_Redirect(0xFEC00000UL, 0x82000000UL, 0x00100000UL);      /* TT Nova ET4000 mem0 -> isa0 */
+            rv->mmu_Redirect(0x00D00000UL, 0x83000000UL, 0x00100000UL);      /* ST Nova ET4000 reg */
+            rv->mmu_Redirect(0x00C00000UL, 0x82000000UL, 0x00100000UL);      /* ST Nova ET4000 mem0 -> isa0 */
         }
     }
 }
