@@ -1,7 +1,7 @@
 Raven.A1
 Hardware and software binary release
 
-xxxxxxxx:
+20251214:
   rom:      support EmuTOS Shutdown feature (when ckbd is present)
   rom:      removed nova driver specific pmmu mapping
   rvnova:   add nova driver specific pmmu mapping
