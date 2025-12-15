@@ -1,6 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+20251215:
+  rom:      map entire 16MB isa-ram rather than only first 4MB
+
 20251214:
   rom:      support EmuTOS Shutdown feature (when ckbd is present)
   rom:      removed nova driver specific pmmu mapping
