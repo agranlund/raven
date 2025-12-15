@@ -28,15 +28,6 @@ extern void vecKBD_MFP1I4();    // acia emulation
 
 uint32_t vecKBD_Busy;
 
-const char * const gfxNames[] = {
-    "(none)",
-    "ET4000AX",
-    "ET4000/W32",
-    "ATI Mach32",
-    "ATI Mach64"
-};
-
-
 static void mmu_Map24bit(uint32_t log, uint32_t phys, uint32_t size, uint32_t flags) {
     mmu_Map(log & 0x00ffffff, phys, size, flags);
     mmu_Map(log | 0xff000000, phys, size, flags);
@@ -196,10 +187,10 @@ bool atari_InitMMU(uint32_t* simms)
     mmu_Map(0xA1000000, 0xA1000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // EXTBUS  (ym, mfp1)
     mmu_Map(0xA2000000, 0xA2000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // EXTBUS  (unused)
     mmu_Map(0xA3000000, 0xA3000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // EXTBUS  (unused)
-    mmu_Map(0x80000000, 0x80000000, 0x00400000, PMMU_READWRITE | PMMU_CM_PRECISE);         // ISA-RAM (generic)
-    mmu_Map(0x81000000, 0x81000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // ISA-IO  (generic)
-    mmu_Map(0x82000000, 0x82000000, 0x00400000, PMMU_READWRITE | PMMU_CM_PRECISE);         // ISA-RAM (gfxcard)
-    mmu_Map(0x83000000, 0x83000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // ISA-IO  (gfxcard)
+    mmu_Map(0x80000000, 0x80000000, 0x01000000, PMMU_READWRITE | PMMU_CM_PRECISE);         // ISA-RAM (8bit)
+    mmu_Map(0x81000000, 0x81000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // ISA-IO  (8bit)
+    mmu_Map(0x82000000, 0x82000000, 0x01000000, PMMU_READWRITE | PMMU_CM_PRECISE);         // ISA-RAM (16bit)
+    mmu_Map(0x83000000, 0x83000000, 0x00100000, PMMU_READWRITE | PMMU_CM_PRECISE);         // ISA-IO  (16bit / 8bit)
 
     // peripheral memory map
 
@@ -214,8 +205,8 @@ bool atari_InitMMU(uint32_t* simms)
     mmu_Map24bit(0x00F00000, 0xA0000000, 0x00001000, PMMU_READWRITE | PMMU_CM_PRECISE);  // IDE ($f00000 -> $a0000000)
 
 #if ENABLE_CART_TEST
-    // 0xFA0000 : cart : 128kb at physical rom offset 768kb
-    mmu_Map24bit(0x00FA0000, 0x400C0000, 0x00020000, PMMU_READONLY  | PMMU_CM_WRITETHROUGH);
+    // 0xFA0000 : cart : 128kb
+    // mmu_Map24bit(0x00FA0000, 0x400C0000, 0x00020000, PMMU_READONLY  | PMMU_CM_WRITETHROUGH);
 #endif
     // 0xFC0000 : 192k system rom
 
@@ -233,24 +224,17 @@ bool atari_InitMMU(uint32_t* simms)
     //mmu_Redirect(0xC0000000, 0x83000000, 0x00010000);
 
     // ST emulation space
-    mmu_Redirect(0x41000000, reserved_start + 0x00100000, 0x00100000);      // ram    1024kb
-    mmu_Redirect(0x41E00000, reserved_start + 0x00200000, 0x00040000);      // tos     256kb
-    mmu_Redirect(0x41FC0000, reserved_start + 0x00200000, 0x00030000);      // tos   192kb
-    mmu_Redirect(0x41FA0000, reserved_start + 0x00240000, 0x00020000);      // cart  128kb
-    mmu_Redirect(0x41FF0000, reserved_start + 0x00260000, 0x00010000);      // io      64kb
-    // x86 emulation space
-    mmu_Redirect(0x42000000, reserved_start + 0x00300000, 0x000a0000);      // 640kb ram    : 00000
-    mmu_Redirect(0x420a0000, reserved_start + 0x003a0000, 0x00020000);      // 128kb video  : A0000
-    //mmu_Redirect(0x420a0000, 0x80000000     + 0x000a0000, 0x00020000);    // 128kb video  : A0000
-    mmu_Redirect(0x420c0000, reserved_start + 0x003c0000, 0x00030000);      // 160kb ebios  : C0000
-    //mmu_Redirect(0x420c0000, 0x80000000     + 0x000c0000, 0x00030000);    // 160kb ebios  : C0000
-    mmu_Redirect(0x420f0000, reserved_start + 0x003f0000, 0x00010000);      // 160kb sbios  : F0000
+    mmu_Redirect(0x41000000, reserved_start + 0x00100000, 0x00100000);      // 1024kb ram   : 000000
+    mmu_Redirect(0x41E00000, reserved_start + 0x00200000, 0x00040000);      //  256kb rom   : E00000
+    mmu_Redirect(0x41FC0000, reserved_start + 0x00200000, 0x00030000);      //  192kb rom   : FC0000
+    mmu_Redirect(0x41FA0000, reserved_start + 0x00240000, 0x00020000);      //  128kb cart  : FA0000
+    mmu_Redirect(0x41FF0000, reserved_start + 0x00260000, 0x00010000);      //   64kb io    : FF0000
 
-/*
-    for (uint32_t i = 0; i < 4 * 1024 * 1024UL; i += 64 * 1024) {
-        mmu_Redirect(0x42400000UL + i, 0x820a0000 + i, 64 * 1024UL);
-    }
-*/
+    // x86 emulation space
+    mmu_Redirect(0x42000000, reserved_start + 0x00300000, 0x000a0000);      //  640kb ram   : 00000
+    mmu_Redirect(0x420a0000, reserved_start + 0x003a0000, 0x00020000);      //  128kb video : A0000
+    mmu_Redirect(0x420c0000, reserved_start + 0x003c0000, 0x00030000);      //  160kb ebios : C0000
+    mmu_Redirect(0x420f0000, reserved_start + 0x003f0000, 0x00010000);      //  160kb sbios : F0000
 
     mmuregs_t mmu;
     mmu.urp = mmuTable;
