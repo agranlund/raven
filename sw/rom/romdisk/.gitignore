@@ -1,5 +1,7 @@
 .DS_Store
 files/mon.tos
 files/ymodem.tos
+files/uip.tos
 files/docs/mon.txt
 files/docs/ymodem.txt
+files/docs/uip.txt
