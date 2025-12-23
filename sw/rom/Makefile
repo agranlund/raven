@@ -94,6 +94,9 @@ $(ROMDISK_IMG): $(wildcard $(ROMDISK_DIR)/files/*) $(ROMDISK_DIR)/romdisk.sh $(D
 	make -C ../tools/ymodem
 	cp ../tools/ymodem/ymodem.tos $(ROMDISK_DIR)/files/
 	cp ../tools/ymodem/readme.txt $(ROMDISK_DIR)/files/docs/ymodem.txt
+	make -C ../tools/uiptools
+	cp ../tools/uiptools/uip.tos $(ROMDISK_DIR)/files/
+	cp ../tools/uiptools/uip.txt $(ROMDISK_DIR)/files/docs/uip.txt
 	$(ROMDISK_DIR)/romdisk.sh --diskfile $@ $(ROMDISK_DIR)/files/*
 
 clean:
