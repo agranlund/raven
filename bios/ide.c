@@ -1,7 +1,7 @@
 /*
  * ide.c - Falcon IDE functions
  *
- * Copyright (C) 2011-2024 The EmuTOS development team
+ * Copyright (C) 2011-2025 The EmuTOS development team
  *
  * Authors:
  *  VRI   Vincent Rivière
@@ -12,7 +12,7 @@
  */
 
 /*
- * Note: this driver does not support CHS addressing.
+ * Note: CHS addressing is now supported in addition to LBA.
  */
 
 /* #define ENABLE_KDEBUG */
@@ -201,15 +201,22 @@ struct IDE
 /* IDE defines */
 
 #define IDE_CMD_IDENTIFY_DEVICE 0xec
+#define IDE_CMD_INIT_DEV_PARAMS 0x91    /* used for CHS drives only */
 #define IDE_CMD_NOP             0x00
 #define IDE_CMD_READ_SECTOR     0x20
 #define IDE_CMD_WRITE_SECTOR    0x30
+#define IDE_CMD_READ_SECTOR_EX  0x24
+#define IDE_CMD_WRITE_SECTOR_EX 0x34
 #define IDE_CMD_READ_MULTIPLE       0xc4
 #define IDE_CMD_WRITE_MULTIPLE      0xc5
+#define IDE_CMD_READ_MULTIPLE_EX    0x29
+#define IDE_CMD_WRITE_MULTIPLE_EX   0x39
 #define IDE_CMD_SET_MULTIPLE_MODE   0xc6
 
 #define IDE_CMD_ATAPI_PACKET    0xa0    /* ATAPI-only commands */
 #define IDE_CMD_ATAPI_IDENTIFY  0xa1
+
+#define IDE_CAPABILITY_LBA48    0x0400
 
 #define IDE_MODE_CHS    (0 << 6)
 #define IDE_MODE_LBA    (1 << 6)
@@ -217,6 +224,7 @@ struct IDE
 
 #define IDE_CONTROL_nIEN (1 << 1)
 #define IDE_CONTROL_SRST (1 << 2)
+#define IDE_CONTROL_HOB  (1 << 7)       /* LBA48 */
 
 #define IDE_STATUS_ERR  (1 << 0)
 #define IDE_STATUS_DRQ  (1 << 3)
@@ -238,10 +246,12 @@ struct IDE
 /* interface/device info */
 
 struct IFINFO {
-    struct {
+    struct IFINFO_DEV {
         UBYTE type;
         UBYTE options;
         UBYTE spi;          /* # sectors transferred between interrupts */
+        UBYTE sectors;      /* sectors per track (CHS mode only) */
+        UBYTE heads;        /* heads per cylinder (CHS mode only) */
 #if CONF_WITH_SCSI_DRIVER
         UBYTE sense;        /* ATA: current sense condition on device */
         UBYTE packet_size;  /* ATAPI: packet size */
@@ -257,13 +267,42 @@ struct IFINFO {
 #define DEVTYPE_ATAPI   3
 
 #define MULTIPLE_MODE_ACTIVE    0x01    /* for 'options' */
+#define LBA48_ACTIVE            0x02
+#define CHS_MODE                0x04
 
 #define INVALID_OPCODE  1               /* for 'sense' */
 #define INVALID_SECTOR  2
 #define INVALID_CDB     3
 #define INVALID_LUN     4
 
-#define ATAPI_MAX_BYTECOUNT     65012   /* largest multiple of 512 in UWORD */
+#define ATAPI_MAX_BYTECOUNT     (127*512U)  /* largest multiple of 512 in UWORD */
+
+
+/* data returned by IDENTIFY DEVICE command */
+
+struct IDENTIFY {
+    UWORD general_config;       /* ATAPI */
+    UWORD logical_cylinders;    /* for CHS mode only */
+    UWORD filler02;
+    UWORD logical_heads;        /* for CHS mode only */
+    UWORD filler04[2];
+    UWORD logical_spt;          /* for CHS mode only */
+    UWORD filler07[16];
+    char firmware_revision[8];  /* also in ATAPI */
+    char model_number[40];      /* also in ATAPI */
+    UWORD multiple_io_info;
+    UWORD filler30;
+    UWORD capabilities;
+    UWORD filler32[10];
+    UWORD numsecs_lba28[2]; /* number of sectors for LBA28 cmds */
+    UWORD filler3e[20];
+    UWORD cmds_supported[3];
+    UWORD filler55[15];
+    UWORD maxsec_lba48[4];  /* max sector number for LBA48 cmds */
+    UWORD filler68[152];
+};
+
+#define LBA_SUPPORTED   0x0200  /* in 'capabilities' field of IDENTIFY struct */
 
 
 /* timing stuff */
@@ -291,26 +330,15 @@ struct IFINFO {
 #define XFER_TIMEOUT    (3*CLOCKS_PER_SEC)  /* 3 seconds for data xfer */
 #define LONG_TIMEOUT    (3*CLOCKS_PER_SEC)  /* 3 seconds for reset */
 
+/*
+ * basic data used by IDE driver
+ */
 static int has_ide;
 static struct IFINFO ifinfo[NUM_IDE_INTERFACES];
 static ULONG delay400ns;
 static ULONG delay5us;
-static struct {
-    UWORD general_config;       /* ATAPI */
-    UWORD filler01[22];
-    char firmware_revision[8];  /* also in ATAPI */
-    char model_number[40];      /* also in ATAPI */
-    UWORD multiple_io_info;
-    UWORD filler2f;
-    UWORD capabilities;
-    UWORD filler32[10];
-    UWORD numsecs_lba28[2]; /* number of sectors for LBA28 cmds */
-    UWORD filler3e[20];
-    UWORD cmds_supported[3];
-    UWORD filler55[15];
-    UWORD maxsec_lba48[4];  /* max sector number for LBA48 cmds */
-    UWORD filler68[152];
-} identify;
+static struct IDENTIFY identify;
+
 
 #if CONF_WITH_SCSI_DRIVER
 static struct {
@@ -347,7 +375,9 @@ static WORD clear_multiple_mode(UWORD ifnum,UWORD dev);
 static void ide_detect_devices(UWORD ifnum);
 static LONG ata_identify(WORD dev);
 static int ide_select_device(volatile struct IDE *interface,UWORD dev);
+static void set_chs_mode(WORD dev,struct IDENTIFY *identify);
 static void set_multiple_mode(WORD dev,UWORD multi_io);
+static void set_lba48_mode(WORD dev, UWORD lba48);
 static UWORD get_start_count(volatile struct IDE *interface);
 static void set_start_count(volatile struct IDE *interface,UBYTE sector,UBYTE count);
 static int wait_for_not_BSY(volatile struct IDE *interface,LONG timeout);
@@ -604,8 +634,11 @@ void ide_init(void)
 
     /* set multiple mode for all devices that we have info for */
     for (i = 0; i < DEVICES_PER_BUS; i++)
-        if (ata_identify(i) == 0)
+        if (ata_identify(i) == 0) {
+            set_chs_mode(i,&identify);
             set_multiple_mode(i,identify.multiple_io_info);
+            set_lba48_mode(i,identify.cmds_supported[1]);
+        }
 
 #if CONF_WITH_SCSI_DRIVER
     /* set packet size for all ATAPI devices */
@@ -706,7 +739,14 @@ static void ide_detect_devices(UWORD ifnum)
 
     IDE_WRITE_CONTROL(interface,IDE_CONTROL_nIEN);    /* no interrupts please */
 
-    /* initial check for devices */
+    /*
+     * initial check for devices
+     * Note that by itself this is not a sufficient way to detect the presence
+     * of device 1. According to the ATA standards (section on "Device 0 only
+     * configurations"), a device 0 might respond for device 1. For proper
+     * device detection, the recheck below is needed, that takes into account
+     * the signature and the status register.
+     */
     for (i = 0; i < 2; i++) {
         ide_select_device(interface,i);
         set_start_count(interface,0xaa,0x55);
@@ -838,13 +878,62 @@ static void set_command_head(volatile struct IDE *interface,UBYTE cmd,UBYTE head
 /*
  * set device / command / sector start / count / LBA mode in IDE registers
  */
-static void ide_rw_start(volatile struct IDE *interface,UWORD dev,ULONG sector,UWORD count,UBYTE cmd)
+static void ide_rw_start(UWORD ifnum,UWORD dev,ULONG sector,UWORD count,UBYTE cmd)
 {
-    KDEBUG(("ide_rw_start(%p, %u, %lu, %u, 0x%02x)\n", interface, dev, sector, count, cmd));
+    struct IFINFO *info = &ifinfo[ifnum];
+    struct IFINFO_DEV *devinfo = &info->dev[dev];
+    volatile struct IDE *interface = info->base_address;
 
-    set_start_count(interface,LOBYTE(sector),LOBYTE(count));
-    set_cylinder(interface,(UWORD)((sector & 0xffff00) >> 8));
-    set_command_head(interface,cmd,IDE_MODE_LBA|IDE_DEVICE(dev)|(UBYTE)((sector>>24)&0x0f));
+    KDEBUG(("ide_rw_start(%p, %u, %u, %lu, %u, 0x%02x)\n",
+            interface, ifnum, dev, sector, count, cmd));
+
+    /*
+     * handle CHS device
+     */
+    if (devinfo->options & CHS_MODE) {
+        UWORD n, cylnum;
+        UBYTE headnum, secnum;
+
+        n = divu(sector,devinfo->sectors);
+        secnum = (UBYTE)(sector-(n*devinfo->sectors) + 1);  /* sectors start at 1 */
+        cylnum = n / devinfo->heads;
+        headnum = (UBYTE)(n-(cylnum*devinfo->heads));
+
+        KDEBUG((" CHS mode: %u/%u/%u\n",cylnum,headnum,secnum));
+
+        set_start_count(interface,secnum,LOBYTE(count));
+        set_cylinder(interface,cylnum);
+        set_command_head(interface,cmd,IDE_MODE_CHS|IDE_DEVICE(dev)|headnum);
+        return;
+    }
+
+    /*
+     * handle LBA device
+     */
+    if (cmd == IDE_CMD_READ_SECTOR_EX ||
+        cmd == IDE_CMD_WRITE_SECTOR_EX ||
+        cmd == IDE_CMD_READ_MULTIPLE_EX ||
+        cmd == IDE_CMD_WRITE_MULTIPLE_EX) {
+        set_start_count(interface,(sector>>24),(count>>8));
+        set_start_count(interface,(sector),(count));
+
+        /*
+         * We should do this, but for now we only support 2^32
+         * sector sizes, i.e. max 2TB disks. It would mean using
+         * ULLONG for sector to support 2^48 disk sizes.
+         * Additionally, XHDI, etc would need extensions.
+         *
+         *   set_cylinder(interface,(UWORD)((sector & 0xffff00000000UL) >> 32));
+         */
+        set_cylinder(interface,0);
+
+        set_cylinder(interface,(UWORD)((sector & 0xffff00) >> 8));
+        set_command_head(interface,cmd,IDE_MODE_LBA|IDE_DEVICE(dev));
+    } else {
+        set_start_count(interface,LOBYTE(sector),LOBYTE(count));
+        set_cylinder(interface,(UWORD)((sector & 0xffff00) >> 8));
+        set_command_head(interface,cmd,IDE_MODE_LBA|IDE_DEVICE(dev)|(UBYTE)((sector>>24)&0x0f));
+    }
 }
 
 /*
@@ -858,7 +947,7 @@ static LONG ide_nodata(UBYTE cmd,UWORD ifnum,UWORD dev,ULONG sector,UWORD count)
     if (ide_select_device(interface,dev) < 0)
         return EGENRL;
 
-    ide_rw_start(interface,dev,sector,count,cmd);
+    ide_rw_start(ifnum,dev,sector,count,cmd);
 
     if (wait_for_not_BSY(interface,SHORT_TIMEOUT))  /* should vary depending on command? */
         return EGENRL;
@@ -1008,16 +1097,30 @@ static LONG ide_read(UBYTE cmd,UWORD ifnum,UWORD dev,ULONG sector,UWORD count,UB
 
     /*
      * if READ SECTOR and MULTIPLE MODE, set cmd & spi accordingly
+     *
+     * If the sector is > LBA28 range use LBA48 if supported.
+     * This aids performance in for LBA28 addressable sectors.
      */
     spi = 1;
     if ((cmd == IDE_CMD_READ_SECTOR)
      && (info->dev[dev].options & MULTIPLE_MODE_ACTIVE)) {
-        cmd = IDE_CMD_READ_MULTIPLE;
+        if ((info->dev[dev].options & LBA48_ACTIVE) &&
+            (sector > 0x0FFFFFFFUL)) {
+            cmd = IDE_CMD_READ_MULTIPLE_EX;
+        } else {
+            cmd = IDE_CMD_READ_MULTIPLE;
+        }
         spi = info->dev[dev].spi;
         KDEBUG(("spi=%u\n", spi));
     }
 
-    ide_rw_start(interface,dev,sector,count,cmd);
+    if ((info->dev[dev].options & LBA48_ACTIVE) &&
+        (sector > 0x0FFFFFFFUL) &&
+        (cmd == IDE_CMD_READ_SECTOR)) {
+       cmd = IDE_CMD_READ_SECTOR_EX;
+    }
+
+    ide_rw_start(ifnum,dev,sector,count,cmd);
 
     /*
      * each iteration of this loop handles one DRQ block
@@ -1168,15 +1271,28 @@ static LONG ide_write(UBYTE cmd,UWORD ifnum,UWORD dev,ULONG sector,UWORD count,U
 
     /*
      * if WRITE SECTOR and MULTIPLE MODE, set cmd & spi accordingly
+     *
+     * If the sector is > LBA28 range use LBA48 if supported.
+     * This aids performance in for LBA28 addressable sectors.
      */
     spi = 1;
     if ((cmd == IDE_CMD_WRITE_SECTOR)
      && (info->dev[dev].options & MULTIPLE_MODE_ACTIVE)) {
-        cmd = IDE_CMD_WRITE_MULTIPLE;
+        if ((info->dev[dev].options & LBA48_ACTIVE) &&
+            (sector > 0x0FFFFFFFUL))
+            cmd = IDE_CMD_WRITE_MULTIPLE_EX;
+        else
+            cmd = IDE_CMD_WRITE_MULTIPLE;
         spi = info->dev[dev].spi;
     }
 
-    ide_rw_start(interface,dev,sector,count,cmd);
+    if ((info->dev[dev].options & LBA48_ACTIVE) &&
+        (sector > 0x0FFFFFFFUL) &&
+        (cmd == IDE_CMD_WRITE_SECTOR)) {
+       cmd = IDE_CMD_WRITE_SECTOR_EX;
+    }
+
+    ide_rw_start(ifnum,dev,sector,count,cmd);
 
     if (wait_for_not_BSY(interface,SHORT_TIMEOUT))
         return EWRITF;
@@ -1224,7 +1340,7 @@ static LONG ide_write(UBYTE cmd,UWORD ifnum,UWORD dev,ULONG sector,UWORD count,U
     return rc;
 }
 
-LONG ide_rw(WORD rw,LONG sector,WORD count,UBYTE *buf,WORD dev,BOOL need_byteswap)
+LONG ide_rw(WORD rw,ULONG sector,UWORD count,UBYTE *buf,WORD dev,BOOL need_byteswap)
 {
     UBYTE *p;
     UWORD ifnum;
@@ -1267,7 +1383,7 @@ LONG ide_rw(WORD rw,LONG sector,WORD count,UBYTE *buf,WORD dev,BOOL need_byteswa
         ret = rw ? ide_write(IDE_CMD_WRITE_SECTOR,ifnum,dev,sector,numsecs,p,need_byteswap)
                 : ide_read(IDE_CMD_READ_SECTOR,ifnum,dev,sector,numsecs,p,need_byteswap);
         if (ret < 0) {
-            KDEBUG(("ide_rw(%d,%d,%d,%ld,%u,%p,%d) ret=%ld\n",
+            KDEBUG(("ide_rw(%d,%d,%d,%lu,%u,%p,%d) ret=%ld\n",
                     rw,ifnum,dev,sector,numsecs,p,need_byteswap,ret));
             if (clear_multiple_mode(ifnum,dev)) /* retry after multiple mode reset ? */
                 continue;                       /* yes, do so                        */
@@ -1283,6 +1399,55 @@ LONG ide_rw(WORD rw,LONG sector,WORD count,UBYTE *buf,WORD dev,BOOL need_byteswa
     }
 
     return E_OK;
+}
+
+static void set_chs_mode(WORD dev,struct IDENTIFY *identify)
+{
+    UWORD ifnum, ifdev;
+    struct IFINFO_DEV *info;
+
+    if (identify->capabilities & LBA_SUPPORTED) /* normal case */
+        return;
+
+    ifnum = dev / 2;    /* i.e. primary IDE, secondary IDE, ... */
+    ifdev = dev & 1;    /* 0 or 1 */
+
+    info = &ifinfo[ifnum].dev[ifdev];
+    info->options |= CHS_MODE;
+    info->sectors = identify->logical_spt;
+    info->heads = identify->logical_heads;
+
+    KDEBUG(("CHS mode detected: ifnum=%d, dev=%d, heads=%d, spt=%d\n",ifnum,ifdev,info->heads,info->sectors));
+
+    /*
+     * here we issue INITIALIZE_DEVICE_PARAMETERS, since some ATA-1
+     * devices are reported to require it before media access.  as
+     * specified in the ATA-2 spec, we use the default translation
+     * mode from the IDENTIFY DEVICE command.
+     *
+     * we set the sector number to pass to ide_nodata() such that the
+     * device/head register will contain (number of logical heads - 1),
+     * as required by the command.
+     *
+     * we don't care about the result, since some ATA-1 implementations
+     * may not return an error indication even if the command fails.
+     */
+    ide_nodata(IDE_CMD_INIT_DEV_PARAMS,ifnum,ifdev,(info->heads-1)*info->sectors,info->sectors);
+}
+
+static void set_lba48_mode(WORD dev, UWORD lba48)
+{
+    UWORD ifnum;
+
+    if (!(lba48 & IDE_CAPABILITY_LBA48))
+        return;
+
+    ifnum = dev / 2;    /* i.e. primary IDE, secondary IDE, ... */
+    dev &= 1;           /* 0 or 1 */
+
+    KDEBUG(("Setting lba48 for ifnum %d dev %d\n",ifnum,dev));
+
+    ifinfo[ifnum].dev[dev].options |= LBA48_ACTIVE;
 }
 
 /*
@@ -1368,8 +1533,21 @@ LONG ide_ioctl(WORD dev,UWORD ctrl,void *arg)
     case GET_DISKINFO:
         ret = ata_identify(dev);    /* reads into identify structure */
         if (ret >= 0) {
-            info[0] = MAKE_ULONG(identify.numsecs_lba28[1],
-                        identify.numsecs_lba28[0]);
+            if (identify.cmds_supported[1] & IDE_CAPABILITY_LBA48) {
+                if (identify.maxsec_lba48[2] ||
+                    identify.maxsec_lba48[3]) {
+                    /*
+                     * Should we return an error here ?
+                     */
+                    KDEBUG(("Disk size >= 2^32 sectors, unsupported\n"));
+                }
+
+                info[0] = MAKE_ULONG(identify.maxsec_lba48[1],
+                                     identify.maxsec_lba48[0]);
+            } else {
+                info[0] = MAKE_ULONG(identify.numsecs_lba28[1],
+                                     identify.numsecs_lba28[0]);
+            }
             info[1] = SECTOR_SIZE;  /* note: could be different under ATAPI 7 */
             ret = E_OK;
         }
@@ -1572,7 +1750,21 @@ static LONG handle_ata_device(WORD dev, IDECmd *cmd)
         ret = ata_identify(dev);
         if (ret)
             break;
-        info[0] = MAKE_ULONG(identify.numsecs_lba28[1], identify.numsecs_lba28[0]) - 1;
+        if (identify.cmds_supported[1] & IDE_CAPABILITY_LBA48) {
+            if (identify.maxsec_lba48[2] ||
+                identify.maxsec_lba48[3]) {
+                /*
+                 * Should we return an error here ?
+                 */
+                KDEBUG(("Disk size >= 2^32 sectors, unsupported\n"));
+            }
+
+            info[0] = MAKE_ULONG(identify.maxsec_lba48[1],
+                                 identify.maxsec_lba48[0]) - 1;
+        } else {
+            info[0] = MAKE_ULONG(identify.numsecs_lba28[1],
+                                 identify.numsecs_lba28[0]) - 1;
+        }
         info[1] = SECTOR_SIZE;
         memcpy(cmd->bufptr, (void *)info, 2*sizeof(LONG));
         break;

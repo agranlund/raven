@@ -93,9 +93,9 @@ union acsidma {
 /*
  * local variables
  */
-static ULONG loopcount_delay;   /* used by delay() macro */
-static ULONG next_acsi_time;    /* earliest time we can start the next i/o */
-
+static ULONG loopcount_delay;      /* used by delay() macro */
+static ULONG next_acsi_time;       /* earliest time we can start the next i/o */
+static BOOL register_access_16bit; /* use MOVE.W to access ACSI registers */
 
 /*
  * High-level ACSI stuff.
@@ -120,6 +120,15 @@ void acsi_init(void)
     loopcount_delay = 15 * loopcount_1_msec / 1000;
 
     next_acsi_time = hz_200;    /* immediate :-) */
+
+    /* whether to use MOVE.W to access ACSI registers,
+     * see dma_send_byte() for details
+     */
+    if ((cookie_mch == MCH_STE) || (cookie_mch == MCH_MSTE)) {
+        register_access_16bit = TRUE;
+    } else {
+        register_access_16bit = FALSE;
+    }
 }
 
 LONG acsi_rw(WORD rw, LONG sector, WORD count, UBYTE *buf, WORD dev)
@@ -162,7 +171,7 @@ LONG acsi_rw(WORD rw, LONG sector, WORD count, UBYTE *buf, WORD dev)
 
         for (retry = 0; retry < 2; retry++) {
             err = do_acsi_rw(rw, sector, numsecs, p, dev);
-            if (err == 0)
+            if ((err == 0) || (err == E_CHNG))  /* mustn't retry media change! */
                 break;
         }
 
@@ -246,7 +255,6 @@ LONG acsi_ioctl(UWORD dev, UWORD ctrl, void *arg)
     return rc;
 }
 
-#if CONF_WITH_SCSI_DRIVER
 /*
  * this is a bit messy, because some *real* ACSI devices only return 4 bytes
  * of request sense data compared to 16 from SCSI devices.  such devices would
@@ -285,7 +293,6 @@ LONG acsi_request_sense(WORD dev, UBYTE *buffer)
 
     return status;
 }
-#endif
 
 static LONG acsi_capacity(WORD dev, ULONG *info)
 {
@@ -374,14 +381,20 @@ static void acsi_end(void)
 
 /*
  * Internal implementation -
- * cnt <= 0xFF, no retry done, returns -1 if timeout, or the DMA status.
+ * cnt <= 0xFF, no retry done
+ * returns  0       OK
+ *          -1      timeout
+ *      otherwise an ACSI check condition has been detected & a REQUEST
+ *      SENSE has been issued, with the following results:
+ *          -2      the REQUEST SENSE failed
+ *          other   the BIOS error code derived from REQUEST SENSE data
  */
-
 static int do_acsi_rw(WORD rw, LONG sector, WORD cnt, UBYTE *buf, WORD dev)
 {
     ACSICMD cmd;
     UBYTE cdb[10];  /* allow for 10-byte read/write commands */
-    int cdblen;
+    UBYTE sensebuf[REQSENSE_LENGTH];
+    int cdblen, ret;
     LONG buflen = cnt * SECTOR_SIZE;
 
     /* emit command */
@@ -394,7 +407,20 @@ static int do_acsi_rw(WORD rw, LONG sector, WORD cnt, UBYTE *buf, WORD dev)
     cmd.timeout = LARGE_TIMEOUT;
     cmd.rw = rw;
 
-    return send_command(dev,&cmd);
+    ret = send_command(dev,&cmd);
+
+    /*
+     * handle non-zero status byte from ACSI I/O: issue Request Sense
+     * and return code corresponding to sense data
+     */
+    if (ret > 0) {
+        ret = acsi_request_sense(dev,sensebuf);
+        if (ret)            /* errors on request sense are bad */
+            return EDRVNR;
+        ret = decode_sense(sensebuf);
+    }
+
+    return ret;
 }
 
 /*
@@ -439,7 +465,11 @@ static int calculate_repeat(ACSICMD *cmd)
 }
 
 /*
- * send an ACSI command; return -1 if timeout
+ * send an ACSI command
+ *
+ * returns: 0       OK
+ *          -1      timeout
+ *          other   ACSI status byte
  *
  * note:
  * . we assume that the i/o buffer is WORD-aligned and allocated in ST RAM
@@ -562,11 +592,26 @@ int send_command(WORD dev,ACSICMD *cmd)
 }
 
 /*
- * send current byte plus the control for the _next_ byte
+ * send current byte plus the control for the _next_ byte.
+ *
+ * Atari recommended to do this in a single (32-bit) access. It is assumed
+ * that this is because of a bug in the C025913-20 DMA, used only in the
+ * very first STs. However, in STEs with a C025913-38 DMA, this 32-bit
+ * access can be the source of the 'bad DMA' issue that results in data
+ * corruption. In this case, two separate 16-bit accesses are proven to
+ * resolve the issue. Out of precaution, we only activate this workaround
+ * in STEs and MegaSTEs, where this workaround has been tested to have no
+ * discernible side effects. Other machines continue using 32-bit access.
  */
 static void dma_send_byte(UBYTE data, UWORD control)
 {
-    ACSIDMA->datacontrol = MAKE_ULONG(data, control);
+    if (register_access_16bit) {
+        ACSIDMA->s.data = data;
+        __asm volatile("nop");
+        ACSIDMA->s.control = control;
+    } else {
+        ACSIDMA->datacontrol = MAKE_ULONG(data, control);
+    }
 }
 
 

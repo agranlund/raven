@@ -1328,25 +1328,7 @@ static LONG decode_scsi_status(WORD dev, LONG ret)
     if (ret < 0)                                /* errors on request sense are bad */
         return EDRVNR;
 
-    if ((reqsense_buffer[0] & 0x7e) != 0x70)    /* if extended sense not present, */
-        return E_CHNG;                          /* say media change               */
-
-    /* check sense key */
-    switch(reqsense_buffer[2]&0x0f) {
-    case 0:     /* no sense */
-    case 6:     /* unit attention */
-        return E_CHNG;
-    case 1:     /* recovered error */
-        return E_OK;
-    case 2:     /* not ready */
-        return EDRVNR;
-    case 5:     /* illegal request */
-        return EBADRQ;
-    case 7:     /* data protect */
-        return EWRPRO;
-    }
-
-    return EGENRL;
+    return decode_sense(reqsense_buffer);
 }
 
 static LONG do_scsi_rw(UWORD rw, ULONG sector, UWORD count, UBYTE *buf, WORD dev)
@@ -1458,5 +1440,32 @@ int build_rw_command(UBYTE *cdb, UWORD rw, ULONG sector, UWORD count)
     cdb[8] = count;
     cdb[9] = 0x00;
     return 10;
+}
+
+/*
+ * decode the sense bytes from an ACSI or SCSI Request Sense
+ * returns the appropriate TOS return code
+ */
+LONG decode_sense(UBYTE *sense)
+{
+    if ((sense[0] & 0x7e) != 0x70)  /* if extended sense not present, */
+        return E_CHNG;              /* say media change               */
+
+    /* check sense key */
+    switch(sense[2]&0x0f) {
+    case 0:     /* no sense */
+    case 6:     /* unit attention */
+        return E_CHNG;
+    case 1:     /* recovered error */
+        return E_OK;
+    case 2:     /* not ready */
+        return EDRVNR;
+    case 5:     /* illegal request */
+        return EBADRQ;
+    case 7:     /* data protect */
+        return EWRPRO;
+    }
+
+    return EGENRL;
 }
 #endif

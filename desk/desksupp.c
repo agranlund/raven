@@ -4,7 +4,7 @@
 
 /*
 *       Copyright 1999, Caldera Thin Clients, Inc.
-*                 2002-2022 The EmuTOS development team
+*                 2002-2025 The EmuTOS development team
 *
 *       This software is licenced under the GNU Public License.
 *       Please see LICENSE.TXT for further information.
@@ -54,6 +54,7 @@
 #include "scancode.h"
 #include "biosext.h"
 #include "lineavars.h"      /* for MOUSE_BT, V_REZ_HZ */
+#include "asm.h"
 
 /* Needed to force media change */
 #define MEDIACHANGE     0x02
@@ -73,6 +74,10 @@
 static const WORD std_skewtab[] =
  { 1, 2, 3, 4, 5, 6, 7, 8, 9,
    1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+static const WORD k800_skewtab[] =
+ { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+   1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
 static const WORD hd_skewtab[] =
  { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
@@ -511,6 +516,9 @@ static WORD get_key(void)
             return 'Q';
         if (MOUSE_BT & 0x0001)  /* left mouse button means next page */
             return ' ';
+#if USE_STOP_INSN_TO_FREE_HOST_CPU
+        Supexec((LONG)stop_until_interrupt);
+#endif
     }
 
     c = bios_conin();
@@ -1415,7 +1423,7 @@ static WORD init_start(char *buf, WORD disktype, WORD drive, char *label)
 static BOOL retry_format(void)
 {
     graf_mouse(ARROW,NULL);
-    if (fun_alert(3, STFMTERR) == 2)
+    if (fun_alert(1, STFMTERR) == 2)
         return FALSE;
     graf_mouse(HGLASS,NULL);    /* say we're busy again */
 
@@ -1440,18 +1448,24 @@ static WORD format_floppy(OBJECT *tree, WORD max_width, WORD incr)
     skewtab = std_skewtab;
     trackskew = 2;
 
-    switch(inf_gindex(tree, FMT_SS, 3))
+    switch(inf_gindex(tree, FMT_SS, 4))
     {
     case 0:             /* single sided */
         numsides = 1;
         disktype = 2;
         trackskew = 3;  /* skew between tracks */
         break;
-    case 2:             /* high density */
+    case 2:             /* 800K */
+        disktype = 6;
+        spt = 10;
+        skewtab = k800_skewtab;
+        break;
+    case 3:             /* high density */
         disktype = 4;
         spt = 18;
         skewtab = hd_skewtab;
         trackskew = 3;
+        break;
     }
 
     buf = dos_alloc_stram(FMTBUFLEN);

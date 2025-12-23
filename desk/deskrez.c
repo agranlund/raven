@@ -4,7 +4,7 @@
  * This file was created to support desktop resolution changes
  * for the TT and Falcon.
  *
- * Copyright (C) 2012-2024 The EmuTOS development team
+ * Copyright (C) 2012-2025 The EmuTOS development team
  *
  * Authors:
  *  RFB    Roger Burrows
@@ -270,6 +270,14 @@ WORD oldmode;
     tree = desk_rs_trees[ADAMIREZ];
 
     for (i = 0, obj = tree+AMIREZ0; i < NUM_AMIGA_BUTTONS; i++, obj++) {
+        WORD mode = amigamode_from_button[i];
+        if (mode == -1) /* separator */
+            continue;
+
+        /* disable PAL modes on NTSC */
+        if (amiga_is_ntsc && (mode & VIDEL_PAL))
+            obj->ob_state |= DISABLED;
+
         if (i == selected)
             obj->ob_state |= SELECTED;
         else obj->ob_state &= ~SELECTED;
