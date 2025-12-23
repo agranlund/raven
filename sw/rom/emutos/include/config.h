@@ -660,6 +660,9 @@
 # ifndef CONF_WITH_IDE
 #  define CONF_WITH_IDE 1
 # endif
+# ifndef CONF_WITH_SCSI_DRIVER
+#  define CONF_WITH_SCSI_DRIVER 1
+# endif
 # ifndef CONF_WITH_NVRAM
 #  define CONF_WITH_NVRAM 1
 # endif
@@ -1651,6 +1654,13 @@
 # define CONF_WITH_1FAT_SUPPORT 0
 #endif
 
+/*
+ * Set CONF_WITH_GPT_SUPPORT to 1 to enable support for hard disks
+ * with a GUID partition table (GPT).
+ */
+#ifndef CONF_WITH_GPT_SUPPORT
+# define CONF_WITH_GPT_SUPPORT 1
+#endif
 
 
 /********************************************************

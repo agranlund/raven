@@ -51,7 +51,8 @@
 #if CONF_WITH_SCSI_DRIVER
 
 #define MAXLEN_ACSI     (128 * SECTOR_SIZE)     /* like HD Driver says */
-#define MAXLEN_SCSI     (256 * 1024L * 1024L)
+#define MAXLEN_SCSI_TT  (256 * 1024L * 1024L)
+#define MAXLEN_SCSI_FA  (16383L * SECTOR_SIZE)  /* Falcon SCSI DMA limitation */
 #define MAXLEN_IDE      (255 * SECTOR_SIZE)
 
 typedef struct {
@@ -176,14 +177,23 @@ static ULONG get_bus_maxlen(WORD busnum)
     {
 #if CONF_WITH_ACSI
     case ACSI_BUS:
-        maxlen = MAXLEN_ACSI;
+        /* ACSI DMA cannot access TT-RAM directly */
+        if (frbptr)
+            maxlen = FRB_SIZE;
+        else
+            maxlen = MAXLEN_ACSI;
         break;
 #endif
 #if CONF_WITH_SCSI
     case SCSI_BUS:
-        if (HAS_VIDEL && frbptr)        /* Falcon with TT-RAM */
-            maxlen = FRB_SIZE;
-        else maxlen = MAXLEN_SCSI;
+        maxlen = MAXLEN_SCSI_TT;
+        if (HAS_VIDEL)          /* Falcon */
+        {
+            if (frbptr)         /* ... with TT-RAM */
+                maxlen = FRB_SIZE;
+            else
+                maxlen = MAXLEN_SCSI_FA;
+        }
         break;
 #endif
 #if CONF_WITH_IDE
@@ -424,16 +434,17 @@ static LONG scsidriv_InquireSCSI(WORD what, BusInfo *info)
     ULONG bit;
 
     if (what == cInqFirst)
-        info->private.busavail = detected_busses;
+        info->private.busavail = 0;
 
-    if (info->private.busavail == 0)    /* no (more) busses */
+    /*  have we reported all busses we know? */
+    if ((info->private.busavail & detected_busses) == detected_busses)
         return EUNDEV;                  /* this is what HDDRIVER returns */
 
     for (bus = 0, bit = 1; bus <= MAX_BUS; bus++, bit <<= 1)
     {
-        if (info->private.busavail & bit)
+        if ((detected_busses & bit) && !(info->private.busavail & bit))
         {
-            info->private.busavail &= ~bit;     /* don't report again */
+            info->private.busavail |= bit;     /* don't report again */
             break;
         }
     }

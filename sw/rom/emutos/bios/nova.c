@@ -11,7 +11,6 @@
  */
 
 /* #define ENABLE_KDEBUG */
-/* #define DEBUG_REGISTER_WRITES */
 
 #include "emutos.h"
 #include "asm.h"
@@ -38,10 +37,10 @@ int has_nova;
  * work when the card is switched to 16 bit IO mode. On the Volksfarben,
  * these accesses will not work when the card is switched to 16 bit.
  */
-static int use_16bit_io;
+static BOOL use_16bit_io;
 
 /* CrazyDots has a special clock generator register. */
-static int is_crazydots;
+static BOOL is_crazydots;
 #define CRAZY_DOTS_CLK_SEL 0x000
 
 /* Macros for VGA register access */
@@ -60,6 +59,7 @@ static int is_crazydots;
 #define VIDSUB  0x3C3   /* Video Subsystem register */
 #define MISC_W  0x3C2   /* Misc Output Write Register */
 #define DAC_PEL 0x3C6   /* RAMDAC pixel mask */
+#define DAC_IR  0x3C7   /* RAMDAC read index */
 #define DAC_IW  0x3C8   /* RAMDAC write index */
 #define DAC_D   0x3C9   /* RAMDAC palette data */
 #define ATC_IW  0x3C0   /* Attribute controller: index and data write */
@@ -89,8 +89,20 @@ static int is_crazydots;
 #define R_MISC_CNTL     0x92EE
 
 /* ATI Mach64 only */
+static UBYTE m64_dac_type = 0;
+#define M64_DAC_ATI68860    5
+#define M64_DAC_CH8398      7
+
+#define M64_BUS_CNTL        0x4EEC
 #define M64_CONFIG_CHIP_ID  0x6EEC
 #define M64_SCRATCH_REG_1   0x46EC
+#define M64_CRTC_INT_CNTL   0x1AEC
+#define M64_CRTC_GEN_CNTL   0x1EEC
+#define M64_GEN_TEST_CNTL   0x66EC
+#define M64_MEM_CNTL        0x52EC
+#define M64_CONFIG_CNTL     0x6AEC
+#define M64_DAC_CNTL        0x62EC
+#define M64_CLOCK_CNTL      0x4AEC
 
 #define M64_GX_CHIP_ID      0xD7
 
@@ -99,6 +111,10 @@ typedef enum {
     MACH_32,
     MACH_64
 } MACH_TYPE;
+
+#define IS_MACH (mach_type != MACH_NOT_DETECTED)
+#define IS_MACH32 (mach_type == MACH_32)
+#define IS_MACH64 (mach_type == MACH_64)
 
 static ULONG delay20us;
 #define SHORT_DELAY delay_loop(delay20us)
@@ -111,7 +127,7 @@ static inline void set_idxreg(UWORD port, UBYTE reg, UBYTE value) __attribute__(
 static void set_multiple_idxreg(UWORD port, UBYTE startreg, UBYTE cnt, const UBYTE *values);
 static void set_multiple_atcreg(UBYTE startreg, UBYTE cnt, const UBYTE *values);
 
-/* Register data for Mach32/ET4000 init */
+/* Register data for Mach32/64/ET4000 init */
 /* Timing Sequencer registers 1...4 */
 static const UBYTE vga_TS_1_4[] = {0x01,0x01,0x00,0x06};
 /* Timing Sequencer registers 6...8 */
@@ -145,11 +161,6 @@ static inline void set_idxreg(UWORD port, UBYTE reg, UBYTE value)
     VGAREG(port) = reg;
     SHORT_DELAY;
     VGAREG(port+1) = value;
-#ifdef DEBUG_REGISTER_WRITES
-    UBYTE readback = VGAREG(port+1);
-    if (readback != value)
-        KDEBUG(("error %03x(%02x): %02x!=%02x\n", port, reg, readback, value));
-#endif
 }
 
 /* Write multiple indexed VGA register */
@@ -176,7 +187,7 @@ static void set_multiple_atcreg(UBYTE startreg, UBYTE cnt, const UBYTE *values)
 }
 
 /* Check for presence of a VGA card using the ATC palette registers. */
-static int check_for_vga(void)
+static BOOL check_for_vga(void)
 {
     FORCE_READ(VGAREG(IS1_RC)); /* set ATC_IW to index */
 
@@ -190,11 +201,11 @@ static int check_for_vga(void)
     if (VGAREG(ATC_IW) == 0x0A)
     {
         VGAREG(ATC_IW) = 0x20; /* enable screen output */
-        return 1;
+        return TRUE;
     }
     else
     {
-        return 0;
+        return FALSE;
     }
 }
 
@@ -202,12 +213,12 @@ static int check_for_vga(void)
 void detect_nova(void)
 {
     has_nova = 0;
-    use_16bit_io = 1; /* Default for everything but Volksfarben/ST */
-    is_crazydots = 0;
+    use_16bit_io = TRUE; /* Default for everything but Volksfarben/ST */
+    is_crazydots = FALSE;
 
     if (IS_BUS32 && HAS_VME && check_read_byte(0xFE900000UL+VIDSUB))
     {
-        /* Nova/Mach32 in Atari TT */
+        /* Nova/Mach in Atari TT */
         novaregbase = (UBYTE *)0xFE900000UL;
         novamembase = (UBYTE *)0xFE800000UL;
         has_nova = 1;
@@ -228,7 +239,7 @@ void detect_nova(void)
         novaregbase = (UBYTE *)0xFEBF0000UL;
         novamembase = (UBYTE *)0xFEC00000UL;
         has_nova = 1;
-        is_crazydots = 1;
+        is_crazydots = TRUE;
     }
     else if (((ULONG)phystop < 0x00C00000UL) && check_read_byte(0x00D00000UL+VIDSUB) &&
              check_read_byte(0x00C00000UL) && check_read_byte(0x00C80000UL))
@@ -241,7 +252,7 @@ void detect_nova(void)
         novaregbase = (UBYTE *)0x00D00000UL;
         novamembase = (UBYTE *)0x00C00000UL;
         has_nova = 1;
-        use_16bit_io = 0;
+        use_16bit_io = FALSE;
     }
 
     if (has_nova)
@@ -327,6 +338,91 @@ static void init_mach32(void)
     VGAREG(ROM_PAGE_SEL) = 0x08;    /* Enable VGA */
 }
 
+/* Set address lines RS2 and RS3 of DAC on Mach64 */
+static void mach_dac_setrs2rs3(UBYTE rs2rs3)
+{
+    set_idxreg(ATI_I, 0xA0, ((rs2rs3&3)<<5) | 0x8);
+}
+
+/*
+   Control word to program MCLK3 to 40 MHz:
+   N = 0+257, PostDiv = 2, RefDiv = 46, RefFreq = 14.318 MHz.
+   PPDDE7654321043210WS
+   11100000000001001100 = 0xE004C
+*/
+#define PROG_MCLK3_40000_KHZ 0xE004Cul
+/*
+   Control word to program VCLK4 to 50.35 MHz,
+   twice the VGA pixel clock:
+   N = 67+257, PostDiv = 2, RefDiv = 46, RefFreq = 14.318 MHz.
+   PPDDE7654321043210WS
+   11100010000110010000 = 0xE2190
+*/
+#define PROG_VCLK4_50350_KHZ 0xE2190ul
+
+#define FS2(x) ((x)<<2)
+#define FS3(x) ((x)<<3)
+#define STROBE (1<<6)
+
+/* Program the ATI-18818 / ICS2595 clock generator found in some Mach64. */
+static void prog_ics2595(ULONG prog)
+{
+    /* start of programming sequence */
+    VGAREG(M64_CLOCK_CNTL) = FS2(0) | FS3(0) | STROBE;
+    SHORT_DELAY;
+    VGAREG(M64_CLOCK_CNTL) = FS2(1) | FS3(0) | STROBE;
+    SHORT_DELAY;
+    /* shift out programming bits */
+    while (prog)
+    {
+        VGAREG(M64_CLOCK_CNTL) = FS2(prog&1) | FS3(0) | STROBE;
+        SHORT_DELAY;
+        VGAREG(M64_CLOCK_CNTL) = FS2(prog&1) | FS3(1) | STROBE;
+        SHORT_DELAY;
+        prog >>= 1;
+    }
+}
+
+/* Basic Mach64 initialisation before VGA mode can be enabled. */
+static void init_mach64(void)
+{
+
+    KDEBUG(("init_mach64()\n"));
+
+    /* General card configuration */
+    VGAREG(M64_BUS_CNTL) = 0xF1;
+    VGAREG(M64_BUS_CNTL+1) = 0x20;          /* Enable 16 bit IO */
+    VGAREG_W(M64_BUS_CNTL+2) = 0x0e89;
+    VGAREG_W(M64_CRTC_INT_CNTL) = 0x0000;
+    VGAREG_W(M64_CRTC_GEN_CNTL) = 0x0002;   /* 8 bpp */
+    VGAREG(M64_CRTC_GEN_CNTL+3) = 0x00;     /* reset CRTC */
+    VGAREG_W(M64_GEN_TEST_CNTL) = 0x0000;
+    VGAREG_W(M64_GEN_TEST_CNTL+2) = 0x0000;
+    VGAREG_W(M64_MEM_CNTL) = 0xf101;        /* at least 1 MB of memory */
+    VGAREG_W(M64_CONFIG_CNTL) = 0x1100;     /* linear aperture enabled */
+    VGAREG_W(M64_DAC_CNTL) = 0x0020;
+    m64_dac_type = VGAREG(M64_DAC_CNTL+2) & 0x7; /* RAM DAC type */
+
+    KDEBUG(("Detected DAC type %d\n", m64_dac_type));
+
+    /* Switch to accelerator mode to have better access to clock gen and DAC */
+    VGAREG(M64_CRTC_GEN_CNTL+3) = 0x03;
+
+    /* ATI68860 RAM DAC is used with ICS-style clock generator */
+    if (m64_dac_type == M64_DAC_ATI68860)
+    {
+        /* Program clock generator with pixel and memory clock */
+        prog_ics2595(PROG_VCLK4_50350_KHZ);
+        prog_ics2595(PROG_MCLK3_40000_KHZ);
+    }
+
+    /* Enable VGA mode */
+    VGAREG(M64_CRTC_GEN_CNTL+3) = 0x02;     /* switch to VGA mode */
+    VGAREG(ROM_PAGE_SEL) = 0x10;    /* VGA setup mode */
+    VGAREG(SETUP_CONTROL) = 0x01;   /* Enable card */
+    VGAREG(ROM_PAGE_SEL) = 0x08;    /* Enable VGA */
+}
+
 /* Unlocks access to the extended registers of ET4000 */
 static void unlock_et4000(void)
 {
@@ -381,25 +477,77 @@ static void ramdac_hicolor_off(void)
     FORCE_READ(VGAREG(DAC_IW)); /* Back to normal mode */
 }
 
-/* Loads the Mach32 specific indexed registers */
-static void set_mach32_idxreg(void)
+/* Configure the ATI-68860 RAM DAC found on some Mach64 */
+static void ramdac_68860_config(void)
 {
-    int idx;
+    /* Configure DAC */
+    mach_dac_setrs2rs3(2);      /* select DAC registers 8 - 11 */
+    VGAREG(DAC_PEL) = 0x1D;     /* always set to 0x1D */
+    VGAREG(DAC_IR) = 0x80;      /* Graphic Mode register: VGA mode (?) */
+    VGAREG(DAC_IW) = 0x02;      /* black level(?), always set to 2 */
+    mach_dac_setrs2rs3(0);
+}
 
-    set_idxreg(ATI_I, 0x86, 0x7A);
-    set_idxreg(ATI_I, 0xA3, 0x00);
-    set_idxreg(ATI_I, 0xAD, 0x00);
-    set_idxreg(ATI_I, 0xAE, 0x00);
-    set_idxreg(ATI_I, 0xB0, 0x08);
-    for (idx = 0xB1; idx <= 0xB5; idx++)
-    {
-        set_idxreg(ATI_I, idx, 0x00);
+/* Unlock or lock the clock selection of the CH8398 RAM DAC.
+   Note that RS2 must be set to high before calling this function. */
+static void ramdac_ch8398_unlock(BOOL unlock)
+{
+    /* Magic access sequence for Clock Select Register */
+    FORCE_READ(VGAREG(DAC_PEL));
+    FORCE_READ(VGAREG(DAC_IW));
+    FORCE_READ(VGAREG(DAC_IW));
+    FORCE_READ(VGAREG(DAC_IW));
+    FORCE_READ(VGAREG(DAC_IW));
+    /* reset or set the PLL frequency hold bit */
+    VGAREG(DAC_IW) = unlock?0x80:0x00;
+}
+
+/* Values from CH8398 data sheet: M = 3, N = 27, K = 1 = 50.11 MHz */
+#define PROG_PLL4_50MHZ ((3u<<8)|27u|(1u<<14))
+
+/* Configure the CH8398 RAM DAC found on some Mach64 */
+static void ramdac_ch8398_config(void)
+{
+    mach_dac_setrs2rs3(1);    /* RS2=1, select DAC registers 4 - 7 */
+    /* unlock clock settings */
+    ramdac_ch8398_unlock(TRUE);
+
+    /* Access control register and set it to 8bpp mode */
+    VGAREG(DAC_PEL) = 0x04;
+
+    /* Configure the clock entry 4, which is used by this driver, for 50 MHz. */
+    VGAREG(DAC_IW) = 4;                /* program clock entry 4 */
+    VGAREG(DAC_D) = (UBYTE)PROG_PLL4_50MHZ;
+    VGAREG(DAC_D) = (UBYTE)(PROG_PLL4_50MHZ >> 8);
+
+    mach_dac_setrs2rs3(0);
+}
+
+/* Loads the Mach specific indexed registers */
+static void set_mach_idxreg(void)
+{
+    static const UBYTE initvalues[] = {
+    /* reg, val */
+      0x86, 0x7A,
+      0xA3, 0x00,
+      0xAD, 0x00, /* does not exist on Mach64, but writes are ignored */
+      0xAE, 0x00, /* does not exist on Mach64, but writes are ignored */
+      0xB0, 0x08,
+      0xB1, 0x00,
+      0xB2, 0x00,
+      0xB3, 0x00,
+      0xB4, 0x00,
+      0xB5, 0x00,
+      0xB6, 0x01,
+      0xBD, 0x04,
+      0xBF, 0x01,
+      0x00 };
+
+    const UBYTE* p;
+
+    for (p = initvalues; *p != 0; p+=2) {
+        set_idxreg(ATI_I, *p, *(p+1));
     }
-    set_idxreg(ATI_I, 0xB6, 0x01);
-    set_idxreg(ATI_I, 0xB8, 0x00);
-    set_idxreg(ATI_I, 0xBD, 0x04);
-    set_idxreg(ATI_I, 0xBE, 0x08);
-    set_idxreg(ATI_I, 0xBF, 0x01);
 
     set_idxreg(TS_I, 0x00, 0x01);   /* Reset Timing Sequencer */
     set_idxreg(ATI_I, 0xB9, 0x42);  /* Configure clock generator */
@@ -408,6 +556,7 @@ static void set_mach32_idxreg(void)
     VGAREG(MISC_W) = vga_MISC_W;    /* Needed again here. */
     set_idxreg(TS_I, 0x00, 0x03);
 }
+
 
 /* Loads the palette entries for colors 0 = white, 1 = black and 255 = overscan, also black */
 static void set_palette_entries(const UBYTE* palette)
@@ -425,7 +574,7 @@ static void set_palette_entries(const UBYTE* palette)
     }
 
     /* Load color 255 */
-    VGAREG(DAC_IW) = 255; /* color 0 */
+    VGAREG(DAC_IW) = 255; /* color 255 */
     for (k=0; k<3; k++)
     {
         VGAREG(DAC_D) = *palette++;
@@ -435,20 +584,27 @@ static void set_palette_entries(const UBYTE* palette)
 
 
 /* Loads predefined values to all relevant VGA registers */
-static void init_nova_resolution(int is_mach32)
+static void init_nova_resolution(MACH_TYPE mach_type)
 {
     UBYTE temp;
 
     KDEBUG(("init_nova_resolution()\n"));
-    if (!is_mach32) {
+    if (!IS_MACH) {
         ramdac_hicolor_off();
     }
 
     /* Load registers */
-    if (is_mach32) {
-        /* Mach32 indexed registers at 0x1CE. */
+    if (IS_MACH) {
+        /* Mach32/64 indexed registers at 0x1CE. */
         set_idxreg(GDC_I, 0x50, 0xCE);
         set_idxreg(GDC_I, 0x51, 0x81);
+    }
+
+    /* Configure Mach64 DACs */
+    if (m64_dac_type == M64_DAC_CH8398) {
+        ramdac_ch8398_config();
+    } else if (m64_dac_type == M64_DAC_ATI68860) {
+        ramdac_68860_config();
     }
 
     /* Reset Timing Sequencer */
@@ -456,12 +612,12 @@ static void init_nova_resolution(int is_mach32)
     LONG_DELAY;
     set_idxreg(TS_I, 0x00, 0x03);
 
-    if (!is_mach32) {
-        unlock_et4000(); /* TODO: really required again? */
+    if (!IS_MACH) {
+        unlock_et4000(); /* required again after TS reset */
     }
 
     set_multiple_idxreg(TS_I, 1, sizeof(vga_TS_1_4), vga_TS_1_4);
-    if (!is_mach32) {
+    if (!IS_MACH) {
         set_multiple_idxreg(TS_I, 6, sizeof(et4000_TS_6_8), et4000_TS_6_8);
     }
 
@@ -469,28 +625,38 @@ static void init_nova_resolution(int is_mach32)
 
     set_idxreg(CRTC_I, 0x11, 0); /* enable write to CRTC */
     set_multiple_idxreg(CRTC_I, 0, sizeof(vga_CRTC_0_0x18), vga_CRTC_0_0x18);
-    if (!is_mach32) {
+    if (!IS_MACH) {
         set_multiple_idxreg(CRTC_I, 0x33, sizeof(et4000_CRTC_0x33_0x35), et4000_CRTC_0x33_0x35);
     }
     temp = get_idxreg(CRTC_I, 0x11);
     set_idxreg(CRTC_I, 0x11, temp | 0x80); /* disable write to CRTC */
 
-    if (is_mach32) {
-        /* Do not write ATC registers 0x15 and 0x16 on Mach32 */
+    if (IS_MACH) {
+        /* Do not write ATC registers 0x15 and 0x16 on Mach32/64 */
         set_multiple_atcreg(0, sizeof(vga_ATC_0_0x16) - 2, vga_ATC_0_0x16);
     } else {   /* ET4000 */
         set_multiple_atcreg(0, sizeof(vga_ATC_0_0x16), vga_ATC_0_0x16);
     }
     set_multiple_idxreg(GDC_I, 0, sizeof(vga_GDC_0_8), vga_GDC_0_8);
 
-    if (is_mach32) {
-        set_mach32_idxreg();
+    if (IS_MACH) {
+        set_mach_idxreg();
     } else {   /* ET4000 */
         set_idxreg(CRTC_I, 0x36, use_16bit_io? 0xD3:0x53);
     }
     set_idxreg(TS_I, 1, vga_TS_1_4[0] | 0x20); /* screen off */
     set_palette_entries(vga_palette);
     set_idxreg(TS_I, 1, vga_TS_1_4[0]); /* screen on */
+
+    /*
+     * after setting our mode / clock config lock the DAC,
+     * because Nova VDI expects to find it locked.
+     */
+    if (m64_dac_type == M64_DAC_CH8398) {
+        mach_dac_setrs2rs3(1);  /* RS2 = 1 */
+        ramdac_ch8398_unlock(FALSE);
+        mach_dac_setrs2rs3(0);
+    }
 }
 
 /* Certain ET4000 graphic cards require a different clock divider.
@@ -535,19 +701,19 @@ static void count_vbls(void)
 }
 
 /* Test that video memory is accessible */
-static int test_video_memory(void)
+static BOOL test_video_memory(void)
 {
     /* Note that novamembase is declared volatile,
        so the compiler won't optimize this out. */
     *novamembase = 0x00;
     if (*novamembase != 0x00)
-        return 0;
+        return FALSE;
 
     *novamembase = 0x55;
     if (*novamembase != 0x55)
-        return 0;
+        return FALSE;
 
-    return 1;
+    return TRUE;
 }
 
 /* Sets system variables so that EmuTOS will use the graphics card */
@@ -572,42 +738,45 @@ static void init_system_vars(void)
 }
 
 /* Initialize Nova card */
-int init_nova(void)
+BOOL init_nova(void)
 {
-    int is_mach32;
+    MACH_TYPE mach_type;
 
     delay20us = loopcount_1_msec / 50;
 
     /* Fail if detect_nova() hasn't found card */
     if (!has_nova)
-        return 0;
+        return FALSE;
 
     if (!is_crazydots) {
-        /* Detect ATI Mach32 (as opposed to ET4000). */
-        is_mach32 = (detect_mach() == MACH_32);
+        /* Detect ATI Mach (as opposed to ET4000). */
+        mach_type = detect_mach();
     } else {
         /* Crazydots always has a ET4000 */
-        is_mach32 = 0;
+        mach_type = MACH_NOT_DETECTED;
     }
 
-    if (is_mach32) {
+    if (IS_MACH32) {
         novamembase += 0x0A0000UL;
         init_mach32();
+    } else if (IS_MACH64) {
+        novamembase += 0x0A0000UL;
+        init_mach64();
     }
 
     /* Enable VGA mode */
     VGAREG(VIDSUB) = 0x01;
-    VGAREG(MISC_W) = 0xE3; /* Select color mode & MCLK1 */
+    VGAREG(MISC_W) = vga_MISC_W; /* Select color mode & MCLK1 */
 
     /* Sanity check that no other VME or Megabus HW has been detected.
      * Note that we can do this only after enabling VGA in the code above.
      */
     if (!check_for_vga()) {
         KDEBUG(("No Nova or no VGA card found\n"));
-        return 0;
+        return FALSE;
     }
 
-    if (!is_mach32) {   /* ET4000 */
+    if (!IS_MACH) {   /* ET4000 */
         if (is_crazydots) {
             /* Program clock generator to 25.175 MHz pixel clock */
             VGAREG(CRAZY_DOTS_CLK_SEL) = 0x4;
@@ -616,21 +785,21 @@ int init_nova(void)
         init_et4000();
     }
 
-    init_nova_resolution(is_mach32);
+    init_nova_resolution(mach_type);
 
-    if (!is_mach32) {   /* ET4000 */
+    if (!IS_MACH) {   /* ET4000 */
         count_vbls();
     }
 
     if (!test_video_memory()) {
         KDEBUG(("Nova memory inaccessible\n"));
         /* TODO: Try alternative address, like driver does */
-        return 0;
+        return FALSE;
     }
 
     init_system_vars();
 
-    return 1;
+    return TRUE;
 }
 
 UBYTE* get_novamembase(void)
