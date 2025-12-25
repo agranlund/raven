@@ -1,6 +1,11 @@
 Raven.A1
 Hardware and software binary release
 
+xxxxxxxx:
+  rom:      updated EmuTOS (8fc0919, 20251220)
+  rom:      enable EmuTOS SCSIDRV
+  rom:      include uip.tos in romdisk
+
 20251215:
   rom:      map entire 16MB isa-ram rather than only first 4MB
 
