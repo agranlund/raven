@@ -94,7 +94,7 @@ app:            MOVE.L  A3,_BasPag
 
 * Test if fpu 68881 is present
                 
-                jsr     _fpuinit
+*               jsr     _fpuinit
                 
                 
 ******* Execute main program *******************************************

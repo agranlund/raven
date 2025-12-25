@@ -250,7 +250,7 @@ Start99:        clr.l   (a1)+
                 trap    #1
                 lea     12(a7),a7
 
-                jsr     _fpuinit
+;               jsr     _fpuinit
 
 				movem.l	d0-d6/a0-a6,-(a7)
 				clr.w	-(a7)

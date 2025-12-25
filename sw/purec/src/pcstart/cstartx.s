@@ -160,7 +160,7 @@ Start99:        clr.l   (a1)+
                 trap    #1
                 lea     12(a7),a7
 
-                jsr     _fpuinit
+;               jsr     _fpuinit
 
 				lea		4(a7),a0
 				lea		0(a7),a1

@@ -158,7 +158,7 @@ Start99:        clr.l   (a1)+
                 lea     12(a7),a7
 
 ;				jsr		virus_self_test
-                jsr     _fpuinit
+;               jsr     _fpuinit
 
                 move.l  d3,d0
                 movea.l a2,a0

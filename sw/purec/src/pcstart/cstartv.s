@@ -207,7 +207,7 @@ do_argv:
                 trap    #1
                 lea     12(a7),a7
 
-                jsr     _fpuinit
+;               jsr     _fpuinit
                 
                 move.w	(a7)+,d1
                 cmp.w	#127,d1
