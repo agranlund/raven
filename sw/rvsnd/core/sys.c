@@ -342,10 +342,10 @@ long super_main(int args, char** argv) {
     }
 
     /* everyone loves a cookie */
-    sys_setcookie("_SND", SND_8BIT | SND_16BIT | SND_EXT);
+    sys_setcookie("_SND", SND_PSG | SND_8BIT | SND_16BIT | SND_EXT);
    
 #if IMPERSONATE_GSXB    
-    sys_setcookie("GSXB", SND_8BIT | SND_16BIT | SND_EXT);
+    sys_setcookie("GSXB", SND_PSG | SND_8BIT | SND_16BIT | SND_EXT);
 #endif
 
     dprintf("done.\n");
