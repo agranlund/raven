@@ -206,7 +206,6 @@ long supermain()
     return 1;
 }
 
-unsigned long _StkSize = 4096;
 int main()
 {
 	if (Supexec(supermain)) {

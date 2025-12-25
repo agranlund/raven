@@ -7,10 +7,6 @@
 #include "isa_rw.h"
 #include "isa_pnp.h"
 
-#ifdef __PUREC__
-uint32_t    _StkSize = 4096;
-#endif
-
 isa_core_t  isa;
 isa_dev_t   isa_bus_devs[ISA_MAX_DEVS];
 

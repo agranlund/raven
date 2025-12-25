@@ -406,7 +406,6 @@ long supermain()
 	return 1;
 }
 
-unsigned long _StkSize = 4096;
 long main()
 {
 	if (Supexec(supermain)) {

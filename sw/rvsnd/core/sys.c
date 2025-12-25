@@ -353,9 +353,6 @@ long super_main(int args, char** argv) {
 }
 
 /* ------------------------------------------------------------------- */
-#if defined(__PUREC__)
-unsigned long _StkSize = 4096;
-#endif
 extern unsigned long _PgmSize;
 static int _super_args;
 static char** _super_argv;

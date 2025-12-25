@@ -35,7 +35,6 @@ void flush_cin(void) {
 }
 
 static LINE pbuf;
-unsigned long _StkSize = 4096;
 int main(int args, char** argv)
 {
     const char* path = "";

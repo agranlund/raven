@@ -82,7 +82,6 @@ long supermain()
     return 0;
 }
 
-unsigned long _StkSize = 4096;
 int main(int __args, char** __argv)
 {
     args = __args; argv = __argv;

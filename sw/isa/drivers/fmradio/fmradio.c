@@ -16,7 +16,6 @@
  * along with this program  if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *-----------------------------------------------------------------------------*/
-unsigned long _StkSize = 4096;
 extern unsigned long _PgmSize;
 
 #include <stdint.h>

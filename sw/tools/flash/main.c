@@ -76,7 +76,6 @@ static int args;
 static char** argv;
 long supermain()
 {
-    uint16_t sr;
     void* rom_data;
     int32_t rom_size;
 
@@ -106,7 +105,6 @@ long supermain()
     return 0;
 }
 
-unsigned long _StkSize = 4096;
 int main(int __args, char** __argv)
 {
     args = __args; argv = __argv;

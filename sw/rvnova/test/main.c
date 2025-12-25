@@ -123,7 +123,6 @@ static long supermain(void)
     return 0;
 }
 
-unsigned long _StkSize = 4096;
 int main() {
     return (int)Supexec(supermain);
 }
