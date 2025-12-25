@@ -8,7 +8,7 @@ emulator.prg
 .S[-I..\..\purec\include]
 .S[-S]
 
-.L[-R -M -V -S=4096]
+.L[-V -S=4096]
 =
 ..\..\purec\lib\cstart0.o
 main.c
