@@ -2,7 +2,7 @@ Raven.A1
 Hardware and software binary release
 
 xxxxxxxx:
-  rom:      updated EmuTOS (8fc0919, 20251220)
+  rom:      updated EmuTOS (24dff9a, 20251225)
   rom:      enable EmuTOS SCSIDRV
   rom:      include uip.tos in romdisk
 
