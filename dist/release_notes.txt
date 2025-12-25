@@ -5,7 +5,8 @@ xxxxxxxx:
   rom:      updated EmuTOS (24dff9a, 20251225)
   rom:      enable EmuTOS SCSIDRV
   rom:      include uip.tos in romdisk
-
+  software: all purec based programs updated with stack fix
+  
 20251215:
   rom:      map entire 16MB isa-ram rather than only first 4MB
 
