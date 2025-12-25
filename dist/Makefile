@@ -266,10 +266,12 @@ copysw:
 	# Castaway
 	# --------------------------------------------------
 		$(MKDIR) $(SWDIR_RTOOLS)/castaway
+		$(COPY) $(SUPPDIR)/castaway/* $(SWDIR_RTOOLS)/castaway/
+
 		# todo: clean and recompile?
-		$(COPY) $(ROOTDIR)/../castaway/bin/* $(SWDIR_RTOOLS)/castaway/
-		$(COPY) $(ROOTDIR)/../castaway/readme.txt $(SWDIR_RTOOLS)/castaway/
-		$(COPY) $(ROOTDIR)/../castaway/license.txt $(SWDIR_RTOOLS)/castaway/
+		#$(COPY) $(ROOTDIR)/../castaway/bin/* $(SWDIR_RTOOLS)/castaway/
+		#$(COPY) $(ROOTDIR)/../castaway/readme.txt $(SWDIR_RTOOLS)/castaway/
+		#$(COPY) $(ROOTDIR)/../castaway/license.txt $(SWDIR_RTOOLS)/castaway/
 
 
 	# --------------------------------------------------
