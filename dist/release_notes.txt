@@ -3,7 +3,7 @@ Hardware and software binary release
 
 xxxxxxxx:
   rom:      updated EmuTOS (24dff9a, 20251225)
-  rom:      enable EmuTOS SCSIDRV
+  rom:      enabled EmuTOS SCSIDRV
   rom:      include uip.tos in romdisk
   software: all purec based programs updated with stack fix
   
