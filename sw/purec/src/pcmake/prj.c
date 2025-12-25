@@ -904,6 +904,8 @@ static bool dold(PRJ *prj, MAKEOPTS *opts)
 	char **argv;
 	int argc;
 	int rep = 0;
+	char* lnkname = 0;
+	FILE* lnkfile = 0;
 	char buf[50];
 	char *name;
 	
@@ -912,7 +914,18 @@ static bool dold(PRJ *prj, MAKEOPTS *opts)
 		errout(_("nothing to link"));
 		return false;
 	}
-	
+
+	lnkname = 0;
+	lnkfile = 0;
+#if !defined(__TOS__) && !defined(__atarist__)
+	lnkname = "temp.lnk";
+	lnkfile = fopen(lnkname, "w");
+	if (!lnkfile)
+	{
+		lnkname = 0;
+	}
+#endif
+
 	default_output_file(prj);
 
 	argc = 0;
@@ -1001,12 +1014,18 @@ static bool dold(PRJ *prj, MAKEOPTS *opts)
 			{
 			case FT_CSOURCE:
 				STRBSLASH(name = objname_for_src(prj, ft));
-				add_arg(&argc, &argv, name);
+				if (lnkfile)
+					fprintf(lnkfile, "%s\r\n", name);
+				else
+					add_arg(&argc, &argv, name);
 				g_free(name);
 				break;
 			case FT_ASSOURCE:
 				STRBSLASH(name = objname_for_src(prj, ft));
-				add_arg(&argc, &argv, name);
+				if (lnkfile)
+					fprintf(lnkfile, "%s\r\n", name);
+				else
+					add_arg(&argc, &argv, name);
 				g_free(name);
 				break;
 			case FT_OBJECT:
@@ -1016,7 +1035,10 @@ static bool dold(PRJ *prj, MAKEOPTS *opts)
 				} else
 				{
 					(void) STRBSLASH(name);
-					add_arg(&argc, &argv, name);
+					if (lnkfile)
+						fprintf(lnkfile, "%s\r\n", name);
+					else
+						add_arg(&argc, &argv, name);
 				}
 				g_free(name);
 				break;
@@ -1027,7 +1049,10 @@ static bool dold(PRJ *prj, MAKEOPTS *opts)
 				} else
 				{
 					(void) STRBSLASH(name);
-					add_arg(&argc, &argv, name);
+					if (lnkfile)
+						fprintf(lnkfile, "%s\r\n", name);
+					else
+						add_arg(&argc, &argv, name);
 				}
 				g_free(name);
 				break;
@@ -1037,7 +1062,10 @@ static bool dold(PRJ *prj, MAKEOPTS *opts)
 					if (ft->u.prj->ld_flags.create_new_object || ft->u.prj->output->filetype == FT_LIBRARY)
 					{
 						STRBSLASH(name = build_path(ft->u.prj->directory, ft->u.prj->output->name));
-						add_arg(&argc, &argv, name);
+						if (lnkfile)
+							fprintf(lnkfile, "%s\r\n", name);
+						else
+							add_arg(&argc, &argv, name);
 						g_free(name);
 					}
 				}
@@ -1047,9 +1075,20 @@ static bool dold(PRJ *prj, MAKEOPTS *opts)
 			}
 			ft = ft->next;
 		}
+		if (lnkfile && lnkname)
+		{
+			sprintf(buf, "-C=%s", lnkname);
+			add_arg(&argc, &argv, buf);
+		}
 	}
 	argv[argc] = NULL;
 	
+	if (lnkfile)
+	{
+		fclose(lnkfile);
+		lnkfile = 0;
+	}
+
 	if (rep == 0)
 	{
 		if (!opts->silent)
@@ -1102,6 +1141,12 @@ static bool dold(PRJ *prj, MAKEOPTS *opts)
 		}
 	}
 	
+	if (lnkname)
+	{
+		remove_output(lnkname);
+		lnkname = 0;
+	}
+
 	strfreev(argv);
 	
 	return rep == 0;
