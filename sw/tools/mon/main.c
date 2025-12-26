@@ -29,6 +29,7 @@
 #include <string.h>
 #include <mint/osbind.h>
 #include "raven.h"
+#include "sysutil.h"
 
 char mon_arg[1024];
 void (*putchar_old)(int32_t);
@@ -50,9 +51,7 @@ bool checkRomVersion(void) {
     return true;
 }
 
-static int args;
-static char** argv;
-long supermain()
+long supermain(int args, char** argv)
 {
     int i; char* arg_ptr = mon_arg;
 
@@ -82,8 +81,6 @@ long supermain()
     return 0;
 }
 
-int main(int __args, char** __argv)
-{
-    args = __args; argv = __argv;
-    return (int)Supexec(supermain);
+int main(int args, char** argv) {
+    return Supmain(args, argv, supermain);
 }

@@ -7,7 +7,7 @@ PRJ = $(NAME).prj
 INSTALL_ROOT = c:/raven
 INSTALL_BINS = $(BIN)
 
-OBJS = main.o flash.o ASM.O
+OBJS = main.o
 
 ROOTDIR = ../..
 include $(ROOTDIR)/Makefile.cmn

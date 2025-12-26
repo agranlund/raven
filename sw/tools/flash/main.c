@@ -29,6 +29,7 @@
 #include <string.h>
 #include <mint/osbind.h>
 #include "raven.h"
+#include "sysutil.h"
 
 #define ROM_VERSION_REQUIRED 0x20250307UL
 
@@ -72,9 +73,7 @@ void* loadRom(char* filename, int32_t* sizeOut) {
     return data;
 }
 
-static int args;
-static char** argv;
-long supermain()
+long supermain(int args, char** argv)
 {
     void* rom_data;
     int32_t rom_size;
@@ -105,8 +104,6 @@ long supermain()
     return 0;
 }
 
-int main(int __args, char** __argv)
-{
-    args = __args; argv = __argv;
-    return (int)Supexec(supermain);
+int main(int args, char** argv) {
+    return Supmain(args, argv, supermain);
 }

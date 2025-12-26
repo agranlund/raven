@@ -7,5 +7,6 @@ flash.ttp
 =
 ..\..\purec\lib\cstartn.o
 main.c
+..\..\purec\lib\pcsyslib.lib
 ..\..\purec\lib\pctoslib.lib
 ..\..\purec\lib\pcstdlib.lib
