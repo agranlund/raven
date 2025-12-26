@@ -32,6 +32,7 @@ libs:
 	make -C pctoslib cross=$(cross)
 	make -C pcgemlib cross=$(cross)
 	make -C pclnalib cross=$(cross)
+	make -C pcsyslib cross=$(cross)
 	make -C pcstart cross=$(cross)
 
 clean:
@@ -42,6 +43,7 @@ endif
 	make -C pctoslib clean
 	make -C pcgemlib clean
 	make -C pclnalib clean
+	make -C pcsyslib clean
 	make -C pcstart clean
 
 distclean: clean
