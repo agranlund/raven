@@ -73,7 +73,11 @@ void font_set_default(void)
 {
     Fonthead *font;
 
+#ifdef MACHINE_RAVEN
+    font = sysfonts[1];
+#else
     font = (V_REZ_VT < 400) ? &fon8x8 : &fon8x16;
+#endif
 
     v_cel_ht = font->form_height;
     v_cel_wr = v_lin_wr * font->form_height;
