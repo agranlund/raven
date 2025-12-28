@@ -206,21 +206,6 @@ void nova_p_changeres(nova_bibres_t* bib, uint32_t offs) {
         }
         cpu_flush_atc();
         card->vsync();
-
-        /* update vt console font */
-        {
-            linea_init();
-            Vdiesc->cur_font = Fonts->font[1];
-            Vdiesc->v_cel_ht = Vdiesc->cur_font->frm_hgt;
-            Vdiesc->v_cel_wr = Linea->v_lin_wr * Vdiesc->cur_font->frm_hgt;
-            Vdiesc->v_cel_mx = (w / Vdiesc->cur_font->wcel_wdt) - 1;
-            Vdiesc->v_cel_my = (h / Vdiesc->cur_font->frm_hgt) - 1;
-            Vdiesc->v_fnt_wd = Vdiesc->cur_font->frm_wdt;
-            Vdiesc->v_fnt_st = Vdiesc->cur_font->ade_lo;
-            Vdiesc->v_fnt_nd = Vdiesc->cur_font->ade_hi;
-            Vdiesc->v_fnt_ad = Vdiesc->cur_font->fnt_dta;
-            Vdiesc->v_off_ad = Vdiesc->cur_font->ch_ofst;
-        }
     }
     cpu_ei(sr);
 }
@@ -302,19 +287,6 @@ void nova_p_setscreen_first(void* addr, void* stack) {
 
 *-----------------------------------------------------------------------------*/
 
-static void updatebootfont(void) {
-    Vdiesc->cur_font = Fonts->font[1];
-    Vdiesc->v_cel_ht = Vdiesc->cur_font->frm_hgt;
-    Vdiesc->v_cel_wr = Linea->v_lin_wr * Vdiesc->cur_font->frm_hgt;
-    Vdiesc->v_cel_mx = (Vdiesc->v_rez_hz / Vdiesc->cur_font->wcel_wdt) - 1;
-    Vdiesc->v_cel_my = (Vdiesc->v_rez_vt / Vdiesc->cur_font->frm_hgt) - 1;
-    Vdiesc->v_fnt_wd = Vdiesc->cur_font->frm_wdt;
-    Vdiesc->v_fnt_st = Vdiesc->cur_font->ade_lo;
-    Vdiesc->v_fnt_nd = Vdiesc->cur_font->ade_hi;
-    Vdiesc->v_fnt_ad = Vdiesc->cur_font->fnt_dta;
-    Vdiesc->v_off_ad = Vdiesc->cur_font->ch_ofst;    
-}
-
 static void updatebootvdi(void) {
     /* update resolution */
     Vdiesc->v_rez_hz = nova->max_x + 1;
@@ -359,7 +331,7 @@ static bool setbootres(void) {
         updatebootvdi();
         return true;
     }
-    updatebootfont();
+
     return false;
 }
 

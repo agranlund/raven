@@ -26,6 +26,11 @@
 #include <mint/cookie.h>
 #include <mint/osbind.h>
 
+#include <linea.h>    
+extern LINEA *Linea;
+extern VDIESC *Vdiesc;
+extern FONTS *Fonts;
+
 #include "raven.h"
 #include "rvnova.h"
 #include "vga.h"
@@ -119,6 +124,23 @@ void drv_postload(rvnova_menuinf_t* inf) {
             w32i_EnableInterleaveMode();
             screen_clear();
         }
+    }
+
+    /* use 8x8 font in terminal */
+    {
+        FONT_HDR* font;
+        linea_init();
+        font = Vdiesc->font_ring[1];
+        Vdiesc->v_cel_ht = font->frm_hgt;
+        Vdiesc->v_cel_wr = Linea->v_lin_wr * font->frm_hgt;
+        Vdiesc->v_cel_mx = (Vdiesc->v_rez_hz / font->wcel_wdt) - 1;
+        Vdiesc->v_cel_my = (Vdiesc->v_rez_vt / font->frm_hgt) - 1;
+        Vdiesc->v_fnt_wd = font->frm_wdt;
+        Vdiesc->v_fnt_st = font->ade_lo;
+        Vdiesc->v_fnt_nd = font->ade_hi;
+        Vdiesc->v_fnt_ad = font->fnt_dta;
+        Vdiesc->v_off_ad = font->ch_ofst;
+        screen_clear();
     }
 }
 

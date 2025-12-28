@@ -13,3 +13,4 @@ main.c
 rvnova.c
 ..\..\purec\lib\pctoslib.lib
 ..\..\purec\lib\pcstdlib.lib
+..\..\purec\lib\pclnalib.lib
