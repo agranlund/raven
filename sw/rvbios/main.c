@@ -46,6 +46,9 @@
 #define BOOTSCREEN_NAME 1
 
 
+#define FONTSIZE_8x8     1
+#define FONTSIZE_8x16    2
+
 #define C__MCH_RAVEN    0x00070000UL
 #define MIN_ROM_VERSION 0x00251110UL
 
@@ -224,52 +227,43 @@ typedef struct
     short* v_off_ad;
 } fnt_data_t;
 
-static fnt_data_t fnt_data;
+static fnt_data_t fnt_data_old;
 
-void font_init(void) {
-    fnt_data.changed = false;
-    fnt_data.font = Vdiesc->cur_font;
-    fnt_data.v_cel_ht = Vdiesc->v_cel_ht;
-    fnt_data.v_cel_wr = Vdiesc->v_cel_wr;
-    fnt_data.v_cel_mx = Vdiesc->v_cel_mx;
-    fnt_data.v_cel_my = Vdiesc->v_cel_my;
-    fnt_data.v_fnt_wd = Vdiesc->v_fnt_wd;
-    fnt_data.v_fnt_st = Vdiesc->v_fnt_st;
-    fnt_data.v_fnt_nd = Vdiesc->v_fnt_nd;
-    fnt_data.v_fnt_ad = Vdiesc->v_fnt_ad;
-    fnt_data.v_off_ad = Vdiesc->v_off_ad;
+void font_get(fnt_data_t* fnt_data) {
+    fnt_data->v_cel_ht = Vdiesc->v_cel_ht;
+    fnt_data->v_cel_wr = Vdiesc->v_cel_wr;
+    fnt_data->v_cel_mx = Vdiesc->v_cel_mx;
+    fnt_data->v_cel_my = Vdiesc->v_cel_my;
+    fnt_data->v_fnt_wd = Vdiesc->v_fnt_wd;
+    fnt_data->v_fnt_st = Vdiesc->v_fnt_st;
+    fnt_data->v_fnt_nd = Vdiesc->v_fnt_nd;
+    fnt_data->v_fnt_ad = Vdiesc->v_fnt_ad;
+    fnt_data->v_off_ad = Vdiesc->v_off_ad;
 }
 
-void font_small(void) {
-    if (!fnt_data.changed) {
-        fnt_data.changed = true;
-        Vdiesc->cur_font = Fonts->font[1];
-        Vdiesc->v_cel_ht = Vdiesc->cur_font->frm_hgt;
-        Vdiesc->v_cel_wr = Linea->v_lin_wr * Vdiesc->cur_font->frm_hgt;
-        Vdiesc->v_cel_mx = (Vdiesc->v_rez_hz / Vdiesc->cur_font->wcel_wdt) - 1;
-        Vdiesc->v_cel_my = (Vdiesc->v_rez_vt / Vdiesc->cur_font->frm_hgt) - 1;
-        Vdiesc->v_fnt_wd = Vdiesc->cur_font->frm_wdt;
-        Vdiesc->v_fnt_st = Vdiesc->cur_font->ade_lo;
-        Vdiesc->v_fnt_nd = Vdiesc->cur_font->ade_hi;
-        Vdiesc->v_fnt_ad = Vdiesc->cur_font->fnt_dta;
-        Vdiesc->v_off_ad = Vdiesc->cur_font->ch_ofst;
-    }
+void font_set(fnt_data_t* fnt_data) {
+    Vdiesc->v_cel_ht = fnt_data->v_cel_ht;
+    Vdiesc->v_cel_wr = fnt_data->v_cel_wr;
+    Vdiesc->v_cel_mx = fnt_data->v_cel_mx;
+    Vdiesc->v_cel_my = fnt_data->v_cel_my;
+    Vdiesc->v_fnt_wd = fnt_data->v_fnt_wd;
+    Vdiesc->v_fnt_st = fnt_data->v_fnt_st;
+    Vdiesc->v_fnt_nd = fnt_data->v_fnt_nd;
+    Vdiesc->v_fnt_ad = fnt_data->v_fnt_ad;
+    Vdiesc->v_off_ad = fnt_data->v_off_ad;
 }
 
-void font_default(void) {
-    if (fnt_data.changed) {
-        fnt_data.changed = false;
-        Vdiesc->cur_font = fnt_data.font;
-        Vdiesc->v_cel_ht = fnt_data.v_cel_ht;
-        Vdiesc->v_cel_wr = fnt_data.v_cel_wr;
-        Vdiesc->v_cel_mx = fnt_data.v_cel_mx;
-        Vdiesc->v_cel_my = fnt_data.v_cel_my;
-        Vdiesc->v_fnt_wd = fnt_data.v_fnt_wd;
-        Vdiesc->v_fnt_st = fnt_data.v_fnt_st;
-        Vdiesc->v_fnt_nd = fnt_data.v_fnt_nd;
-        Vdiesc->v_fnt_ad = fnt_data.v_fnt_ad;
-        Vdiesc->v_off_ad = fnt_data.v_off_ad;
-    }
+void font_setsize(uint16_t idx) {
+    FONT_HDR* font = Fonts->font[idx];
+    Vdiesc->v_cel_ht = font->frm_hgt;
+    Vdiesc->v_cel_wr = Linea->v_lin_wr * font->frm_hgt;
+    Vdiesc->v_cel_mx = (Vdiesc->v_rez_hz / font->wcel_wdt) - 1;
+    Vdiesc->v_cel_my = (Vdiesc->v_rez_vt / font->frm_hgt) - 1;
+    Vdiesc->v_fnt_wd = font->frm_wdt;
+    Vdiesc->v_fnt_st = font->ade_lo;
+    Vdiesc->v_fnt_nd = font->ade_hi;
+    Vdiesc->v_fnt_ad = font->fnt_dta;
+    Vdiesc->v_off_ad = font->ch_ofst;
 }
 
 /*----------------------------------------
@@ -331,8 +325,7 @@ int setup(void)
     	Cconws(DEL_BOL "\r");
    		if (ENABLE_SETUP && start_setup) {
             Cconws(CLEAR_HOME "\r\n");
-            font_default();
-            printf("hello\r\n");
+            font_setsize(FONTSIZE_8x16);
    			setup_main();
    			return 1;
    		}
@@ -367,8 +360,8 @@ long supermain()
 	/* boot screen */
     if (!tsr_only) {
         linea_init();
-        font_init();
-        font_small();
+        font_get(&fnt_data_old);
+        font_setsize(FONTSIZE_8x8);
         bootscreen();
 
         if (!RomVersionValid()) {
@@ -398,8 +391,8 @@ long supermain()
         vt_setFgColor(COL_FG_TOS);
         vt_setBgColor(COL_BG_TOS);
         Cconws(CLEAR_HOME "\r\n");
+        font_set(&fnt_data_old);
         vt_setCursorPos(0, 0);
-        font_default();
     }
 #endif
 
