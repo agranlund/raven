@@ -64,6 +64,7 @@ copyroms:
 	$(COPY) $(ROOTDIR)/sw/rom/rom_dbg.bin $(ROMDIR)/
 	make -C $(ROOTDIR)/sw/rom clean
 	make -C $(ROOTDIR)/sw/rom tos
+	make -C $(ROOTDIR)/sw/rom emucon
 	$(COPY) $(ROOTDIR)/sw/rom/rom_tos.bin $(ROMDIR)/
 	make -C $(ROOTDIR)/sw/rom mon
 	$(COPY) $(ROOTDIR)/sw/rom/rom_mon.bin $(ROMDIR)/
@@ -357,3 +358,7 @@ copysw:
 
 		$(COPY) $(SWDIR_TOOLS)/autoexec/autoexec.prg $(SWDIR_AUTO)/
 		$(COPY) $(SWDIR_TOOLS)/setenv/setenv.prg $(SWDIR_AUTO)/
+
+		$(MKDIR) $(SWDIR_TOOLS)/emucon2
+		$(COPY) $(ROOTDIR)/sw/rom/emucon2.tos $(SWDIR_TOOLS)/emucon2/
+		$(COPY) $(ROOTDIR)/sw/rom/emutos/cli/readme.txt $(SWDIR_TOOLS)/emucon2/

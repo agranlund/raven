@@ -12,7 +12,7 @@ EMUTOS_IMG_CON	= $(EMUTOS_DIR)/emucon-raven.rom
 EMUTOS_IMG_DBG	= $(EMUTOS_DIR)/emudbg-raven.rom
 EMUTOS_IMG_ST	= $(EMUTOS_DIR)/etos192uk.img
 
-
+PRG_EMUCON		= emucon2.tos
 ROM_MON			= rom_mon.bin
 ROM_EMUTOS		= rom_tos.bin
 ROM_EMUTOS_CON	= rom_con.bin
@@ -25,16 +25,23 @@ MKROM			= ./mkrom
 
 DEPS			= $(MAKEFILE_LIST)
 
-all: mkrom tos mon
+all: mkrom tos mon emucon
 mon: $(ROM_MON)
 tos: $(ROM_EMUTOS)
 tos-dbg: $(ROM_EMUTOS_DBG)
 tos-con: $(ROM_EMUTOS_CON)
 tos-st: $(EMUTOS_IMG_ST)
+emucon: $(PRG_EMUCON)
 
 .PHONY: $(MKROM)
 $(MKROM): mkrom.c $(DEPS)
 	gcc -o $(MKROM) mkrom.c
+
+.PHONY: $(PRG_EMUCON)
+$(PRG_EMUCON):
+	$(MAKE) -C $(EMUTOS_DIR)/cli clean
+	$(MAKE) -C $(EMUTOS_DIR)/cli
+	cp $(EMUTOS_DIR)/cli/emucon2.tos $(PRG_EMUCON)
 
 .PHONY: $(ROM_EMUTOS)
 $(ROM_EMUTOS): $(MKROM) $(EMUTOS_IMG) $(MON_IMG) $(ROMDISK_IMG) $(DEPS)
@@ -102,4 +109,4 @@ $(ROMDISK_IMG): $(wildcard $(ROMDISK_DIR)/files/*) $(ROMDISK_DIR)/romdisk.sh $(D
 clean:
 	$(MAKE) -C $(MON_DIR) clean
 	$(MAKE) -C $(EMUTOS_DIR) clean
-	rm -f $(ROM_MON) $(ROM_EMUTOS) $(ROM_EMUTOS_DBG) $(ROM_EMUTOS_CON) $(EMUTOS_IMG_ST) $(ROMDISK_IMG)
+	rm -f $(ROM_MON) $(PRG_EMUCON) $(ROM_EMUTOS) $(ROM_EMUTOS_DBG) $(ROM_EMUTOS_CON) $(EMUTOS_IMG_ST) $(ROMDISK_IMG)

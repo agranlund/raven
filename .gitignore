@@ -18,6 +18,7 @@ hw/simm/programmer/firmware/build/*
 sw/rom/mon/*.bin
 sw/rom/mon/*.ram
 sw/rom/*.bin
+sw/rom/emucon2.tos
 sw/rom/mkrom
 dist/raven/*
 dist/*.zip
