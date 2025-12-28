@@ -5,6 +5,7 @@ xxxxxxxx:
   rom:      default to 8x8 font during boot
   rvnova:   default to 8x8 font during boot
   software: added small util to set 8x8 font in VT52 terminal
+  software: include standalone emucon2.tos in tools folder
 
 20251226:
   rom:      updated EmuTOS (#24dff9a @ 20251225)
