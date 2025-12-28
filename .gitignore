@@ -31,6 +31,9 @@ sw/tools/*/*.tos
 sw/rvbios/*.prg
 sw/rvnova/loader/*.prg
 sw/rvnova/driver/*.prg
+sw/rvsnd/*/*.rvs
+sw/rvsnd/*/*.prg
+sw/rvsnd/driver/*/*/*.rvs
 sw/isa/*/*.prg
 sw/isa/drivers/*/*.prg
 sw/isa/drivers/picogus/pgusinit/*.prg
