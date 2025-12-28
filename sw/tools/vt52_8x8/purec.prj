@@ -1,0 +1,14 @@
+vt52_8x8.prg
+.S[-4 -S]
+.C[-E1 -M -P -Z -W2]
+.C[-I..\..\purec\include]
+.C[-I..\..\lib]
+.L[-V]
+=
+..\..\purec\lib\cstartn.o
+main.c
+..\..\purec\lib\pcsyslib.lib
+..\..\purec\lib\pctoslib.lib
+..\..\purec\lib\pcstdlib.lib
+..\..\purec\lib\pclnalib.lib
+

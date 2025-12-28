@@ -181,6 +181,8 @@ copysw:
 	$(COPY) $(ROOTDIR)/sw/tools/mon/readme.txt $(SWDIR_RTOOLS)/mon.txt
 	$(COPY) $(ROOTDIR)/sw/tools/ymodem/ymodem.tos $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/ymodem/readme.txt $(SWDIR_RTOOLS)/ymodem.txt
+	$(COPY) $(ROOTDIR)/sw/tools/vt52_8x8/vt52_8x8.prg $(SWDIR_RTOOLS)/
+	$(COPY) $(ROOTDIR)/sw/tools/vt52_8x8/readme.txt $(SWDIR_RTOOLS)/vt52_8x8.txt
 	$(COPY) $(ROOTDIR)/sw/tools/cacheon/cacheon.prg $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/cacheoff/cacheoff.prg $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/resetnvm/resetnvm.prg $(SWDIR_RTOOLS)/

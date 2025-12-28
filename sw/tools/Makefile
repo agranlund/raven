@@ -11,7 +11,8 @@ FOLDERS = \
 	thingpal \
 	fpu_emu \
 	serial.cpx \
-	ymodem
+	ymodem \
+	vt52_8x8
 
 all:
 	for dir in $(FOLDERS); do \
