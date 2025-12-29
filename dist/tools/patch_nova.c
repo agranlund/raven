@@ -50,7 +50,7 @@ int main(int argc, char **argv)
     for (long i=0; i<len - plen; i++) {
         if (memcmp(&buf[i], patch_org, plen) == 0) {
             buf[i +  0] = 0x4e; buf[i +  1] = 0x75; /* rts */
-            buf[i + 34] = 0x47; buf[i + 35] = 0x75; /* rts */
+            buf[i + 34] = 0x4e; buf[i + 35] = 0x75; /* rts */
             f = fopen(fname, "wb");
             if (f) {
                 fwrite(buf, len, 1, f);
