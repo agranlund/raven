@@ -45,6 +45,7 @@ release-test: setup copy zipit
 
 setup: clean
 	$(MKDIR) $(OUTDIR)
+	make -C tools
 
 clean:
 	rm -r -f $(OUTDIR)
