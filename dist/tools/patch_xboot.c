@@ -3,7 +3,6 @@
 #include <stdlib.h>
 
 /* remove 68030 cache functions from xboot  */
-/* todo: replace with 68060 methods?        */
 
 const unsigned char patch_org[] =
 {
@@ -20,7 +19,7 @@ const unsigned char patch_new[] =
     0x4e, 0x75, 0x00, 0x00, 0x39, 0x19, /* rts                  */
     0x4e, 0x7b, 0x00, 0x02,             /* movec  d0,cacr       */
     0x4e, 0x75,                         /* rts                  */
-    0xe4, 0x75, 0x00, 0x00, 0x08, 0x08, /* rts                  */
+    0x4e, 0x75, 0x00, 0x00, 0x08, 0x08, /* rts                  */
     0x4e, 0x7b, 0x00, 0x02,             /* movec  d0,cacr       */
     0x4e, 0x75,                         /* rts                  */
 };
@@ -28,7 +27,7 @@ const unsigned char patch_new[] =
 int main(int argc, char **argv)
 {
     if (argc < 2) {
-        printf("usage: patch_xboot32e <file>\n");
+        printf("usage: patch_xboot <file>\n");
         return 0;
     }
 
