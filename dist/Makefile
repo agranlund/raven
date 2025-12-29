@@ -305,18 +305,31 @@ copysw:
 
 		unzip $(SUPPDIR)/nova/TT_ET4000T0_V300.zip -d $(SWDIR_NOVA)
 		mv $(SWDIR_NOVA)/T0 $(SWDIR_NOVA)/ET4000.T0
+		./tools/patch_nova $(SWDIR_NOVA)/ET4000.T0/AUTO/EMULATOR.PRG
+
 		unzip $(SUPPDIR)/nova/TT_ET4000T3_V300.zip -d $(SWDIR_NOVA)
 		mv $(SWDIR_NOVA)/T3 $(SWDIR_NOVA)/ET4000.T3
+		./tools/patch_nova $(SWDIR_NOVA)/ET4000.T3/AUTO/EMULATOR.PRG
+
 		unzip $(SUPPDIR)/nova/TT_ET4000T4_V300.zip -d $(SWDIR_NOVA)
 		mv $(SWDIR_NOVA)/T4 $(SWDIR_NOVA)/ET4000.T4
+		./tools/patch_nova $(SWDIR_NOVA)/ET4000.T4/AUTO/EMULATOR.PRG
+
 		unzip $(SUPPDIR)/nova/TT_ET4000T8_V300.zip -d $(SWDIR_NOVA)
 		mv $(SWDIR_NOVA)/T8 $(SWDIR_NOVA)/ET4000.T8
+		./tools/patch_nova $(SWDIR_NOVA)/ET4000.T8/AUTO/EMULATOR.PRG
+
 		unzip $(SUPPDIR)/nova/TT_ET4000W32_V301.zip -d $(SWDIR_NOVA)
 		mv $(SWDIR_NOVA)/TT $(SWDIR_NOVA)/ET4000.W32
+		./tools/patch_nova $(SWDIR_NOVA)/ET4000.W32/AUTO/EMULATOR.PRG
+
 		unzip $(SUPPDIR)/nova/TT_Mach32_V301.zip -d $(SWDIR_NOVA)
 		mv $(SWDIR_NOVA)/TT $(SWDIR_NOVA)/MACH32
+		./tools/patch_nova $(SWDIR_NOVA)/MACH32/AUTO/EMULATOR.PRG
+
 		unzip $(SUPPDIR)/nova/TT_Mach64_V303.zip -d $(SWDIR_NOVA)
 		mv $(SWDIR_NOVA)/M64 $(SWDIR_NOVA)/MACH64
+		./tools/patch_nova $(SWDIR_NOVA)/MACH64/AUTO/EMULATOR.PRG
 
 		$(COPY) -r $(SUPPDIR)/nova.bib/* $(SWDIR_NOVA)/
 
@@ -356,6 +369,7 @@ copysw:
 
 		mkdir $(SWDIR_TOOLS)/xboot32e
 		unzip -L $(SUPPDIR)/xboot32E.zip "xboot.prg" -d $(SWDIR_TOOLS)/xboot32e/
+		./tools/patch_xboot $(SWDIR_TOOLS)/xboot32e/xboot.prg
 
 		$(COPY) $(SWDIR_TOOLS)/autoexec/autoexec.prg $(SWDIR_AUTO)/
 		$(COPY) $(SWDIR_TOOLS)/setenv/setenv.prg $(SWDIR_AUTO)/
