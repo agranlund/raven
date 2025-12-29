@@ -931,10 +931,10 @@ void pnp_configure(void) {
 }
 
 void pnp_log_devices(void) {
-    int icard, idev, i, j;
+    int icard, idev, i, j, k;
     for (icard = 0; icard<isa.numcards; icard++) {
         isa_card_t* card = &isa.cards[icard];
-        Log("\r\nCARD%d : %s : %s\r\n", icard, IdToStr(card->vendor), card->name);
+        Log("CARD%d : %s : %s\r\n", icard, IdToStr(card->vendor), card->name);
         for (idev = 0; idev < card->numdevices; idev++) {
             isa_device_t* dev = &card->devices[idev];
             pnp_conf_t* confs = pnp_getconfs(dev->csn, dev->ldn);
@@ -953,14 +953,28 @@ void pnp_log_devices(void) {
                 pnp_conf_t* conf = &confs[i];
                 uint32_t resources = conf->nio + conf->nmem + conf->nirq + conf->ndma;
                 if (resources && (conf->flags & ISA_FLG_ENABLED)) {
+                    int num;
                     Log("  CONF%d:\r\n", i);
-                    for (j=0; j<conf->nio; j++)  { Log("    IO%d: %08lx-%08lx : %08lx\r\n", j, conf->iorange[j].base_min, conf->iorange[j].base_max, conf->iorange[j].length); }
-                    for (j=0; j<conf->nmem; j++) { Log("   MEM%d: %08lx-%08lx : %08lx\r\n", j, conf->memrange[j].base_min, conf->memrange[j].base_max, conf->memrange[j].length); }
-                    for (j=0; j<conf->nirq; j++) { Log("   IRQ%d: %08lx\r\n", j, conf->irqmask[j]); }
-                    for (j=0; j<conf->ndma; j++) { Log("   DMA%d: %08lx\r\n", j, conf->dmamask[j]); }
+                    for (j=0; j<conf->nio; j++)  {
+                        Log("    IO%d: %08lx-%08lx : %08lx\r\n", j, conf->iorange[j].base_min, conf->iorange[j].base_max, conf->iorange[j].length);
+                    }
+                    for (j=0; j<conf->nmem; j++) {
+                        Log("   MEM%d: %08lx-%08lx : %08lx\r\n", j, conf->memrange[j].base_min, conf->memrange[j].base_max, conf->memrange[j].length);
+                    }
+                    for (num=0, j=0; j<conf->nirq; j++) {
+                        Log("   IRQ%d:", j);
+                        for (num=0, k=0; k<16; k++) { if (conf->irqmask[j] & (1 << k)) { Log("%s%d", ((num==0) ? " " : " "), k); num++; } }
+                        Log("\r\n");
+                    }
+                    for (num=0, j=0; j<conf->ndma; j++) {
+                        Log("   DMA%d:", j);
+                        for (num=0, k=0; k<8;  k++) { if (conf->dmamask[j] & (1 << k)) { Log("%s%d", ((num==0) ? " " : " "), k); num++; } }
+                        Log("\r\n");
+                    }
                 }
             }
         }
+        Log("\r\n");
     }
 }
 

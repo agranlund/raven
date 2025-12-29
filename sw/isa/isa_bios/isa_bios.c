@@ -335,6 +335,7 @@ static bool bus_hwconf(void) {
 
 bool bus_init(void)
 {
+    int i;
     memset((void*)&isa, 0, sizeof(isa_core_t));
     isa.bus.devs = isa_bus_devs;
 
@@ -390,6 +391,32 @@ bool bus_init(void)
     isa.bus.irq_attach = irq_attach;
     isa.bus.irq_remove = irq_remove;
 
+    /* show something on screen */
+    /* todo: verbose flag */
+    printf("\33p ISA PnP Bios \33q\r\n");
+    printf("I/O: 0x%08lx\r\n", isa.bus.iobase);
+    if (isa.bus.membase) { printf("MEM: 0x%08lx\r\n", isa.bus.membase); }
+    if (isa.bus.irqmask) { printf("IRQ: 0x%08lx\r\n",  (uint32_t)isa.bus.irqmask); }
+    if (isa.bus.drqmask) { printf("DMA: 0x%08lx\r\n",  (uint32_t)isa.bus.drqmask); }
+    printf("\r\n");
+
+    /* log information about the bus */
+    Log("\r\n");
+    Log("--------------------------------------------------------------------------\r\n");
+    Log("Interface\r\n");
+    Log("--------------------------------------------------------------------------\r\n");
+    Log("I/O: 0x%08lx\r\n", isa.bus.iobase);
+    Log("MEM: 0x%08lx\r\n", isa.bus.membase);
+    Log("END: ");
+    switch (isa.bus.endian) {
+        case ISA_ENDIAN_LELS: Log("LELS"); break;
+        case ISA_ENDIAN_LEAS: Log("LEAS"); break;
+        default: Log("BE"); break;
+    }
+    Log("\r\n");
+    Log("IRQ:"); for (i=0; i<16; i++) { if (isa.bus.irqmask & (1 << i)) { Log(" %d", i); } } Log("\r\n");
+    Log("DMA:"); for (i=0; i<8;  i++) { if (isa.bus.drqmask & (1 << i)) { Log(" %d", i); } } Log("\r\n");
+
     /* plug-and-pray */
     pnp_init();
 
@@ -403,14 +430,6 @@ long super_main(void) {
     if (!bus_init() || (isa.bus.iobase == 0)) {
         return 0;
     }
-
-    printf("\r\n");
-    printf("ISA I/O: 0x%08lx\r\n", isa.bus.iobase);
-    if (isa.bus.membase) {
-        printf("ISA MEM: 0x%08lx\r\n", isa.bus.membase);
-    }
-    printf("\r\n");
-
     CloseFiles();
     return 1;
 }
