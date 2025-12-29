@@ -1,13 +1,14 @@
 Raven.A1
 Hardware and software binary release
 
-xxxxxxxx:
+20251229:
   rom:      default to 8x8 font during boot
   rvnova:   default to 8x8 font during boot
-  software: added small util to set 8x8 font in VT52 terminal
-  software: include standalone emucon2.tos in tools folder
+  rvnova:   ET4000/MACH32/MACH64 drivers patched for 68060
+  xboot:    patched for 68060
   isa_bios: improved details in logfile
-
+  software: include standalone emucon2.tos in tools folder
+  
 20251226:
   rom:      updated EmuTOS (#24dff9a @ 20251225)
   rom:      enabled EmuTOS SCSIDRV
