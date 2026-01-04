@@ -28,59 +28,6 @@ void _ISA_API outpw_be(uint16l_t port, uint16l_t data) {
     *((volatile uint16_t*)(isa.bus.iobase + port)) = data;
 }
 
-void _ISA_API inp_be_buf(uint16l_t port, uint8_t* data, int32_t count) {
-    volatile uint8_t* src = (volatile uint8_t*)(isa.bus.iobase + port);
-    while (count >= 8) {
-        *data++ = *src; *data++ = *src; *data++ = *src; *data++ = *src;
-        *data++ = *src; *data++ = *src; *data++ = *src; *data++ = *src;
-        count -= 8;
-    }
-    while (count) {
-        *data++ = *src;
-        count--;
-    }
-}
-
-void _ISA_API outp_be_buf(uint16l_t port, uint8_t* data, int32_t count) {
-    volatile uint8_t* dst = (volatile uint8_t*)(isa.bus.iobase + port);
-    while (count >= 8) {
-        *dst = *data++; *dst = *data++; *dst = *data++; *dst = *data++;
-        *dst = *data++; *dst = *data++; *dst = *data++; *dst = *data++;
-        count -= 8;
-    }
-    while (count) {
-        *dst = *data++;
-        count--;
-    }
-}
-
-void _ISA_API inpw_be_buf(uint16l_t port, uint16_t* data, int32_t count) {
-    volatile uint16_t* src = (volatile uint16_t*)(isa.bus.iobase + port);
-    while (count) {
-        *data++ = *src; *data++ = *src; *data++ = *src; *data++ = *src;
-        *data++ = *src; *data++ = *src; *data++ = *src; *data++ = *src;
-        count -= 8;
-    }
-    while (count) {
-        *data++ = *src;
-        count--;
-    }
-}
-
-void _ISA_API outpw_be_buf(uint16l_t port, uint16_t* data, int32_t count) {
-    volatile uint16_t* dst = (volatile uint16_t*)(isa.bus.iobase + port);
-    while (count >= 8) {
-        *dst = *data++; *dst = *data++; *dst = *data++; *dst = *data++;
-        *dst = *data++; *dst = *data++; *dst = *data++; *dst = *data++;
-        count -= 8;
-    }
-    while (count) {
-        *dst = *data++;
-        count--;
-    }
-}
-
-
 
 /*-----------------------------------------------------------------------------------
  *
@@ -92,39 +39,12 @@ void _ISA_API outpw_be_buf(uint16l_t port, uint16_t* data, int32_t count) {
  *
  *---------------------------------------------------------------------------------*/
 uint16_t _ISA_API inpw_lels(uint16l_t port) {
-    return swap16(*((volatile uint16_t*)(isa.bus.iobase + port)));
+    return isabios_swap16(*((volatile uint16_t*)(isa.bus.iobase + port)));
 }
 
 void _ISA_API outpw_lels(uint16l_t port, uint16l_t data) {
-    *((volatile uint16_t*)(isa.bus.iobase + port)) = swap16(data);
+    *((volatile uint16_t*)(isa.bus.iobase + port)) = isabios_swap16(data);
 }
-
-void _ISA_API inpw_lels_buf(uint16l_t port, uint16_t* data, int32_t count) {
-    volatile uint16_t* src = (volatile uint16_t*)(isa.bus.iobase + port);
-    while (count) {
-        *data++ = swap16(*src); *data++ = swap16(*src); *data++ = swap16(*src); *data++ = swap16(*src);
-        *data++ = swap16(*src); *data++ = swap16(*src); *data++ = swap16(*src); *data++ = swap16(*src);
-        count -= 8;
-    }
-    while (count) {
-        *data++ = swap16(*src);
-        count--;
-    }
-}
-
-void _ISA_API outpw_lels_buf(uint16l_t port, uint16_t* data, int32_t count) {
-    volatile uint16_t* dst = (volatile uint16_t*)(isa.bus.iobase + port);
-    while (count >= 8) {
-        *dst = swap16(*data++); *dst = swap16(*data++); *dst = swap16(*data++); *dst = swap16(*data++);
-        *dst = swap16(*data++); *dst = swap16(*data++); *dst = swap16(*data++); *dst = swap16(*data++);
-        count -= 8;
-    }
-    while (count) {
-        *dst = swap16(*data++);
-        count--;
-    }
-}
-
 
 
 /*-----------------------------------------------------------------------------------
@@ -152,56 +72,4 @@ uint16_t _ISA_API inpw_leas(uint16l_t port) {
 
 void _ISA_API outpw_leas(uint16l_t port, uint16l_t data) {
     *((volatile uint16_t*)(leas16(isa.bus.iobase + port))) = data;
-}
-
-void _ISA_API inp_leas_buf(uint16l_t port, uint8_t* data, int32_t count) {
-    volatile uint8_t* src = (volatile uint8_t*)(leas8(isa.bus.iobase + port));
-    while (count >= 8) {
-        *data++ = *src; *data++ = *src; *data++ = *src; *data++ = *src;
-        *data++ = *src; *data++ = *src; *data++ = *src; *data++ = *src;
-        count -= 8;
-    }
-    while (count) {
-        *data++ = *src;
-        count--;
-    }
-}
-
-void _ISA_API outp_leas_buf(uint16l_t port, uint8_t* data, int32_t count) {
-    volatile uint8_t* dst = (volatile uint8_t*)(leas8(isa.bus.iobase + port));
-    while (count >= 8) {
-        *dst = *data++; *dst = *data++; *dst = *data++; *dst = *data++;
-        *dst = *data++; *dst = *data++; *dst = *data++; *dst = *data++;
-        count -= 8;
-    }
-    while (count) {
-        *dst = *data++;
-        count--;
-    }
-}
-
-void _ISA_API inpw_leas_buf(uint16l_t port, uint16_t* data, int32_t count) {
-    volatile uint16_t* src = (volatile uint16_t*)(leas16(isa.bus.iobase + port));
-    while (count) {
-        *data++ = *src; *data++ = *src; *data++ = *src; *data++ = *src;
-        *data++ = *src; *data++ = *src; *data++ = *src; *data++ = *src;
-        count -= 8;
-    }
-    while (count) {
-        *data++ = *src;
-        count--;
-    }
-}
-
-void _ISA_API outpw_leas_buf(uint16l_t port, uint16_t* data, int32_t count) {
-    volatile uint16_t* dst = (volatile uint16_t*)(leas16(isa.bus.iobase + port));
-    while (count >= 8) {
-        *dst = *data++; *dst = *data++; *dst = *data++; *dst = *data++;
-        *dst = *data++; *dst = *data++; *dst = *data++; *dst = *data++;
-        count -= 8;
-    }
-    while (count) {
-        *dst = *data++;
-        count--;
-    }
 }

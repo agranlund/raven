@@ -15,14 +15,17 @@
 #   leas : Little endian address swapped
 # ---------------------------------------------------------------------------
 
-#Example bus configuration overrides - you normally never have to touch these.
+#
+# Example bus configuration overrides. Normally not needed.
+#
+
 #isa.endian      = leas
 #isa.iobase      = 0x81000000
 #isa.membase     = 0x82000000
-#isa.irqmask     = 0xff
-#isa.drqmask     = 0x0f
-#isa.pnp.port    = 0x203
+#isa.irqmask     = 0xffff
+#isa.drqmask     = 0xff
 #isa.pnp.enable  = 1
+#isa.pnp.port    = 0x203
 
 
 # ---------------------------------------------------------------------------
@@ -31,25 +34,18 @@
 # Command format "card.<id>{:idx}.<command>"
 #
 #   enable     = <dec>          (default = 1)
-#   hidden     = <dec>          (default = 0)
 #   name       = <string>       (name of card)
 # ---------------------------------------------------------------------------
-# Manually adding a non-pnp card, or change name of an existing card
-#   card.<id>{:idx} = <name of card>
+# idx is optional for when you have multiple of the same card installed
 # ---------------------------------------------------------------------------
-
 
 
 # ---------------------------------------------------------------------------
 # Device configs
-# These commands assume the referenced card exists, either as found by
-# plug-and-play or from being manually added in this config file.
-# When the card does not exist then these commands do nothing.
 # ---------------------------------------------------------------------------
-# Command format "dev.<card_id>{:idx}.<device_id>{:idx}.<command"
+# Command format "dev.<card_id>{:idx}.<device_id>{:idx}.<command>"
 #
 #   enable        = <dec>       (default = 1)
-#   hidden        = <dec>       (default = 0)
 #   name          = <string>    (name of device)
 #   conf          = <dec>       (pnp config number, default 0)
 #   id{idx}       = <string>    (device ID)
@@ -59,15 +55,18 @@
 #   dma{idx}      = <dec>       (dma number, 0 - 7)
 #
 # ---------------------------------------------------------------------------
-# valid idx for the different resource types
+# idx is optional for when you have multiple of something. default is 0.
+# card and device has no limit but the following does:
 #    id : 0 - 5
 #    io : 0 - 7
 #   mem : 0 - 3
 #   irq : 0 - 1
 #   dma : 0 - 1
 # ---------------------------------------------------------------------------
-
-
+# special
+#   - using card id 0 allows registering non-pnp legacy devices
+#   - omitting card id will look for device on any card
+# ---------------------------------------------------------------------------
 
 
 
@@ -78,35 +77,39 @@
 # ---------------------------------------------------------------------------
 
 #
-# Example of changing the human readable name for the card with
+# Example of changing the human readable name for a card with
 # identifier KTC2000 (see 'isa_bios.log' for detected cards and devices)
-# Changing human readable names is purely cosmetic.
+# The name is purely cosmetic and wont effect functionality
 #
+
 #card.KTC2000.name = "Kingston KNE20"
 
 #
 # Example of disabling the soundblaster emulation device on a Gravis Ultrasound
 #
+
 #dev.GRV0001.GRV0003.enable = 0
 
 #
 # Example of changing io-port 0 on device YMH0021 of card YMH0800
 # (a Yamaha based soundblaster clone)
 #
+
 #dev.YMH0800.YMH0021.io0 = 280
 
 #
-# Example of adding a non-pnp NE2000 based card to the PNP registry.
-# Note that the settings entered here will not actually change anything on
-# the non-pnp card and what you enter must match how your card is jumpered.
+# Example of adding a non-pnp OPL3 device to the registry
+# This can be useful for allowing isa_bios aware software
+# to easily find it.
 #
-# Q: It is never required to register non-pnp cards so why would you want to?
-#
-# A: In case some theoretical piece of software is asking the ISA-BIOS for devices
-#    of a certain PNP type it could now find even your old non-pnp card.
-#
-#card.PNP80d6 = "NE2000 Ethernet card"
-#dev.PNP80d6.PNP80d6.io0 = 330
-#dev.PNP80d6.PNP80d6.irq0 = 7
 
+#dev.0.PNPB020.io = 388
+
+
+#
+# Example of configuring an NE2000 based device regardless of card
+#
+
+dev.PNP80D6.io = 300
+dev.PNP80D6.irq = 3
 

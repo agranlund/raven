@@ -42,7 +42,7 @@
 #endif
 
 #ifndef ISA_BIOS_VERSION
-#define ISA_BIOS_VERSION    0x0001
+#define ISA_BIOS_VERSION    0x0010
 #endif
 
 #define ISA_ENDIAN_BE       0       /* Big endian                       */
@@ -58,7 +58,8 @@
 #define ISA_MAX_DEV_MEM     4
 #define ISA_MAX_DEV_IRQ     2
 #define ISA_MAX_DEV_DMA     2
-
+ 
+/* todo: remove */
 typedef struct {
     uint32_t    id[ISA_MAX_DEV_IDS];
     uint32_t    mem[ISA_MAX_DEV_MEM];

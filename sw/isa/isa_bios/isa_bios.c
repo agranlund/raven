@@ -1,4 +1,4 @@
-#include "isa_core.h"
+#include "isa_bios.h"
 #include "stdio.h"
 #include "string.h"
 #include "mint/basepage.h"
@@ -6,224 +6,64 @@
 #include "mint/osbind.h"
 #include "isa_rw.h"
 #include "isa_pnp.h"
+#include "isa_inf.h"
 
-isa_core_t  isa;
-isa_dev_t   isa_bus_devs[ISA_MAX_DEVS];
-
-#define IRQ_SUPPORT_RAVEN   1
-#define IRQ_OPT_VECS        1
-#define IRQ_MAX_CB          14
-
-typedef struct {
-    uint32_t count;
-    uint32_t func[IRQ_MAX_CB+1];
-} irqlist_t;
-
-irqlist_t irq_lists[16];
-static void (*irq_assign_vectors)(void);
-
-/*-----------------------------------------------------------------------------------
- * Raven specific interrupt vectors
- *---------------------------------------------------------------------------------*/
-#if IRQ_SUPPORT_RAVEN
-extern void irqvec_isa02_mfp2B0(void);
-extern void irqvec_isa03_mfp2B1(void);
-extern void irqvec_isa04_mfp2B2(void);
-extern void irqvec_isa05_mfp2B3(void);
-extern void irqvec_isa07_mfp2B6(void);
-extern void irqvec_isa10_mfp2B7(void);
-extern void irqvec_isa11_mfp2A6(void);
-extern void irqvec_isa14_mfp2A7(void);
-
-#if IRQ_OPT_VECS
-extern void irqvec_isa02_mfp2B0_0(void); extern void irqvec_isa02_mfp2B0_1(void); extern void irqvec_isa02_mfp2B0_2(void); extern void irqvec_isa02_mfp2B0_3(void); extern void irqvec_isa02_mfp2B0_4(void); extern void irqvec_isa02_mfp2B0_5(void); extern void irqvec_isa02_mfp2B0_6(void);
-extern void irqvec_isa03_mfp2B1_0(void); extern void irqvec_isa03_mfp2B1_1(void); extern void irqvec_isa03_mfp2B1_2(void); extern void irqvec_isa03_mfp2B1_3(void); extern void irqvec_isa03_mfp2B1_4(void); extern void irqvec_isa03_mfp2B1_5(void); extern void irqvec_isa03_mfp2B1_6(void);
-extern void irqvec_isa04_mfp2B2_0(void); extern void irqvec_isa04_mfp2B2_1(void); extern void irqvec_isa04_mfp2B2_2(void); extern void irqvec_isa04_mfp2B2_3(void); extern void irqvec_isa04_mfp2B2_4(void); extern void irqvec_isa04_mfp2B2_5(void); extern void irqvec_isa04_mfp2B2_6(void);
-extern void irqvec_isa05_mfp2B3_0(void); extern void irqvec_isa05_mfp2B3_1(void); extern void irqvec_isa05_mfp2B3_2(void); extern void irqvec_isa05_mfp2B3_3(void); extern void irqvec_isa05_mfp2B3_4(void); extern void irqvec_isa05_mfp2B3_5(void); extern void irqvec_isa05_mfp2B3_6(void);
-extern void irqvec_isa07_mfp2B6_0(void); extern void irqvec_isa07_mfp2B6_1(void); extern void irqvec_isa07_mfp2B6_2(void); extern void irqvec_isa07_mfp2B6_3(void); extern void irqvec_isa07_mfp2B6_4(void); extern void irqvec_isa07_mfp2B6_5(void); extern void irqvec_isa07_mfp2B6_6(void);
-extern void irqvec_isa10_mfp2B7_0(void); extern void irqvec_isa10_mfp2B7_1(void); extern void irqvec_isa10_mfp2B7_2(void); extern void irqvec_isa10_mfp2B7_3(void); extern void irqvec_isa10_mfp2B7_4(void); extern void irqvec_isa10_mfp2B7_5(void); extern void irqvec_isa10_mfp2B7_6(void);
-extern void irqvec_isa11_mfp2A6_0(void); extern void irqvec_isa11_mfp2A6_1(void); extern void irqvec_isa11_mfp2A6_2(void); extern void irqvec_isa11_mfp2A6_3(void); extern void irqvec_isa11_mfp2A6_4(void); extern void irqvec_isa11_mfp2A6_5(void); extern void irqvec_isa11_mfp2A6_6(void);
-extern void irqvec_isa14_mfp2A7_0(void); extern void irqvec_isa14_mfp2A7_1(void); extern void irqvec_isa14_mfp2A7_2(void); extern void irqvec_isa14_mfp2A7_3(void); extern void irqvec_isa14_mfp2A7_4(void); extern void irqvec_isa14_mfp2A7_5(void); extern void irqvec_isa14_mfp2A7_6(void);
-#endif
-
-void irq_assign_vectors_raven(void) {
-    volatile uint32_t* mfpvecs = (volatile uint32_t*)0x140;
-    switch ((uint16_t)(irq_lists[2].count)) {
-        #if IRQ_OPT_VECS
-        case 0:     mfpvecs[0] = (uint32_t)irqvec_isa02_mfp2B0_0; break;
-        case 1:     mfpvecs[0] = (uint32_t)irqvec_isa02_mfp2B0_1; break;
-        case 2:     mfpvecs[0] = (uint32_t)irqvec_isa02_mfp2B0_2; break;
-        case 3:     mfpvecs[0] = (uint32_t)irqvec_isa02_mfp2B0_3; break;
-        case 4:     mfpvecs[0] = (uint32_t)irqvec_isa02_mfp2B0_4; break;
-        case 5:     mfpvecs[0] = (uint32_t)irqvec_isa02_mfp2B0_5; break;
-        #endif
-        default:    mfpvecs[0] = (uint32_t)irqvec_isa02_mfp2B0;   break;
-    }
-    switch ((uint16_t)(irq_lists[3].count)) {
-        #if IRQ_OPT_VECS
-        case 0:     mfpvecs[1] = (uint32_t)irqvec_isa03_mfp2B1_0; break;
-        case 1:     mfpvecs[1] = (uint32_t)irqvec_isa03_mfp2B1_1; break;
-        case 2:     mfpvecs[1] = (uint32_t)irqvec_isa03_mfp2B1_2; break;
-        case 3:     mfpvecs[1] = (uint32_t)irqvec_isa03_mfp2B1_3; break;
-        case 4:     mfpvecs[1] = (uint32_t)irqvec_isa03_mfp2B1_4; break;
-        case 5:     mfpvecs[1] = (uint32_t)irqvec_isa03_mfp2B1_5; break;
-        #endif
-        default:    mfpvecs[1] = (uint32_t)irqvec_isa03_mfp2B1;   break;
-    }
-    switch ((uint16_t)(irq_lists[4].count)) {
-        #if IRQ_OPT_VECS
-        case 0:     mfpvecs[2] = (uint32_t)irqvec_isa04_mfp2B2_0; break;
-        case 1:     mfpvecs[2] = (uint32_t)irqvec_isa04_mfp2B2_1; break;
-        case 2:     mfpvecs[2] = (uint32_t)irqvec_isa04_mfp2B2_2; break;
-        case 3:     mfpvecs[2] = (uint32_t)irqvec_isa04_mfp2B2_3; break;
-        case 4:     mfpvecs[2] = (uint32_t)irqvec_isa04_mfp2B2_4; break;
-        case 5:     mfpvecs[2] = (uint32_t)irqvec_isa04_mfp2B2_5; break;
-        #endif
-        default:    mfpvecs[2] = (uint32_t)irqvec_isa04_mfp2B2;   break;
-    }
-    switch ((uint16_t)(irq_lists[5].count)) {
-        #if IRQ_OPT_VECS
-        case 0:     mfpvecs[3] = (uint32_t)irqvec_isa05_mfp2B3_0; break;
-        case 1:     mfpvecs[3] = (uint32_t)irqvec_isa05_mfp2B3_1; break;
-        case 2:     mfpvecs[3] = (uint32_t)irqvec_isa05_mfp2B3_2; break;
-        case 3:     mfpvecs[3] = (uint32_t)irqvec_isa05_mfp2B3_3; break;
-        case 4:     mfpvecs[3] = (uint32_t)irqvec_isa05_mfp2B3_4; break;
-        case 5:     mfpvecs[3] = (uint32_t)irqvec_isa05_mfp2B3_5; break;
-        #endif
-        default:    mfpvecs[3] = (uint32_t)irqvec_isa05_mfp2B3;   break;
-    }
-    switch ((uint16_t)(irq_lists[7].count)) {
-        #if IRQ_OPT_VECS
-        case 0:     mfpvecs[6] = (uint32_t)irqvec_isa07_mfp2B6_0; break;
-        case 1:     mfpvecs[6] = (uint32_t)irqvec_isa07_mfp2B6_1; break;
-        case 2:     mfpvecs[6] = (uint32_t)irqvec_isa07_mfp2B6_2; break;
-        case 3:     mfpvecs[6] = (uint32_t)irqvec_isa07_mfp2B6_3; break;
-        case 4:     mfpvecs[6] = (uint32_t)irqvec_isa07_mfp2B6_4; break;
-        case 5:     mfpvecs[6] = (uint32_t)irqvec_isa07_mfp2B6_5; break;
-        #endif
-        default:    mfpvecs[6] = (uint32_t)irqvec_isa07_mfp2B6;   break;
-    }
-    switch ((uint16_t)(irq_lists[10].count)) {
-        #if IRQ_OPT_VECS
-        case 0:     mfpvecs[7] = (uint32_t)irqvec_isa10_mfp2B7_0; break;
-        case 1:     mfpvecs[7] = (uint32_t)irqvec_isa10_mfp2B7_1; break;
-        case 2:     mfpvecs[7] = (uint32_t)irqvec_isa10_mfp2B7_2; break;
-        case 3:     mfpvecs[7] = (uint32_t)irqvec_isa10_mfp2B7_3; break;
-        case 4:     mfpvecs[7] = (uint32_t)irqvec_isa10_mfp2B7_4; break;
-        case 5:     mfpvecs[7] = (uint32_t)irqvec_isa10_mfp2B7_5; break;
-        #endif
-        default:    mfpvecs[7] = (uint32_t)irqvec_isa10_mfp2B7;   break;
-    }
-    switch ((uint16_t)(irq_lists[11].count)) {
-        #if IRQ_OPT_VECS
-        case 0:     mfpvecs[14] = (uint32_t)irqvec_isa11_mfp2A6_0; break;
-        case 1:     mfpvecs[14] = (uint32_t)irqvec_isa11_mfp2A6_1; break;
-        case 2:     mfpvecs[14] = (uint32_t)irqvec_isa11_mfp2A6_2; break;
-        case 3:     mfpvecs[14] = (uint32_t)irqvec_isa11_mfp2A6_3; break;
-        case 4:     mfpvecs[14] = (uint32_t)irqvec_isa11_mfp2A6_4; break;
-        case 5:     mfpvecs[14] = (uint32_t)irqvec_isa11_mfp2A6_5; break;
-        #endif
-        default:    mfpvecs[14] = (uint32_t)irqvec_isa11_mfp2A6;   break;
-    }
-    switch ((uint16_t)(irq_lists[14].count)) {
-        #if IRQ_OPT_VECS
-        case 0:     mfpvecs[15] = (uint32_t)irqvec_isa14_mfp2A7_0; break;
-        case 1:     mfpvecs[15] = (uint32_t)irqvec_isa14_mfp2A7_1; break;
-        case 2:     mfpvecs[15] = (uint32_t)irqvec_isa14_mfp2A7_2; break;
-        case 3:     mfpvecs[15] = (uint32_t)irqvec_isa14_mfp2A7_3; break;
-        case 4:     mfpvecs[15] = (uint32_t)irqvec_isa14_mfp2A7_4; break;
-        case 5:     mfpvecs[15] = (uint32_t)irqvec_isa14_mfp2A7_5; break;
-        #endif
-        default:    mfpvecs[15] = (uint32_t)irqvec_isa14_mfp2A7;   break;
-    }
-}
-#endif /* IRQ_SUPPORT_RAVEN */
-
-/*-----------------------------------------------------------------------------------
- * machine independent interrupt handling
- *---------------------------------------------------------------------------------*/
-
- uint32_t irq_attach_s(uint8l_t irq, uint32_t func) {
-    /* IRQ2 and IRQ9 are the same */
-    if (irq == 9) {
-        irq = 2;
-    }
-    /* make sure platform supports this irq number */
-    if (isa.bus.irqmask & (1UL << irq)) {
-        irqlist_t* il = &irq_lists[irq];
-        /* put callback in next free slot */
-        if (il->count < IRQ_MAX_CB) {
-            il->func[il->count] = func;
-            il->count++;
-            /* reassign platform vectors if needed */
-            if (irq_assign_vectors) {
-                irq_assign_vectors();
-            }
-            return il->count;
-        }
-    }
-    return 0;
-}
-
-uint32_t irq_remove_s(uint8l_t irq, uint32_t func) {
-    uint32_t i;
-    irqlist_t* il;
-    /* IRQ2 and IRQ9 are the same */
-    if (irq == 9) {
-        irq = 2;
-    }
-    /* search for the callback */
-    il = &irq_lists[irq];
-    for (i=0; i<il->count; i++) {
-        /* remove it */
-        if (il->func[i] == func) {
-            il->count--;
-            il->func[i] = il->func[il->count];
-            /* reassign platform vectors if needed */
-            if (irq_assign_vectors) {
-                irq_assign_vectors();
-            }
-            return il->count + 1;
-        }
-    }
-    return 0;
-}
-
-static uint16_t irq_disable_interrupt_save = 0;
-long irq_di(void) { irq_disable_interrupt_save = disable_interrupts(); return 0; }
-long irq_ei(void) { restore_interrupts(irq_disable_interrupt_save); return 0; }
-
-#define IRQ_CRITICAL_BEGIN() Supexec(irq_di)
-#define IRQ_CRITICAL_END()   Supexec(irq_ei)
-
-uint32_t _ISA_API irq_attach(uint8l_t irq, void(*func)(void)) {
-    int32_t rt;
-    IRQ_CRITICAL_BEGIN();
-    rt = irq_attach_s(irq, (uint32_t)func);
-    if (rt == 1) {
-        /* first handler was added */
-    }
-    IRQ_CRITICAL_END();
-    return rt;
-}
-
-uint32_t _ISA_API irq_remove(uint8l_t irq, void(*func)(void)) {
-    int32_t rt;
-    IRQ_CRITICAL_BEGIN();
-    rt = irq_remove_s(irq, (uint32_t)func);
-    if (rt == 1) {
-        /* last hander was removed */
-    }
-    IRQ_CRITICAL_END();
-    return rt;
-}
+/*
+ * todo:
+ *
+ *  we could expose a PCI_BIOS interface.
+ * 
+ *  In fact, the PCI_BIOS API draft mentioned being suitable for ISA also.
+ *  But I don't think that was ever tested or thought through.
+ * 
+ *  - The biggest issue is that the API cannot safely mix PCI and ISA
+ *    devices because there is no guarantee against GUID collisions.
+ *
+ *    PCI GUIDs are unique only among PCI devices
+ *    ISA GUIDs are unique only among ISA devices
+ 
+ *    A PCI device could in theory have the same GUID as a completely
+ *    different ISA device, and the API only specifies a single
+ *    "get device by guid" function.
+ * 
+ *  - A secondary issue could that PCI, and thus PCI_BIOS, specifies up to
+ *    five resource per device. ISA can in theory have 12 (8 io + 4 mem)
+ *    Likely not an issue in practice.
+ * 
+ *  - A third issue as it stands is that PCI_BIOS has no provision for
+ *    interrogating interrupt numbers used by a device.
+ *    It provides a function to hook all interrupts for a given card,
+ *    which is better than nothing and fine for PCI.
+ *    But not quite the same as hooking a specific irq of a specific
+ *    device on a specific card as is not uncommon for ISA.
+ *
+ */
 
 
 /*-----------------------------------------------------------------------------------
- * device helpers
+ * globals
  *---------------------------------------------------------------------------------*/
-isa_dev_t* _ISA_API dev_find(const char* idstr, uint16l_t idx) {
-    uint32_t id = StrToId(idstr);
+isabios_t   isa;
+irqlist_t   isa_irq_list[16];
+void        (*isa_irq_assign)(void);
+
+
+/*-----------------------------------------------------------------------------------
+ *
+ * temp crap to be removed.
+ * 
+ * todo: different interface for drivers/apps to interface with isa devices.
+ *       use handles instead of direct access to structures.
+ *
+ *       rvsound and mxplay plugins are currently relying on access to
+ *       the old isadev_t structures so this temp stuff is here to
+ *       maintain backwards compat until a new interface is made and those
+ *       softwares have been updated to use it.
+ *
+ *---------------------------------------------------------------------------------*/
+
+static isa_dev_t* _ISA_API _TEMP_pubdevs_find(const char* idstr, uint16l_t idx) {
+    uint32_t id = pnp_string_to_id(idstr);
     uint16_t found = 0;
     uint16_t i; int j;
     for (i=0; i<isa.bus.numdevs; i++) {
@@ -240,133 +80,349 @@ isa_dev_t* _ISA_API dev_find(const char* idstr, uint16l_t idx) {
     return 0;
 }
 
+static void _TEMP_pubdevs_create(void) {
+    /* enumerate devices */
+    uint16_t numdevs = 0;
+    pnp_device_t* dev;   
+    pnp_card_t* card;
+    card = pnp_get_card(0);
+    while (card) {
+        dev = card->devices;
+        while (dev) {
+            if (dev->flags & ISA_FLG_ACTIVE) {
+                pnp_setting_t* sett = pnp_device_get_settings(dev);
+                pnp_conf_t* conf = sett ? pnp_device_get_conf(dev, sett->conf) : 0;
+                numdevs += (conf ? 1 : 0);
+            }
+            dev = (pnp_device_t*) dev->next;
+        }
+        card = (pnp_card_t*) card->next;        
+    }
+
+    /* now create public devices */
+    if (numdevs) {
+        int i; isa_dev_t* pdev;
+        isa.bus.numdevs = numdevs;
+        isa.bus.devs = isabios_mem_alloc(sizeof(isa_dev_t) * numdevs);
+        pdev = isa.bus.devs;
+        card = pnp_get_card(0);
+        while (card) {
+            dev = card->devices;
+            while (dev) {
+                if (dev->flags & ISA_FLG_ACTIVE) {
+                    pnp_setting_t* sett = pnp_device_get_settings(dev);
+                    pnp_conf_t* conf = sett ? pnp_device_get_conf(dev, sett->conf) : 0;
+                    if (conf) {
+                        for (i=0; i<ISA_MAX_DEV_IDS; i++) { pdev->id[i] = dev->ids[i];   }
+                        for (i=0; i<conf->nio;  i++) { pdev->port[i] = sett->iobase[i];  }
+                        for (i=0; i<conf->nmem; i++) { pdev->mem[i]  = sett->membase[i]; }
+                        for (i=0; i<conf->nirq; i++) { pdev->irq[i]  = sett->irq[i];     }
+                        for (i=0; i<conf->ndma; i++) { pdev->dma[i]  = sett->dma[i];     }
+                        pdev++;
+                    }
+                }
+                dev = (pnp_device_t*) dev->next;
+            }
+            card = (pnp_card_t*) card->next;        
+        }
+    }
+}
+
+
+
 /*-----------------------------------------------------------------------------------
- * 
- * Hardware specific bus config
+ *
+ * machine independent interrupt handling
  *
  *---------------------------------------------------------------------------------*/
-static bool bus_hwconf(void) {
-    long cookie = 0;
+ static uint32_t irq_attach_s(uint8l_t irq, uint32_t func) {
+    /* IRQ2 and IRQ9 are the same */
+    if (irq == 9) {
+        irq = 2;
+    }
+    /* make sure platform supports this irq number */
+    if (isa.bus.irqmask & (1UL << irq)) {
+        irqlist_t* il = &isa_irq_list[irq];
+        /* put callback in next free slot */
+        if (il->count < ISA_MAX_IRQFUNCS) {
+            il->func[il->count] = func;
+            il->count++;
+            /* reassign platform vectors if needed */
+            if (isa_irq_assign) {
+                isa_irq_assign();
+            }
+            return il->count;
+        }
+    }
+    return 0;
+}
 
+static uint32_t irq_remove_s(uint8l_t irq, uint32_t func) {
+    uint32_t i;
+    irqlist_t* il;
+    /* IRQ2 and IRQ9 are the same */
+    if (irq == 9) {
+        irq = 2;
+    }
+    /* search for the callback */
+    il = &isa_irq_list[irq];
+    for (i=0; i<il->count; i++) {
+        /* remove it */
+        if (il->func[i] == func) {
+            il->count--;
+            il->func[i] = il->func[il->count];
+            /* reassign platform vectors if needed */
+            if (isa_irq_assign) {
+                isa_irq_assign();
+            }
+            return il->count + 1;
+        }
+    }
+    return 0;
+}
+
+static uint16_t irq_disable_interrupt_save = 0;
+static long irq_di(void) { irq_disable_interrupt_save = isabios_disable_interrupts(); return 0; }
+static long irq_ei(void) { isabios_restore_interrupts(irq_disable_interrupt_save); return 0; }
+
+#define IRQ_CRITICAL_BEGIN() Supexec(irq_di)
+#define IRQ_CRITICAL_END()   Supexec(irq_ei)
+
+static uint32_t _ISA_API irq_attach(uint8l_t irq, void(*func)(void)) {
+    int32_t rt;
+    IRQ_CRITICAL_BEGIN();
+    rt = irq_attach_s(irq, (uint32_t)func);
+    if (rt == 1) {
+        /* first handler was added */
+    }
+    IRQ_CRITICAL_END();
+    return rt;
+}
+
+static uint32_t _ISA_API irq_remove(uint8l_t irq, void(*func)(void)) {
+    int32_t rt;
+    IRQ_CRITICAL_BEGIN();
+    rt = irq_remove_s(irq, (uint32_t)func);
+    if (rt == 1) {
+        /* last hander was removed */
+    }
+    IRQ_CRITICAL_END();
+    return rt;
+}
+
+
+
+
+/*-----------------------------------------------------------------------------------
+ *
+ * Info / logging
+ *
+ *---------------------------------------------------------------------------------*/
+void print_businfo(void) {
+
+    #if ISABIOS_ENABLE_LOG_SCREEN
+    {
+        isabios_print("\r\n\33pISA PnP Bios v%d.%02x\33q\r\n", (ISA_BIOS_VERSION >> 8), (ISA_BIOS_VERSION & 0xFF));
+        isabios_print("I/O: 0x%08lx\r\n", isa.bus.iobase);
+        if (isa.bus.membase) { isabios_print("MEM: 0x%08lx\r\n", isa.bus.membase); }
+        if (isa.bus.irqmask) { isabios_print("IRQ: 0x%08lx\r\n",  (uint32_t)isa.bus.irqmask); }
+        if (isa.bus.drqmask) { isabios_print("DMA: 0x%08lx\r\n",  (uint32_t)isa.bus.drqmask); }
+        isabios_print("\r\n");
+    }
+    #endif
+
+    #if ISABIOS_ENABLE_LOG_FILE
+    {
+        int i;
+        isabios_log("\r\n");
+        isabios_log("--------------------------------------------------------------------------\r\n");
+        isabios_log("Interface\r\n");
+        isabios_log("--------------------------------------------------------------------------\r\n");
+        isabios_log("I/O: 0x%08lx\r\n", isa.bus.iobase);
+        isabios_log("MEM: 0x%08lx\r\n", isa.bus.membase);
+        isabios_log("END: ");
+        switch (isa.bus.endian) {
+            case ISA_ENDIAN_LELS: isabios_log("LELS"); break;
+            case ISA_ENDIAN_LEAS: isabios_log("LEAS"); break;
+            default: isabios_log("BE"); break;
+        }
+        isabios_log("\r\n");
+        isabios_log("IRQ:"); for (i=0; i<16; i++) { if (isa.bus.irqmask & (1 << i)) { isabios_log(" %d", i); } } isabios_log("\r\n");
+        isabios_log("DMA:"); for (i=0; i<8;  i++) { if (isa.bus.drqmask & (1 << i)) { isabios_log(" %d", i); } } isabios_log("\r\n");
+    }
+    #endif
+}
+
+void print_resources(void) {
+    #if ISABIOS_ENABLE_LOG_FILE
+    {
+        int i, j;
+        pnp_card_t* card;
+
+        isabios_log("\r\n");
+        isabios_log("--------------------------------------------------------------------------\r\n");
+        isabios_log("Resources\r\n");
+        isabios_log("--------------------------------------------------------------------------\r\n");
+        card = pnp_get_card(0);
+        while (card) {
+            pnp_device_t* dev = card->devices;
+            if (dev) {
+                isabios_log("[CARD%2d - %s] '%s'\r\n", card->csn, pnp_id_to_string(card->id), card->name);
+                while (dev) {
+                    pnp_conf_t* conf = dev->confs;
+                    if (conf) {
+                        isabios_log(" [DEV%2d - %s] '%s'\r\n", dev->ldn, pnp_id_to_string(dev->ids[0]), dev->name);
+                        for (i=1; i<ISA_MAX_DEV_IDS; i++) {
+                            if (dev->ids[i]) {
+                                isabios_log(" [        %s]\r\n", pnp_id_to_string(dev->ids[i]));
+                            }
+                        }
+                        while (conf) {
+                            uint32_t resources = conf->nio + conf->nmem + conf->nirq + conf->ndma;
+                            if (resources && !(conf->flags & ISA_FLG_INVALID)) {
+                                int num;
+                                isabios_log("  [CONF%2d]\r\n", conf->id);
+                                for (j=0; j<conf->nio; j++)  {
+                                    isabios_log("    IO%d: %08lx-%08lx : %08lx\r\n", j, conf->iorange[j].base_min, conf->iorange[j].base_max, conf->iorange[j].length);
+                                }
+                                for (j=0; j<conf->nmem; j++) {
+                                    isabios_log("   MEM%d: %08lx-%08lx : %08lx\r\n", j, conf->memrange[j].base_min, conf->memrange[j].base_max, conf->memrange[j].length);
+                                }
+                                for (num=0, j=0; j<conf->nirq; j++) {
+                                    isabios_log("   IRQ%d:", j);
+                                    for (num=0, i=0; i<16; i++) { if (conf->irqmask[j] & (1 << i)) { isabios_log("%s%d", ((num==0) ? " " : " "), i); num++; } }
+                                    isabios_log("\r\n");
+                                }
+                                for (num=0, j=0; j<conf->ndma; j++) {
+                                    isabios_log("   DMA%d:", j);
+                                    for (num=0, i=0; i<8;  i++) { if (conf->dmamask[j] & (1 << i)) { isabios_log("%s%d", ((num==0) ? " " : " "), i); num++; } }
+                                    isabios_log("\r\n");
+                                }
+                            }
+                            conf = (pnp_conf_t*) conf->next;
+                        }
+                    }
+                    dev = (pnp_device_t*) dev->next;
+                }
+                isabios_log("\r\n");
+            }
+            card = (pnp_card_t*) card->next;
+        }
+    }
+    #endif    
+}
+
+void print_devices(void) {
+
+    #if ISABIOS_ENABLE_LOG_SCREEN
+    {
+        pnp_card_t* card = pnp_get_card(0);
+        while (card) {
+            bool printed_card = false;
+            pnp_device_t* dev = card->devices;
+            while (dev) {
+                if (dev->flags & ISA_FLG_ACTIVE) {
+                    if (!printed_card) {
+                        printed_card = true;
+                        isabios_print("%s\r\n", card->name);
+                    }
+                    isabios_print(" [%01x:%01x] %s\r\n", dev->csn, dev->ldn, dev->name);
+                }
+                dev = (pnp_device_t*) dev->next;
+            }
+            if (printed_card) {
+                isabios_print("\r\n");
+            }
+            card = (pnp_card_t*) card->next;
+        }
+        isabios_print("\r\n");
+    }
+    #endif
+
+    #if ISABIOS_ENABLE_LOG_FILE
+    {
+        pnp_card_t* card;
+        isabios_log("--------------------------------------------------------------------------\r\n");
+        isabios_log("Configured\r\n");
+        isabios_log("--------------------------------------------------------------------------\r\n");
+        card = pnp_get_card(0);
+        while (card) {
+            pnp_device_t* dev = card->devices;
+            while (dev) {
+                if (dev->flags & ISA_FLG_ACTIVE) {
+                    pnp_setting_t* set = pnp_device_get_settings(dev);
+                    pnp_conf_t* conf = set ? pnp_device_get_conf(dev, set->conf) : 0;
+                    if (conf) {
+                        int j;
+                        isabios_log("%02x:%02x ID:  ", dev->csn, dev->ldn);
+                        for (j=0; j<ISA_MAX_DEV_IDS && dev->ids[j]; j++) { isabios_log("%s ", pnp_id_to_string(dev->ids[j])); } isabios_log("\r\n");
+                        if (conf->nio)  { isabios_log("      IO:  "); for (j=0; j<conf->nio;  j++) { isabios_log("%04x ",  set->iobase[j]);  } isabios_log("\r\n"); }
+                        if (conf->nmem) { isabios_log("      MEM: "); for (j=0; j<conf->nmem; j++) { isabios_log("%08lx ", set->membase[j]); } isabios_log("\r\n"); }
+                        if (conf->nirq) { isabios_log("      IRQ: "); for (j=0; j<conf->nirq; j++) { isabios_log("%d ",    set->irq[j]);     } isabios_log("\r\n"); }
+                        if (conf->ndma) { isabios_log("      DMA: "); for (j=0; j<conf->ndma; j++) { isabios_log("%d ",    set->dma[j]);     } isabios_log("\r\n"); }
+                        isabios_log("\r\n");
+                    }
+                }
+                dev = (pnp_device_t*) dev->next;
+            }
+            card = (pnp_card_t*) card->next;
+        }
+    }
+    #endif
+}
+
+
+/*-----------------------------------------------------------------------------------
+ *
+ * Private bios interface
+ *
+ *---------------------------------------------------------------------------------*/
+
+
+/*-----------------------------------------------------------------------------------
+ * bus initialize
+ *---------------------------------------------------------------------------------*/
+bool isabios_bus_init(void) {
+    bool mach = false;
+
+    memset((void*)&isa, 0, sizeof(isabios_t));
+
+    /* default bus settings */
     isa.bus.endian      = ISA_ENDIAN_LELS;
     isa.bus.irqmask     = 0x0000;
     isa.bus.drqmask     = 0x00;
     isa.bus.membase     = 0x00000000UL;
     isa.bus.iobase      = 0x00000000UL;
-    irq_assign_vectors  = 0;
 
-    if (Getcookie(C_hade, &cookie) == C_FOUND)          /* Hades */
-    {
-        isa.bus.iobase  = 0xFFF30000UL;
-        isa.bus.membase = 0xFF000000UL;
-    }
-    else if (Getcookie(C__MIL, &cookie) == C_FOUND)     /* Milan */
-    {
-        #if 1
-        isa.bus.iobase = 0xC0000000UL;
-        #else        
-        isa.bus.endian = ISA_ENDIAN_LEAS;
-        isa.bus.iobase = 0x80000000;
-        #endif
-    }
-    else if (Getcookie(C__P2I, &cookie) == C_FOUND)     /* Panther2 */
-    {
-        uint32_t* cardpth2 = (uint32_t*) (cookie+6);
-        isa.bus.iobase  = *cardpth2;
-        cardpth2 += 2;
-        isa.bus.membase = *cardpth2;
-    }    
-    else if (Getcookie(C_RAVN, &cookie) == C_FOUND)     /* Raven */
-    {
-        isa.bus.iobase  = 0x81000000UL;
-        isa.bus.membase = 0x82000000UL;
-        isa.bus.irqmask = (0
-            | (1UL << 14)
-            | (1UL << 11)
-            | (1UL << 10)
-            | (1UL <<  7)
-            | (1UL <<  5)
-            | (1UL <<  4)
-            | (1UL <<  3)
-            | (1UL <<  2)
-        );
+    /* default pnp ports */
+    isa.pnp.adport      = 0x279;
+    isa.pnp.wrport      = 0xa79;
+    isa.pnp.rdport      = 0x203;
+    
+    /* irq setup */
+    isa_irq_assign      = 0;
 
-        /* enable ISA interrupts */
-        #if IRQ_SUPPORT_RAVEN
-        {
-            /*            
-            mfp2_B0 =  0 = I0 = irq2/9
-            mfp2_B1 =  1 = I1 = irq3
-            mfp2_B2 =  2 = I2 = irq4
-            mfp2_B3 =  3 = I3 = irq5
-            mfp2_B6 =  6 = I4 = irq7
-            mfp2_B7 =  7 = I5 = irq10
-            mfp2_A6 = 14 = I6 = irq11
-            mfp2_A7 = 15 = I7 = irq14
-            */
-            const uint8_t ia_mask = 0xC0; /* xx...... */
-            const uint8_t ib_mask = 0xCF; /* xx..xxxx */
-
-            volatile uint8_t *mfpbase = (volatile uint8_t*) 0xA0000A00UL;
-
-            /* disable interrupts */
-            mfpbase[0x07] &= ~ia_mask;
-            mfpbase[0x09] &= ~ib_mask;
-
-            /* initialize interrupt vectors */
-            memset((void*)irq_lists, 0, sizeof(irq_lists));
-            irq_assign_vectors = irq_assign_vectors_raven;
-            irq_assign_vectors_raven();
-
-            /* enable isa interrupts */
-            mfpbase[0x0b] &= ~ia_mask;  /* clear pending    */
-            mfpbase[0x0f] &= ~ia_mask;  /* clear service    */
-            mfpbase[0x13] |=  ia_mask;  /* clear mask       */
-            mfpbase[0x0d] &= ~ib_mask;  /* clear pending    */
-            mfpbase[0x11] &= ~ib_mask;  /* clear service    */
-            mfpbase[0x15] |=  ib_mask;  /* clear mask       */
-            mfpbase[0x07] |= ia_mask;   /* enable interrupt */
-            mfpbase[0x09] |= ib_mask;   /* enable interrupt */
-        }
-        #endif /* IRQ_SUPPORT_RAVEN */
-    }
-    return true;
-}
-
-bool bus_init(void)
-{
-    int i;
-    memset((void*)&isa, 0, sizeof(isa_core_t));
-    isa.bus.devs = isa_bus_devs;
-
-    /* hardware autodetect */
-    if (!bus_hwconf())
-        return false;
-
-    /* bus settings from config file */
-    {
-        uint32_t cfgint;
-        const char* cfgstr = GetInfStr("isa.endian");
-        if (cfgstr && strcmp(cfgstr, "be") == 0)    isa.bus.endian = ISA_ENDIAN_BE;
-        if (cfgstr && strcmp(cfgstr, "leas") == 0)  isa.bus.endian = ISA_ENDIAN_LEAS;
-        if (cfgstr && strcmp(cfgstr, "lels") == 0)  isa.bus.endian = ISA_ENDIAN_LELS;
-        if (GetInfHex("isa.iobase", &cfgint))       isa.bus.iobase = cfgint;
-        if (GetInfHex("isa.membase", &cfgint))      isa.bus.membase = cfgint;
-        if (GetInfHex("isa.irqmask", &cfgint))      isa.bus.irqmask = cfgint;
-        if (GetInfHex("isa.drqmask", &cfgint))      isa.bus.drqmask = cfgint;
-    }
-
-    /* check if we have minimum settings */
-    if (isa.bus.iobase == 0)
-        return false;
-
-    /* common setup */
-    isa.bus.version = ISA_BIOS_VERSION;
-    isa.bus.find_dev = dev_find;
-#if 0    
-    isa.bus.delayus = isa_delayus;
-    isa.bus.delayms = isa_delayms;
+    /* machine dependent setup */
+#if ISABIOS_MACH_HADES
+    if (!mach) { mach = isabios_setup_hades(); }
 #endif
+#if ISABIOS_MACH_MILAN
+    if (!mach) { mach = isabios_setup_milan(); }
+#endif
+#if ISABIOS_MACH_PANTHER
+    if (!mach) { mach = isabios_setup_panther(); }
+#endif
+#if ISABIOS_MACH_RAVEN
+    if (!mach) { mach = isabios_setup_raven(); }
+#endif
+
+#if ISABIOS_ENABLE_INF
+    isabios_inf_configure_bus();
+#endif
+
+    /* common functions */
+    isa.bus.version = ISA_BIOS_VERSION;
+    isa.bus.find_dev = _TEMP_pubdevs_find;
     switch (isa.bus.endian) {
         case ISA_ENDIAN_BE:
             isa.bus.inp = isa.bus.inp ? isa.bus.inp : inp_be;
@@ -374,70 +430,118 @@ bool bus_init(void)
             isa.bus.inpw = isa.bus.inpw ? isa.bus.inpw : inpw_be;
             isa.bus.outpw = isa.bus.outpw ? isa.bus.outpw : outpw_be;
             break;
-        case ISA_ENDIAN_LELS:
-            isa.bus.inp = isa.bus.inp ? isa.bus.inp : inp_lels;
-            isa.bus.outp = isa.bus.outp ? isa.bus.outp : outp_lels;
-            isa.bus.inpw = isa.bus.inpw ? isa.bus.inpw : inpw_lels;
-            isa.bus.outpw = isa.bus.outpw ? isa.bus.outpw : outpw_lels;
-            break;
         case ISA_ENDIAN_LEAS:
             isa.bus.inp = isa.bus.inp ? isa.bus.inp : inp_leas;
             isa.bus.outp = isa.bus.outp ? isa.bus.outp : outp_leas;
             isa.bus.inpw = isa.bus.inpw ? isa.bus.inpw : inpw_leas;
             isa.bus.outpw = isa.bus.outpw ? isa.bus.outpw : outpw_leas;
             break;
+        case ISA_ENDIAN_LELS:
+            isa.bus.inp = isa.bus.inp ? isa.bus.inp : inp_lels;
+            isa.bus.outp = isa.bus.outp ? isa.bus.outp : outp_lels;
+            isa.bus.inpw = isa.bus.inpw ? isa.bus.inpw : inpw_lels;
+            isa.bus.outpw = isa.bus.outpw ? isa.bus.outpw : outpw_lels;
+            break;
     }
 
+    /* we need at least io access for this to make sense */
     isa.bus.irq_attach = irq_attach;
     isa.bus.irq_remove = irq_remove;
 
-    /* show something on screen */
-    /* todo: verbose flag */
-    printf("\33p ISA PnP Bios \33q\r\n");
-    printf("I/O: 0x%08lx\r\n", isa.bus.iobase);
-    if (isa.bus.membase) { printf("MEM: 0x%08lx\r\n", isa.bus.membase); }
-    if (isa.bus.irqmask) { printf("IRQ: 0x%08lx\r\n",  (uint32_t)isa.bus.irqmask); }
-    if (isa.bus.drqmask) { printf("DMA: 0x%08lx\r\n",  (uint32_t)isa.bus.drqmask); }
-    printf("\r\n");
-
-    /* log information about the bus */
-    Log("\r\n");
-    Log("--------------------------------------------------------------------------\r\n");
-    Log("Interface\r\n");
-    Log("--------------------------------------------------------------------------\r\n");
-    Log("I/O: 0x%08lx\r\n", isa.bus.iobase);
-    Log("MEM: 0x%08lx\r\n", isa.bus.membase);
-    Log("END: ");
-    switch (isa.bus.endian) {
-        case ISA_ENDIAN_LELS: Log("LELS"); break;
-        case ISA_ENDIAN_LEAS: Log("LEAS"); break;
-        default: Log("BE"); break;
-    }
-    Log("\r\n");
-    Log("IRQ:"); for (i=0; i<16; i++) { if (isa.bus.irqmask & (1 << i)) { Log(" %d", i); } } Log("\r\n");
-    Log("DMA:"); for (i=0; i<8;  i++) { if (isa.bus.drqmask & (1 << i)) { Log(" %d", i); } } Log("\r\n");
-
-    /* plug-and-pray */
-    pnp_init();
-
-    /* create cookie interface */
-    return Createcookie(C__ISA, (uint32_t)&isa.bus);
+    print_businfo();
+    return (isa.bus.iobase != 0);
 }
+
+
+/*-----------------------------------------------------------------------------------
+ * pnp initialize
+ *---------------------------------------------------------------------------------*/
+bool isabios_pnp_init(void) {
+    pnp_init();
+    pnp_enumerate();
+    print_resources();
+#if ISABIOS_ENABLE_INF
+    isabios_inf_configure_devices();
+#endif
+    return true;
+}
+
+
+/*-----------------------------------------------------------------------------------
+ * bios init, called before anything else
+ *---------------------------------------------------------------------------------*/
+bool isabios_init(void) {
+    isabios_mem_init(64 * 1024UL);
+    isabios_log_init();
+    isabios_inf_init();
+
+    if (!isabios_bus_init()) {
+        return false;
+    }
+
+    isabios_pnp_init();
+    return true;
+}
+
+
+/*-----------------------------------------------------------------------------------
+ * bios cleanup, should always be called when done
+ *---------------------------------------------------------------------------------*/
+void isabios_cleanup(void) {
+    isabios_inf_close();
+    isabios_log_close();
+    isabios_mem_close();
+}
+
+
+/*-----------------------------------------------------------------------------------
+ * start, configures devices and installs public interface
+ *---------------------------------------------------------------------------------*/
+bool isabios_start(void) {
+    pnp_configure();
+    print_devices();
+    _TEMP_pubdevs_create();
+    if (!isabios_createcookie(C__ISA, (uint32_t)&isa.bus)) {
+        return false;
+    }
+    return true;
+}
+
+
+
+
+
+/*-----------------------------------------------------------------------------------
+ *
+ * Application
+ *
+ *---------------------------------------------------------------------------------*/
+
+ #if ISABIOS_STANDALONE
 
 long super_main(void) {
 
-    OpenFiles();
-    if (!bus_init() || (isa.bus.iobase == 0)) {
-        return 0;
+    if (!isabios_init()) {
+        isabios_cleanup();
+        return -1;
     }
-    CloseFiles();
-    return 1;
+
+    if (!isabios_start()) {
+        isabios_cleanup();
+        return -2;
+    }
+
+    isabios_cleanup();
+    return 0;
 }
 
 int main() {
-    if (!Supexec(super_main)) {
-        return -1;
+    long ret = Supexec(super_main);
+    if (ret == 0) {
+        extern uint32_t _PgmSize;
+        Ptermres(_PgmSize, 0);
     }
-    ExitTsr();
-    return 0;
+    return (int)ret;
 }
+
+#endif
