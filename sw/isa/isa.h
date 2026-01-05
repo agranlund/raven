@@ -86,15 +86,11 @@ typedef struct {
     uint32_t    _ISA_API (*irq_attach)(uint8l_t irq, void(*func)(void));
     uint32_t    _ISA_API (*irq_remove)(uint8l_t irq, void(*func)(void));
 
+    /* DEPRECATED - WILL BE REMOVED WHEN SUITABLE REPLACEMENT IS IMPLEMENTED */
     isa_dev_t*  _ISA_API (*find_dev)(const char* id, uint16l_t idx);
-
-#if 0
-    void        _ISA_API (*delayus)(uint32_t us);
-    void        _ISA_API (*delayms)(uint32_t ms);
-#endif
-
     uint16_t    numdevs;
     isa_dev_t*  devs;
+    /* DEPRECATED - WILL BE REMOVED WHEN SUITABLE REPLACEMENT IS IMPLEMENTED */
 
 } isa_t;
 
