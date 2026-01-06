@@ -87,8 +87,6 @@ bool atari_InitVBR()
     vbr_Set(0x118,  (uint32_t) vecRTE_MFP1I4);      // MFP1I4 - Eiffel      - IGNORE  (ST = acia)
 #endif
 
-    //vbr_Set(0x11C,  (uint32_t) vecRTE_MFP1I5);    // MFP1I5 - Fdd/Hdd     - IGNORE (todo: can use it, connected to IDE)
-
     vbr_Set(0x154,  (uint32_t) vecVBL_MPF2TC);      // MFP2 TimerC -> IRQ4 VBLANK emulation
     vbr_Apply();
     return true;
