@@ -1,7 +1,7 @@
 Raven.A1
 Hardware and software binary release
 
-xxxxxxxx:
+20260106:
   firmware: (iksi) support Atari disk interupt
 
 20251229:
