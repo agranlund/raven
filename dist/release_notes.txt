@@ -1,6 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+xxxxxxxx:
+  firmware: (iksi) support Atari disk interupt
+
 20251229:
   rom:      default to 8x8 font during boot
   rvnova:   default to 8x8 font during boot

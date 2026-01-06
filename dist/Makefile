@@ -4,7 +4,7 @@ DATE		= $(shell date +%Y%m%d)
 
 FW_NESSI	= nessi_251029.jed
 FW_NARNIA	= narnia_240422.jed
-FW_IKSI		= iksi_240418.jed
+FW_IKSI		= iksi_260106.jed
 FW_CKBD		= ckbd_a1.bin
 FW_EIFFEL	= eiffel_1.10.2-raven_A1.hex
 FW_SIMMPROG	= ravenprog.uf2
