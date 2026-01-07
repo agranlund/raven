@@ -1,6 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+20260107:
+  rom:      fixed crash related to copyback cache
+
 20260106:
   firmware: (iksi) support Atari disk interupt
 

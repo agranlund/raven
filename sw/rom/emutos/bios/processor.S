@@ -634,7 +634,11 @@ sc_enable:
         cmpi.b  #40,_mcpu+3         // 040/060 ?
         jmi     sc_cacr             // no, just go set cacr
         nop
+#ifdef MACHINE_RAVEN
+        CPUSHA_BC                   // 040/060: invalidate the caches first
+#else        
         CINVA_BC                    // 040/060: invalidate the caches first
+#endif        
         nop
 sc_cacr:
         MOVEC_D0_CACR
