@@ -6,7 +6,7 @@
 	(descr "61201021621")
 	(tags "Connector")
 	(property "Reference" "J**"
-		(at 0 0 0)
+		(at 5.08 4.445 0)
 		(layer "F.SilkS")
 		(uuid "2fe51ed6-60c7-4b3c-83ea-014ca6e6d678")
 		(effects
@@ -94,28 +94,6 @@
 		(uuid "abfb1b51-1023-4cf2-8b44-987c57751f70")
 	)
 	(fp_rect
-		(start -1.8288 0.635)
-		(end -1.3716 1.8288)
-		(stroke
-			(width 0.15)
-			(type solid)
-		)
-		(fill yes)
-		(layer "F.SilkS")
-		(uuid "334efb9c-6eb5-4eac-97df-fbda511022b3")
-	)
-	(fp_rect
-		(start -1.3716 1.3716)
-		(end -0.6096 1.8288)
-		(stroke
-			(width 0.15)
-			(type solid)
-		)
-		(fill yes)
-		(layer "F.SilkS")
-		(uuid "e783487f-6b8d-466d-bf38-a59b7bdeba6a")
-	)
-	(fp_rect
 		(start 2.5308 1.8646)
 		(end 7.6708 3.1496)
 		(stroke
@@ -125,6 +103,18 @@
 		(fill no)
 		(layer "F.SilkS")
 		(uuid "fc566d39-427f-4901-a685-43b31e091637")
+	)
+	(fp_poly
+		(pts
+			(xy 0 1.27) (xy -0.635 2.54) (xy 0.635 2.54)
+		)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill yes)
+		(layer "F.SilkS")
+		(uuid "a86458b9-4766-4ee5-b18f-95bf6169cea3")
 	)
 	(fp_line
 		(start -5.35 -6.095)
@@ -207,7 +197,7 @@
 		(uuid "033b2d59-cb57-425b-9c24-e5af84468a62")
 	)
 	(fp_text user "${REFERENCE}"
-		(at 0 0 0)
+		(at 5.08 -1.27 0)
 		(layer "F.Fab")
 		(uuid "4a014fca-ef9e-4ce0-a313-2d12cde36ddc")
 		(effects
