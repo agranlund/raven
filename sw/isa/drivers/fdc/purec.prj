@@ -1,0 +1,24 @@
+fdc.prg
+.C[-I..\..\..\purec\include]
+.C[-I..\..]
+.C[-I..\..\..\lib]
+.C[-E1 -M -P -Z -W2]
+.C[-DDEBUG=0]
+.S[-S]
+.L[-V]
+
+.C[-2]
+.S[-4]
+
+.S[-I..\purec\include]
+.S[-DXBTIME=1]
+.S[-DXBNVM=0]
+
+=
+..\..\..\purec\lib\cstartn.o
+main.c
+asm.s
+fdc.c
+..\..\purec\lib\pctoslib.lib
+..\..\purec\lib\pcstdlib.lib
+..\..\purec\lib\pcsyslib.lib
