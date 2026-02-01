@@ -41,7 +41,7 @@ xbios_new:
 ;    addq.l  #2,a0
 .1: move.w	(a0)+,d0		; d0.w is opcode
     move.w  floppy_devno,d1 ; d1.w is devno
-    move.l  xbios_done(pc),-(sp)
+    move.l  #xbios_done,-(sp)
     cmp.w   #41,d0          ; floprate
     bne.b   .2
     cmp.w   (a0),d1         ; match devno?
