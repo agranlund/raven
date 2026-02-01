@@ -1,6 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+20260201:
+  software: added ISA floppy disk driver
+
 20260107:
   rom:      fixed crash related to copyback cache
 

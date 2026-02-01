@@ -209,6 +209,15 @@ copysw:
 	# --------------------------------------------------
 
 		# --------------------------------------------------
+		# FDC
+		# --------------------------------------------------
+		$(MKDIR) $(SWDIR_ISA)/fdc
+		make -C $(ROOTDIR)/sw/isa/drivers/fdc clean
+		make -C $(ROOTDIR)/sw/isa/drivers/fdc
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/fdc/fdc.prg $(SWDIR_ISA)/fdc/
+		$(COPY) $(ROOTDIR)/sw/isa/drivers/fdc/readme.txt $(SWDIR_ISA)/fdc/
+
+		# --------------------------------------------------
 		# FMRADIO
 		# --------------------------------------------------
 		$(MKDIR) $(SWDIR_ISA)/fmradio
