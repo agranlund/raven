@@ -25,9 +25,7 @@
 #include "sysutil.h"
 #include "fdc.h"
 
-#define DEBUG_DEV_TEMP 1
-
-#if DEBUG
+#if DEBUG_PRINT
 #include <stdarg.h>
 #include "raven.h"
 void dprintf(char* s, ...) {
@@ -44,6 +42,22 @@ void dprintf(char* s, ...) {
     }
     RestoreInterrupts(sr);
 }
+
+void ddump(uint8_t* buf, uint32_t cnt) {
+    int i,j;
+    for (i=0; i<(cnt/16); i++) {
+        dprintf("%04x ", (i*16));
+        for (j=0; j<16; j++) {
+            dprintf("%02x ", buf[(i*16)+j]);
+        }
+        for (j=0; j<16; j++) {
+            char c = buf[(i*16)+j];
+            if ((c < 32) || (c > 126)) { c = '.'; }
+            dprintf("%c", c);
+        }
+        dprintf("\n");
+    }
+}
 #endif
 
 
@@ -59,104 +73,47 @@ extern uint32_t hdv_new_rw;
 extern uint32_t hdv_new_getbpb;
 extern uint32_t hdv_new_mediach;
 
-/*-------------------------------------------------------------------------------
-    XBIOS functions
--------------------------------------------------------------------------------*/
 
-typedef struct {void *buf; int32_t filler; int16_t devno; int16_t sectno; int16_t trackno; int16_t sideno; int16_t count; } xb_floprw_args;
-int16_t xb_floprd(xb_floprw_args* args) {
-    /*
-    The function returns 0 if the operation was successful or a non-zero error-code if not.
-    */
-    return -1;
-}
+/******************************************************************************
+***                                                                         ***
+***                                 BIOS                                    ***
+***                                                                         ***
+******************************************************************************/
 
-int16_t xb_flopwr(xb_floprw_args* args) {
-    /*
-    The function returns 0 if the operation was successful or a non-zero error-code if not.
-    */
-   return -1;
-}
-
-int16_t xb_flopver(xb_floprw_args* args) {
-    /*
-    The function returns the value 0 if the list stored in the parameter buf is valid, or a non-zero value otherwise.
-    Note: After the call one finds in the parameter buf a NULL-terminated list of 16-bit words containing
-    the numbers of the defective sectors. So the function does not compare sectors with a block of memory;
-    instead it always reads the sectors into the same buffer. This only verifies that the sectors can be read correctly,
-    or if read errors occur during reading.
-    */
-
-    return -1;
-}
-
-typedef struct {void *buf; int32_t filler; int16_t devno; int16_t spt; int16_t trackno; int16_t sideno; int16_t interlv; int32_t magic; int16_t virgin; } xb_flopfmt_args;
-int16_t xb_flopfmt(xb_flopfmt_args* args) {
-    /*
-    The function returns 0 when no error has occurred in formatting the track.
-    Otherwise a NULL-terminated list of the faulty sectors will be written as a int16_t array into the buffer buf.
-    */    
-    return 0;
-}
-
-typedef struct {int16_t devno; int16_t newrate; } xb_floprate_args;
-int16_t xb_floprate(xb_floprate_args* args) {
-    /*
-    -1	=	Do not alter seek rate
-     0	=	Seek rate of 6ms
-     1	=	Seek rate of 12ms
-     2	=	Seek rate of 2ms
-     3	=	Seek rate of 3ms
-    */
-
-    int16_t oldrate = *((volatile int16_t*)0x440);
-    int16_t newrate = oldrate;
-    /* todo: set fdc seekrate */
-    switch (args->newrate) {
-        case 0:
-            break;
-        case 1:
-            break;
-        case 2:
-            break;
-        case 3:
-            break;
-    }
-    *((int16_t*)0x440) = newrate;
-    return oldrate;
-}
 
 /*-------------------------------------------------------------------------------
-    BIOS functions
+    hdv_rw
 -------------------------------------------------------------------------------*/
-
 typedef struct {int16_t rwflag; void* buf; int16_t cnt; int16_t recnr; int16_t dev; int32_t lrecno; } hdv_rw_args;
 int32_t hdv_rw(hdv_rw_args* args) {
-
+    int16_t err;
     uint32_t lba = (args->recnr < 0) ? args->lrecno : args->recnr;
-    #if DEBUG
+    #if DEBUG_PRINT
     dprintf("hdv_rw %02x %d, %ld, %d\n", args->rwflag, args->dev, lba, args->cnt);
     #endif
 
     if (args->rwflag & 1) {
-        if (fdc_write_lba(args->buf, args->cnt, lba)) {
-            return 0;
-        }
+#if READONLY
+        err = EWRPRO;
+#else
+        err = fdc_write_lba(args->buf, args->cnt, lba);
+#endif        
     } else {
-        if (fdc_read_lba(args->buf, args->cnt, lba)) {
-            return 0;
-        }
+        err = fdc_read_lba(args->buf, args->cnt, lba);
     }
-    return -1;
+    return (int32_t)err;
 }
 
+/*-------------------------------------------------------------------------------
+    hdv_getbpb
+-------------------------------------------------------------------------------*/
 int32_t hdv_getbpb(int16_t dev) {
     static BPB tos_bpb;
     fdc_bpb_t fdc_bpb;
     uint32_t temp;
     (void)dev;
 
-    if (!fdc_getbpb(&fdc_bpb)) {
+    if (fdc_getbpb(&fdc_bpb) != E_OK) {
         return 0;
     }
 
@@ -213,20 +170,147 @@ int32_t hdv_getbpb(int16_t dev) {
     return (int32_t)&tos_bpb;
 }
 
+/*-------------------------------------------------------------------------------
+    hdv_mediach
+-------------------------------------------------------------------------------*/
 int32_t hdv_mediach(int16_t dev) {
     (void)dev;
-    return fdc_changed() ? 2 : 0;
+    return (fdc_changed() == E_OK) ? 0 : 2;
 }
 
 
 
-/*-------------------------------------------------------------------------------
-    driver
--------------------------------------------------------------------------------*/
 
-bool Createcookie(uint32_t id, uint32_t value)
+/******************************************************************************
+***                                                                         ***
+***                                 XBIOS                                   ***
+***                                                                         ***
+******************************************************************************/
+
+
+/*-------------------------------------------------------------------------------
+    floprd
+-------------------------------------------------------------------------------*/
+typedef struct {void *buf; int32_t filler; int16_t devno; int16_t sectno; int16_t trackno; int16_t sideno; int16_t count; } xb_floprw_args;
+int16_t xb_floprd(xb_floprw_args* args) {
+    return fdc_read_chs(args->buf, args->count, args->trackno, args->sideno, args->sectno);
+}
+
+/*-------------------------------------------------------------------------------
+    flopwr
+-------------------------------------------------------------------------------*/
+int16_t xb_flopwr(xb_floprw_args* args) {
+#if READONLY
+    (void)args;
+   return EWRPRO;
+#else
+   return fdc_write_chs(args->buf, args->count, args->trackno, args->sideno, args->sectno);
+#endif
+}
+
+/*-------------------------------------------------------------------------------
+    flopver
+-------------------------------------------------------------------------------*/
+int16_t xb_flopver(xb_floprw_args* args) {
+    /*
+    The function returns the value 0 if the list stored in the parameter buf is valid, or a non-zero value otherwise.
+    Note: After the call one finds in the parameter buf a NULL-terminated list of 16-bit words containing
+    the numbers of the defective sectors. So the function does not compare sectors with a block of memory;
+    instead it always reads the sectors into the same buffer. This only verifies that the sectors can be read correctly,
+    or if read errors occur during reading.
+    */
+    int16_t sec = args->sectno;
+    uint16_t* seclist = (uint16_t*)args->buf;
+    uint8_t* rdbuf = ((uint8_t*)args->buf) + 512UL;
+    for (; sec < (args->sectno + args->count); sec++) {
+        int16_t err = fdc_read_chs(rdbuf, 1, args->trackno, args->sideno, sec);
+        if (err != E_OK) {
+            *seclist++ = (sec ? sec : -1);
+        }
+    }
+    *seclist = 0;
+    return E_OK;
+}
+
+/*-------------------------------------------------------------------------------
+    flopfmt
+-------------------------------------------------------------------------------*/
+typedef struct {void *buf; int32_t filler; int16_t devno; int16_t spt; int16_t trackno; int16_t sideno; int16_t interlv; int32_t magic; int16_t virgin; } xb_flopfmt_args;
+int16_t xb_flopfmt(xb_flopfmt_args* args) {
+    /*
+    The function returns 0 when no error has occurred in formatting the track.
+    Otherwise a NULL-terminated list of the faulty sectors will be written as a int16_t array into the buffer buf.
+    */
+    (void)args;
+#if READONLY
+    return EWRPRO;
+#else   
+    /* todo */
+    return EWRPRO;
+#endif    
+}
+
+/*-------------------------------------------------------------------------------
+    floprate
+-------------------------------------------------------------------------------*/
+typedef struct {int16_t devno; int16_t newrate; } xb_floprate_args;
+int16_t xb_floprate(xb_floprate_args* args) {
+    int16_t ret = 0;
+    switch (args->newrate) {
+        case -4:
+            /* return drive type */
+            ret = -1;   /* 0 == DD, -1 = HD */
+            break;
+        case -3:
+            /* set HD drive type */
+            ret = 0;
+            break;
+        case -2:
+            /* set DD drive type */
+            ret = 0;
+            break;
+        case -1:
+            /* current rate */
+            ret = fdc_seekrate(0);
+            break;
+        case 0:
+            ret = fdc_seekrate(6);
+            break;
+        case 1:
+            ret = fdc_seekrate(12);
+            break;
+        case 2:
+            ret = fdc_seekrate(2);
+            break;
+        case 3:
+            ret = fdc_seekrate(3);
+            break;
+    }
+
+    /* convert actual rate to enum */
+    if ((args->newrate >= -1) && (args->newrate <= 3)) {
+        if (ret >= 12)      { ret = 1; }
+        else if (ret >= 6)  { ret = 0; }
+        else if (ret >= 3)  { ret = 3; }
+        else                { ret = 2; }
+    }
+
+    return ret;
+}
+
+
+
+
+/******************************************************************************
+***                                                                         ***
+***                               DRIVER                                    ***
+***                                                                         ***
+******************************************************************************/
+
+
+int16_t Createcookie(uint32_t id, uint32_t value)
 {
-    /* find free slot */
+    /* find jar slot */
     int32_t cookies_size = 0;
 	int32_t cookies_used = 0;
     int32_t cookies_avail = 0;
@@ -236,7 +320,7 @@ bool Createcookie(uint32_t id, uint32_t value)
 		cookies_used++;
 		if (c[0] == id) {
 			c[1] = value;
-			return true;
+			return E_OK;
 		}
 		else if (c[0] == 0) {
             cookies_size = c[1];
@@ -245,7 +329,7 @@ bool Createcookie(uint32_t id, uint32_t value)
 		c += 2;
 	}
 
-    /* grow jar when necessary */
+    /* grow jar */
     cookies_avail = cookies_size - cookies_used;
 	if (cookies_avail <= 0) {
         uint32_t* newjar;
@@ -253,6 +337,9 @@ bool Createcookie(uint32_t id, uint32_t value)
         int32_t newsize = (2*4*(cookies_size + 8));
         cookies_size += 8;
         newjar = (uint32_t*)Mxalloc(newsize, 3);
+        if (!newjar) {
+            return ENSMEM;
+        }
         memcpy(newjar, jar, oldsize);
         *((uint32_t*)0x5a0) = (uint32_t)newjar;
         jar = newjar;
@@ -263,33 +350,43 @@ bool Createcookie(uint32_t id, uint32_t value)
 	jar[(cookies_used<<1)-1] = value;
 	jar[(cookies_used<<1)+0] = 0;
 	jar[(cookies_used<<1)+1] = cookies_size;
-	return true;    
+    return E_OK;
 }
 
-void CreateVblHandler(uint32_t func) {
+
+int16_t CreateVblHandler(uint32_t func) {
     uint32_t* pfnew = 0;
     uint32_t* pfold = *((uint32_t**)0x456);
     uint16_t max = *((uint16_t*)0x454);
     uint16_t i;
+    /* find free vblqueue entry */
     for (i=0; i<max; i++) {
         if (pfold[i] == 0) {
             pfold[i] = func;
-            return;
+            return E_OK;
         }
     }
+    /* grow queue */
     pfnew = (uint32_t*)Mxalloc(4L * max * 2, 3);
+    if (!pfnew) {
+        return ENSMEM;
+    }
     memset(pfnew, 0, 4L * max * 2);
     memcpy(pfnew, pfold, 4L * max);
     pfnew[max] = func;
     *((uint32_t**)0x456) = pfnew;
+    return E_OK;
 }
 
-bool driver_init(void) {
+
+int16_t driver_init(void) {
+    int16_t err;
     int16_t seekrate = 0;
     int16_t nflops = *((int16_t*)0x4a6);
     uint32_t drvbits = *((uint32_t*)0x4c2);
 
-#if DEBUG_DEV_TEMP
+    /* find free drive letter */
+#if DEBUG_DEV
     floppy_devno = 0;
     drvbits |= (1 << floppy_devno);
     nflops = 1;
@@ -299,7 +396,7 @@ bool driver_init(void) {
     } else if ((drvbits & 2) == 0) {
         floppy_devno = 1;
     } else {
-        return -1;
+        return EMOUNT;
     }
     drvbits |= (1 << floppy_devno);
     nflops++;
@@ -308,7 +405,12 @@ bool driver_init(void) {
     /* install variables */
     *((uint32_t*)0x4c2) = drvbits;
     *((int16_t*)0x4a6) = nflops;
-    *((int16_t*)0x440) = seekrate;
+
+    /* there is only one seekrate variable in tos */
+    /* assume we own it if we're the first floppy */
+    if (floppy_devno == 0) {
+        *((int16_t*)0x440) = seekrate;
+    }
 
     /* install xbios */
     xbios_old = *((uint32_t*)0xb8);
@@ -323,119 +425,71 @@ bool driver_init(void) {
     *((uint32_t*)0x47e) = (uint32_t)&hdv_new_mediach;
 
     /* install cookie */
-    Createcookie(0x5F464443UL, 0x01464443UL); /* '_FDC' = 0x01,'FDC' (1.44MB support) */
+    err = Createcookie(0x5F464443UL, 0x01464443UL); /* '_FDC' = 0x01,'FDC' (1.44MB support) */
+    if (err != E_OK) {
+        return err;
+    }
 
     /* install vbl handler */
-    CreateVblHandler((uint32_t)fdc_update);
+    err = CreateVblHandler((uint32_t)fdc_update);
+    if (err != E_OK) {
+        return err;
+    }
 
-    return true;
+    return err;
 }
 
 
+/*-------------------------------------------------------------------------------
+    program
+-------------------------------------------------------------------------------*/
 
 long super_main(int args, char* argv[]) {
-    (void)args; (void)argv;
+    long err; (void)args; (void)argv;
 
-    if (!fdc_init()) {
-        return -1;
+    err = fdc_init();
+    if (err != E_OK) {
+        return err;
     }
 
-    if (!driver_init()) {
-        return -1;
+    err = driver_init();
+    if (err != E_OK) {
+        return err;
     }
 
-    return 0;
+    return (long)E_OK;
 }
+
 
 int main(int args, char* argv[]) {
-    int ret = (int)Supmain(args, argv, super_main);
-    if (ret == 0) {
-        Ptermres(_PgmSize, 0);
+    int err;
+
+    
+    Cconws("\33p ISA Floppy driver \33q\r\n");
+    err = (int)Supmain(args, argv, super_main);
+
+    switch(err) {
+        case E_OK:
+            {
+                char tmp[] = "Drive: A\r\n\r\n";
+                tmp[7] += floppy_devno;
+                Cconws(tmp);
+                Ptermres(_PgmSize, 0);
+            }
+            break;
+        case EUNDEV:
+            Cconws("Err: Device not found");
+            break;
+        case EMOUNT:
+            Cconws("Err: No free drive letter");
+            break;
+        case ENSMEM:
+            Cconws("Err: Out of memory");
+            break;
+        default:
+            Cconws("Err: Unknown");
+            break;
     }
-    return ret;
+    Cconws("\r\n\r\n");
+    return err;
 }
-
-
-
-
-
-/*
-    cookie:
-        FDC (1.44MB support)
-
-    xbios:
-        Flopfmt
-        Floprate
-        Floprd
-        Flopver
-        Flopwr
-        Protobt
-
-    bios:
-        Drvmap
-        Getbpb
-        Mediach
-        Rwabs
-
-
-    variables:
-        _dskbufp     LONG 0x4c6
-            Pointer to a 1024-byte buffer for reading and writing to floppy disks or hard drives (e.g. at boot-attempts).
-            The pointer is also used by the VDI.
-
-        _drvbits     LONG 0x4c2
-            Bit-table for the mounted drives of the BIOS. Valid are:        
-            Bit-0 = Drive A
-            Bit-1 = Drive B
-
-        _frclock     LONG 0x466
-            Similar to _vbclock, with the difference that the count is not halted by vblsem.
- 
-        _vbclock     LONG 0x462
-            Number of vertical blanks processed since the last reset.            
-
-        _fverify     WORD 0x444
-            Determines whether the BIOS should perform a Verify via Rwabs when writing to floppy disks, or not. Valid are:
-            0 = No Verify
-            Normally the Verify is switched on.
-
-        _nflops      WORD 0x4a6
-            Number of mounted floppy disk drives.
-
-
-        flock        WORD 0x43e
-            If there is a non-zero value here, then you must not access the DMA chip.
-            So DMA device drivers must first inquire whether the DMA chip has been blocked and set flock themselves when they start work.
-
-        hdv_bpb      LONG 0x472
-            Vector to routine that establishes the BPB of a BIOS drive. The device number is passed on the stack (4(sp)).            
-
-        hdv_init     LONG 0x46a
-            Vector to the initialisation routines for the floppy disk drives.
-            It is read out before reading the boot sectors, and hence can be altered only by reset-resident programs or ROM-modules.
-            The tasks include:
-                Initialisation of the diskette drives (_nflops is set accordingly).
-                Transfer of seekrate to the internal variables of the BIOS.            
-
-        hdv_mediach  LONG 0x47e
-            Vector to routine for establishing the media-change status of a BIOS drive.
-            The BIOS device number is passed on the stack (4(sp)).            
-
-        hdv_rw       LONG 0x476
-            Vector to the routine for reading and writing of blocks to BIOS drives.
-            The same parameters are passed on the stack as for Rwabs (starting with 4(sp); rwflag).        
-
-
-        seekrate     WORD 0x440
-            Seek rate for the two floppy drives. Valid are:
-            0 =  6 ms
-            1 = 12 ms
-            2 =  2 ms
-            3 =  3 ms
-            The variable is read out straight after system start by the BIOS, and ignored afterwards.
-            For altering the seek rate that is used actually, one has to use the XBIOS function Floprate.        
-
-
-
-
-*/

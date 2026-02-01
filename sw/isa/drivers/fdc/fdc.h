@@ -21,6 +21,21 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <atarierr.h>
+
+#ifndef DEBUG
+#define DEBUG           0
+#endif
+#ifndef READONLY
+#define READONLY        1
+#endif
+
+#ifndef DEBUG_PRINT
+#define DEBUG_PRINT     (DEBUG && 1)
+#endif
+#ifndef DEBUG_DEV
+#define DEBUG_DEV       (DEBUG && 0)
+#endif
 
 typedef struct {
     uint16_t bps;
@@ -36,17 +51,23 @@ typedef struct {
     uint16_t nhid;
 } fdc_bpb_t;
 
-bool fdc_init(void);
+int16_t fdc_init(void);
 void fdc_update(void);
 
-bool fdc_changed(void);
-bool fdc_getbpb(fdc_bpb_t* bpb);
+int16_t fdc_changed(void);
+int16_t fdc_getbpb(fdc_bpb_t* bpb);
+int16_t fdc_seekrate(int16_t rate);
 
-bool fdc_read_lba(uint8_t* buf, uint8_t count, uint32_t lba);
-bool fdc_write_lba(uint8_t* buf, uint8_t count, uint32_t lba);
+int16_t fdc_read_lba(uint8_t* buf, uint8_t count, uint32_t lba);
+int16_t fdc_write_lba(uint8_t* buf, uint8_t count, uint32_t lba);
 
-bool fdc_read_chs(uint8_t* buf, uint8_t count, uint8_t c, uint8_t h, uint8_t s);
-bool fdc_write_chs(uint8_t* buf, uint8_t count, uint8_t c, uint8_t h, uint8_t s);
+int16_t fdc_read_chs(uint8_t* buf, uint8_t count, uint8_t c, uint8_t h, uint8_t s);
+int16_t fdc_write_chs(uint8_t* buf, uint8_t count, uint8_t c, uint8_t h, uint8_t s);
+
+#if DEBUG_PRINT
+extern void dprintf(char* s, ...);
+extern void ddump(uint8_t* buf, uint32_t cnt);
+#endif
 
 
 #endif /* _FDC_H_ */

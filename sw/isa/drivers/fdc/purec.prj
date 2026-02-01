@@ -3,7 +3,6 @@ fdc.prg
 .C[-I..\..]
 .C[-I..\..\..\lib]
 .C[-E1 -M -P -Z -W2]
-.C[-DDEBUG=0]
 .S[-S]
 .L[-V]
 
