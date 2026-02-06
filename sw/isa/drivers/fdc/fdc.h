@@ -24,10 +24,16 @@
 #include <atarierr.h>
 
 #ifndef DEBUG
-#define DEBUG           0
+#define DEBUG               0
 #endif
 #ifndef READONLY
-#define READONLY        1
+#define READONLY            1
+#endif
+#ifndef DISABLE_FORMAT
+#define DISABLE_FORMAT      1
+#endif
+#ifndef IMPLIED_SEEK
+#define IMPLIED_SEEK        0
 #endif
 
 #ifndef DEBUG_PRINT
@@ -51,6 +57,13 @@ typedef struct {
     uint16_t nhid;
 } fdc_bpb_t;
 
+typedef struct {
+    uint8_t cyl;
+    uint8_t head;
+    uint8_t record;
+    uint8_t size;
+} fdc_fmt_t;
+
 int16_t fdc_init(void);
 void fdc_update(void);
 
@@ -63,6 +76,8 @@ int16_t fdc_write_lba(uint8_t* buf, uint8_t count, uint32_t lba);
 
 int16_t fdc_read_chs(uint8_t* buf, uint8_t count, uint8_t c, uint8_t h, uint8_t s);
 int16_t fdc_write_chs(uint8_t* buf, uint8_t count, uint8_t c, uint8_t h, uint8_t s);
+
+int16_t fdc_format(fdc_fmt_t* fmt, uint8_t count, uint8_t c, uint8_t h);
 
 #if DEBUG_PRINT
 extern void dprintf(char* s, ...);

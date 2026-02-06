@@ -241,12 +241,79 @@ int16_t xb_flopfmt(xb_flopfmt_args* args) {
     The function returns 0 when no error has occurred in formatting the track.
     Otherwise a NULL-terminated list of the faulty sectors will be written as a int16_t array into the buffer buf.
     */
+#if (READONLY || DISABLE_FORMAT)
     (void)args;
-#if READONLY
     return EWRPRO;
 #else   
-    /* todo */
-    return EWRPRO;
+    int16_t err, i;
+    int16_t interlv;
+    int16_t interlv_offs;
+    int16_t interlv_used;
+    fdc_fmt_t* data = (fdc_fmt_t*)args->buf;
+    uint16_t* skew = 0;
+
+    if (args->magic != 0x87654321UL) {
+        return EBADSF;
+    }
+
+    interlv = args->interlv;
+    if (args->interlv >= 0) {
+        interlv %= args->spt;
+        interlv = (interlv == 0) ? 1 : interlv;
+        interlv_offs = -interlv;
+        interlv_used = 0;
+    } else {
+        skew = (uint16_t*)args->filler;
+    }
+
+    for (i=0; i<args->spt; i++) {
+        data[i].cyl = args->trackno;
+        data[i].head = args->sideno;
+        data[i].size = 2; /* 512 bytes per sector */
+        if (skew) {
+            data[i].record = *skew++;
+        } else {
+            interlv_offs = ((interlv_offs + interlv) % args->spt);
+            while (interlv_used & (1L << interlv_offs)) {
+                interlv_offs = ((interlv_offs + 1) % args->spt);
+            }
+            data[i].record = (interlv_offs + 1);
+            interlv_used |= (1L << interlv_offs);
+        }
+    }
+
+    for (i=0; i<args->spt; i++) {
+        dprintf("%d: %d %d %d %d\n", i, data[i].cyl, data[i].head, data[i].record, data[i].size);
+    }
+
+    /* format track */
+    #if DEBUG_PRINT
+    dprintf(" format %d %d %d\n", args->spt, args->trackno, args->sideno);
+    #endif
+    err = fdc_format(data, args->spt, args->trackno, args->sideno);
+    #if DEBUG_PRINT
+    dprintf(" format err = %d\n", err);
+    #endif
+    if (err) {
+        return err;
+    }
+
+    /* verify track */
+/*
+    #if DEBUG_PRINT
+    dprintf("verify\n");
+    #endif
+    err = Flopver(args->buf, 0L, args->devno, 1, args->trackno, args->sideno, args->spt);
+    #if DEBUG_PRINT
+    dprintf("verify err = %d\n", err);
+    #endif
+    if (err) {
+        return err;
+    } else if (*((int16_t*)args->buf) != 0) {
+        return EBADSF;
+    }
+*/        
+    return E_OK;
 #endif    
 }
 

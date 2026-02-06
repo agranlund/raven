@@ -68,6 +68,9 @@ static isa_t* bus;
 #define TIMEOUT_RW              MS_TO_TICKS(5000)
 #define TIMEOUT_MOTOR           MS_TO_TICKS(3000)
 
+#define TIMEOUT_RW_NOINTS       10000000UL      /* number of isa bus reads */
+
+
 #define FDC_REG_DOR             0x2
 #define FDC_REG_MSR             0x4
 #define FDC_REG_FIFO            0x5
@@ -432,27 +435,22 @@ static int16_t seek(uint8_t cyl) {
 static int16_t readwrite(bool read, uint8_t* ptr, uint8_t count, uint8_t cyl, uint8_t head, uint8_t sector) {
     uint8_t buf[9];
     uint8_t end = sector + count - 1;
-    uint16_t len = 512 * count;
-    uint16_t cnt = 0;
-
-#if FDC_DIRECT_ISA_ACCESS
-    volatile uint8_t* p_msr  = (volatile uint8_t*) (bus->iobase + fdc->port + FDC_REG_MSR);
-    volatile uint8_t* p_fifo = (volatile uint8_t*) (bus->iobase + fdc->port + FDC_REG_FIFO);
-#endif
+    uint8_t gap = (fdc->drive.spinrate >= 500) ? 0x1B : 0x2A;
 
     buf[0] = read ? FDC_CMD_READ_SECTOR : FDC_CMD_WRITE_SECTOR;
     buf[1] = (head << 2) | 0;   /* drive number */
-    buf[2] = cyl;
-    buf[3] = head;
-    buf[4] = sector;
-    buf[5] = 2;         /* 512 bytes per sector */
-    buf[6] = end;
-    buf[7] = 0x1B;      /* standard 3.5" gap length */
-    buf[8] = 0xff;      /* unused with 512 bytes per sector */
+    buf[2] = cyl;               /* track */
+    buf[3] = head;              /* side */
+    buf[4] = sector;            /* first sector */
+    buf[5] = 2;                 /* 512 bytes per sector */
+    buf[6] = end;               /* last sector */
+    buf[7] = gap;               /* gap length */
+    buf[8] = 0xff;              /* unused with 512 bytes per sector */
 
     #if DEBUG_PRINT
-    dprintf("readwrite %d %08lx %d %d %d %d\n", read, (uint32_t)ptr, count, cyl, head, sector);
+    dprintf("readwrite %d %08lx %d %d %d %d %02x\n", read, (uint32_t)ptr, count, cyl, head, sector, buf[7]);
     #endif
+
     if (!(fdc->flags & FDC_FLAG_AUTOSEEK)) {
         if (seek(cyl) != E_OK) {
             #if DEBUG_PRINT
@@ -462,76 +460,95 @@ static int16_t readwrite(bool read, uint8_t* ptr, uint8_t count, uint8_t cyl, ui
         }
     }
 
-    /* command phase */
-    if (data_write(buf, 9) != 9) {
-        return EUNDEV;
-    }
+    /* this stuff is timing critical and interrupts needs to be disabled during pio transfer */
+    {
+        volatile register uint8_t* p_msr  = (volatile uint8_t*) (bus->iobase + fdc->port + FDC_REG_MSR);
+        volatile register uint8_t* p_fifo = (volatile uint8_t*) (bus->iobase + fdc->port + FDC_REG_FIFO);
+        register uint8_t* p = ptr;
 
-    /* execute phase */
-    if (read) {
-        if (wait_msr(0xB0, 0xB0, TIMEOUT_INT) == E_OK) {
-            uint32_t timeout = timer_get();
-            uint16_t sr = DisableInterrupts();
-            while (cnt < len) {
-                #if FDC_DIRECT_ISA_ACCESS
-                uint8_t msr = *p_msr;
-                #else
-                uint8_t msr = reg_read(FDC_REG_MSR);
+        register int16_t remain = (512 * count) - 1;
+        register uint32_t to = TIMEOUT_RW_NOINTS;
+        register uint32_t tm = to;
+        register uint16_t sr;
+
+        if (read)
+        {
+            /* command phase */
+            if (data_write(buf, 9) != 9) {
+                #if DEBUG_PRINT
+                dprintf("sector read cmd error, msr = %02x\n", *p_msr);
                 #endif
-                if (!(msr & FDC_MSR_DMA)) {
-                    break;
+                return EUNDEV;
+            }
+
+            /* keep interupts enabled while waiting for very first byte */
+            if (wait_msr(0xF0, 0xF0, TIMEOUT_RW) != E_OK) {
+                #if DEBUG_PRINT
+                dprintf("sector read wait error, msr = %02x\n", *p_msr);
+                #endif
+                return EUNDEV;
+            }
+
+            /* disable interrupts for remainder of the transfer */
+            *p++ = *p_fifo;
+            sr = DisableInterrupts();
+            while (remain) {
+                while (tm) {
+                    if (((*p_msr) & 0xF0) == 0xF0) {
+                        *p++ = *p_fifo;
+                        goto ok1;
+                    }
+                    tm--;
                 }
-                if (msr & 0x80) {
-                    #if FDC_DIRECT_ISA_ACCESS
-                    ptr[cnt++] = *p_fifo;
-                    #else
-                    ptr[cnt++] = reg_read(FDC_REG_FIFO);
-                    #endif
-                }
-                if (timer_elapsed(timeout) > TIMEOUT_RW) {
-                    #if DEBUG_PRINT
-                    dprintf(" timeout\n");
-                    #endif
-                    break;
-                }
+                RestoreInterrupts(sr);
+                #if DEBUG_PRINT
+                dprintf("sector read exec error, msr = %02x, remain = %d\n", *p_msr, remain);
+                #endif
+                return EUNDEV;
+            ok1:
+                tm = to;
+                remain--;
             }
             RestoreInterrupts(sr);
         }
-    } else {
-        if (wait_msr(0xF0, 0xF0, TIMEOUT_INT) == E_OK) {
-            uint32_t timeout = timer_get();
-            uint16_t sr = DisableInterrupts();
-            while (cnt < len) {
-                #if FDC_DIRECT_ISA_ACCESS
-                uint8_t msr = *p_msr;
-                #else
-                uint8_t msr = reg_read(FDC_REG_MSR);
+        else
+        {
+            /* command phase */
+            if (data_write(buf, 9) != 9) {
+                #if DEBUG_PRINT
+                dprintf("sector write cmd error, msr = %02x\n", *p_msr);
                 #endif
-                if (!(msr & FDC_MSR_DMA)) {
-                    break;
-                }
-                if (msr & 0x80) {
-                    #if FDC_DIRECT_ISA_ACCESS
-                    *p_fifo = ptr[cnt++];
-                    #else
-                    reg_write(FDC_REG_FIFO, ptr[cnt++]);
-                    #endif
-                }
-                if (timer_elapsed(timeout) > TIMEOUT_RW) {
-                    #if DEBUG_PRINT
-                    dprintf(" timeout\n");
-                    #endif
-                    break;
-                }
+                return EUNDEV;
             }
-            RestoreInterrupts(sr);
+            if (wait_msr(0xF0, 0xB0, TIMEOUT_RW) != E_OK) {
+                #if DEBUG_PRINT
+                dprintf("sector write wait error, msr = %02x\n", *p_msr);
+                #endif
+                return EUNDEV;
+            }
+            /* execute phase */
+            *p_fifo = *p++;
+            DisableInterrupts();
+            while (remain) {
+                while (tm) {
+                    if (((*p_msr) & 0xF0) == 0xB0) {
+                        *p_fifo = *p++;
+                        goto ok2;
+                    }
+                    tm--;
+                }
+                RestoreInterrupts(sr);
+                #if DEBUG_PRINT
+                dprintf("sector write exec error, msr = %02x, remain = %d\n", *p_msr, remain);
+                #endif
+                return EUNDEV;
+            ok2:
+                tm = to;
+                remain--;
+            }
         }
+        RestoreInterrupts(sr);
     }
-
-    /* todo: we need to verify status bytes in case something went wrong */
-    #if DEBUG_PRINT
-    dprintf(" res = %02x %02x %02x %02x %02x %02x %02x\n", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6]);
-    #endif
 
     /* result phase */
     if (data_read(buf, 7) != 7) {
@@ -540,6 +557,11 @@ static int16_t readwrite(bool read, uint8_t* ptr, uint8_t count, uint8_t cyl, ui
         #endif
         return EUNDEV;
     }
+
+    /* todo: more result verifications */
+    #if DEBUG_PRINT
+    dprintf(" res = %02x %02x %02x %02x %02x %02x %02x\n", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6]);
+    #endif
 
     if (buf[0] & (1 << 4)) {    /* drive fault */
         #if DEBUG_PRINT
@@ -566,13 +588,122 @@ static int16_t readwrite(bool read, uint8_t* ptr, uint8_t count, uint8_t cyl, ui
         return EUNDEV;
     }
 
+    return E_OK;
+}
+
+static int16_t format(fdc_fmt_t* fmt, uint8_t count, uint8_t cyl, uint8_t head) {
+    uint8_t buf[9];
+    uint8_t gap = (count >= 13) ? 0x1B : 0x2A;
+
+    buf[0] = FDC_CMD_FORMAT_TRACK;
+    buf[1] = (head << 2) | 0;   /* drive number */
+    buf[2] = 2;                 /* 512 bytes per sector */
+    buf[3] = count;             /* sectors per track */
+    buf[4] = gap;               /* gap length */
+    buf[5] = 0xE5;              /* filler byte */
+    buf[6] = 0x00;              /* reserved */
+    buf[7] = 0x00;              /* reserved */
+    buf[8] = 0x00;              /* reserved */
+
+
+    #if DEBUG_PRINT
+    dprintf(" cmd = %02x %02x %02x %02x %02x %02x\n", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
+    dprintf("format %d %d %d\n", count, cyl, head);
+    #endif
+    if (!(fdc->flags & FDC_FLAG_AUTOSEEK)) {
+        if (seek(cyl) != E_OK) {
+            #if DEBUG_PRINT
+            dprintf("seek fail\n");
+            #endif
+            return E_SEEK;
+        }
+    }
+
+    /* this stuff is timing critical and interrupts needs to be disabled during pio transfer */
+    {
+        volatile register uint8_t* p_msr  = (volatile uint8_t*) (bus->iobase + fdc->port + FDC_REG_MSR);
+        volatile register uint8_t* p_fifo = (volatile uint8_t*) (bus->iobase + fdc->port + FDC_REG_FIFO);
+        register uint8_t* p = (uint8_t*)fmt;
+
+        register int16_t remain = count;
+        register uint32_t to = TIMEOUT_RW_NOINTS;
+        register uint32_t tm = to;
+        register uint16_t sr = 0;
+
+        /* command phase */
+        if (data_write(buf, 9) != 9) {
+            #if DEBUG_PRINT
+            dprintf("track write cmd error, msr = %02x\n", *p_msr);
+            #endif
+            return EUNDEV;
+        }
+
+        /* execute phase */
+        sr = DisableInterrupts();
+        while (remain) {
+            while (tm) {
+                if (((*p_msr) & 0xF0) == 0xB0) {
+                    *p_fifo = *p++;
+                    *p_fifo = *p++;
+                    *p_fifo = *p++;
+                    *p_fifo = *p++;
+                    goto ok1;
+                }
+                tm--;
+            }
+            RestoreInterrupts(sr);
+            #if DEBUG_PRINT
+            dprintf("sector read exec error, msr = %02x, remain = %d\n", *p_msr, remain);
+            #endif
+            return EUNDEV;
+        ok1:
+            tm = to;
+            remain--;
+        }
+        RestoreInterrupts(sr);
+    }
+
+
+    if (data_read(buf, 7) != 7) {
+        #if DEBUG_PRINT
+        dprintf(" err (result)\n");
+        #endif
+        return EUNDEV;
+    }
+
+    #if DEBUG_PRINT
+    dprintf(" res = %02x %02x %02x %02x %02x %02x %02x\n", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6]);
+    #endif
+
+    if ((buf[0] & 0xC0) != 0x00) {
+        #if DEBUG_PRINT
+        dprintf("err: %02x %02x %02x\n", buf[0], buf[1], buf[2]);
+        #endif
+        return EUNDEV;
+    }
+
+#if 0    
+    if (buf[0] & (1 << 4)) {    /* drive fault */
+        #if DEBUG_PRINT
+        dprintf("err: %02x %02x %02x\n", buf[0], buf[1], buf[2]);
+        #endif
+        return EUNDEV;
+    }
+
+    if (buf[1] != 0x80) {           /* end in polling mode, no errors */
+        #if DEBUG_PRINT
+        dprintf("err: %02x %02x %02x\n", buf[0], buf[1], buf[2]);
+        #endif
+        return EUNDEV;
+    }
+
     if (cnt != len) {
         #if DEBUG_PRINT
         dprintf(" cnt error %d / %d\n", cnt, len);
         #endif
         return EUNDEV;
     }
-
+#endif
     return E_OK;
 }
 
@@ -597,6 +728,7 @@ static int16_t read_bpb(fdc_bpb_t* bpb) {
     bpb->nhid = get_le16(secbuf, 0x1c);
     return E_OK;
 }
+
 
 /*-------------------------------------------------------------------------------
     mid-level controller functions
@@ -642,12 +774,12 @@ static int16_t controller_configure(void) {
 
     /* configure it */
     buf[0] = FDC_CMD_CONFIGURE;
-    buf[1] = 0;             /* reserved */
-    buf[2] =    (1<<6) |    /* implied seek enable */
-                (0<<5) |    /* fifo enable */
-                (0<<4) |    /* drive polling on */
-                8;          /* fifo threshold */
-    buf[3] = 0;             /* precompensation */
+    buf[1] = 0;                     /* reserved */
+    buf[2] =    (IMPLIED_SEEK<<6) | /* implied seek disabled */
+                (0<<5) |            /* fifo enable */
+                (0<<4) |            /* drive polling on */
+                8;                  /* fifo threshold */
+    buf[3] = 0; /* precompensation */
     if (data_write(buf, 4) != 4) { return EUNDEV; }
 
     /* lock the settings */
@@ -655,10 +787,12 @@ static int16_t controller_configure(void) {
     if (data_write(buf, 1) != 1) { return EUNDEV; }
     if (data_read(buf, 1) != 1) { return EUNDEV; }
     if (buf[0] == 0x10) {
+#if IMPLIED_SEEK
         #if DEBUG_PRINT
         dprintf("autoseek\n");
         #endif
         fdc->flags |= FDC_FLAG_AUTOSEEK;
+#endif        
     }
     return E_OK;
 }
@@ -744,11 +878,17 @@ static int16_t fdc_begin(void) {
 
             err = specify(finfo->spinrate, 0, 0, 0);
             if (err != E_OK) {
+                #if DEBUG_PRINT
+                dprintf("specify fail\n");
+                #endif
                 return err;
             }
 
             err = calibrate();
             if (err != E_OK) {
+                #if DEBUG_PRINT
+                dprintf("calibrate fail\n");
+                #endif
                 return err;
             }
             
@@ -757,6 +897,9 @@ static int16_t fdc_begin(void) {
                 found = finfo;
                 break;
             } else if (err != EMEDIA) {
+                #if DEBUG_PRINT
+                dprintf("read_id err %d\n", err);
+                #endif
                 return err;
             }
         }
@@ -776,6 +919,10 @@ static int16_t fdc_begin(void) {
         dprintf("found: %d %d %d\n", fdc->disk.hpc, fdc->disk.spt, fdc->disk.tps);
         #endif
 
+        /* clear disk changed flag */
+        seek(79);
+        seek(0);
+
         /* read bootsector and parse bpb */
         err = read_bpb(&bpb);
         if (err != E_OK) {
@@ -789,10 +936,6 @@ static int16_t fdc_begin(void) {
         #if DEBUG_PRINT
         dprintf("T:%d S:%d H:%d\n", fdc->disk.tps, fdc->disk.spt, fdc->disk.hpc);
         #endif
-
-        /* clear disk changed flag */
-        seek(79);
-        seek(0);
     }
 
     return E_OK;
@@ -914,6 +1057,7 @@ done:
 /*-------------------------------------------------------------------------------
     read/write
 -------------------------------------------------------------------------------*/
+
 static int16_t fdc_readwrite_sector(bool read, uint8_t* buf, uint8_t cyl, uint8_t head, uint8_t sec) {
     int16_t err, retry;
     for (retry = FDC_RETRIES; retry >= 0; retry--) {
@@ -991,6 +1135,70 @@ int16_t fdc_read_lba(uint8_t* buf, uint8_t count, uint32_t lba) { return fdc_rea
 int16_t fdc_write_lba(uint8_t* buf, uint8_t count, uint32_t lba) { return fdc_readwrite_lba(false, buf, count, lba); }
 int16_t fdc_read_chs(uint8_t* buf, uint8_t count, uint8_t c, uint8_t h, uint8_t s) { return fdc_readwrite_chs(true, buf, count, c, h, s); }
 int16_t fdc_write_chs(uint8_t* buf, uint8_t count, uint8_t c, uint8_t h, uint8_t s) { return fdc_readwrite_chs(false, buf, count, c, h, s); }
+
+
+/*-------------------------------------------------------------------------------
+    format
+-------------------------------------------------------------------------------*/
+int16_t fdc_format(fdc_fmt_t* fmt, uint8_t count, uint8_t c, uint8_t h) {
+    uint16_t spinrate;
+    int16_t err = E_OK;
+
+    fdc_lock();
+
+    spinrate = (count >= 13) ? 500 : 250;
+    if (spinrate != fdc->drive.spinrate) {
+        controller_disable();
+    }
+
+    if ((dor_read() & FDC_DOR_MOTOR0) == 0) {
+        err = controller_enable();
+        if (err != E_OK) {
+            goto done;
+
+        }
+        err = motor_on();
+        if (err != E_OK) {
+            goto done;
+        }
+
+        err = specify(spinrate, 0, 0, 0);
+        if (err != E_OK) {
+            goto done;
+        }
+        err = calibrate();
+        if (err != E_OK) {
+            return err;
+        }
+        seek(79);
+        seek(0);
+    }
+
+
+    err = format(fmt, count, c, h);
+    if (err != E_OK) {
+        goto done;
+    }
+
+    /* update disk geometry */
+    if (c == 0) {
+        fdc->disk.valid = true;
+        fdc->disk.changed = false;
+        fdc->drive.spinrate = spinrate;
+        fdc->disk.spt = count;
+        fdc->disk.hpc = (h + 1);
+        fdc->disk.tps = (c + 1);
+    } else {
+        fdc->disk.tps = (c + 1);
+    }
+
+done:
+    if (err != E_OK) {
+        controller_reset();
+    }
+    fdc_unlock();
+    return err;
+}
 
 
 /*-------------------------------------------------------------------------------
