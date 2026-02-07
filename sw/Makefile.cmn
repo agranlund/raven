@@ -59,7 +59,7 @@ SFLAGS = $(OPTS) $(INCLUDE)
 CFLAGS = $(OPTS) $(DEFS) $(INCLUDE) \
 	-I$(LIBCMINI_DIR)/include \
 	-std=c99 -fomit-frame-pointer -fno-exceptions -ffast-math \
-	-Wall -Wno-multichar -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unused-function -Wno-format
+	-Wall -Wno-multichar -Wno-unused -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unused-function -Wno-format
 
 LFLAGS = -L$(LIBCMINI_DIR)/build -nodefaultlibs -nostdlib -nostartfiles -lgcc -lcmini -Wl,-Map,$(MAPFILE)
 
