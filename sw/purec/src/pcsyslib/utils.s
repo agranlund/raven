@@ -6,6 +6,12 @@
                 GLOBL   RestoreInterrupts
                 GLOBL   SetIPL
 
+                GLOBL   FlushCache
+                GLOBL   FlushCache020
+                GLOBL   FlushCache030
+                GLOBL   FlushCache040
+                GLOBL   FlushCache060
+
                 TEXT
 
                 bra.b   SupmainGo
@@ -81,3 +87,32 @@ SetIPL:
     and.w   #$0700,d0
     move.w  d1,sr       ; set ipl
     rts                 ; return old
+
+; void FlushCache(long cpu)
+FlushCache:
+    cmp.w   #20,d0
+    beq.b   FlushCache020
+    cmp.w   #30,d0
+    beq.b   FlushCache030
+    cmp.w   #40,d0
+    beq.b   FlushCache040
+    cmp.w   #60,d0
+    beq.b   FlushCache060
+    rts
+
+FlushCache020:
+FlushCache030:
+    nop
+    .dc.l   0x4e7a0002  ; movec cacr,d0
+    or.w    #0x0808,d0  ; instruction + data
+    nop
+    .dc.l   0x4e7b0002  ; movec d0,cacr
+    nop
+    rts
+
+FlushCache040:
+FlushCache060:
+    nop
+    .dc.w 0xf4f8        ; cpusha bc
+    nop
+    rts

@@ -17,6 +17,11 @@ extern uint16_t SetIPL(uint16_t ipl);
 extern uint16_t DisableInterrupts(void);
 extern void     RestoreInterrupts(uint16_t sr);
 static void     nop(void) 0x4e71;
+static void     FlushCache(int32_t cpu);
+static void     FlushCache020(void);
+static void     FlushCache030(void);
+static void     FlushCache040(void);
+static void     FlushCache060(void);
 
 #elif defined(__GNUC__)
 
@@ -104,6 +109,45 @@ static inline uint16_t SetIPL(uint16_t ipl) {
 static inline uint16_t DisableInterrupts(void) { return SetIPL(0x0700); }
 static inline void RestoreInterrupts(uint16_t sr) { SetIPL(sr); }
 static inline void nop() { __asm__ __volatile__( "nop\n\t" : : : ); }
+
+static inline void FlushCache020(void) {
+	__asm__ volatile                \
+	(                               \
+        ".dc.l  0x4e7a0002\n\t"     \
+        "or.w   #0x0808,%%d0\n\t"   \
+        ".dc.l  0x4e7b0002\n\t"     \
+	: : : "d0", "cc", "memory");
+}
+static inline void FlushCache030(void) {
+    FlushCache020();
+}
+static inline void FlushCache040(void) {
+	__asm__ volatile                \
+	(                               \
+        "nop\n\t"                   \
+        ".dc.w 0xf4f8\n\t"          \
+        "nop\n\t"                   \
+	: : : "cc", "memory");
+}
+static inline void FlushCache060(void) {
+    FlushCache040();
+}
+static inline void FlushCache(long cpu) {
+    switch (cpu) {
+        case 20:
+            FlushCache020();
+            break;
+        case 30:
+            FlushCache030();
+            break;
+        case 40:
+            FlushCache040();
+            break;
+        case 60:
+            FlushCache060();
+            break;
+    }
+}
 
 #endif /* __GNUC__*/
 
