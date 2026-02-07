@@ -284,8 +284,10 @@ long supermain()
             Cconws("\33q");
 
             /* use small console font */
+            /*
             font_small();
             screen_clear();
+            */
 		} else {
 			screen_restore();
 		}
