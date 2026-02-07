@@ -45,7 +45,7 @@ int32_t cdecl getchar_new(void) {
 
 bool checkRomVersion(void) {
     if ((raven()->version & 0x00ffffffUL) < 0x00241226UL) {
-        printf("ROM version is too old\n");
+        Cconws("ROM version is too old\n");
         return false;
     }
     return true;
