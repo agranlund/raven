@@ -1,6 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+20260208:
+  rvnova:   WD90C33 blitter support
+  
 20260201:
   software: added ISA floppy disk driver
 
