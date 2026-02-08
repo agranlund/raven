@@ -46,11 +46,24 @@ ifeq ($(DCPU),)
 DCPU        = -m68060
 endif
 
-CFLAGS		= $(DEFS) \
-			$(DCPU) $(DOPT) -std=c17 -Wall -MMD -nostdinc \
-			-ffreestanding -fomit-frame-pointer -fno-common -fdata-sections -ffunction-sections \
-		   -I$(CC_INCLUDES) \
-		   -I$(SWDIR)/rom/mon -I$(SWDIR)/lib
+CFLAGS		=   $(CPU) \
+                $(DOPT) \
+                -DRAVEN_ROM \
+		        -std=c17 \
+		        -ffreestanding \
+		        -fomit-frame-pointer \
+		        -fno-common \
+		        -fdata-sections \
+		        -ffunction-sections \
+		        -Wall \
+		        -MMD \
+		        -nostdinc \
+                -I. \
+                -I$(SWDIR)/rom/mon \
+                -I$(SWDIR)/lib \
+		        -I$(CC_INCLUDES) \
+                #
+
 
 LDFLAGS		= -nolibc -nostartfiles -ffreestanding \
 		   -Wl,-Map,$@.map -T $(LDFILE)
