@@ -56,12 +56,14 @@ CFLAGS		=   $(CPU) \
 		        -fdata-sections \
 		        -ffunction-sections \
 		        -Wall \
+                -Wno-unused-function \
 		        -MMD \
 		        -nostdinc \
                 -I. \
                 -I$(SWDIR)/rom/mon \
                 -I$(SWDIR)/lib \
 		        -I$(CC_INCLUDES) \
+                #-save-temps \
                 #
 
 
