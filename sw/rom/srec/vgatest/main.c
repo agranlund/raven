@@ -119,21 +119,15 @@ static uint32_t vga_Addr(void) {
 /* tests                                                                        */
 /* ---------------------------------------------------------------------------- */
 
-static void testMode_13h() {
-
-    // 320x200x8bpp chunky
-    vga_SetMode(0x13);
-
+static void mode13h_testpic() {
     // screen off
     vga_WritePort(0x3c6, 0x00);
-
     // palette
     for (int i = 0; i < 64; i++) { vga_SetColor(i +   0, (i*4), 0, 0); }
     for (int i = 0; i < 64; i++) { vga_SetColor(i +  64, 0, (i*4), 0); }
     for (int i = 0; i < 64; i++) { vga_SetColor(i + 128, 0, 0, (i*4)); }
     for (int i = 0; i <  8; i++) { vga_SetColor(i + 192, (i*32), (i*32), (i*32)); }
     for (int i = 0; i < 56; i++) { vga_SetColor(i + 200, 0, 0, 0); }
-
     // test image
     volatile uint8_t *vram = (volatile uint8_t *)vga_membase;
     for (int y = 0; y < 200; y++) {
@@ -141,9 +135,44 @@ static void testMode_13h() {
             *vram++ = y;
         }
     }
+    vram = (volatile uint8_t *)vga_membase;
+    for (int x = 0; x < 320; x++) {
+        vram[x] = 199;
+        vram[x + (320*199)] = 199;
+    }
+    for (int y = 0; y < 200; y++) {
+        vram[y * 320] = 199;
+        vram[319 + (y*320)] = 199;
+    }
 
     // screen on
     vga_WritePort(0x3c6, 0xff);    
+}
+
+
+static void testMode_320x200x8bpp_chunky() {
+    vga_SetMode(0x13);
+    mode13h_testpic();
+}
+
+static void testMode_320x200x8bpp_chunky_60hz() {
+    vga_SetMode(0x13);
+    // vsync-, hsync-
+    vga_WritePort(0x3c2, vga_ReadPort(0x3cc) | 0xc0);
+    // unlock regs 0-7
+    vga_WritePort(0x3d4, 0x11);
+    vga_WritePort(0x3d5, vga_ReadPort(0x3d5) & 0x7f);
+    vga_WriteReg(0x3d4, 0x06, 0x0b);    // vertical total
+    vga_WriteReg(0x3d4, 0x07, 0x3e);    // overflow
+    vga_WriteReg(0x3d4, 0x10, 0xbc);    // vertical retrace start
+    vga_WriteReg(0x3d4, 0x11, 0x8c);    // vertical retrace end (lock 0-7)
+    vga_WriteReg(0x3d4, 0x12, 0x8f);    // vertical display enable end
+    vga_WriteReg(0x3d4, 0x15, 0x90);    // vertical blank start
+    vga_WriteReg(0x3d4, 0x16, 0x04);    // vertical blank end
+    mode13h_testpic();
+}
+
+static void testMode_320x200x8bpp_chunky_50hz() {
 }
 
 
@@ -225,8 +254,12 @@ void main() {
     printf("VGA_IO:  %x\n", vga_iobase);
     printf("VGA_MEM: %x\n", vga_membase);
 
-#if 1
-    testMode_13h();
+#if 0
+    testMode_320x200x8bpp_chunky();
+#elif 1
+    testMode_320x200x8bpp_chunky_60hz();
+#elif 0
+    testMode_320x200x8bpp_chunky_50hz();
 #else
     testMode_320x200x4bpp_planar_interleaved();
 #endif    
