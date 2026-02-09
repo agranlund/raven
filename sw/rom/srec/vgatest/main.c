@@ -243,6 +243,82 @@ static void testMode_640x200x4bpp_planar_interleaved() {
 }
 
 
+static void testMode_1280x720x8bpp_60hz() {
+
+    // WDC 1024x768
+    // assume card is physically jumpered for 70hz in this mode
+    vga_SetMode(0x60);
+
+    // WDC unlock WD90C30/31
+    if (0) {
+        vga_WritePort(0x3c4, 0x06);
+        vga_WritePort(0x3c5, 0x48 | (vga_ReadPort(0x3c5) & 0xef));
+    }
+    
+    // WDC PR5: unlock PR0-4
+    vga_WriteReg(0x3ce, 0x0f, 0x05);
+
+    // WDC PR3: unlock polarity and crtc
+    vga_WritePort(0x3ce, 0x0d);
+    vga_WritePort(0x3cf, vga_ReadPort(0x3cf) & 0x1c);    
+
+    int16_t hto = 1664;
+    int16_t hbs = 1280;
+    int16_t hbe = 1280 + 272;
+    int16_t hss = 1280 + 112;
+    int16_t hse = 1280 + 112 + 40;
+
+    int16_t vto = 750 - 2;
+    int16_t vde = 720 - 1;
+    int16_t vbs = 720;
+    int16_t vss = 723;
+
+    uint8_t ofl = 
+        (((vto & (1 << 8)) ? 1 : 0) << 0) |
+        (((vde & (1 << 8)) ? 1 : 0) << 1) |
+        (((vss & (1 << 8)) ? 1 : 0) << 2) |
+        (((vbs & (1 << 8)) ? 1 : 0) << 3) |
+        (1 << 4) |
+        (((vto & (1 << 9)) ? 1 : 0) << 5) |
+        (((vde & (1 << 9)) ? 1 : 0) << 6) |
+        (((vss & (1 << 9)) ? 1 : 0) << 7);
+
+
+    // vsync+, hsync+
+    vga_WritePort(0x3c2, vga_ReadPort(0x3cc) & 0x3f);
+
+    // unlock crtc
+    vga_WriteReg(0x3d4, 0x11, 0x05);
+
+    // horizontal
+    vga_WriteReg(0x3d4, 0x00, hto / 8);                     // htotal
+    vga_WriteReg(0x3d4, 0x01, (hbs / 8) - 1);               // hdisp end
+    vga_WriteReg(0x3d4, 0x02, (hbs / 8));                   // hblank start
+    vga_WriteReg(0x3d4, 0x03, ((hbe / 8) & 0x1f) | 0x80);   // hblank end
+    vga_WriteReg(0x3d4, 0x04, hss / 8);                     // hsync start
+    vga_WriteReg(0x3d4, 0x05, (hse / 8) & 0x1f);            // hsync end
+
+    // vertical
+    vga_WriteReg(0x3d4, 0x06, vto & 0xff);                  // vtotal
+    vga_WriteReg(0x3d4, 0x07, ofl);                         // overflow
+    vga_WriteReg(0x3d4, 0x10, vss & 0xff);                  // vsync start
+    vga_WriteReg(0x3d4, 0x12, vde & 0xff);                  // vdisp end
+    vga_WriteReg(0x3d4, 0x15, vbs & 0xff);                  // vblank start
+    vga_WriteReg(0x3d4, 0x16, (vto - 1) & 0xff);            // vblank end
+
+    // relock crtc
+    vga_WritePort(0x3d4, 0x11);
+    vga_WritePort(0x3d5, vga_ReadPort(0x3d5) | 0x80);
+
+    // WDC PR3: relock polarity and crtc
+    vga_WritePort(0x3ce, 0x0d);
+    vga_WritePort(0x3cf, vga_ReadPort(0x3cf) | 0xe3);
+
+    // WDC PR5: relock PR0-4
+    vga_WriteReg(0x3ce, 0x0f, 0x00);
+}
+
+
 void main() {
     rv = raven();
     printf("RAVEN:   %x\n", rv);
@@ -256,10 +332,12 @@ void main() {
 
 #if 0
     testMode_320x200x8bpp_chunky();
-#elif 1
+#elif 0
     testMode_320x200x8bpp_chunky_60hz();
 #elif 0
     testMode_320x200x8bpp_chunky_50hz();
+#elif 1
+    testMode_1280x720x8bpp_60hz();
 #else
     testMode_320x200x4bpp_planar_interleaved();
 #endif    
