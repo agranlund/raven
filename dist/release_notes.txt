@@ -1,6 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+20260209:
+  rvnova:   1280x720x8bpp for Cirrus and WDC
+
 20260208:
   rvnova:   WD90C33 blitter support
   
