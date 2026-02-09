@@ -229,4 +229,6 @@ extern void vga_setcolors(uint16_t index, uint16_t count, uint8_t* colors);
 extern void vga_getcolors(uint16_t index, uint16_t count, uint8_t* colors);
 extern void vga_enable_fastclear(bool on);
 
+extern void vga_1280x720_from_1024x768(void);
+
 #endif /* _EMULATOR_H_ */

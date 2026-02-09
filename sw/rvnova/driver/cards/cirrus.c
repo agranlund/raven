@@ -501,6 +501,23 @@ static void setaddr(uint32_t addr) {
 
 static bool setmode(mode_t* mode) {
     if (vga_setmode(mode->code)) {
+
+        /* custom 1280x720 mode */
+        if ((mode->width == 1280) && (mode->height == 720)) {
+
+            /* unlock extended sequences registers */
+            vga_WriteReg(0x3c4, 0x06, 0x12);
+            
+            /* set vclk3 to 75mhz */
+            vga_ModifyReg(0x3c4, 0x0e, 0x7f, 0x6e); /* N */
+            vga_ModifyReg(0x3c4, 0x1e, 0x3f, 0x2a); /* D */
+
+            /* select vclk3 */
+            vga_WritePort(0x3c2,  vga_ReadPort(0x3cc) | 0x0c);
+
+            vga_1280x720_from_1024x768();
+        }
+
         configure_framebuffer();
         if (cl_support_blitter()) {
             configure_blitter(mode);
@@ -601,6 +618,7 @@ static bool init(card_t* card, addmode_f addmode) {
         addmode( 640, 480,  8, 0, 0x101);   /*  8bpp */
         addmode( 800, 600,  8, 0, 0x103);
         addmode(1024, 768,  8, 0, 0x105);
+        addmode(1280, 720,  8, 0, 0x105);   /* (custom) */
         addmode(1280,1024,  8, 0, 0x107);
         addmode( 640, 480, 16, 0, 0x111);   /* 16bpp */
         addmode( 800, 600, 16, 0, 0x114);
@@ -625,21 +643,22 @@ static bool init(card_t* card, addmode_f addmode) {
         vgabios_SetHighRefreshRate(true);
 
         /* add bios videmodes*/
-        addmode_validated(addmode,  800, 600,  4, 0, 0x58);    /* 4bpp */
+        addmode_validated(addmode,  800, 600,  4, 0, 0x58); /* 4bpp */
         addmode_validated(addmode, 1024, 768,  4, 0, 0x5d);
         addmode_validated(addmode, 1024, 768,  4, 0, 0x5d);
         addmode_validated(addmode, 1280,1024,  4, 0, 0x6c);
-        addmode_validated(addmode,  640, 400,  8, 0, 0x5e);    /* 8bpp*/
+        addmode_validated(addmode,  640, 400,  8, 0, 0x5e); /* 8bpp*/
         addmode_validated(addmode,  640, 480,  8, 0, 0x5f);
         addmode_validated(addmode,  800, 600,  8, 0, 0x5c);
         addmode_validated(addmode, 1024, 768,  8, 0, 0x60);
+        addmode_validated(addmode, 1280, 720,  8, 0, 0x60); /* (custom) */
         addmode_validated(addmode, 1280,1024,  8, 0, 0x6d);
-        addmode_validated(addmode,  320, 200, 16, 0, 0x6f);    /* 16bpp */
+        addmode_validated(addmode,  320, 200, 16, 0, 0x6f); /* 16bpp */
         addmode_validated(addmode,  640, 480, 16, 0, 0x64);
         addmode_validated(addmode,  800, 600, 16, 0, 0x65);
         addmode_validated(addmode, 1024, 768, 16, 0, 0x74);
         addmode_validated(addmode, 1280,1024, 16, 0, 0x75);
-        addmode_validated(addmode,  320, 200, 24, 0, 0x70);    /* 24bpp */
+        addmode_validated(addmode,  320, 200, 24, 0, 0x70); /* 24bpp */
         addmode_validated(addmode,  640, 480, 24, 0, 0x71);
     }
 

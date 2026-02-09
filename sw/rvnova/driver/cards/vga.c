@@ -123,6 +123,52 @@ bool vga_setmode(uint16_t code) {
     return result;
 }
 
+void vga_1280x720_from_1024x768(void) {
+    uint16_t hto = 1664;
+    uint16_t hbs = 1280;
+    uint16_t hbe = 1280 + 272;
+    uint16_t hss = 1280 + 156;
+    uint16_t hse = 1280 + 156 + 40;
+
+    uint16_t vto = 750 - 2;
+    uint16_t vde = 720 - 1;
+    uint16_t vbs = 720;
+    uint16_t vss = 723;
+
+    uint8_t ofl = 
+        (((vto & (1 << 8)) ? 1 : 0) << 0) |
+        (((vde & (1 << 8)) ? 1 : 0) << 1) |
+        (((vss & (1 << 8)) ? 1 : 0) << 2) |
+        (((vbs & (1 << 8)) ? 1 : 0) << 3) |
+        (1 << 4) |
+        (((vto & (1 << 9)) ? 1 : 0) << 5) |
+        (((vde & (1 << 9)) ? 1 : 0) << 6) |
+        (((vss & (1 << 9)) ? 1 : 0) << 7);
+
+    /* vsync+, hsync+ */
+    vga_WritePort(0x3c2, vga_ReadPort(0x3cc) & 0x3f);
+
+    /* unlock crtc */
+    vga_WriteReg(0x3d4, 0x11, 0x05);
+
+    /* horizontal */
+    vga_WriteReg(0x3d4, 0x00, (hto / 8) - 5);               /* htotal           */
+    vga_WriteReg(0x3d4, 0x01, (hbs / 8) - 1);               /* hdisp end        */
+    vga_WriteReg(0x3d4, 0x02, (hbs / 8));                   /* hblank start     */
+    vga_WriteReg(0x3d4, 0x03, ((hbe / 8) & 0x1f) | 0x80);   /* hblank end       */
+    vga_WriteReg(0x3d4, 0x04, hss / 8);                     /* hsync start      */
+    vga_WriteReg(0x3d4, 0x05, (hse / 8) & 0x1f);            /* hsync end        */
+
+    /* vertical */
+    vga_WriteReg(0x3d4, 0x06, vto & 0xff);                  /* vtotal           */
+    vga_WriteReg(0x3d4, 0x07, ofl);                         /* overflow         */
+    vga_WriteReg(0x3d4, 0x10, vss & 0xff);                  /* vsync start      */
+    vga_WriteReg(0x3d4, 0x12, vde & 0xff);                  /* vdisp end        */
+    vga_WriteReg(0x3d4, 0x13, hbs / 8);                     /* pitch            */
+    vga_WriteReg(0x3d4, 0x15, vbs & 0xff);                  /* vblank start     */
+    vga_WriteReg(0x3d4, 0x16, (vto - 1) & 0xff);            /* vblank end       */
+}
+
 void vga_setcolors(uint16_t index, uint16_t count, uint8_t* colors) {
     while (count) {
         vga_WritePort(0x3c8, index++);
