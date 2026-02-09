@@ -385,8 +385,6 @@ static void configure_framebuffer(mode_t* mode) {
             vga_WritePortW(0x23c2, 0xB000 | 0);  /* Y0 clip */
             vga_WritePortW(0x23c2, 0xA000 | (uint16_t)((mode->width-1) & 0xfff));  /* X1 clip */
             vga_WritePortW(0x23c2, 0xC000 | (uint16_t)((mode->height-1) & 0xfff));  /* Y1 clip */
-            /* upload fill patterns to vram */
-            upload_fillpatterns(card->bank_addr + card->bank_size - 2048);
         } else {
             card->caps |= NV_CAPS_BLIT | NV_CAPS_FILL | NV_CAPS_DITHER | NV_CAPS_DSTKEY | NV_CAPS_AUTOMASK;
             if (mode->bpp != 8) {
@@ -408,6 +406,76 @@ static void configure_framebuffer(mode_t* mode) {
 
 static bool setmode(mode_t* mode) {
     if (vga_setmode(mode->code)) {
+
+        /* custom 1280x720 mode */
+        if ((mode->width == 1280) && (mode->height == 720)) {
+
+            uint16_t hto = 1664;
+            uint16_t hbs = 1280;
+            uint16_t hbe = 1280 + 272;
+            uint16_t hss = 1280 + 156;
+            uint16_t hse = 1280 + 156 + 40;
+
+            uint16_t vto = 750 - 2;
+            uint16_t vde = 720 - 1;
+            uint16_t vbs = 720;
+            uint16_t vss = 723;
+
+            uint8_t ofl = 
+                (((vto & (1 << 8)) ? 1 : 0) << 0) |
+                (((vde & (1 << 8)) ? 1 : 0) << 1) |
+                (((vss & (1 << 8)) ? 1 : 0) << 2) |
+                (((vbs & (1 << 8)) ? 1 : 0) << 3) |
+                (1 << 4) |
+                (((vto & (1 << 9)) ? 1 : 0) << 5) |
+                (((vde & (1 << 9)) ? 1 : 0) << 6) |
+                (((vss & (1 << 9)) ? 1 : 0) << 7);
+
+            /* PR5: unlock PR0-4 */
+            vga_WriteReg(0x3ce, 0x0f, 0x05);
+
+            /* PR3: unlock polarity and crtc */
+            vga_WritePort(0x3ce, 0x0d);
+            vga_WritePort(0x3cf, vga_ReadPort(0x3cf) & 0x1c);    
+
+            /* vsync+, hsync+ */
+            vga_WritePort(0x3c2, vga_ReadPort(0x3cc) & 0x3f);
+
+            /* unlock crtc */
+            vga_WriteReg(0x3d4, 0x11, 0x05);
+
+            /* horizontal */
+            vga_WriteReg(0x3d4, 0x00, (hto / 8) - 5);               /* htotal           */
+            vga_WriteReg(0x3d4, 0x01, (hbs / 8) - 1);               /* hdisp end        */
+            vga_WriteReg(0x3d4, 0x02, (hbs / 8));                   /* hblank start     */
+            vga_WriteReg(0x3d4, 0x03, ((hbe / 8) & 0x1f) | 0x80);   /* hblank end       */
+            vga_WriteReg(0x3d4, 0x04, hss / 8);                     /* hsync start      */
+            vga_WriteReg(0x3d4, 0x05, (hse / 8) & 0x1f);            /* hsync end        */
+
+            /* vertical */
+            vga_WriteReg(0x3d4, 0x06, vto & 0xff);                  /* vtotal           */
+            vga_WriteReg(0x3d4, 0x07, ofl);                         /* overflow         */
+            vga_WriteReg(0x3d4, 0x10, vss & 0xff);                  /* vsync start      */
+            vga_WriteReg(0x3d4, 0x12, vde & 0xff);                  /* vdisp end        */
+            vga_WriteReg(0x3d4, 0x13, hbs / 8);                     /* pitch            */
+            vga_WriteReg(0x3d4, 0x15, vbs & 0xff);                  /* vblank start     */
+            vga_WriteReg(0x3d4, 0x16, (vto - 1) & 0xff);            /* vblank end       */
+
+            /* todo: hangs */
+            #if 0
+            /* relock crtc */
+            vga_WritePort(0x3d4, 0x11);
+            vga_WritePort(0x3d5, vga_ReadPort(0x3d5) | 0x80);
+
+            /* PR3: relock polarity and crtc */
+            vga_WritePort(0x3ce, 0x0d);
+            vga_WritePort(0x3cf, vga_ReadPort(0x3cf) | 0xe3);
+
+            /* WDC PR5: relock PR0-4 */
+            vga_WriteReg(0x3ce, 0x0f, 0x00);
+            #endif     
+        }
+
         configure_framebuffer(mode);
         return true;
     }
@@ -472,6 +540,7 @@ static bool init(card_t* card, addmode_f addmode) {
     }
     if (chipset >= WD90C30) {
         addmode(1024, 768,  8, 0, 0x60);
+        addmode(1280, 720,  8, 0, 0x60);    /* tweaked from 1024x768 */
     }
     /* todo: 16bpp modes */
     /* todo: 24bpp modes */
