@@ -1,6 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+20260213:
+  rvnova:   Better 1280x720x8bpp quality on Cirrus
+
 20260209:
   rvnova:   1280x720x8bpp for Cirrus and WDC
 
