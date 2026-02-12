@@ -22,6 +22,22 @@
 #include "x86.h"
 
 /*-------------------------------------------------------------------------------
+ * custom modelines
+ *-----------------------------------------------------------------------------*/
+modeline_t modeline_720p_cvt = { "720p_60hz_CVT",
+    74500UL, 1280, 1344, 1472, 1664, 720, 723, 728, 748, 1, 0 };
+
+modeline_t modeline_720p_cvtrb = { "720p_60hz_CVT-RB",
+    64000UL, 1280, 1328, 1360, 1440, 720, 723, 728, 741, 0, 1 };
+
+modeline_t modeline_720p_cea = { "720p_60hz_CEA",
+    74250UL, 1280, 1390, 1430, 1650, 720, 725, 730, 750, 0, 0 };
+
+modeline_t modeline_720p_75mhz = { "720p_60hz_75Mhz",
+    75000UL, 1280, 1436, 1476, 1664, 720, 723, 728, 750, 0, 0 };
+
+
+/*-------------------------------------------------------------------------------
  * shared vga functionality
  *-----------------------------------------------------------------------------*/
 static bool vga_fastclear = false;
@@ -123,18 +139,21 @@ bool vga_setmode(uint16_t code) {
     return result;
 }
 
-void vga_1280x720_from_1024x768(void) {
-    uint16_t hto = 1664;
-    uint16_t hbs = 1280;
-    uint16_t hbe = 1280 + 272;
-    uint16_t hss = 1280 + 156;
-    uint16_t hse = 1280 + 156 + 40;
+void vga_modeline(modeline_t* ml) {
+    uint16_t hto = (ml->htotal / 8) - 5;
+    uint16_t hde = (ml->hdisp / 8) - 1;
+    uint16_t hbs = (ml->hdisp / 8) - 1;
+    uint16_t hbe = (ml->htotal / 8);
+    uint16_t hss = (ml->hsyncstart / 8);
+    uint16_t hse = (ml->hsyncend / 8);
 
-    uint16_t vto = 750 - 2;
-    uint16_t vde = 720 - 1;
-    uint16_t vbs = 720;
-    uint16_t vss = 723;
+    uint16_t vto = ml->vtotal - 2;
+    uint16_t vss = ml->vsyncstart;
+    uint16_t vde = ml->vdisp - 1;
+    uint16_t vbs = ml->vdisp;
+    uint16_t vbe = ml->vtotal - 1;
 
+    /* overflow bits */
     uint8_t ofl = 
         (((vto & (1 << 8)) ? 1 : 0) << 0) |
         (((vde & (1 << 8)) ? 1 : 0) << 1) |
@@ -145,28 +164,40 @@ void vga_1280x720_from_1024x768(void) {
         (((vde & (1 << 9)) ? 1 : 0) << 6) |
         (((vss & (1 << 9)) ? 1 : 0) << 7);
 
-    /* vsync+, hsync+ */
-    vga_WritePort(0x3c2, vga_ReadPort(0x3cc) & 0x3f);
+#if 1
+    /* wdc is getting stuck blanks. */
+    /* but this appears to work on both wdc and cirrus */
+    hbe = 0;
+    vbe = 0;
+#endif
+
+    /* sync polarity */
+    vga_WritePort(0x3c2,
+        (vga_ReadPort(0x3cc) & 0x3f)
+        | (ml->vpolarity << 7)
+        | (ml->hpolarity << 6)
+    );
 
     /* unlock crtc */
-    vga_WriteReg(0x3d4, 0x11, 0x05);
+    vga_ModifyReg(0x3d4, 0x11, 0x8f, (ml->vsyncend & 0x0f));        /* vsync end                */
 
     /* horizontal */
-    vga_WriteReg(0x3d4, 0x00, (hto / 8) - 5);               /* htotal           */
-    vga_WriteReg(0x3d4, 0x01, (hbs / 8) - 1);               /* hdisp end        */
-    vga_WriteReg(0x3d4, 0x02, (hbs / 8));                   /* hblank start     */
-    vga_WriteReg(0x3d4, 0x03, ((hbe / 8) & 0x1f) | 0x80);   /* hblank end       */
-    vga_WriteReg(0x3d4, 0x04, hss / 8);                     /* hsync start      */
-    vga_WriteReg(0x3d4, 0x05, (hse / 8) & 0x1f);            /* hsync end        */
+    vga_WriteReg(0x3d4, 0x00, hto & 0xff);                          /* htotal                   */
+    vga_WriteReg(0x3d4, 0x01, hde & 0xff);                          /* hdisp end                */
+    vga_WriteReg(0x3d4, 0x02, hbs & 0xff);                          /* hblank start             */
+    vga_WriteReg(0x3d4, 0x03, ((hbe & 0x1f) | 0x80));               /* hblank end               */
+    vga_WriteReg(0x3d4, 0x04, hss & 0xff);                          /* hsync start              */
+    vga_WriteReg(0x3d4, 0x05, hse & 0x1f);                          /* hsync end                */
 
     /* vertical */
-    vga_WriteReg(0x3d4, 0x06, vto & 0xff);                  /* vtotal           */
-    vga_WriteReg(0x3d4, 0x07, ofl);                         /* overflow         */
-    vga_WriteReg(0x3d4, 0x10, vss & 0xff);                  /* vsync start      */
-    vga_WriteReg(0x3d4, 0x12, vde & 0xff);                  /* vdisp end        */
-    vga_WriteReg(0x3d4, 0x13, hbs / 8);                     /* pitch            */
-    vga_WriteReg(0x3d4, 0x15, vbs & 0xff);                  /* vblank start     */
-    vga_WriteReg(0x3d4, 0x16, (vto - 1) & 0xff);            /* vblank end       */
+    vga_WriteReg(0x3d4, 0x06, vto & 0xff);                          /* vtotal                   */
+    vga_WriteReg(0x3d4, 0x07, ofl & 0xff);                          /* overflow                 */
+    vga_ModifyReg(0x3d4, 0x09, 0x20, (vbs >> 4));                   /* vblank start overflow    */
+    vga_WriteReg(0x3d4, 0x10, vss & 0xff);                          /* vsync start              */
+    vga_WriteReg(0x3d4, 0x12, vde & 0xff);                          /* vdisp end                */
+    vga_WriteReg(0x3d4, 0x13, (ml->hdisp / 8)  & 0xff);             /* pitch                    */
+    vga_WriteReg(0x3d4, 0x15, vbs & 0xff);                          /* vblank start             */
+    vga_WriteReg(0x3d4, 0x16, vbe & 0xff);                          /* vblank end               */
 }
 
 void vga_setcolors(uint16_t index, uint16_t count, uint8_t* colors) {

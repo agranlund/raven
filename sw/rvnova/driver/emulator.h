@@ -203,6 +203,27 @@ typedef struct
     bool        (*init)(card_t* card, addmode_f addmode);
 } driver_t;
 
+
+typedef struct {
+    const char* name;
+    uint32_t pclk;
+    uint16_t hdisp;
+    uint16_t hsyncstart;
+    uint16_t hsyncend;
+    uint16_t htotal;
+    uint16_t vdisp;
+    uint16_t vsyncstart;
+    uint16_t vsyncend;
+    uint16_t vtotal;
+    int8_t   hpolarity;
+    int8_t   vpolarity;
+} modeline_t;
+
+extern modeline_t modeline_720p_cea;
+extern modeline_t modeline_720p_cvt;
+extern modeline_t modeline_720p_cvtrb;
+extern modeline_t modeline_720p_75mhz;
+
 /*-------------------------------------------------------------------------------
  * core
  *-----------------------------------------------------------------------------*/
@@ -228,7 +249,6 @@ extern void vga_setaddr(uint32_t addr);
 extern void vga_setcolors(uint16_t index, uint16_t count, uint8_t* colors);
 extern void vga_getcolors(uint16_t index, uint16_t count, uint8_t* colors);
 extern void vga_enable_fastclear(bool on);
-
-extern void vga_1280x720_from_1024x768(void);
+extern void vga_modeline(modeline_t* ml);
 
 #endif /* _EMULATOR_H_ */

@@ -410,6 +410,9 @@ static bool setmode(mode_t* mode) {
         /* custom 1280x720 mode */
         if ((mode->width == 1280) && (mode->height == 720)) {
 
+            /* assume card is set to 70hz for 1024x768 (75Mhz clock) */
+            modeline_t* ml = &modeline_720p_75mhz;
+
             /* PR5: unlock PR0-4 */
             vga_WriteReg(0x3ce, 0x0f, 0x05);
 
@@ -417,8 +420,8 @@ static bool setmode(mode_t* mode) {
             vga_WritePort(0x3ce, 0x0d);
             vga_WritePort(0x3cf, vga_ReadPort(0x3cf) & 0x1c);    
 
-            /* update crtc */
-            vga_1280x720_from_1024x768();
+            /* update vga crtc registers */
+            vga_modeline(ml);
 
             /* todo: relock (hangs) */
             #if 0

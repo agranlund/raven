@@ -39,6 +39,7 @@ static const char* chipset_strings[] = {
 
 static uint16_t vram = 0;
 static chipset_e chipset = 0;
+static uint8_t mclk_override = 0;
 
 /*-------------------------------------------------------------------------------
  * cirrus vgabios extensions
@@ -499,28 +500,67 @@ static void setaddr(uint32_t addr) {
     vga_WritePortWLE(crtc, 0x0C00 | ((addr >> 10) & 0xff));
 }
 
+
+static uint16_t find_vclk(uint32_t target) {
+    uint16_t p, d, n;
+    uint16_t best_val = 0;
+    uint32_t best_err = 0xffffffffUL;
+    uint32_t ref = 14318; /* standard 14.31818 clock */
+    for (p = 0; p <= 1; p++) {
+        for (d = 0; d <= 63; d++) {
+            for (n = 0; n <= 127; n++) {
+                uint32_t cur = (ref * n) / (d * (p + 1));
+                uint32_t err = (cur >= target) ? (cur - target) : (target - cur);
+                if (err < best_err) {
+                    best_err = err;
+                    best_val = (d << 9) | (p << 8) | n;
+                }
+            }
+        }
+    }
+    return best_val;
+}
+
+static void setcustom(modeline_t* ml) {
+    /* find best vclk3 values from frequency */
+    uint16_t vclk = find_vclk(ml->pclk);
+
+#if DEBUG
+    dprintf("vclk %ld, N:%02x, D:%02x\n", ml->pclk, (uint8_t)(vclk&0xff), (uint8_t)(vclk>>8));
+#endif    
+
+    /* unlock extended sequencer registers */
+    vga_WriteReg(0x3c4, 0x06, 0x12);
+
+    /* program vclk3 */
+    vga_ModifyReg(0x3c4, 0x0e, 0x7f, vclk & 0xff);  /* N   */
+    vga_ModifyReg(0x3c4, 0x1e, 0x3f, vclk >> 8);    /* D,P */
+
+    /* select vclk3 */
+    vga_WritePort(0x3c2,  vga_ReadPort(0x3cc) | 0x0c);
+
+    /* apply modeline to standard vga registers */
+    vga_modeline(ml);
+}
+
 static bool setmode(mode_t* mode) {
     if (vga_setmode(mode->code)) {
 
         /* custom 1280x720 mode */
         if ((mode->width == 1280) && (mode->height == 720)) {
-
-            /* unlock extended sequences registers */
-            vga_WriteReg(0x3c4, 0x06, 0x12);
-            
-            /* set vclk3 to 75mhz */
-            vga_ModifyReg(0x3c4, 0x0e, 0x7f, 0x6e); /* N */
-            vga_ModifyReg(0x3c4, 0x1e, 0x3f, 0x2a); /* D */
-
-            /* select vclk3 */
-            vga_WritePort(0x3c2,  vga_ReadPort(0x3cc) | 0x0c);
-
-            vga_1280x720_from_1024x768();
+            setcustom(&modeline_720p_cvtrb);
         }
-
         configure_framebuffer();
         if (cl_support_blitter()) {
             configure_blitter(mode);
+        }
+
+
+        if ((chipset >= GD5424) && (mclk_override > 0)) {
+            uint8_t mclk = vga_ReadReg(0x3c4, 0x1f) & 0x3f;
+            if (mclk != mclk_override) {
+                vga_ModifyReg(0x3c4, 0x1f, 0x3f, mclk_override);
+            }
         }
 
 #if DEBUG
@@ -598,6 +638,25 @@ static bool init(card_t* card, addmode_f addmode) {
             }
         }
     }
+
+
+    /* mclk override */
+    /* todo when we have user settings for it */
+    mclk_override = 0;
+#if 0    
+    if ((chipset >= GD5424) && (chipset <= GD5434)) {
+        /* xfree86 mclk overrides */
+        /* 0x1c : 50mhz : slow_dram, usually bios default */
+        /* 0x1f : 55mhz :  med_dram */
+        /* 0x22 : 60mhz : fast_dram, xfree86 reprograms this by default for GD5434-RevE */
+        uint8_t mclk = vga_ReadReg(0x3c4, 0x1f) & 0x3f;
+        if (chipset >= GD5434) {
+            if (mclk < 0x22) { mclk_override = 0x22; }
+        } else if (chipset >= GD5426) {
+            if (mclk < 0x1f) { mclk_override = 0x1f; }
+        }
+    }
+#endif
 
     if (chipset >= GD5430) {
         vgabios_SetMonitorTypeGD543x(
