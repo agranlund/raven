@@ -16,13 +16,9 @@
  * along with this program  if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *-----------------------------------------------------------------------------*/
-
 #include "driver.h"
 #include "isa/isa.h"
 #include "gus.h"
-
-#define GUS_DEBUG 1
-
 
 /* -------------------------------------------------------------------- */
 static uint8_t p3xr_rd(uint8_t reg) {
@@ -433,10 +429,8 @@ bool gus_detect(uint16_t port) {
         p3xr_wrw(0x52, (p3xr_rdw(0x52) & 0xfff0) | gus.ram_amd.cfg);
     }
 
-    #if GUS_DEBUG
-    dprintf("gf1 ram: %ldKb : %ld,%ld,%ld,%ld\n", gus.ram_gf1.total / 1024, gus.ram_gf1.size[0] / 1024, gus.ram_gf1.size[1] / 1024, gus.ram_gf1.size[2] / 1024, gus.ram_gf1.size[3] / 1024);
-    dprintf("amd ram: %ldKb : %ld,%ld,%ld,%ld\n", gus.ram_amd.total / 1024, gus.ram_amd.size[0] / 1024, gus.ram_amd.size[1] / 1024, gus.ram_amd.size[2] / 1024, gus.ram_amd.size[3] / 1024);
-    #endif
+    dprintf(("gf1 ram: %ldKb : %ld,%ld,%ld,%ld\n", gus.ram_gf1.total / 1024, gus.ram_gf1.size[0] / 1024, gus.ram_gf1.size[1] / 1024, gus.ram_gf1.size[2] / 1024, gus.ram_gf1.size[3] / 1024));
+    dprintf(("amd ram: %ldKb : %ld,%ld,%ld,%ld\n", gus.ram_amd.total / 1024, gus.ram_amd.size[0] / 1024, gus.ram_amd.size[1] / 1024, gus.ram_amd.size[2] / 1024, gus.ram_amd.size[3] / 1024));
 
     return true;
 }

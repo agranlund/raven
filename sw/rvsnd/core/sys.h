@@ -37,7 +37,13 @@
 
 #define IMPERSONATE_GSXB    1
 
-extern void dprintf(const char* s, ...);
+extern void dprint(const char* s, ...);
+
+#if DEBUG
+#define dprintf(x) dprint x
+#else
+#define dprintf(x)
+#endif
 
 extern uint16_t sys_di(void);
 extern void     sys_ei(uint16_t);

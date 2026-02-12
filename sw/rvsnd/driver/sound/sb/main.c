@@ -186,9 +186,7 @@ int32_t init(void) {
         }
     }
 
-#if 0
-    dprintf("sb: %04x, ess: %04x, wss: %04x, sax: %04x\n", sb.port, ess.version, wss.port, sax.port);
-#endif
+    dprintf(("sb: %04x, ess: %04x, wss: %04x, sax: %04x\n", sb.port, ess.version, wss.port, sax.port));
 
     /* prepare suitable devices */
     if (sax.port) {
