@@ -80,8 +80,11 @@ int16_t fdc_write_chs(uint8_t* buf, uint8_t count, uint8_t c, uint8_t h, uint8_t
 int16_t fdc_format(fdc_fmt_t* fmt, uint8_t count, uint8_t c, uint8_t h);
 
 #if DEBUG_PRINT
-extern void dprintf(char* s, ...);
+#define dprintf(x) dprint x
+extern void dprint(char* s, ...);
 extern void ddump(uint8_t* buf, uint32_t cnt);
+#else
+#define dprintf(x)
 #endif
 
 

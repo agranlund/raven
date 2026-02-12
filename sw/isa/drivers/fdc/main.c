@@ -28,7 +28,7 @@
 #if DEBUG_PRINT
 #include <stdarg.h>
 #include "raven.h"
-void dprintf(char* s, ...) {
+void dprint(char* s, ...) {
     static char dbgstr[512];
     va_list args;
     char* buf = dbgstr;
@@ -46,16 +46,16 @@ void dprintf(char* s, ...) {
 void ddump(uint8_t* buf, uint32_t cnt) {
     int i,j;
     for (i=0; i<(cnt/16); i++) {
-        dprintf("%04x ", (i*16));
+        dprintf(("%04x ", (i*16)));
         for (j=0; j<16; j++) {
-            dprintf("%02x ", buf[(i*16)+j]);
+            dprintf(("%02x ", buf[(i*16)+j]));
         }
         for (j=0; j<16; j++) {
             char c = buf[(i*16)+j];
             if ((c < 32) || (c > 126)) { c = '.'; }
-            dprintf("%c", c);
+            dprintf(("%c", c));
         }
-        dprintf("\n");
+        dprintf(("\n"));
     }
 }
 #endif
@@ -88,9 +88,7 @@ typedef struct {int16_t rwflag; void* buf; int16_t cnt; int16_t recnr; int16_t d
 int32_t hdv_rw(hdv_rw_args* args) {
     int16_t err;
     uint32_t lba = (args->recnr < 0) ? args->lrecno : args->recnr;
-    #if DEBUG_PRINT
-    dprintf("hdv_rw %02x %d, %ld, %d\n", args->rwflag, args->dev, lba, args->cnt);
-    #endif
+    dprintf(("hdv_rw %02x %d, %ld, %d\n", args->rwflag, args->dev, lba, args->cnt));
 
     if (args->rwflag & 1) {
 #if READONLY
@@ -283,30 +281,22 @@ int16_t xb_flopfmt(xb_flopfmt_args* args) {
     }
 
     for (i=0; i<args->spt; i++) {
-        dprintf("%d: %d %d %d %d\n", i, data[i].cyl, data[i].head, data[i].record, data[i].size);
+        dprintf(("%d: %d %d %d %d\n", i, data[i].cyl, data[i].head, data[i].record, data[i].size));
     }
 
     /* format track */
-    #if DEBUG_PRINT
-    dprintf(" format %d %d %d\n", args->spt, args->trackno, args->sideno);
-    #endif
+    dprintf((" format %d %d %d\n", args->spt, args->trackno, args->sideno));
     err = fdc_format(data, args->spt, args->trackno, args->sideno);
-    #if DEBUG_PRINT
-    dprintf(" format err = %d\n", err);
-    #endif
+    dprintf((" format err = %d\n", err));
     if (err) {
         return err;
     }
 
     /* verify track */
 /*
-    #if DEBUG_PRINT
-    dprintf("verify\n");
-    #endif
+    dprintf(("verify\n"));
     err = Flopver(args->buf, 0L, args->devno, 1, args->trackno, args->sideno, args->spt);
-    #if DEBUG_PRINT
-    dprintf("verify err = %d\n", err);
-    #endif
+    dprintf(("verify err = %d\n", err));
     if (err) {
         return err;
     } else if (*((int16_t*)args->buf) != 0) {

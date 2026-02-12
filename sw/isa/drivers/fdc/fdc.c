@@ -259,9 +259,7 @@ static int16_t sense_int(uint8_t* st0, uint8_t* cyl) {
     uint32_t start;
     uint8_t buf[8];
 
-    #if DEBUG_PRINT
-    dprintf("sense_int\n");
-    #endif
+    dprintf(("sense_int\n"));
 
     start = timer_get();
     while (timer_elapsed(start) < TIMEOUT_INT) {
@@ -302,10 +300,7 @@ static int16_t specify(uint16_t spinrate, uint8_t steprate, uint8_t loadtime, ui
     loadtime = loadtime ? loadtime : fdc->drive.loadtime;
     unloadtime = unloadtime ? unloadtime : fdc->drive.unloadtime;
 
-    #if DEBUG_PRINT
-    dprintf("specify %d %d %d %d\n", spinrate, steprate, loadtime, unloadtime);
-    #endif
-
+    dprintf(("specify %d %d %d %d\n", spinrate, steprate, loadtime, unloadtime));
     switch (spinrate) {
         case 1000:
             reg_write(FDC_REG_CTRL, FDC_RATE_1000);
@@ -345,9 +340,7 @@ static int16_t specify(uint16_t spinrate, uint8_t steprate, uint8_t loadtime, ui
         return E_OK;
     }
 
-    #if DEBUG_PRINT
-    dprintf(" specify err\n");
-    #endif
+    dprintf((" specify err\n"));
     return EUNDEV;
 }
 
@@ -356,9 +349,7 @@ static int16_t calibrate(void) {
     buf[0] = FDC_CMD_CALIBRATE;
     buf[1] = 0; /* drive number */
 
-    #if DEBUG_PRINT
-    dprintf("calibrate\n");
-    #endif
+    dprintf(("calibrate\n"));
 
     /* may need multiple retries to reach cylinder 0 */
     for (i=0; i<10; i++) {
@@ -385,16 +376,12 @@ static int8_t read_id(uint8_t head, uint8_t* c, uint8_t* h, uint8_t* s, uint8_t*
     buf[0] = FDC_CMD_READ_ID;
     buf[1] = head;
 
-    #if DEBUG_PRINT
-    dprintf("read_id\n");
-    #endif
+    dprintf(("read_id\n"));
 
     if (data_write(buf, 2) != 2) { return EUNDEV; }
     if (data_read(buf, 7) != 7) { return EUNDEV; }
 
-    #if DEBUG_PRINT
-    dprintf(" st=%02x %02x %02x c=%d h=%d s=%d n=%d\n", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6]);
-    #endif
+    dprintf((" st=%02x %02x %02x c=%d h=%d s=%d n=%d\n", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6]));
 
     if ((buf[0] & 0xC0) != 0) {
         return EMEDIA;
@@ -415,9 +402,7 @@ static int16_t seek(uint8_t cyl) {
     buf[1] = 0;
     buf[2] = cyl;
 
-    #if DEBUG_PRINT
-    dprintf("seek %d\n", cyl);
-    #endif
+    dprintf(("seek %d\n", cyl));
 
     if (data_write(buf, 3) != 3) {
         return E_SEEK;
@@ -447,15 +432,11 @@ static int16_t readwrite(bool read, uint8_t* ptr, uint8_t count, uint8_t cyl, ui
     buf[7] = gap;               /* gap length */
     buf[8] = 0xff;              /* unused with 512 bytes per sector */
 
-    #if DEBUG_PRINT
-    dprintf("readwrite %d %08lx %d %d %d %d %02x\n", read, (uint32_t)ptr, count, cyl, head, sector, buf[7]);
-    #endif
+    dprintf(("readwrite %d %08lx %d %d %d %d %02x\n", read, (uint32_t)ptr, count, cyl, head, sector, buf[7]));
 
     if (!(fdc->flags & FDC_FLAG_AUTOSEEK)) {
         if (seek(cyl) != E_OK) {
-            #if DEBUG_PRINT
-            dprintf("seek fail\n");
-            #endif
+            dprintf(("seek fail\n"));
             return E_SEEK;
         }
     }
@@ -475,17 +456,13 @@ static int16_t readwrite(bool read, uint8_t* ptr, uint8_t count, uint8_t cyl, ui
         {
             /* command phase */
             if (data_write(buf, 9) != 9) {
-                #if DEBUG_PRINT
-                dprintf("sector read cmd error, msr = %02x\n", *p_msr);
-                #endif
+                dprintf(("sector read cmd error, msr = %02x\n", *p_msr));
                 return EUNDEV;
             }
 
             /* keep interupts enabled while waiting for very first byte */
             if (wait_msr(0xF0, 0xF0, TIMEOUT_RW) != E_OK) {
-                #if DEBUG_PRINT
-                dprintf("sector read wait error, msr = %02x\n", *p_msr);
-                #endif
+                dprintf(("sector read wait error, msr = %02x\n", *p_msr));
                 return EUNDEV;
             }
 
@@ -501,9 +478,7 @@ static int16_t readwrite(bool read, uint8_t* ptr, uint8_t count, uint8_t cyl, ui
                     tm--;
                 }
                 RestoreInterrupts(sr);
-                #if DEBUG_PRINT
-                dprintf("sector read exec error, msr = %02x, remain = %d\n", *p_msr, remain);
-                #endif
+                dprintf(("sector read exec error, msr = %02x, remain = %d\n", *p_msr, remain));
                 return EUNDEV;
             ok1:
                 tm = to;
@@ -515,15 +490,11 @@ static int16_t readwrite(bool read, uint8_t* ptr, uint8_t count, uint8_t cyl, ui
         {
             /* command phase */
             if (data_write(buf, 9) != 9) {
-                #if DEBUG_PRINT
-                dprintf("sector write cmd error, msr = %02x\n", *p_msr);
-                #endif
+                dprintf(("sector write cmd error, msr = %02x\n", *p_msr));
                 return EUNDEV;
             }
             if (wait_msr(0xF0, 0xB0, TIMEOUT_RW) != E_OK) {
-                #if DEBUG_PRINT
-                dprintf("sector write wait error, msr = %02x\n", *p_msr);
-                #endif
+                dprintf(("sector write wait error, msr = %02x\n", *p_msr));
                 return EUNDEV;
             }
             /* execute phase */
@@ -538,9 +509,7 @@ static int16_t readwrite(bool read, uint8_t* ptr, uint8_t count, uint8_t cyl, ui
                     tm--;
                 }
                 RestoreInterrupts(sr);
-                #if DEBUG_PRINT
-                dprintf("sector write exec error, msr = %02x, remain = %d\n", *p_msr, remain);
-                #endif
+                dprintf(("sector write exec error, msr = %02x, remain = %d\n", *p_msr, remain));
                 return EUNDEV;
             ok2:
                 tm = to;
@@ -552,33 +521,23 @@ static int16_t readwrite(bool read, uint8_t* ptr, uint8_t count, uint8_t cyl, ui
 
     /* result phase */
     if (data_read(buf, 7) != 7) {
-        #if DEBUG_PRINT
-        dprintf(" err (result)\n");
-        #endif
+        dprintf((" err (result)\n"));
         return EUNDEV;
     }
 
     /* todo: more result verifications */
-    #if DEBUG_PRINT
-    dprintf(" res = %02x %02x %02x %02x %02x %02x %02x\n", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6]);
-    #endif
+    dprintf((" res = %02x %02x %02x %02x %02x %02x %02x\n", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6]));
 
     if (buf[0] & (1 << 4)) {    /* drive fault */
-        #if DEBUG_PRINT
-        dprintf("err: %02x %02x %02x\n", buf[0], buf[1], buf[2]);
-        #endif
+        dprintf(("err: %02x %02x %02x\n", buf[0], buf[1], buf[2]));
         return EUNDEV;
     }
 
     if (buf[1] != 0x80) {           /* end in polling mode, no errors */
-        #if DEBUG_PRINT
-        dprintf("err: %02x %02x %02x\n", buf[0], buf[1], buf[2]);
-        #endif
+        dprintf(("err: %02x %02x %02x\n", buf[0], buf[1], buf[2]));
 #if 0                
         if (buf[1] & (1 << 4)) {    /* err: dma overrun */
-            #if DEBUG_PRINT
-            dprintf(" dma overrun\n");
-            #endif
+            dprintf((" dma overrun\n"));
             controller_disable();
             controller_enable();
             motor_on();
@@ -606,15 +565,11 @@ static int16_t format(fdc_fmt_t* fmt, uint8_t count, uint8_t cyl, uint8_t head) 
     buf[8] = 0x00;              /* reserved */
 
 
-    #if DEBUG_PRINT
-    dprintf(" cmd = %02x %02x %02x %02x %02x %02x\n", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
-    dprintf("format %d %d %d\n", count, cyl, head);
-    #endif
+    dprintf((" cmd = %02x %02x %02x %02x %02x %02x\n", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]));
+    dprintf(("format %d %d %d\n", count, cyl, head));
     if (!(fdc->flags & FDC_FLAG_AUTOSEEK)) {
         if (seek(cyl) != E_OK) {
-            #if DEBUG_PRINT
-            dprintf("seek fail\n");
-            #endif
+            dprintf(("seek fail\n"));
             return E_SEEK;
         }
     }
@@ -632,9 +587,7 @@ static int16_t format(fdc_fmt_t* fmt, uint8_t count, uint8_t cyl, uint8_t head) 
 
         /* command phase */
         if (data_write(buf, 9) != 9) {
-            #if DEBUG_PRINT
-            dprintf("track write cmd error, msr = %02x\n", *p_msr);
-            #endif
+            dprintf(("track write cmd error, msr = %02x\n", *p_msr));
             return EUNDEV;
         }
 
@@ -652,9 +605,7 @@ static int16_t format(fdc_fmt_t* fmt, uint8_t count, uint8_t cyl, uint8_t head) 
                 tm--;
             }
             RestoreInterrupts(sr);
-            #if DEBUG_PRINT
-            dprintf("sector read exec error, msr = %02x, remain = %d\n", *p_msr, remain);
-            #endif
+            dprintf(("sector read exec error, msr = %02x, remain = %d\n", *p_msr, remain));
             return EUNDEV;
         ok1:
             tm = to;
@@ -665,42 +616,29 @@ static int16_t format(fdc_fmt_t* fmt, uint8_t count, uint8_t cyl, uint8_t head) 
 
 
     if (data_read(buf, 7) != 7) {
-        #if DEBUG_PRINT
-        dprintf(" err (result)\n");
-        #endif
+        dprintf((" err (result)\n"));
         return EUNDEV;
     }
 
-    #if DEBUG_PRINT
-    dprintf(" res = %02x %02x %02x %02x %02x %02x %02x\n", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6]);
-    #endif
-
+    dprintf((" res = %02x %02x %02x %02x %02x %02x %02x\n", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6]));
     if ((buf[0] & 0xC0) != 0x00) {
-        #if DEBUG_PRINT
-        dprintf("err: %02x %02x %02x\n", buf[0], buf[1], buf[2]);
-        #endif
+        dprintf(("err: %02x %02x %02x\n", buf[0], buf[1], buf[2]));
         return EUNDEV;
     }
 
 #if 0    
     if (buf[0] & (1 << 4)) {    /* drive fault */
-        #if DEBUG_PRINT
-        dprintf("err: %02x %02x %02x\n", buf[0], buf[1], buf[2]);
-        #endif
+        dprintf(("err: %02x %02x %02x\n", buf[0], buf[1], buf[2]));
         return EUNDEV;
     }
 
     if (buf[1] != 0x80) {           /* end in polling mode, no errors */
-        #if DEBUG_PRINT
-        dprintf("err: %02x %02x %02x\n", buf[0], buf[1], buf[2]);
-        #endif
+        dprintf(("err: %02x %02x %02x\n", buf[0], buf[1], buf[2]));
         return EUNDEV;
     }
 
     if (cnt != len) {
-        #if DEBUG_PRINT
-        dprintf(" cnt error %d / %d\n", cnt, len);
-        #endif
+        dprintf((" cnt error %d / %d\n", cnt, len));
         return EUNDEV;
     }
 #endif
@@ -740,9 +678,7 @@ int16_t motor_on(void) {
         return err;
     }
     if ((dor_read() & FDC_DOR_MOTOR0) == 0) {
-        #if DEBUG_PRINT
-        dprintf("motor on\n");
-        #endif
+        dprintf(("motor on\n"));
         dor_write(dor_read() | FDC_DOR_MOTOR0);
         timer_delay(DELAY_MOTOR_ON);
     }
@@ -762,9 +698,7 @@ void controller_disable(void) {
 
 static int16_t controller_configure(void) {
     uint8_t buf[8];
-    #if DEBUG_PRINT
-    dprintf("configure\n");
-    #endif
+    dprintf(("configure\n"));
 
     /* need version 0x90 for these commands */
     buf[0] = FDC_CMD_VERSION;
@@ -788,9 +722,7 @@ static int16_t controller_configure(void) {
     if (data_read(buf, 1) != 1) { return EUNDEV; }
     if (buf[0] == 0x10) {
 #if IMPLIED_SEEK
-        #if DEBUG_PRINT
-        dprintf("autoseek\n");
-        #endif
+        dprintf(("autoseek\n"));
         fdc->flags |= FDC_FLAG_AUTOSEEK;
 #endif        
     }
@@ -824,9 +756,7 @@ int16_t controller_reset(void) {
 
 static int16_t controller_init(uint16_t port) {
     int16_t err;
-    #if DEBUG_PRINT
-    dprintf("fdc init\n");
-    #endif
+    dprintf(("fdc init\n"));
     memset((void*)fdc, 0, sizeof(fdc_t));
     fdc->port = port;
     fdc->drive.spinrate = 500;
@@ -878,17 +808,13 @@ static int16_t fdc_begin(void) {
 
             err = specify(finfo->spinrate, 0, 0, 0);
             if (err != E_OK) {
-                #if DEBUG_PRINT
-                dprintf("specify fail\n");
-                #endif
+                dprintf(("specify fail\n"));
                 return err;
             }
 
             err = calibrate();
             if (err != E_OK) {
-                #if DEBUG_PRINT
-                dprintf("calibrate fail\n");
-                #endif
+                dprintf(("calibrate fail\n"));
                 return err;
             }
             
@@ -897,16 +823,12 @@ static int16_t fdc_begin(void) {
                 found = finfo;
                 break;
             } else if (err != EMEDIA) {
-                #if DEBUG_PRINT
-                dprintf("read_id err %d\n", err);
-                #endif
+                dprintf(("read_id err %d\n", err));
                 return err;
             }
         }
         if (!found) {
-            #if DEBUG_PRINT
-            dprintf("no media detected\n");
-            #endif
+            dprintf(("no media detected\n"));
             return EMEDIA;
         }
 
@@ -915,9 +837,7 @@ static int16_t fdc_begin(void) {
         fdc->disk.spt = found->spt;
         fdc->disk.tps = found->tps;
         fdc->disk.valid = true;
-        #if DEBUG_PRINT
-        dprintf("found: %d %d %d\n", fdc->disk.hpc, fdc->disk.spt, fdc->disk.tps);
-        #endif
+        dprintf(("found: %d %d %d\n", fdc->disk.hpc, fdc->disk.spt, fdc->disk.tps));
 
         /* clear disk changed flag */
         seek(79);
@@ -933,9 +853,7 @@ static int16_t fdc_begin(void) {
         fdc->disk.hpc = bpb.nheads;
         fdc->disk.spt = bpb.spt;
         fdc->disk.tps = (bpb.nsects / bpb.spt) / bpb.nheads;
-        #if DEBUG_PRINT
-        dprintf("T:%d S:%d H:%d\n", fdc->disk.tps, fdc->disk.spt, fdc->disk.hpc);
-        #endif
+        dprintf(("T:%d S:%d H:%d\n", fdc->disk.tps, fdc->disk.spt, fdc->disk.hpc));
     }
 
     return E_OK;
@@ -1209,9 +1127,7 @@ void fdc_update(void) {
     if (fdc_access_lock <= 0) {
         if ((dor_read() & FDC_DOR_MOTOR0)) {
             if (timer_elapsed(fdc_access_time) > TIMEOUT_MOTOR) {
-                #if DEBUG_PRINT
-                dprintf("motor off\n");
-                #endif
+                dprintf(("motor off\n"));
                 motor_off();
             }
         }
@@ -1226,17 +1142,13 @@ void fdc_update(void) {
 int16_t fdc_init(void) {
     bus = isa_init();
     if (!bus) {
-        #if DEBUG_PRINT
-        dprintf("err: no isa bus\n");
-        #endif
+        dprintf(("err: no isa bus\n"));
         return EUNDEV;
     }
 
     fdc = &fdc_instance;
     if (controller_init(0x3f0) != E_OK) {
-        #if DEBUG_PRINT
-        dprintf("err: no fdc controller\n");
-        #endif
+        dprintf(("err: no fdc controller\n"));
         motor_off();
         return EUNDEV;
     }
