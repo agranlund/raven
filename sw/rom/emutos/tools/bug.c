@@ -150,7 +150,7 @@ static void fatal(const char *fmt, ...)
 
 static void * xmalloc(size_t s)
 {
-    void * a = calloc(1, s);
+    void * a = calloc(1, s + 16);
     if (a == 0)
         fatal("memory");
     return a;
@@ -158,7 +158,7 @@ static void * xmalloc(size_t s)
 
 static void * xrealloc(void * b, size_t s)
 {
-    void * a = realloc(b, s);
+    void * a = realloc(b, s + 16);
     if (a == 0)
         fatal("memory");
     return a;
