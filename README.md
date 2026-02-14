@@ -67,9 +67,17 @@ It is easy to make misstakes during assembly and such skills can be vital for fi
 - ATX power supply
 - PS/2 Keyboard and mouse, or USB if using the USB upgrade module.
 - Some kind of suitable 44pin IDE->CF adapter
-- ISA graphics card supported by Atari drivers (ET4000 / ATI Mach32)
 - RS232<->USB cable capable of 1Mbps
-
+- ISA graphics card.
+    - Hardware acceleration supported
+        - Cirrus GD5434, GD5429, GD5428, GD5426
+        - WDC WD90C33, WD90C31
+        - Tseng ET4000/W32i
+        - ATI Mach32
+    - Hardware acceleration not supported
+        - Tseng ET4000AX
+    - Cards not listed above may work but only in standard VGA resolutions.
+    
 ## Additional tools
 - [ROM module programmer](hw/simm/programmer/)
 - Programmer for ATF1508AS, for example ATDH1150-USB
