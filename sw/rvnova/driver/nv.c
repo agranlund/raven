@@ -67,7 +67,7 @@ void nv_init_vram(uint32_t base, uint32_t size, uint16_t count) {
     cur_count = count;
 
     /* map logical framebuffer */
-    dprintf("nv_init_vram %08lx : %08lx x %d\n", cur_phys, size, count);
+    dprintf(("nv_init_vram %08lx : %08lx x %d\n", cur_phys, size, count));
     flag = (count > 1) ? PAGE_INVALID : PAGE_READWRITE;
     while (count) {
         cpu_map(log, cur_phys, cur_size, flag);
@@ -93,7 +93,7 @@ bool nv_setmode(uint16_t width, uint16_t height, uint16_t bpp) {
     int i;
     int modeidx = -1;
     bool result = false;
-    dprintf("nv_setmode %dx%dx%dx\n", width, height, bpp);
+    dprintf(("nv_setmode %dx%dx%dx\n", width, height, bpp));
     /* match against known modes */
     for (i = 0; i < nummodes && !result; i++) {
         mode_t* mode = &modes[i];
@@ -194,9 +194,9 @@ void nv_validate_modes(void) {
             static first = true;
             if (first) {
                 first = false;
-                dprintf(" ignored modes:\n");
+                dprintf((" ignored modes:\n"));
             }
-            dprintf("  %4d,%4d,%2d : %02x : %04x\n", modes[i].width, modes[i].height, modes[i].bpp, modes[i].flags, modes[i].code);
+            dprintf(("  %4d,%4d,%2d : %02x : %04x\n", modes[i].width, modes[i].height, modes[i].bpp, modes[i].flags, modes[i].code));
             if (i < (nummodes - 1)) {
                 memcpy(&modes[i], &modes[nummodes-1], sizeof(mode_t));
             }
@@ -255,12 +255,12 @@ bool nv_init(void) {
     nv_dummy_page = ((nv_dummy_page + (PMMU_PAGEALIGN - 1)) & ~(PMMU_PAGEALIGN - 1));
 
     /* initialize default vga */
-    dprintf("vga init\n");
+    dprintf(("vga init\n"));
     drv_vga.init(&nvcard, nv_addmode);
 
     /* initialize svga driver */
     for (i = 0; i < (sizeof(drivers) / sizeof(driver_t*)) && !card; i++) {
-        dprintf("svga init %d\n", i);
+        dprintf(("svga init %d\n", i));
         if (drivers[i] && drivers[i]->init(&nvcard, nv_addmode)) {
             driver = drivers[i];
             card = &nvcard;
@@ -270,19 +270,19 @@ bool nv_init(void) {
         uint32_t la;
 
         nv_validate_card();
-        dprintf("nv_init: %s : %s (%ldKb)\n",
+        dprintf(("nv_init: %s : %s (%ldKb)\n",
             driver->name,
             card->name,
-            card->vram_size / 1024);
-        dprintf(" banks: %08lx : %ldKb * %ld (%ldKb * %ld)\n",
+            card->vram_size / 1024));
+        dprintf((" banks: %08lx : %ldKb * %ld (%ldKb * %ld)\n",
             card->bank_addr,
             card->bank_size / 1024, card->bank_count,
-            card->bank_step / 1024, card->bank_count * (card->bank_size / card->bank_step));
+            card->bank_step / 1024, card->bank_count * (card->bank_size / card->bank_step)));
 
         nv_validate_modes();
-        dprintf(" valid modes:\n");
+        dprintf((" valid modes:\n"));
         for (i = 0; i < nummodes; i++) {
-            dprintf("  %4d,%4d,%2d : %02x : %04x\n", modes[i].width, modes[i].height, modes[i].bpp, modes[i].flags, modes[i].code);
+            dprintf(("  %4d,%4d,%2d : %02x : %04x\n", modes[i].width, modes[i].height, modes[i].bpp, modes[i].flags, modes[i].code));
         }
 
         /* prepare logical framebuffer */
@@ -299,6 +299,6 @@ bool nv_init(void) {
         return true;
     }
 
-    dprintf("nv_init failed\n");
+    dprintf(("nv_init failed\n"));
     return false;
 }

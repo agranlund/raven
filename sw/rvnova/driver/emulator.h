@@ -31,13 +31,13 @@
 #if defined(DEBUG) && DEBUG
     #if DEBUGPRINT_UART
         extern void dprintf_uart(char* s, ...);
-        #define dprintf dprintf_uart
+        #define dprintf(x) dprintf_uart x
     #else
         #include <stdio.h>
-        #define dprintf printf
+        #define dprintf(x) printf x
     #endif
 #else
-    static void dprintf(char* s, ...) { }
+    #define dprintf(x) { }
 #endif
 
 /*-----------------------------------------------------------------------------*/

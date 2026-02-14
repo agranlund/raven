@@ -525,9 +525,7 @@ static void setcustom(modeline_t* ml) {
     /* find best vclk3 values from frequency */
     uint16_t vclk = find_vclk(ml->pclk);
 
-#if DEBUG
-    dprintf("vclk %ld, N:%02x, D:%02x\n", ml->pclk, (uint8_t)(vclk&0xff), (uint8_t)(vclk>>8));
-#endif    
+    dprintf(("vclk %ld, N:%02x, D:%02x\n", ml->pclk, (uint8_t)(vclk&0xff), (uint8_t)(vclk>>8)));
 
     /* unlock extended sequencer registers */
     vga_WriteReg(0x3c4, 0x06, 0x12);
@@ -569,28 +567,28 @@ static bool setmode(mode_t* mode) {
             uint8_t tune = vga_ReadReg(0x3c4, 0x16);    /* performance tuning register */
             uint8_t mclk = vga_ReadReg(0x3c4, 0x1f);    /* mclk register */
             int16_t freq = (int16_t)(mclk & 0x3f) * 179;
-            dprintf(" cfg:  %02x %02x %02x\n", dram, tune, mclk);
-            dprintf(" dram: ");
+            dprintf((" cfg:  %02x %02x %02x\n", dram, tune, mclk));
+            dprintf((" dram: "));
             switch (dram & 3) {
-                case 0: dprintf("50 mhz, "); break;
-                case 1: dprintf("44 mhz, "); break;
-                case 2: dprintf("41 mhz, "); break;
-                case 3: dprintf("37 mhz, "); break;
+                case 0: dprintf(("50 mhz, ")); break;
+                case 1: dprintf(("44 mhz, ")); break;
+                case 2: dprintf(("41 mhz, ")); break;
+                case 3: dprintf(("37 mhz, ")); break;
             }
             switch ((dram >> 3) & 3) {
-                case 0: dprintf(" 8bit, "); break;
-                case 1: dprintf("16bit, "); break;
-                case 2: dprintf("32bit, "); break;
-                case 3: dprintf("32bit, "); break;
+                case 0: dprintf((" 8bit, ")); break;
+                case 1: dprintf(("16bit, ")); break;
+                case 2: dprintf(("32bit, ")); break;
+                case 3: dprintf(("32bit, ")); break;
             }
             switch ((dram >> 2) & 1) {
-                case 0: dprintf("extended RAS\n"); break;
-                case 1: dprintf("standard RAS\n"); break;
+                case 0: dprintf(("extended RAS\n")); break;
+                case 1: dprintf(("standard RAS\n")); break;
             }
-            dprintf(" fifo: %s, threshold: %d\n", dram & (1 << 5) ? "16/20" : "8", tune & 7);
-            dprintf(" fpm:  %s\n", dram & (1 << 6) ? "off" : "on");
-            dprintf(" mclk: %02x : ", mclk & 0x3f);
-            dprintf("%d.%d mhz\n", freq / 100, ((freq - ((freq / 100) * 100)) + 4) / 10);
+            dprintf((" fifo: %s, threshold: %d\n", dram & (1 << 5) ? "16/20" : "8", tune & 7));
+            dprintf((" fpm:  %s\n", dram & (1 << 6) ? "off" : "on"));
+            dprintf((" mclk: %02x : ", mclk & 0x3f));
+            dprintf(("%d.%d mhz\n", freq / 100, ((freq - ((freq / 100) * 100)) + 4) / 10));
         }
 #endif
         return true;

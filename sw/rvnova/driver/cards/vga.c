@@ -115,9 +115,9 @@ bool vga_setmode(uint16_t code) {
         vga_vsync();
         r.x.bx = code | clearflag;
         r.x.ax = 0x4f02;    /* setmode */
-        dprintf("setmode %04x %04x\n", r.x.ax, r.x.bx);
+        dprintf(("setmode %04x %04x\n", r.x.ax, r.x.bx));
         int86(0x10, &r, &r);
-        dprintf("ax = %04x %02x:%02x\n", r.x.ax, r.h.ah, r.h.al);
+        dprintf(("ax = %04x %02x:%02x\n", r.x.ax, r.h.ah, r.h.al));
         result = (r.h.ah == 0);
     } else {
         /* vga or svga */
