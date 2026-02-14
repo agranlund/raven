@@ -249,6 +249,17 @@ extern void vga_setaddr(uint32_t addr);
 extern void vga_setcolors(uint16_t index, uint16_t count, uint8_t* colors);
 extern void vga_getcolors(uint16_t index, uint16_t count, uint8_t* colors);
 extern void vga_enable_fastclear(bool on);
-extern void vga_modeline(modeline_t* ml);
+extern uint16_t vga_modeline(modeline_t* ml);
+
+#define VGA_OFL_VTO_10  (1 <<  0)
+#define VGA_OFL_VDE_10  (1 <<  1)
+#define VGA_OFL_VSS_10  (1 <<  2)
+#define VGA_OFL_VBS_10  (1 <<  3)
+#define VGA_OFL_VBE_8   (1 <<  5)
+#define VGA_OFL_VBE_9   (1 <<  6)
+#define VGA_OFL_HTO_10  (1 <<  8)
+#define VGA_OFL_HBE_6   (1 <<  9)
+#define VGA_OFL_HBE_7   (1 << 10)
+
 
 #endif /* _EMULATOR_H_ */

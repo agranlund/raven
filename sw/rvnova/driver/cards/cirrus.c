@@ -16,7 +16,7 @@
  * along with this program  if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *-----------------------------------------------------------------------------*/
-#include "emulator.h"
+ #include "emulator.h"
 #include "raven.h"
 #include "vga.h"
 #include "x86.h"
@@ -501,10 +501,11 @@ static void setaddr(uint32_t addr) {
 }
 
 
-static uint16_t find_vclk(uint32_t target) {
+static uint32_t setvclk(uint32_t target) {
     uint16_t p, d, n;
     uint16_t best_val = 0;
     uint32_t best_err = 0xffffffffUL;
+    uint32_t best_cur = 0;
     uint32_t ref = 14318; /* standard 14.31818 clock */
     for (p = 0; p <= 1; p++) {
         for (d = 0; d <= 63; d++) {
@@ -512,33 +513,31 @@ static uint16_t find_vclk(uint32_t target) {
                 uint32_t cur = (ref * n) / (d * (p + 1));
                 uint32_t err = (cur >= target) ? (cur - target) : (target - cur);
                 if (err < best_err) {
+                    best_cur = cur;
                     best_err = err;
                     best_val = (d << 9) | (p << 8) | n;
                 }
             }
         }
     }
-    return best_val;
+    /* program vclk3 */
+    vga_ModifyReg(0x3c4, 0x0e, 0x7f, best_val & 0xff);  /* N   */
+    vga_ModifyReg(0x3c4, 0x1e, 0x3f, best_val >> 8);    /* D,P */
+    /* select vclk3 */
+    vga_WritePort(0x3c2,  vga_ReadPort(0x3cc) | 0x0c);
+    return best_cur;
 }
 
 static void setcustom(modeline_t* ml) {
-    /* find best vclk3 values from frequency */
-    uint16_t vclk = find_vclk(ml->pclk);
-
+    uint16_t ofl = 0;
     dprintf(("vclk %ld, N:%02x, D:%02x\n", ml->pclk, (uint8_t)(vclk&0xff), (uint8_t)(vclk>>8)));
-
     /* unlock extended sequencer registers */
     vga_WriteReg(0x3c4, 0x06, 0x12);
-
-    /* program vclk3 */
-    vga_ModifyReg(0x3c4, 0x0e, 0x7f, vclk & 0xff);  /* N   */
-    vga_ModifyReg(0x3c4, 0x1e, 0x3f, vclk >> 8);    /* D,P */
-
-    /* select vclk3 */
-    vga_WritePort(0x3c2,  vga_ReadPort(0x3cc) | 0x0c);
-
+    /* set clock */
+    setvclk(ml->pclk);
     /* apply modeline to standard vga registers */
-    vga_modeline(ml);
+    ofl = vga_modeline(ml);
+    /* apply svga overflow registers */
 }
 
 static bool setmode(mode_t* mode) {
