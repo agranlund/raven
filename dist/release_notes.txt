@@ -1,7 +1,7 @@
 Raven.A1
 Hardware and software binary release
 
-xxxxxxxx:
+20260215:
   rvnova:   added settings file
   rvbios:   updated nova settings panel
 
