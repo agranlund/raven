@@ -238,8 +238,7 @@ vdi_func vr_recfl_old;
 void vr_recfl_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
     if (vdi_is_screenwk(wk)) {
         if (card->caps & NV_CAPS_FILL) {
-            /* todo: we can support other writemodes */
-            if (wk->writemode == 0) {
+            if (wk->writemode == 0) {   /* todo: we can support other writemodes now */
                 int16_t style, color;
                 if (vdi_getfillparams(wk, &style, &color)) {
                     rect_t dst;
@@ -258,38 +257,42 @@ void vr_recfl_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
 
 /*-----------------------------------------------------------------------------
 11 : v_gdp
-disabled since Kronos draw v_bars in reverse order so apparently that's legal.
+- disabled since Kronos draw v_bars in reverse order so apparently that's legal.
+- also verify with Qed, scrolling up line by line blits the top bar line
+  together with the text which moves down.
+  maybe vbar right + bottom lines one pixel to far?
 -----------------------------------------------------------------------------*/
 #if 0
 vdi_func v_gdp_old;
 void v_gdp_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
-    if (card->fill && vdi_is_screenwk(wk)) {
+    if (vdi_is_screenwk(wk) && (card->caps & NV_CAPS_FILL)) {
+
+        /* v_bar */
         if (pb->contrl[5] == 1) {
-            /* v_bar */
-            if (wk->writemode == 0) {
+            if (wk->writemode == 0) {   /* todo: we can support other writemodes now */
                 int16_t style, color;
                 if (vdi_getfillparams(wk, &style, &color)) {
-                    rect_t* r = (rect_t*)pb->ptsin;
-                    if (wk->clipflag && !nv_clip_rect(r, &wk->cliprect)) {
+                    rect_t dst;
+                    if (!vdi_clip_rect(&dst, (rect_t*)&pb->ptsin[0], wk->clipflag ? &wk->cliprect : 0)) {
                         return;
                     }
-                    if (card->fill(color,  7 - style, r)) {
+                    if (card->blit(BL_FILL|BL_ROP_S|BL_FGCOL(color)|BL_PATTERN(style), &dst, &dst.min)) {
                         if (wk->vsf_perimeter) {
-                            line_t l;
-                            l.min.x = r->min.x;          /* top */
-                            l.max.x = r->max.x;
-                            l.min.y = r->min.y;
-                            l.max.y = r->min.y;
-                            card->fill(color, 0, &l);
-                            l.min.y = r->max.y;          /* bottom */
-                            l.max.y = r->max.y;
-                            card->fill(color, 0, &l);
-                            l.max.x = r->min.x;          /* left */
-                            l.min.y = r->min.y;
-                            card->fill(color, 0, &l);
-                            l.min.x = r->max.x;          /* right */
-                            l.max.x = r->max.x;
-                            card->fill(color, 0, &l);
+                            rect_t l;
+                            l.min.x = dst.min.x;          /* top */
+                            l.max.x = dst.max.x;
+                            l.min.y = dst.min.y;
+                            l.max.y = dst.min.y;
+                            card->blit(BL_FILL|BL_ROP_S|BL_FGCOL(color)|BL_PATTERN(0), &l, &l.min);
+                            l.min.y = dst.max.y;          /* bottom */
+                            l.max.y = dst.max.y;
+                            card->blit(BL_FILL|BL_ROP_S|BL_FGCOL(color)|BL_PATTERN(0), &l, &l.min);
+                            l.max.x = dst.min.x;          /* left */
+                            l.min.y = dst.min.y;
+                            card->blit(BL_FILL|BL_ROP_S|BL_FGCOL(color)|BL_PATTERN(0), &l, &l.min);
+                            l.min.x = dst.max.x;          /* right */
+                            l.max.x = dst.max.x;
+                            card->blit(BL_FILL|BL_ROP_S|BL_FGCOL(color)|BL_PATTERN(0), &l, &l.min);
                         }
                         return;
                     }
