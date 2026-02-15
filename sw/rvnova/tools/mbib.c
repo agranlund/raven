@@ -150,7 +150,7 @@ int writebibs(const char* filename) {
     for (int i=0; i<bibcnt; i++) {
         nova_bibres_t* bib = &bibs[i];
         printf(" %s\n", bib->name);
-        fwrite((void*)&bib, sizeof(nova_bibres_t), 1, f);
+        fwrite((void*)bib, sizeof(nova_bibres_t), 1, f);
     }
     fclose(f);
     return 0;
