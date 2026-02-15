@@ -2,6 +2,9 @@ Raven.A1
 Hardware and software binary release
 
 20260215:
+  rvnova:   wip tseng driver
+  
+20260215:
   rvnova:   added settings file
   rvbios:   updated nova settings panel
 
