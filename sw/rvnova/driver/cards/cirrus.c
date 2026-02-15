@@ -487,20 +487,16 @@ static void setbank(uint16_t num) {
     vga_WritePortWLE(0x3ce, 0x0900 | num);
 }
 
-/* todo:
-    currently, this function assumes a 5426+ card
-    GD5426/28/29 supports CR1B:bits 0,2,3 (address bits 16, 17, 18)
-    GD542x       supports CR1B:bits 0,2   (address bits 16, 17    )
-*/
 static void setaddr(uint32_t addr) {
-    uint16_t crtc = vga_GetBaseReg(4);
-    uint32_t hiaddr = addr >> 18;
-    hiaddr += (hiaddr & 6);
-    vga_ModifyReg(crtc, 0x1B, 0x0D, hiaddr);
-    vga_WritePortWLE(crtc, 0x0D00 | ((addr >>  2) & 0xff));
-    vga_WritePortWLE(crtc, 0x0C00 | ((addr >> 10) & 0xff));
+/*  GD5426/28/29 supports CR1B:bits 0,2,3 (address bits 16, 17, 18)
+    GD542x       supports CR1B:bits 0,2   (address bits 16, 17    ) */
+    uint8_t himask = (chipset >= GD5426) ? 0x0d : 0x05;
+    uint32_t hiaddr = addr >> 18;   /* 16    -> bit 0   */
+    hiaddr += (hiaddr & 6);         /* 17,18 -> bit 2,3 */
+    vga_ModifyReg(0x3d4, 0x1B, himask, hiaddr);
+    vga_WritePortWLE(0x3d4, 0x0D00 | ((addr >>  2) & 0xff));
+    vga_WritePortWLE(0x3d4, 0x0C00 | ((addr >> 10) & 0xff));
 }
-
 
 static uint32_t setvclk(uint32_t target) {
     uint16_t p, d, n;
