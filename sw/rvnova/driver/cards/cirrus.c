@@ -522,12 +522,12 @@ static uint32_t setvclk(uint32_t target) {
     vga_ModifyReg(0x3c4, 0x1e, 0x3f, best_val >> 8);    /* D,P */
     /* select vclk3 */
     vga_WritePort(0x3c2,  vga_ReadPort(0x3cc) | 0x0c);
+    dprintf(("vclk3 %ld -> %ld [N:%02x D:%02x]\n", target, best_cur, (uint8_t)(best_val&0xff), (uint8_t)(best_val>>8)));
     return best_cur;
 }
 
 static void setcustom(modeline_t* ml) {
     uint16_t ofl = 0;
-    dprintf(("vclk %ld, N:%02x, D:%02x\n", ml->pclk, (uint8_t)(vclk&0xff), (uint8_t)(vclk>>8)));
     /* unlock extended sequencer registers */
     vga_WriteReg(0x3c4, 0x06, 0x12);
     /* set clock */
