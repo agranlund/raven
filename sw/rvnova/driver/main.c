@@ -23,9 +23,11 @@
 #include <linea.h>
 #include <mint/cookie.h>
 #include <mint/osbind.h>
-
-#include "emulator.h"
 #include "nova.h"
+#include "emulator.h"
+#define INI_IMPL
+#include "ini.h"
+
 
 static nova_xcb_t nova_static;
 nova_xcb_t* nova;
@@ -113,9 +115,9 @@ static uint16_t bpp_to_mode(uint16_t bpp) {
     }
 }
 
-static uint16_t mode_to_bpp(uint16_t mode) {
-    static const uint16_t mode_to_bpp_table[] = { 4, 1, 8, 15, 16, 24, 32 };
-    return (mode <= NOVA_MODE_32BPP) ? mode_to_bpp_table[mode] : 0;
+static uint16_t gfxmode_to_bpp(uint16_t mode) {
+    static const uint16_t gfxmode_to_bpp_table[] = { 4, 1, 8, 15, 16, 24, 32 };
+    return (mode <= NOVA_MODE_32BPP) ? gfxmode_to_bpp_table[mode] : 0;
 }
 
 static uint16_t bpp_to_bytes(uint16_t bpp) {

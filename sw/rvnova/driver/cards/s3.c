@@ -101,7 +101,7 @@ static bool identify(void) {
 }
 
 
-static void configure_framebuffer(mode_t* mode) {
+static void configure_framebuffer(gfxmode_t* mode) {
     if (s3_support_linear()) {
         uint8_t r;
 
@@ -148,7 +148,7 @@ static void setaddr(uint32_t addr) {
     vga_WritePortWLE(0x3d4, 0x0C00 | ((addr >> 10) & 0xff));
 }
 
-static bool setmode(mode_t* mode) {
+static bool setmode(gfxmode_t* mode) {
     if (vga_setmode(mode->code)) {
         configure_framebuffer(mode);
         return true;

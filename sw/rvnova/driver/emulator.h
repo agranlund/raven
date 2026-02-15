@@ -174,7 +174,7 @@ typedef struct
     uint8_t     bpp;
     uint8_t     flags;
     uint16_t    code;
-} mode_t;
+} gfxmode_t;
 
 typedef struct
 {
@@ -187,7 +187,7 @@ typedef struct
     uint32_t    bank_step;
     uint32_t    isa_mem;
     uint32_t    isa_io;
-    bool        (*setmode)(mode_t* mode);
+    bool        (*setmode)(gfxmode_t* mode);
     void        (*setaddr)(uint32_t addr);
     void        (*setbank)(uint16_t num);
     void        (*setcolors)(uint16_t index, uint16_t count, uint8_t* colors);

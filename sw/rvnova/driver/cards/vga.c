@@ -250,7 +250,7 @@ void vga_setaddr(uint32_t addr) {
 static void setbank(uint16_t num) {
 }
 
-static bool setmode(mode_t* mode) {
+static bool setmode(gfxmode_t* mode) {
     return vga_setmode(mode->code);
 }
 

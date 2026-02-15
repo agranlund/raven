@@ -1,6 +1,10 @@
 Raven.A1
 Hardware and software binary release
 
+xxxxxxxx:
+  rvnova:   added settings file
+  rvbios:   updated nova settings panel
+
 20260213:
   rom:      updated EmuTOS (#65a71f3 @ 20260202)
   rvnova:   better 1280x720x8bpp quality on Cirrus

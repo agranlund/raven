@@ -33,7 +33,7 @@ static card_t nvcard;
 
 #define MAX_MODES 32
 static int nummodes = 0;
-static mode_t modes[MAX_MODES];
+static gfxmode_t modes[MAX_MODES];
 
 uint32_t nv_dummy_page;
 static uint8_t nv_dummy_page_data[PMMU_PAGESIZE + PMMU_PAGEALIGN];
@@ -96,7 +96,7 @@ bool nv_setmode(uint16_t width, uint16_t height, uint16_t bpp) {
     dprintf(("nv_setmode %dx%dx%dx\n", width, height, bpp));
     /* match against known modes */
     for (i = 0; i < nummodes && !result; i++) {
-        mode_t* mode = &modes[i];
+        gfxmode_t* mode = &modes[i];
         if (mode && mode->code && (mode->width == width) && (mode->height == height) && (mode->bpp == bpp)) {
             /* call device driver */
             result = card->setmode(mode);
@@ -198,7 +198,7 @@ void nv_validate_modes(void) {
             }
             dprintf(("  %4d,%4d,%2d : %02x : %04x\n", modes[i].width, modes[i].height, modes[i].bpp, modes[i].flags, modes[i].code));
             if (i < (nummodes - 1)) {
-                memcpy(&modes[i], &modes[nummodes-1], sizeof(mode_t));
+                memcpy(&modes[i], &modes[nummodes-1], sizeof(gfxmode_t));
             }
             nummodes--;
         }

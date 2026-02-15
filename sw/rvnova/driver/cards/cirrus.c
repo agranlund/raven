@@ -20,6 +20,7 @@
 #include "raven.h"
 #include "vga.h"
 #include "x86.h"
+#include "ini.h"
 
 #if DRV_INCLUDE_CIRRUS
 
@@ -292,7 +293,7 @@ static uint32_t cl_getpitch(uint32_t width, uint8_t bpp) {
     return (bpp < 8) ? (width >> 3) : ((width * ((bpp + 7) & ~7)) >> 3);
 }
 
-static void configure_blitter(mode_t* mode) {
+static void configure_blitter(gfxmode_t* mode) {
     uint32_t pitch = cl_getpitch(mode->width, mode->bpp);
 
     /* disable mmio */
@@ -540,7 +541,7 @@ static void setcustom(modeline_t* ml) {
     /* apply svga overflow registers */
 }
 
-static bool setmode(mode_t* mode) {
+static bool setmode(gfxmode_t* mode) {
     if (vga_setmode(mode->code)) {
 
         /* custom 1280x720 mode */
@@ -604,11 +605,15 @@ static bool addmode_validated(addmode_f addmode, uint16_t w, uint16_t h, uint8_t
 }
 
 static bool init(card_t* card, addmode_f addmode) {
+    ini_t ini_root, ini;
 
     /* identify cirrus card */
     if (!identify()) {
         return false;
     }
+
+    ini_Load(&ini_root, "c:\\rvga.inf");
+    ini_GetSection(&ini, &ini_root, "cirrus");
 
     /* provide card info and callbacks */
     card->name = chipset_strings[chipset];
@@ -638,22 +643,9 @@ static bool init(card_t* card, addmode_f addmode) {
 
 
     /* mclk override */
-    /* todo when we have user settings for it */
-    mclk_override = 0;
-#if 0    
     if ((chipset >= GD5424) && (chipset <= GD5434)) {
-        /* xfree86 mclk overrides */
-        /* 0x1c : 50mhz : slow_dram, usually bios default */
-        /* 0x1f : 55mhz :  med_dram */
-        /* 0x22 : 60mhz : fast_dram, xfree86 reprograms this by default for GD5434-RevE */
-        uint8_t mclk = vga_ReadReg(0x3c4, 0x1f) & 0x3f;
-        if (chipset >= GD5434) {
-            if (mclk < 0x22) { mclk_override = 0x22; }
-        } else if (chipset >= GD5426) {
-            if (mclk < 0x1f) { mclk_override = 0x1f; }
-        }
+        mclk_override = ini_GetInt(&ini, "mclk", 0);
     }
-#endif
 
     if (chipset >= GD5430) {
         vgabios_SetMonitorTypeGD543x(
@@ -720,6 +712,8 @@ static bool init(card_t* card, addmode_f addmode) {
 
     /* configure linear or banked operation */
     configure_framebuffer();
+
+    ini_Unload(&ini);
     return true;
 }
 
