@@ -142,21 +142,25 @@ extern driver_t drv_vga;
 extern driver_t drv_cirrus;
 extern driver_t drv_oak;
 extern driver_t drv_s3;
+extern driver_t drv_tseng;
 extern driver_t drv_wdc;
 static driver_t* drivers[] = {
 #if DRV_INCLUDE_CIRRUS
     &drv_cirrus,
 #endif
-#if DRV_INCLUDE_OAK
-    &drv_oak,
-#endif
-#if DRV_INCLUDE_S3
-    &drv_s3,
-#endif
 #if DRV_INCLUDE_WDC
     &drv_wdc,
 #endif    
-    &drv_vga,
+#if DRV_INCLUDE_S3
+    &drv_s3,
+#endif
+#if DRV_INCLUDE_TSENG
+    &drv_tseng,
+#endif
+#if DRV_INCLUDE_OAK
+    &drv_oak,
+#endif
+&drv_vga,
 };
 
 

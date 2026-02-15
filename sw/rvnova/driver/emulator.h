@@ -54,6 +54,9 @@
 #ifndef DRV_INCLUDE_S3
 #define DRV_INCLUDE_S3          0
 #endif
+#ifndef DRV_INCLUDE_TSENG
+#define DRV_INCLUDE_TSENG       0
+#endif
 #ifndef DRV_INCLUDE_WDC
 #define DRV_INCLUDE_WDC         1
 #endif
