@@ -343,9 +343,7 @@ static bool init(card_t* card, addmode_f addmode) {
     addmode(1280, 720,  8, 0, 0x38);    /* custom */
 
     /* enable 16bit mem access */
-    /*
     vga_ModifyReg(0x3d4, 0x36, 0x40, 0x40);
-    */
 
     /* configure linear or banked framebuffer */
     configure_framebuffer(card, 0);
