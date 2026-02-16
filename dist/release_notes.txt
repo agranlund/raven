@@ -1,6 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+20260216:
+  rvnova:   tseng driver fixes
+
 20260215:
   rvnova:   wip tseng driver
   
