@@ -3,6 +3,9 @@
     .XREF cpu_di
     .XREF cpu_ei
     
+    .XREF timer_start
+    .XREF timer_stop
+
     .XREF nv_banksw_installvector
     .XREF nv_banksw_handler
 
@@ -39,6 +42,50 @@ cpu_ei:
     nop
     rts
 
+
+;----------------------------------------------------------
+; high resolution timer
+;----------------------------------------------------------
+timer_old_vec:  ds.l 1
+timer_sr:       ds.l 1
+timer_count:    ds.l 1
+
+timer_int:
+    addq.l  #1,timer_count
+    move.b  #0xdf,0xfffffa11.w
+    rte
+
+timer_start:
+    ; disable interrupts
+    move.w  #0x2700,d0
+    bsr     cpu_ei
+    move.w  d0,timer_sr
+    move.l  #0,timer_count
+    ; replace timer-c
+    move.l  0x00000114.w,d0
+    move.l  d0,timer_old_vec
+    and.b   #0x8f,0xfffffa1d.w      ; stop
+    move.l  #timer_int,0x00000114.w
+    move.b  #15,0xfffffa23.w
+    or.b    #0x10,0xfffffa1d.w      ; start 40960hz
+    ; and start
+    move.w  #0x2600,d0
+    bsr     cpu_ei
+    rts
+
+timer_stop:
+    move.w  #0x2700,sr
+    and.b   #0x8f,0xfffffa1d.w      ; stop
+    move.l  timer_old_vec,d0
+    move.l  d0,0x00000114.w
+    move.b  #192,d0
+    move.b  d0,0xfffffa23.w
+    and.b   #0xdf,0xfffffa11.w
+    or.b    #0x50,0xfffffa1d.w      ; start 200hz
+    move.w  timer_sr,d0
+    bsr     cpu_ei
+    move.l  timer_count,d0
+    rts
 
 ;----------------------------------------------------------
 ; entry point for patching vdi

@@ -43,6 +43,7 @@ uint32_t nv_fillpatterns[8] = {
     0xaa55aa55UL, 0x88552255UL, 0x00550055UL, 0x00440011UL
 };
 
+
 /*-------------------------------------------------------------------------------
  * nv_init_vram:
  *  sets up the logical vram after a mode change
@@ -264,7 +265,7 @@ bool nv_init(void) {
 
     /* initialize svga driver */
     for (i = 0; i < (sizeof(drivers) / sizeof(driver_t*)) && !card; i++) {
-        dprintf(("svga init %d\n", i));
+        dprintf(("svga try %s\n", drivers[i]->name));
         if (drivers[i] && drivers[i]->init(&nvcard, nv_addmode)) {
             driver = drivers[i];
             card = &nvcard;

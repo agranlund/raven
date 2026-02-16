@@ -36,7 +36,11 @@ static const char* chipset_strings[] = {
 
 static chipset_e chipset;
 static uint16_t vram;
-static uint32_t pclks[16];
+static uint16_t numclks;
+static struct {
+    uint8_t code;
+    uint32_t freq;
+} clocks[64];
 
 static bool identify(void) {
     uint8_t old3bf, old3d8;
@@ -49,7 +53,7 @@ static bool identify(void) {
     vga_WritePort(0x3bf, 3);
     vga_WritePort(0x3d8, 0xa0);
 
-    /* and see if we've got one */
+    /* look for tseng card */
     if (vga_TestPort(0x3cd, 0x3f)) {
         if (vga_TestReg(0x3d4, 0x33, 0x0f)) {
             chipset = ET4000AX;
@@ -63,9 +67,18 @@ static bool identify(void) {
         }
     }
 
+    /* look for installed memory */
     if (chipset != 0) {
-        /* todo: find vram size */
-        vram = 1024;
+        uint8_t vconf = vga_ReadReg(0x3d4, 0x37);
+        vram = (vconf & 0x08) ? 256 : 64;
+        switch (vconf & 0x3) {
+            case 2: vram <<= 1; break;
+            case 3: vram <<= 2; break;
+        }
+        if (vconf & 0x80) {
+            vram <<= 1;
+        }
+        dprintf((" vconf %02x\n", vconf));
         return true;
     }
 
@@ -75,30 +88,152 @@ static bool identify(void) {
     return false;
 }
 
-static void configure_framebuffer(gfxmode_t* mode) {
+static void addclock(uint8_t code, uint32_t val) {
+    if (numclks < 64) {
+        int i;
+        uint32_t f = ((val+249) / 500) * 500;
+        for (i=0; i<numclks; i++) {
+            if (clocks[i].freq == f) {
+                return;
+            }
+        }
+        clocks[numclks].code = code;
+        clocks[numclks].freq = f;
+        numclks++;
+    }
+}
+
+static uint8_t getclock(void) {
+    uint8_t clk = ((vga_ReadPort(0x3cc) >> 2) & 0x03);   /* bit 1..0  */
+    clk |= ((vga_ReadReg(0x3d4, 0x34) << 1) & 0x04);     /* bit 2     */
+    if (chipset >= ET4000W32) {
+        clk |= ((vga_ReadReg(0x3d4, 0x31) >> 3) & 0x18); /* bit 4..3 */
+        clk |= ((vga_ReadReg(0x3d4, 0x34) << 5) & 0x20); /* bit 5 (translation table) */
+        clk |= ((vga_ReadReg(0x3c4, 0x07) << 0) & 0x40); /* bit 6 (div2) */
+        clk |= ((vga_ReadReg(0x3c4, 0x07) << 7) & 0x80); /* bit 7 (div4) */
+    } else {
+        uint8_t seq07 = vga_ReadReg(0x3c4, 0x07);
+        if ((seq07 & 0x41) == 0x41) {
+            clk |= 0x10;                                 /* bit 4..3 */
+        } else {
+            clk |= (seq07 >> 3) & 0x08;                  /* bit 3    */
+        }
+    }
+    return clk;
+}
+
+static void setclock(uint8_t clk) {
+    vga_WritePort(0x3c2, (vga_ReadPort(0x3cc) & 0xf3) | ((clk & 0x03) << 2));   /* bit 1..0 */
+    vga_ModifyReg(0x3d4, 0x34, 0x02, (clk & 0x04) >> 1);        /* bit 2 */
+    if (chipset >= ET4000W32) {
+        vga_ModifyReg(0x3d4, 0x31, 0xc0, (clk & 0x18) << 3);    /* bit 4..3 */
+        vga_ModifyReg(0x3d4, 0x34, 0x01, (clk & 0x20) >> 5);    /* bit5 (translation table) */
+        vga_ModifyReg(0x3c4, 0x07, 0x40, (clk & 0x40) >> 0);    /* bit6 (div2) */
+        vga_ModifyReg(0x3c4, 0x07, 0x01, (clk & 0x80) >> 7);    /* bit7 (div4) */
+    } else {
+        uint8_t seq07 = vga_ReadReg(0x3c4, 0x07);
+        seq07 &= 0xbe;
+        seq07 |= (clk & 0x10) ? 0x41 : 0x00;                    /* bit 4 */
+        seq07 |= ((clk & 0x08) << 3);                           /* bit 3 */
+        vga_WriteReg(0x3c4, 0x07, seq07);
+    }
+}
+
+static uint32_t measureclock(int16_t ticks) {
+    while(!(vga_ReadPort(0x3DA) & 0x08));
+    timer_start();
+    for(; ticks; ticks--) {
+        while(vga_ReadPort(0x3DA) & 0x08);
+        while(!(vga_ReadPort(0x3DA) & 0x08));
+    }
+    return timer_stop();
+}
+
+static uint8_t findclock(uint32_t freq) {
+    uint16_t i;
+    uint8_t best_code = 0;
+    uint32_t best_err = 0xffffffffUL;
+    for (i=0; i<numclks; i++) {
+        uint32_t err = (freq > clocks[i].freq) ? (freq - clocks[i].freq) : (clocks[i].freq - freq);
+        if (err < best_err) {
+            best_code = clocks[i].code;
+            best_err = err;
+        }
+    }
+    return best_code;
+}
+
+static void initclocks(void) {
+    uint16_t i;
+    uint8_t oclock;
+    uint32_t oticks;
+    uint32_t pixc = 850UL * 525;
+    vga_ModifyReg(0x3d4, 0x11, 0x80, 0x00);
+    vga_screen_on(false);
+    oclock = getclock();
+    oticks = measureclock(1);
+    dprintf((" clocks\n"));
+    for (i=0; i<64; i++) {
+        uint32_t nticks;
+        uint32_t freq;
+        setclock(i);
+        nticks = measureclock(1);
+        freq = (25175UL * oticks) / nticks;
+        addclock(i, freq);
+        if (chipset >= ET4000W32) {
+            addclock((i | 0x40), freq >> 1);
+            addclock((i | 0x80), freq >> 2);
+        }
+    }
+    setclock(oclock);
+    vga_screen_on(true);
+#if DEBUG
+    for (i=0; i<numclks; i++) {
+        dprintf((" %2d: %02x: %ld\n", i, clocks[i].code, clocks[i].freq));
+    }
+#endif
+}
+
+static void configure_framebuffer(card_t* card, gfxmode_t* mode) {
     if (support_linear()) {
         vga_ModifyReg(0x3ce, 0x06, 0x0c, 0x00);         /* 128kb mode */
         vga_WriteReg(0x3ce, 0x08, 0x0ff);               /* all bits enable */
         vga_WritePort(0x3cd, 0x00);                     /* segment 0 */
-        if (chipset >= ET4000W32) {
 
-            /* todo: work out the correct setting for vram @4MB
-               regardless of card. look at dram config regs or vram size?
-            */
-#if 1
-            /* this appears right for the 1mb card */
-            vga_WriteReg(0x3d4, 0x30, (1<<4) | 0x02);   /* vram at 4mb mark */
-#else
-            /* and this works for the 2mb card */
-            vga_WriteReg(0x3d4, 0x30, (1<<4) | 0x01);   /* vram at 4mb mark */
-#endif            
-            vga_ModifyReg(0x3d4, 0x36, 0x18, 0x10);     /* linear on */
+        if (chipset >= ET4000W32) {
+            /* detect SEGE and A22 wiring on the card */
+            /* different hardware vendors wire them up in different ways */
+            static int8_t lconf = -1;
+            if (lconf < 0) {
+                vga_ModifyReg(0x3d4, 0x36, 0x10, 0x00);                                 /* linear off */
+                *((volatile uint32_t*)(card->isa_mem + 0xA0000UL)) = 0xdeadbeefUL;      /* write test pattern */
+                for (lconf = 0; lconf <= 3; lconf++) {
+                    vga_ModifyReg(0x3d4, 0x36, 0x10, 0x00);                             /* linear off */
+                    vga_WriteReg(0x3d4, 0x30, lconf);
+                    vga_ModifyReg(0x3d4, 0x36, 0x10, 0x10);                             /* linear on */
+                    if (*((volatile uint32_t*)(card->isa_mem + card->bank_addr)) == 0xdeadbeefUL) {
+                        break;
+                    }
+                }
+                if (lconf < 0) { lconf = 0x01; }
+                dprintf((" lconf %02x\n", lconf));
+                vga_ModifyReg(0x3d4, 0x36, 0x10, 0x00);                             /* linear off */
+                *((volatile uint32_t*)(card->isa_mem + 0xA0000UL)) = 0;             /* clear test pattern */
+            }
+
+            /* set linear mode. address must be set first on certain cards */
+            vga_WriteReg(0x3d4, 0x30, lconf);           /* linear address */
+            vga_ModifyReg(0x3d4, 0x36, 0x18, 0x10);     /* linear enable  */
+
             /* reset screen offsets */
+#if 0            
             vga_WriteReg(0x3d4, 0x0c, 0x00);            /* addr start 15..8 */
             vga_WriteReg(0x3d4, 0x0d, 0x00);            /* addr start  7..0 */
             vga_ModifyReg(0x3d4, 0x33, 0x13, 0x00);     /* bit 0,1,4 = bit 16,17,18 */
             vga_ModifyReg(0x3d4, 0x35, 0x0f, 0x00);     /* another extended display start */
+#endif
         } else {
+            /* todo: can it be moved somewhere above the 1MB mark? */
             vga_ModifyReg(0x3d4, 0x36, (3<<4), (3<<4)); /* linear adressing enable */
         }
     } else if (vram >= 512) {
@@ -113,7 +248,7 @@ static void configure_framebuffer(gfxmode_t* mode) {
 
 static bool setmode(gfxmode_t* mode) {
     if (vga_setmode(mode->code)) {
-        /* unlock in case vgabios locked it */
+        /* unlock in case vgabios locked us */
         vga_WritePort(0x3bf, 3);
         vga_WritePort(0x3d8, 0xa0);
 
@@ -137,62 +272,17 @@ static bool setmode(gfxmode_t* mode) {
                 vga_WriteReg(0x3d4, 0x16, 0x22);
                 vga_WriteReg(0x3d4, 0x35, 0x00);
                 vga_ModifyReg(0x3d4, 0x11, 0x80, 0x80);
+                setclock(findclock(64000UL));
+            }
 
-
-                /* measure clocks */
-
-                /* w32i
-                    1340 : 80mhz
-                    1700 : 63mhz
-                    1430 : 75mhz
-                    2390 : 44mhz
-                */
-
-                /* misc out register, cs0, cs1 */
-                /* crtc reg 34, bit 1 = cs2 */
-                #if 0
-                {
-                    uint16_t j,k;
-                    uint8_t mout = vga_ReadPort(0x3cc) & 0xf3;
-
-                    for (k = 0; k < 2; k++) {
-                        for (j = 0; j < 4; j++) {
-                            /* todo W32i and later: crtc31 also has CS2 as well as CS3 */
-                            uint8_t crtc34 = vga_ReadReg(0x3d4, 0x34);
-                            uint8_t ts01 = vga_ReadReg(0x3c4, 0x01);
-                            vga_ModifyReg(0x3d4, 0x34, 0x02, (k << 1));
-                            vga_WritePort(0x3c2, mout | (j << 2));
-                            {
-                                uint16_t i;
-                                uint16_t sr;
-                                uint32_t time = *((volatile uint32_t*)0x4ba);
-                                sr = cpu_ei(0x2600);
-                                for (i=0; i<100; i++) {
-                                    while(!(vga_ReadPort(0x3DA) & 0x08));
-                                    while(vga_ReadPort(0x3DA) & 0x08);
-                                }
-                                time = *((volatile uint32_t*)0x4ba) - time;
-                                cpu_ei(sr);
-                                dprintf(("time: %d:%d: CRTC34=%02x : TS01=%02x : %ld ms\n", k, j, crtc34, ts01, time * 5));
-                            }
-                        }
-                    }
-                }
-                #endif
+            if ((mode->width == 1280) && (mode->height == 720)) {
+                modeline_t* ml = &modeline_720p_cvtrb;
+                vga_modeline(ml);
+                setclock(findclock(ml->pclk));
             }
         }
 
-#if 0
-        /* custom 1280x720 mode */
-        if ((mode->width == 1280) && (mode->height == 720)) {
-            /* cvt-rb is for 64Mhz */
-            modeline_t* ml = &modeline_720p_cvtrb;
-            /* update vga crtc registers */
-            vga_modeline(ml);
-        }
-#endif            
-
-        configure_framebuffer(mode);
+        configure_framebuffer(card, mode);
         return true;
     }
     return false;
@@ -209,17 +299,6 @@ static void setaddr(uint32_t addr) {
 #endif    
 }
 
-static void init_clocks(void) {
-    int16_t i;
-    /*  todo: measure the cards selection of clocks.
-        assume we are in startup 640x480x4bpp mode,
-        or perhaps set it now before we measure them.
-    */
-    for (i=0; i<16; i++) {
-        pclks[i] = 0;
-    }
-}
-
 static bool init(card_t* card, addmode_f addmode) {
     /* detect hardware */
     if (!identify()) {
@@ -227,7 +306,7 @@ static bool init(card_t* card, addmode_f addmode) {
     }
 
     /* measure clocks */
-    init_clocks();
+    initclocks();
 
     /* supply driver callbacks and card info */
     card->name = chipset_strings[chipset];
@@ -235,12 +314,10 @@ static bool init(card_t* card, addmode_f addmode) {
     card->setmode = setmode;
     card->setaddr = setaddr;
     if (support_linear()) {
-        /* todo: should be 4MB aligned for w32 */
         if (chipset >= ET4000W32) {
-            card->bank_addr = 0;
             card->bank_addr = 0x400000UL;
         } else {
-            card->bank_addr = 0; /*0x100000UL;*/
+            card->bank_addr = 0x000000UL;   /* todo: can it be moved? */
         }
         card->bank_size = card->vram_size;
     } else if (vram >= 512) {
@@ -254,7 +331,7 @@ static bool init(card_t* card, addmode_f addmode) {
     */
 
     /* 4bpp modes */
-    /*addmode( 640, 480,  4, 0, 0x25);*/
+    addmode( 640, 480,  4, 0, 0x25);
     addmode( 800, 600,  4, 0, 0x29);
     addmode(1024, 768,  4, 0, 0x37);
     
@@ -263,12 +340,15 @@ static bool init(card_t* card, addmode_f addmode) {
     addmode( 640, 480,  8, 0, 0x2E);
     addmode( 800, 600,  8, 0, 0x30);
     addmode(1024, 768,  8, 0, 0x38);
+    addmode(1280, 720,  8, 0, 0x38);    /* custom */
 
     /* enable 16bit mem access */
+    /*
     vga_ModifyReg(0x3d4, 0x36, 0x40, 0x40);
+    */
 
     /* configure linear or banked framebuffer */
-    configure_framebuffer(0);
+    configure_framebuffer(card, 0);
 
     /* interleave mode */
     if (chipset == ET4000W32I) {

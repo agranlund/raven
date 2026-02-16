@@ -242,6 +242,9 @@ extern void nv_banksw_install(void);
 extern void nv_banksw_prepare(uint16_t width, uint16_t height, uint16_t bpp);
 extern bool nv_accel_hlines(uint16_t flg, uint16_t col, int16_t num, int16_t ypos, int16_t* pts);
 
+extern void timer_start(void);
+extern uint32_t timer_stop(void);
+
 /* standard vga functionality */
 extern void vga_vsync(void);
 extern void vga_vblank_out(void);
