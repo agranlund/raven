@@ -23,9 +23,11 @@
 #include <linea.h>
 #include <mint/cookie.h>
 #include <mint/osbind.h>
-
-#include "emulator.h"
 #include "nova.h"
+#include "emulator.h"
+#define INI_IMPL
+#include "ini.h"
+
 
 static nova_xcb_t nova_static;
 nova_xcb_t* nova;
@@ -113,9 +115,9 @@ static uint16_t bpp_to_mode(uint16_t bpp) {
     }
 }
 
-static uint16_t mode_to_bpp(uint16_t mode) {
-    static const uint16_t mode_to_bpp_table[] = { 4, 1, 8, 15, 16, 24, 32 };
-    return (mode <= NOVA_MODE_32BPP) ? mode_to_bpp_table[mode] : 0;
+static uint16_t gfxmode_to_bpp(uint16_t mode) {
+    static const uint16_t gfxmode_to_bpp_table[] = { 4, 1, 8, 15, 16, 24, 32 };
+    return (mode <= NOVA_MODE_32BPP) ? gfxmode_to_bpp_table[mode] : 0;
 }
 
 static uint16_t bpp_to_bytes(uint16_t bpp) {
@@ -160,7 +162,7 @@ static void update_nova_resinfo(uint16_t width, uint16_t height, uint16_t bpp) {
     nova->scrn_count = (nova->scrn_count < 1) ? 1 : nova->scrn_count;
     nova->base = nova->mem_base;
 
-    dprintf("size = %ld, pitch = %d\n", nova->scrn_size, nova->pitch);
+    dprintf(("size = %ld, pitch = %d\n", nova->scrn_size, nova->pitch));
 }
 
 
@@ -182,7 +184,7 @@ void nova_p_changeres(nova_bibres_t* bib, uint32_t offs) {
     uint16_t h = bib->max_y + 1;
     uint16_t b = bib->planes;
 
-    dprintf("nova: p_changeres: %08lx, %ld : %dx%dx%d\n", (uint32_t)bib, offs, w, h, b);
+    dprintf(("nova: p_changeres: %08lx, %ld : %dx%dx%d\n", (uint32_t)bib, offs, w, h, b));
 
     /* dies on cpu_di() if p_changeres() is called from nova_col.acc */
     /* are we being called from usermode? or run out of super stack? */
@@ -213,7 +215,7 @@ void nova_p_changeres(nova_bibres_t* bib, uint32_t offs) {
 void nova_p_setcolor(uint16_t index, uint8_t* colors) {
     uint16_t sr;
     uint8_t dacIndex = (nova->planes < 8) ? nova_colormap[index&0xf] : index;
-    /*dprintf("col %d (%02x): %02x %02x %02x\n", index, dacIndex, colors[0], colors[1], colors[2]);*/
+    /*dprintf(("col %d (%02x): %02x %02x %02x\n", index, dacIndex, colors[0], colors[1], colors[2]));*/
 
     sr = cpu_di();
     if (nova->planes == 1) {
@@ -237,44 +239,44 @@ void nova_p_changevirt(uint16_t x, uint16_t y) {
     /* presumably so the driver can perform scrolling over a larger virtual screen */
     /* but could perhaps also be useful for hardware cursor */
     /* test nova_col.acc */
-    /*dprintf("nova: p_changevirt: %d, %d\n", x, y);*/
+    /*dprintf(("nova: p_changevirt: %d, %d\n", x, y));*/
 }
 
 void nova_p_instxbios(uint16_t on) {
     /* this gets called with 0 when xmenu.prg starts */
-    dprintf("nova: p_instxbios: %d\n", on);
+    dprintf(("nova: p_instxbios: %d\n", on));
 }
 
 void nova_p_screen_on(uint16_t on) {
     /* have no seen this called from sta_vdi */
     /* most likely used by sta_vdi's screensaver */
-    dprintf("nova: p_screen_on: %d\n", on);
+    dprintf(("nova: p_screen_on: %d\n", on));
 }
 
 void nova_p_changepos(nova_bibres_t* bib, uint16_t dir, uint16_t offs) {
     /* have not seen this called from sta_vdi and have no idea what it's supposed to do */
     /* best guess is that the vme tool might be using it */
     /* test nova_col.acc */
-    dprintf("nova: p_changepos: %08lx, %d, %d\n", (uint32_t)bib, dir, offs);
+    dprintf(("nova: p_changepos: %08lx, %d, %d\n", (uint32_t)bib, dir, offs));
 }
 
 void nova_p_setscreen(void* addr) {
     /* called on sta_vdi start and no confusion here */
     uint32_t offset = (uint32_t)addr - (uint32_t)nova->base;
-    /*dprintf("nova: p_setscreen: %08lx : %08lx\n", (uint32_t)addr, (uint32_t)offset);*/
+    /*dprintf(("nova: p_setscreen: %08lx : %08lx\n", (uint32_t)addr, (uint32_t)offset));*/
     card->setaddr(offset);
 }
 
 void nova_p_vsync(void) {
     /* does what it says on the tin */
-    /*dprintf("nova: p_vsync\n");*/
+    /*dprintf(("nova: p_vsync\n"));*/
     card->vsync();
 }
 
 extern void vdi_patch(void* stack);
 extern void nova_p_setscreen_first_asm(void* addr);
 void nova_p_setscreen_first(void* addr, void* stack) {
-    dprintf("nova: p_setscreen_first: %08lx %08lx\n", (uint32_t)addr, (uint32_t)stack);
+    dprintf(("nova: p_setscreen_first: %08lx %08lx\n", (uint32_t)addr, (uint32_t)stack));
     vdi_patch(stack);
     nova->p_setscreen = nova_p_setscreen;
     nova_p_setscreen(addr);
@@ -324,7 +326,7 @@ static bool setbootres(void) {
         uint8_t* pal = nova_dummy_area;
         pal[0] = 0xFF; pal[1] = 0xFF; pal[2] = 0xFF;
         pal[3] = 0x00; pal[4] = 0x00; pal[5] = 0x00;
-        dprintf("bootres from emulator.bib\n");
+        dprintf(("bootres from emulator.bib\n"));
         nova_p_changeres(bibres, 0);
         nova_p_setcolor(0, &(pal[0]));
         nova_p_setcolor(1, &(pal[3]));

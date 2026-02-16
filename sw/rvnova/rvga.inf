@@ -1,0 +1,12 @@
+#----------------------------------------------
+# rvga configuration file
+#----------------------------------------------
+
+[cirrus]
+# mclk = $1c       # slow, usually bios default
+# mclk = $1f       #
+# mclk = $22       # fast, xfree86 default for GD5434
+
+[et4000.w32]
+ interleave = 0
+

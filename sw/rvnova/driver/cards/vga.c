@@ -115,9 +115,9 @@ bool vga_setmode(uint16_t code) {
         vga_vsync();
         r.x.bx = code | clearflag;
         r.x.ax = 0x4f02;    /* setmode */
-        dprintf("setmode %04x %04x\n", r.x.ax, r.x.bx);
+        dprintf(("setmode %04x %04x\n", r.x.ax, r.x.bx));
         int86(0x10, &r, &r);
-        dprintf("ax = %04x %02x:%02x\n", r.x.ax, r.h.ah, r.h.al);
+        dprintf(("ax = %04x %02x:%02x\n", r.x.ax, r.h.ah, r.h.al));
         result = (r.h.ah == 0);
     } else {
         /* vga or svga */
@@ -139,7 +139,9 @@ bool vga_setmode(uint16_t code) {
     return result;
 }
 
-void vga_modeline(modeline_t* ml) {
+uint16_t vga_modeline(modeline_t* ml) {
+    uint16_t ret;
+    uint8_t  ofl;
     uint16_t hto = (ml->htotal / 8) - 5;
     uint16_t hde = (ml->hdisp / 8) - 1;
     uint16_t hbs = (ml->hdisp / 8) - 1;
@@ -153,8 +155,15 @@ void vga_modeline(modeline_t* ml) {
     uint16_t vbs = ml->vdisp;
     uint16_t vbe = ml->vtotal - 1;
 
-    /* overflow bits */
-    uint8_t ofl = 
+#if 1
+    /* wdc is getting stuck blanks. */
+    /* but this appears to work on both wdc and cirrus */
+    hbe = 0;
+    vbe = 0;
+#endif
+
+    /* vga overflow bits */
+    ofl = 
         (((vto & (1 << 8)) ? 1 : 0) << 0) |
         (((vde & (1 << 8)) ? 1 : 0) << 1) |
         (((vss & (1 << 8)) ? 1 : 0) << 2) |
@@ -162,14 +171,19 @@ void vga_modeline(modeline_t* ml) {
         (1 << 4) |
         (((vto & (1 << 9)) ? 1 : 0) << 5) |
         (((vde & (1 << 9)) ? 1 : 0) << 6) |
-        (((vss & (1 << 9)) ? 1 : 0) << 7);
+        (((vss & (1 << 9)) ? 1 : 0) << 7) ;
 
-#if 1
-    /* wdc is getting stuck blanks. */
-    /* but this appears to work on both wdc and cirrus */
-    hbe = 0;
-    vbe = 0;
-#endif
+    /* svga overflow bits */
+    ret = 
+        (((vto & (1 << 10)) ? 1 : 0) <<  0) |
+        (((vde & (1 << 10)) ? 1 : 0) <<  1) |
+        (((vss & (1 << 10)) ? 1 : 0) <<  2) |
+        (((vbs & (1 << 10)) ? 1 : 0) <<  3) |
+        (((vbe & (1 <<  8)) ? 1 : 0) <<  5) |
+        (((vbe & (1 <<  9)) ? 1 : 0) <<  6) |
+        (((hto & (1 << 10)) ? 1 : 0) <<  8) |
+        (((hbe & (1 <<  6)) ? 1 : 0) <<  9) |
+        (((hbe & (1 <<  7)) ? 1 : 0) << 10) ;
 
     /* sync polarity */
     vga_WritePort(0x3c2,
@@ -187,7 +201,7 @@ void vga_modeline(modeline_t* ml) {
     vga_WriteReg(0x3d4, 0x02, hbs & 0xff);                          /* hblank start             */
     vga_WriteReg(0x3d4, 0x03, ((hbe & 0x1f) | 0x80));               /* hblank end               */
     vga_WriteReg(0x3d4, 0x04, hss & 0xff);                          /* hsync start              */
-    vga_WriteReg(0x3d4, 0x05, hse & 0x1f);                          /* hsync end                */
+    vga_WriteReg(0x3d4, 0x05, ((hbe<<2)&0x80) | (hse & 0x1f));      /* hblank end + hsync end   */
 
     /* vertical */
     vga_WriteReg(0x3d4, 0x06, vto & 0xff);                          /* vtotal                   */
@@ -198,6 +212,9 @@ void vga_modeline(modeline_t* ml) {
     vga_WriteReg(0x3d4, 0x13, (ml->hdisp / 8)  & 0xff);             /* pitch                    */
     vga_WriteReg(0x3d4, 0x15, vbs & 0xff);                          /* vblank start             */
     vga_WriteReg(0x3d4, 0x16, vbe & 0xff);                          /* vblank end               */
+
+    /* return svga overflow */
+    return ret;
 }
 
 void vga_setcolors(uint16_t index, uint16_t count, uint8_t* colors) {
@@ -233,7 +250,7 @@ void vga_setaddr(uint32_t addr) {
 static void setbank(uint16_t num) {
 }
 
-static bool setmode(mode_t* mode) {
+static bool setmode(gfxmode_t* mode) {
     return vga_setmode(mode->code);
 }
 

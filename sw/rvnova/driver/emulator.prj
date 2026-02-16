@@ -20,6 +20,7 @@ cards\vga.c
 cards\cirrus.c
 cards\oak.c
 cards\s3.c
+cards\tseng.c
 cards\wdc.c
 ..\..\purec\lib\pctoslib.lib
 ..\..\purec\lib\pcstdlib.lib

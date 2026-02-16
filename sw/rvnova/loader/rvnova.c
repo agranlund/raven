@@ -28,7 +28,7 @@ int rvnova_makeinf(rvnova_menuinf_t* inf) {
     inf->menuinf.output = 1;
 	inf->menuinf.guikey = 3;		/* gui disable unless keypress */
 	inf->menuinf.maccel = 0;
-    strcpy(inf->drvpath, "DEFAULT");
+    strcpy(inf->drvpath, "SVGA");
     inf->drv_enable = 1;
     inf->vdi_enable = 1;
     inf->drv_res.w = 640;

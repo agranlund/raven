@@ -31,13 +31,13 @@
 #if defined(DEBUG) && DEBUG
     #if DEBUGPRINT_UART
         extern void dprintf_uart(char* s, ...);
-        #define dprintf dprintf_uart
+        #define dprintf(x) dprintf_uart x
     #else
         #include <stdio.h>
-        #define dprintf printf
+        #define dprintf(x) printf x
     #endif
 #else
-    static void dprintf(char* s, ...) { }
+    #define dprintf(x) { }
 #endif
 
 /*-----------------------------------------------------------------------------*/
@@ -53,6 +53,9 @@
 #endif
 #ifndef DRV_INCLUDE_S3
 #define DRV_INCLUDE_S3          0
+#endif
+#ifndef DRV_INCLUDE_TSENG
+#define DRV_INCLUDE_TSENG       1
 #endif
 #ifndef DRV_INCLUDE_WDC
 #define DRV_INCLUDE_WDC         1
@@ -174,7 +177,7 @@ typedef struct
     uint8_t     bpp;
     uint8_t     flags;
     uint16_t    code;
-} mode_t;
+} gfxmode_t;
 
 typedef struct
 {
@@ -187,7 +190,7 @@ typedef struct
     uint32_t    bank_step;
     uint32_t    isa_mem;
     uint32_t    isa_io;
-    bool        (*setmode)(mode_t* mode);
+    bool        (*setmode)(gfxmode_t* mode);
     void        (*setaddr)(uint32_t addr);
     void        (*setbank)(uint16_t num);
     void        (*setcolors)(uint16_t index, uint16_t count, uint8_t* colors);
@@ -249,6 +252,17 @@ extern void vga_setaddr(uint32_t addr);
 extern void vga_setcolors(uint16_t index, uint16_t count, uint8_t* colors);
 extern void vga_getcolors(uint16_t index, uint16_t count, uint8_t* colors);
 extern void vga_enable_fastclear(bool on);
-extern void vga_modeline(modeline_t* ml);
+extern uint16_t vga_modeline(modeline_t* ml);
+
+#define VGA_OFL_VTO_10  (1 <<  0)
+#define VGA_OFL_VDE_10  (1 <<  1)
+#define VGA_OFL_VSS_10  (1 <<  2)
+#define VGA_OFL_VBS_10  (1 <<  3)
+#define VGA_OFL_VBE_8   (1 <<  5)
+#define VGA_OFL_VBE_9   (1 <<  6)
+#define VGA_OFL_HTO_10  (1 <<  8)
+#define VGA_OFL_HBE_6   (1 <<  9)
+#define VGA_OFL_HBE_7   (1 << 10)
+
 
 #endif /* _EMULATOR_H_ */

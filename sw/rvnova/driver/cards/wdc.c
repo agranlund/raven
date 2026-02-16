@@ -322,7 +322,7 @@ static bool blit33(uint32_t cmd, rect_t* src, vec_t* dst) {
 }
 
 
-static void configure_framebuffer(mode_t* mode) {
+static void configure_framebuffer(gfxmode_t* mode) {
 
     if (wd_support_linear()) {
 
@@ -404,7 +404,7 @@ static void configure_framebuffer(mode_t* mode) {
     }
 }
 
-static bool setmode(mode_t* mode) {
+static bool setmode(gfxmode_t* mode) {
     if (vga_setmode(mode->code)) {
 
         /* custom 1280x720 mode */

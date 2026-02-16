@@ -165,12 +165,11 @@ copysw:
 	# --------------------------------------------------
 	# RVNOVA
 	# --------------------------------------------------
-	make -C $(ROOTDIR)/sw/rvnova/loader/ clean
-	make -C $(ROOTDIR)/sw/rvnova/loader
-	$(COPY) $(ROOTDIR)/sw/rvnova/loader/rvnova.prg $(SWDIR_AUTO)/
+	make -C $(ROOTDIR)/sw/rvnova clean
+	make -C $(ROOTDIR)/sw/rvnova
 
-	make -C $(ROOTDIR)/sw/rvnova/driver/ clean
-	make -C $(ROOTDIR)/sw/rvnova/driver
+	$(COPY) $(ROOTDIR)/sw/rvnova/loader/rvnova.prg $(SWDIR_AUTO)/
+	$(COPY) $(ROOTDIR)/sw/rvnova/rvga.inf $(SWDIR)/
 
 
 	# --------------------------------------------------
@@ -308,9 +307,6 @@ copysw:
 	# NOVA
 	# --------------------------------------------------
 		$(MKDIR) $(SWDIR_NOVA)
-		unzip $(SUPPDIR)/nova/TT_ET4000T8_V300.zip -d $(SWDIR_NOVA)
-		mv $(SWDIR_NOVA)/T8 $(SWDIR_NOVA)/DEFAULT
-		$(COPY) $(ROOTDIR)/sw/rvnova/driver/emulator.prg $(SWDIR_NOVA)/DEFAULT/AUTO/EMULATOR.PRG
 
 		unzip $(SUPPDIR)/nova/TT_ET4000T0_V300.zip -d $(SWDIR_NOVA)
 		mv $(SWDIR_NOVA)/T0 $(SWDIR_NOVA)/ET4000.T0
@@ -340,7 +336,13 @@ copysw:
 		mv $(SWDIR_NOVA)/M64 $(SWDIR_NOVA)/MACH64
 		./tools/patch_nova $(SWDIR_NOVA)/MACH64/AUTO/EMULATOR.PRG
 
+		unzip $(SUPPDIR)/nova/TT_ET4000T8_V300.zip -d $(SWDIR_NOVA)
+		mv $(SWDIR_NOVA)/T8 $(SWDIR_NOVA)/SVGA
+
 		$(COPY) -r $(SUPPDIR)/nova.bib/* $(SWDIR_NOVA)/
+
+		$(COPY) $(ROOTDIR)/sw/rvnova/driver/emulator.prg $(SWDIR_NOVA)/SVGA/AUTO/EMULATOR.PRG
+		$(COPY) $(ROOTDIR)/sw/rvnova/tools/svga.bib $(SWDIR_NOVA)/SVGA/AUTO/STA_VDI.BIB
 
 		unzip -j $(SUPPDIR)/nova/NOVA_COL_171.zip "NOVA_COE.PRG" -d $(SWDIR_NOVA)
 		mv $(SWDIR_NOVA)/NOVA_COE.PRG $(SWDIR)/NOVA_COL.ACC

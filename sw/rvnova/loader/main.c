@@ -36,22 +36,23 @@ extern FONTS *Fonts;
 #include "rvnova.h"
 #include "sysutil.h"
 #include "vga.h"
+#define INI_IMPL
+#include "ini.h"
 
 bool w32i_EnableInterleaveMode(void);
 
-static const char* path_root   		= "c:";
-static const char* path_vdibib 		= "auto\\sta_vdi.bib";
-static const char* path_emubib 		= "auto\\emulator.bib";
-static const char* path_inf			= "auto\\xmenu.inf";
-static const char* path_nova		= "nova";
-static const char* path_xmenu		= "xmenu.prg";
-static const char* path_emulator	= "auto\\emulator.prg";
-static const char* path_vdi			= "auto\\sta_vdi.prg";
+static const char* path_root     = "c:";
+static const char* path_nova     = "c:\\nova";
+static const char* path_auto     = "c:\\auto";
+static const char* path_emulator = "auto\\emulator.prg";
+static const char* path_vdi		 = "auto\\sta_vdi.prg";
+static const char* path_vdibib 	 = "auto\\sta_vdi.bib";
+static const char* path_emubib 	 = "auto\\emulator.bib";
 
 
 static long cpu;
 static rvnova_menuinf_t inf;
-
+static ini_t ini;
 
 /*----------------------------------------
 	Set small font
@@ -141,10 +142,13 @@ void drv_preload(void) {
 ----------------------------------------*/
 void drv_postload(void) {
     if (stricmp(inf.drvpath, "ET4000.W32") == 0) {
-        if (inf.flags & FLG_W32I_INTERLEAVE) {
-            screen_clear();
-            w32i_EnableInterleaveMode();
-            screen_clear();
+        ini_t drv_ini;
+        if (ini_GetSection(&drv_ini, &ini, "et4000.w32")) {
+            if (ini_GetInt(&drv_ini, "interleave", 0)) {
+                screen_clear();
+                w32i_EnableInterleaveMode();
+                screen_clear();
+            }
         }
     }
 }
@@ -209,13 +213,26 @@ long supermain()
 	nova_bib_t bib_vdi;
 	char fname[128];
 
+    /* todo:
+        get boot drive letter and update
+        - path_root
+        - path_nova
+        - path_auto
+    */
+
     /* cookies */
     if (Getcookie(C__CPU, &cpu) != C_FOUND) {
         cpu = 0;
     }
 
-	/* load settings */
-	sprintf(fname, "%s\\%s", path_root, path_inf);
+    /* load rvga settings */
+    sprintf(fname, "%s\\rvga.inf", path_root);
+    if (ini_Load(&ini, fname)) {
+        path_nova = ini_GetStr(&ini, "path", path_nova);
+    }
+
+	/* load xmenu settings */
+	sprintf(fname, "%s\\xmenu.inf", path_auto);
 	if (!rvnova_loadinf(&inf, fname)) {
         rvnova_makeinf(&inf);
 	}
@@ -230,28 +247,28 @@ long supermain()
 	}
 
 	/* sta_vdi.bib */
-	sprintf(fname, "%s\\%s\\%s\\%s", path_root, path_nova, inf.drvpath, path_vdibib);
+	sprintf(fname, "%s\\%s\\%s", path_nova, inf.drvpath, path_vdibib);
 	rvnova_loadbib(&bib_vdi, fname);
-	sprintf(fname, "%s\\%s", path_root, path_vdibib);
+	sprintf(fname, "%s\\sta_vdi.bib", path_auto);
 	rvnova_savebib(&bib_vdi, fname);
 	if (rvnova_findres(&bib_vdi, &inf.vdi_res)) {
 		inf.menuinf.resid = inf.vdi_res.i;
 	}
 	
 	/* emulator.bib */
-	sprintf(fname, "%s\\%s\\%s\\%s", path_root, path_nova, inf.drvpath, path_emubib);
+	sprintf(fname, "%s\\%s\\%s", path_nova, inf.drvpath, path_emubib);
 	rvnova_loadbib(&bib_emu, fname);
 	if (rvnova_findres(&bib_vdi, &inf.drv_res) ) {
 		rvnova_copybib(&bib_emu, 0, &bib_vdi, inf.drv_res.i);
 	}
-	sprintf(fname, "%s\\%s", path_root, path_emubib);
+	sprintf(fname, "%s\\emulator.bib", path_auto);
 	rvnova_savebib(&bib_emu, fname);
 
 	rvnova_freebib(&bib_emu);
 	rvnova_freebib(&bib_vdi);
 
 	/* xmenu.inf */
-	sprintf(fname, "%s\\%s", path_root, path_inf);
+	sprintf(fname, "%s\\xmenu.inf", path_auto);
 	if (!rvnova_saveinf(&inf, fname)) {
 		return 0;
 	}
@@ -263,19 +280,19 @@ long supermain()
 
         /* start driver */
         screen_off();
-		sprintf(fname, "%s\\%s\\%s\\%s", path_root, path_nova, inf.drvpath, path_emulator);
+		sprintf(fname, "%s\\%s\\%s", path_nova, inf.drvpath, path_emulator);
 		Pexec(PE_LOADGO, fname, "", 0L);
 
 		if (inf.vdi_enable) {
             BASEPAGE* bp;
 
             /* start xmenu */
-			sprintf(fname, "%s\\%s\\%s", path_root, path_nova, path_xmenu);
+			sprintf(fname, "%s\\xmenu.prg", path_nova);
 			Pexec(PE_LOADGO, fname, "", 0L);
 			screen_restore();
 
             /* start vdi */
-			sprintf(fname, "%s\\%s\\%s\\%s", path_root, path_nova, inf.drvpath, path_vdi);
+			sprintf(fname, "%s\\%s\\%s", path_nova, inf.drvpath, path_vdi);
 			bp = (BASEPAGE*)Pexec(PE_LOAD, fname, "", 0L);
             vdi_patch(bp);
             FlushCache(cpu);
@@ -296,6 +313,7 @@ long supermain()
         drv_postload();
 	}
 
+    ini_Unload(&ini);
     return 1;
 }
 

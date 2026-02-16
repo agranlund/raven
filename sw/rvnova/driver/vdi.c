@@ -238,8 +238,7 @@ vdi_func vr_recfl_old;
 void vr_recfl_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
     if (vdi_is_screenwk(wk)) {
         if (card->caps & NV_CAPS_FILL) {
-            /* todo: we can support other writemodes */
-            if (wk->writemode == 0) {
+            if (wk->writemode == 0) {   /* todo: we can support other writemodes now */
                 int16_t style, color;
                 if (vdi_getfillparams(wk, &style, &color)) {
                     rect_t dst;
@@ -258,38 +257,42 @@ void vr_recfl_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
 
 /*-----------------------------------------------------------------------------
 11 : v_gdp
-disabled since Kronos draw v_bars in reverse order so apparently that's legal.
+- disabled since Kronos draw v_bars in reverse order so apparently that's legal.
+- also verify with Qed, scrolling up line by line blits the top bar line
+  together with the text which moves down.
+  maybe vbar right + bottom lines one pixel to far?
 -----------------------------------------------------------------------------*/
 #if 0
 vdi_func v_gdp_old;
 void v_gdp_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
-    if (card->fill && vdi_is_screenwk(wk)) {
+    if (vdi_is_screenwk(wk) && (card->caps & NV_CAPS_FILL)) {
+
+        /* v_bar */
         if (pb->contrl[5] == 1) {
-            /* v_bar */
-            if (wk->writemode == 0) {
+            if (wk->writemode == 0) {   /* todo: we can support other writemodes now */
                 int16_t style, color;
                 if (vdi_getfillparams(wk, &style, &color)) {
-                    rect_t* r = (rect_t*)pb->ptsin;
-                    if (wk->clipflag && !nv_clip_rect(r, &wk->cliprect)) {
+                    rect_t dst;
+                    if (!vdi_clip_rect(&dst, (rect_t*)&pb->ptsin[0], wk->clipflag ? &wk->cliprect : 0)) {
                         return;
                     }
-                    if (card->fill(color,  7 - style, r)) {
+                    if (card->blit(BL_FILL|BL_ROP_S|BL_FGCOL(color)|BL_PATTERN(style), &dst, &dst.min)) {
                         if (wk->vsf_perimeter) {
-                            line_t l;
-                            l.min.x = r->min.x;          /* top */
-                            l.max.x = r->max.x;
-                            l.min.y = r->min.y;
-                            l.max.y = r->min.y;
-                            card->fill(color, 0, &l);
-                            l.min.y = r->max.y;          /* bottom */
-                            l.max.y = r->max.y;
-                            card->fill(color, 0, &l);
-                            l.max.x = r->min.x;          /* left */
-                            l.min.y = r->min.y;
-                            card->fill(color, 0, &l);
-                            l.min.x = r->max.x;          /* right */
-                            l.max.x = r->max.x;
-                            card->fill(color, 0, &l);
+                            rect_t l;
+                            l.min.x = dst.min.x;          /* top */
+                            l.max.x = dst.max.x;
+                            l.min.y = dst.min.y;
+                            l.max.y = dst.min.y;
+                            card->blit(BL_FILL|BL_ROP_S|BL_FGCOL(color)|BL_PATTERN(0), &l, &l.min);
+                            l.min.y = dst.max.y;          /* bottom */
+                            l.max.y = dst.max.y;
+                            card->blit(BL_FILL|BL_ROP_S|BL_FGCOL(color)|BL_PATTERN(0), &l, &l.min);
+                            l.max.x = dst.min.x;          /* left */
+                            l.min.y = dst.min.y;
+                            card->blit(BL_FILL|BL_ROP_S|BL_FGCOL(color)|BL_PATTERN(0), &l, &l.min);
+                            l.min.x = dst.max.x;          /* right */
+                            l.max.x = dst.max.x;
+                            card->blit(BL_FILL|BL_ROP_S|BL_FGCOL(color)|BL_PATTERN(0), &l, &l.min);
                         }
                         return;
                     }
@@ -364,8 +367,8 @@ uint32_t vdi_patch_findtrap2_backward(uint32_t from, uint32_t len) {
 vdi_funcdata_t* vdi_patch_find_vditable(uint32_t addr) {
     uint32_t tableaddr = 0;
     uint32_t trap2addr = vdi_patch_findtrap2_backward(addr, 16 * 1024UL);
-    dprintf("vdi_patch: start at %08lx\n", addr);
-    dprintf("vdi_patch: trap2 at %08lx\n", trap2addr);
+    dprintf(("vdi_patch: start at %08lx\n", addr));
+    dprintf(("vdi_patch: trap2 at %08lx\n", trap2addr));
     if (!trap2addr) {
         return 0;
     }
@@ -384,16 +387,16 @@ bool vdi_patch(void* sp) {
     uint16_t sr;
     sta_vdifuncs = vdi_patch_find_vditable(*((uint32_t*)sp));
     if (!sta_vdifuncs) {
-        dprintf("vdi_patch: table not found\n");
+        dprintf(("vdi_patch: table not found\n"));
         return false;
     }
-    dprintf("vdi_patch: table at %08lx\n", (uint32_t)sta_vdifuncs);
+    dprintf(("vdi_patch: table at %08lx\n", (uint32_t)sta_vdifuncs));
 
     sta_bss = vdi_patch_find_bss(sta_vdifuncs);
     if (!sta_bss) {
-        dprintf("bdi_patch: bss not found\n");
+        dprintf(("vdi_patch: bss not found\n"));
     }
-    dprintf("vdi_patch: bss   at %08lx\n", sta_bss);
+    dprintf(("vdi_patch: bss   at %08lx\n", sta_bss));
 
     sr = cpu_di();
 
@@ -418,7 +421,7 @@ bool vdi_patch(void* sp) {
     /* grab pointer to sta_vdi's internal linea structure
      * vro_copyfm beings with "movea.l LINEA.l,A2" ($24 $79 $addr) */
     sta_linea = *(LINEA**)(((uint32_t)vro_copyfm_old) + 0x02);
-    dprintf("vdi_patch: linea at %08lx\n", (uint32_t)sta_linea);
+    dprintf(("vdi_patch: linea at %08lx\n", (uint32_t)sta_linea));
 
     cpu_flush_cache();
     cpu_ei(sr);

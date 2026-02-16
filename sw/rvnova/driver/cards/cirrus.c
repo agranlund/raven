@@ -16,10 +16,11 @@
  * along with this program  if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *-----------------------------------------------------------------------------*/
-#include "emulator.h"
+ #include "emulator.h"
 #include "raven.h"
 #include "vga.h"
 #include "x86.h"
+#include "ini.h"
 
 #if DRV_INCLUDE_CIRRUS
 
@@ -292,7 +293,7 @@ static uint32_t cl_getpitch(uint32_t width, uint8_t bpp) {
     return (bpp < 8) ? (width >> 3) : ((width * ((bpp + 7) & ~7)) >> 3);
 }
 
-static void configure_blitter(mode_t* mode) {
+static void configure_blitter(gfxmode_t* mode) {
     uint32_t pitch = cl_getpitch(mode->width, mode->bpp);
 
     /* disable mmio */
@@ -486,25 +487,22 @@ static void setbank(uint16_t num) {
     vga_WritePortWLE(0x3ce, 0x0900 | num);
 }
 
-/* todo:
-    currently, this function assumes a 5426+ card
-    GD5426/28/29 supports CR1B:bits 0,2,3 (address bits 16, 17, 18)
-    GD542x       supports CR1B:bits 0,2   (address bits 16, 17    )
-*/
 static void setaddr(uint32_t addr) {
-    uint16_t crtc = vga_GetBaseReg(4);
-    uint32_t hiaddr = addr >> 18;
-    hiaddr += (hiaddr & 6);
-    vga_ModifyReg(crtc, 0x1B, 0x0D, hiaddr);
-    vga_WritePortWLE(crtc, 0x0D00 | ((addr >>  2) & 0xff));
-    vga_WritePortWLE(crtc, 0x0C00 | ((addr >> 10) & 0xff));
+/*  GD5426/28/29 supports CR1B:bits 0,2,3 (address bits 16, 17, 18)
+    GD542x       supports CR1B:bits 0,2   (address bits 16, 17    ) */
+    uint8_t himask = (chipset >= GD5426) ? 0x0d : 0x05;
+    uint32_t hiaddr = addr >> 18;   /* 16    -> bit 0   */
+    hiaddr += (hiaddr & 6);         /* 17,18 -> bit 2,3 */
+    vga_ModifyReg(0x3d4, 0x1B, himask, hiaddr);
+    vga_WritePortWLE(0x3d4, 0x0D00 | ((addr >>  2) & 0xff));
+    vga_WritePortWLE(0x3d4, 0x0C00 | ((addr >> 10) & 0xff));
 }
 
-
-static uint16_t find_vclk(uint32_t target) {
+static uint32_t setvclk(uint32_t target) {
     uint16_t p, d, n;
     uint16_t best_val = 0;
     uint32_t best_err = 0xffffffffUL;
+    uint32_t best_cur = 0;
     uint32_t ref = 14318; /* standard 14.31818 clock */
     for (p = 0; p <= 1; p++) {
         for (d = 0; d <= 63; d++) {
@@ -512,38 +510,34 @@ static uint16_t find_vclk(uint32_t target) {
                 uint32_t cur = (ref * n) / (d * (p + 1));
                 uint32_t err = (cur >= target) ? (cur - target) : (target - cur);
                 if (err < best_err) {
+                    best_cur = cur;
                     best_err = err;
                     best_val = (d << 9) | (p << 8) | n;
                 }
             }
         }
     }
-    return best_val;
+    /* program vclk3 */
+    vga_ModifyReg(0x3c4, 0x0e, 0x7f, best_val & 0xff);  /* N   */
+    vga_ModifyReg(0x3c4, 0x1e, 0x3f, best_val >> 8);    /* D,P */
+    /* select vclk3 */
+    vga_WritePort(0x3c2,  vga_ReadPort(0x3cc) | 0x0c);
+    dprintf(("vclk3 %ld -> %ld [N:%02x D:%02x]\n", target, best_cur, (uint8_t)(best_val&0xff), (uint8_t)(best_val>>8)));
+    return best_cur;
 }
 
 static void setcustom(modeline_t* ml) {
-    /* find best vclk3 values from frequency */
-    uint16_t vclk = find_vclk(ml->pclk);
-
-#if DEBUG
-    dprintf("vclk %ld, N:%02x, D:%02x\n", ml->pclk, (uint8_t)(vclk&0xff), (uint8_t)(vclk>>8));
-#endif    
-
+    uint16_t ofl = 0;
     /* unlock extended sequencer registers */
     vga_WriteReg(0x3c4, 0x06, 0x12);
-
-    /* program vclk3 */
-    vga_ModifyReg(0x3c4, 0x0e, 0x7f, vclk & 0xff);  /* N   */
-    vga_ModifyReg(0x3c4, 0x1e, 0x3f, vclk >> 8);    /* D,P */
-
-    /* select vclk3 */
-    vga_WritePort(0x3c2,  vga_ReadPort(0x3cc) | 0x0c);
-
+    /* set clock */
+    setvclk(ml->pclk);
     /* apply modeline to standard vga registers */
-    vga_modeline(ml);
+    ofl = vga_modeline(ml);
+    /* apply svga overflow registers */
 }
 
-static bool setmode(mode_t* mode) {
+static bool setmode(gfxmode_t* mode) {
     if (vga_setmode(mode->code)) {
 
         /* custom 1280x720 mode */
@@ -569,28 +563,28 @@ static bool setmode(mode_t* mode) {
             uint8_t tune = vga_ReadReg(0x3c4, 0x16);    /* performance tuning register */
             uint8_t mclk = vga_ReadReg(0x3c4, 0x1f);    /* mclk register */
             int16_t freq = (int16_t)(mclk & 0x3f) * 179;
-            dprintf(" cfg:  %02x %02x %02x\n", dram, tune, mclk);
-            dprintf(" dram: ");
+            dprintf((" cfg:  %02x %02x %02x\n", dram, tune, mclk));
+            dprintf((" dram: "));
             switch (dram & 3) {
-                case 0: dprintf("50 mhz, "); break;
-                case 1: dprintf("44 mhz, "); break;
-                case 2: dprintf("41 mhz, "); break;
-                case 3: dprintf("37 mhz, "); break;
+                case 0: dprintf(("50 mhz, ")); break;
+                case 1: dprintf(("44 mhz, ")); break;
+                case 2: dprintf(("41 mhz, ")); break;
+                case 3: dprintf(("37 mhz, ")); break;
             }
             switch ((dram >> 3) & 3) {
-                case 0: dprintf(" 8bit, "); break;
-                case 1: dprintf("16bit, "); break;
-                case 2: dprintf("32bit, "); break;
-                case 3: dprintf("32bit, "); break;
+                case 0: dprintf((" 8bit, ")); break;
+                case 1: dprintf(("16bit, ")); break;
+                case 2: dprintf(("32bit, ")); break;
+                case 3: dprintf(("32bit, ")); break;
             }
             switch ((dram >> 2) & 1) {
-                case 0: dprintf("extended RAS\n"); break;
-                case 1: dprintf("standard RAS\n"); break;
+                case 0: dprintf(("extended RAS\n")); break;
+                case 1: dprintf(("standard RAS\n")); break;
             }
-            dprintf(" fifo: %s, threshold: %d\n", dram & (1 << 5) ? "16/20" : "8", tune & 7);
-            dprintf(" fpm:  %s\n", dram & (1 << 6) ? "off" : "on");
-            dprintf(" mclk: %02x : ", mclk & 0x3f);
-            dprintf("%d.%d mhz\n", freq / 100, ((freq - ((freq / 100) * 100)) + 4) / 10);
+            dprintf((" fifo: %s, threshold: %d\n", dram & (1 << 5) ? "16/20" : "8", tune & 7));
+            dprintf((" fpm:  %s\n", dram & (1 << 6) ? "off" : "on"));
+            dprintf((" mclk: %02x : ", mclk & 0x3f));
+            dprintf(("%d.%d mhz\n", freq / 100, ((freq - ((freq / 100) * 100)) + 4) / 10));
         }
 #endif
         return true;
@@ -607,11 +601,15 @@ static bool addmode_validated(addmode_f addmode, uint16_t w, uint16_t h, uint8_t
 }
 
 static bool init(card_t* card, addmode_f addmode) {
+    ini_t ini_root, ini;
 
     /* identify cirrus card */
     if (!identify()) {
         return false;
     }
+
+    ini_Load(&ini_root, "c:\\rvga.inf");
+    ini_GetSection(&ini, &ini_root, "cirrus");
 
     /* provide card info and callbacks */
     card->name = chipset_strings[chipset];
@@ -641,22 +639,9 @@ static bool init(card_t* card, addmode_f addmode) {
 
 
     /* mclk override */
-    /* todo when we have user settings for it */
-    mclk_override = 0;
-#if 0    
     if ((chipset >= GD5424) && (chipset <= GD5434)) {
-        /* xfree86 mclk overrides */
-        /* 0x1c : 50mhz : slow_dram, usually bios default */
-        /* 0x1f : 55mhz :  med_dram */
-        /* 0x22 : 60mhz : fast_dram, xfree86 reprograms this by default for GD5434-RevE */
-        uint8_t mclk = vga_ReadReg(0x3c4, 0x1f) & 0x3f;
-        if (chipset >= GD5434) {
-            if (mclk < 0x22) { mclk_override = 0x22; }
-        } else if (chipset >= GD5426) {
-            if (mclk < 0x1f) { mclk_override = 0x1f; }
-        }
+        mclk_override = ini_GetInt(&ini, "mclk", 0);
     }
-#endif
 
     if (chipset >= GD5430) {
         vgabios_SetMonitorTypeGD543x(
@@ -723,6 +708,8 @@ static bool init(card_t* card, addmode_f addmode) {
 
     /* configure linear or banked operation */
     configure_framebuffer();
+
+    ini_Unload(&ini);
     return true;
 }
 
