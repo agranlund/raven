@@ -27,6 +27,7 @@
 #include "nova.h"
 
 #define VDI_DEBUG   0
+#define VDI_ACCEL   1
 
 /*-----------------------------------------------------------------------------
  NOVA VDI internal device function pointers
@@ -141,12 +142,58 @@ static uint32_t vdi_coord_to_addr(vec_t* coord) {
     return (((uint32_t)coord->y) * nova->pitch) + ((coord->x * bits_per_pixel) >> 3);
 }
 
-static bool vdi_getfillparams(stawk_t* wk, int16_t* style, int16_t* color) {
+static bool vdi_getrop(stawk_t* wk, uint16_t* rop) {
+#if 1
+    *rop = BL_ROP_S;
+    return (wk->writemode == 0) ? true : false;
+#else
+    /* todo: verify driver rop implementation */
+    switch (wk->writemode) {
+        default:
+        case 0: { /* replace */
+            *rop = BL_ROP_S;
+        } break;
+        case 1: { /* transparent */
+            *rop = BL_ROP_DSo;
+        } break;
+        case 2: { /* xor */
+            *rop = BL_ROP_DSx;
+        } break;
+        case 3: { /* reverse transparent */
+            *rop = BL_ROP_DSno;
+        } break;
+    }
+    return true;
+#endif
+}
+
+static bool vdi_getfillparams(stawk_t* wk, int16_t* style, int16_t* color, uint16_t* rop) {
+    if (!vdi_getrop(wk, rop)) {
+        return false;
+    }
     switch (wk->vsf_interior) {
-        case 0: *style = 0; *color = 0; return true;
-        case 1: *style = 0; *color = wk->vsf_color; return true;
-        case 2: *style = (7 - wk->vsf_style); *color = wk->vsf_color; return ((*style) >= 0);
-        default: return false;
+        default:    /* undefined -> hollow */
+        case 0: {   /* hollow */
+            *style = 0;
+            *color = wk->vsf_color;
+            return true;
+        }
+        case 1: {   /* solid */
+            *style = 0;
+            *color = wk->vsf_color;
+            return true;
+        }
+        case 2: {   /* pattern */
+            *style = (7 - wk->vsf_style);
+            *color = wk->vsf_color;
+            return ((*style) >= 0);
+        }
+        case 3: {   /* hatch */
+            return false;            
+        }
+        case 4: {   /* user defined */
+            return false;            
+        }
     }
 }
 
@@ -238,16 +285,14 @@ vdi_func vr_recfl_old;
 void vr_recfl_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
     if (vdi_is_screenwk(wk)) {
         if (card->caps & NV_CAPS_FILL) {
-            if (wk->writemode == 0) {   /* todo: we can support other writemodes now */
-                int16_t style, color;
-                if (vdi_getfillparams(wk, &style, &color)) {
-                    rect_t dst;
-                    if (!vdi_clip_rect(&dst, (rect_t*)&pb->ptsin[0], wk->clipflag ? &wk->cliprect : 0)) {
-                        return;
-                    }
-                    if (card->blit(BL_FILL|BL_ROP_S|BL_FGCOL(color)|BL_PATTERN(style), &dst, &dst.min)) {
-                        return;
-                    }
+            int16_t style = 0; int16_t color = 0; uint16_t rop = BL_ROP_S;
+            if ((wk->vsf_interior == 0) || vdi_getfillparams(wk, &style, &color, &rop)) {
+                rect_t dst;
+                if (!vdi_clip_rect(&dst, (rect_t*)&pb->ptsin[0], wk->clipflag ? &wk->cliprect : 0)) {
+                    return;
+                }
+                if (card->blit(BL_FILL|rop|BL_FGCOL(color)|BL_PATTERN(style), &dst, &dst.min)) {
+                    return;
                 }
             }
         }
@@ -257,49 +302,46 @@ void vr_recfl_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
 
 /*-----------------------------------------------------------------------------
 11 : v_gdp
-- disabled since Kronos draw v_bars in reverse order so apparently that's legal.
-- also verify with Qed, scrolling up line by line blits the top bar line
-  together with the text which moves down.
-  maybe vbar right + bottom lines one pixel to far?
 -----------------------------------------------------------------------------*/
-#if 0
+#if VDI_ACCEL    
 vdi_func v_gdp_old;
 void v_gdp_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
     if (vdi_is_screenwk(wk) && (card->caps & NV_CAPS_FILL)) {
 
-        /* v_bar */
+        /*------------------------------------------
+        1 : v_bar
+        ------------------------------------------*/           
         if (pb->contrl[5] == 1) {
-            if (wk->writemode == 0) {   /* todo: we can support other writemodes now */
-                int16_t style, color;
-                if (vdi_getfillparams(wk, &style, &color)) {
-                    rect_t dst;
-                    if (!vdi_clip_rect(&dst, (rect_t*)&pb->ptsin[0], wk->clipflag ? &wk->cliprect : 0)) {
-                        return;
+            rect_t dst; int16_t style, color; uint16_t rop;
+            if (vdi_getfillparams(wk, &style, &color, &rop)) {
+                if (!vdi_clip_rect(&dst, (rect_t*)&pb->ptsin[0], wk->clipflag ? &wk->cliprect : 0)) {
+                    return;
+                }
+                if ((wk->vsf_interior == 0) || card->blit(BL_FILL|rop|BL_FGCOL(color)|BL_PATTERN(style), &dst, &dst.min)) {
+                    if (wk->vsf_perimeter) {
+                        rect_t l;
+                        l.min.x = dst.min.x;          /* top */
+                        l.max.x = dst.max.x;
+                        l.min.y = dst.min.y;
+                        l.max.y = dst.min.y;
+                        card->blit(BL_FILL|rop|BL_FGCOL(color)|BL_PATTERN(0), &l, &l.min);
+                        l.min.y = dst.max.y;          /* bottom */
+                        l.max.y = dst.max.y;
+                        card->blit(BL_FILL|rop|BL_FGCOL(color)|BL_PATTERN(0), &l, &l.min);
+                        l.max.x = dst.min.x;          /* left */
+                        l.min.y = dst.min.y;
+                        card->blit(BL_FILL|rop|BL_FGCOL(color)|BL_PATTERN(0), &l, &l.min);
+                        l.min.x = dst.max.x;          /* right */
+                        l.max.x = dst.max.x;
+                        card->blit(BL_FILL|rop|BL_FGCOL(color)|BL_PATTERN(0), &l, &l.min);
                     }
-                    if (card->blit(BL_FILL|BL_ROP_S|BL_FGCOL(color)|BL_PATTERN(style), &dst, &dst.min)) {
-                        if (wk->vsf_perimeter) {
-                            rect_t l;
-                            l.min.x = dst.min.x;          /* top */
-                            l.max.x = dst.max.x;
-                            l.min.y = dst.min.y;
-                            l.max.y = dst.min.y;
-                            card->blit(BL_FILL|BL_ROP_S|BL_FGCOL(color)|BL_PATTERN(0), &l, &l.min);
-                            l.min.y = dst.max.y;          /* bottom */
-                            l.max.y = dst.max.y;
-                            card->blit(BL_FILL|BL_ROP_S|BL_FGCOL(color)|BL_PATTERN(0), &l, &l.min);
-                            l.max.x = dst.min.x;          /* left */
-                            l.min.y = dst.min.y;
-                            card->blit(BL_FILL|BL_ROP_S|BL_FGCOL(color)|BL_PATTERN(0), &l, &l.min);
-                            l.min.x = dst.max.x;          /* right */
-                            l.max.x = dst.max.x;
-                            card->blit(BL_FILL|BL_ROP_S|BL_FGCOL(color)|BL_PATTERN(0), &l, &l.min);
-                        }
-                        return;
-                    }
+                    return;
                 }
             }
         }
     }
+
+    /* fallback on software version */
     v_gdp_old(fn, vh, pb, wk);
 }
 #endif
@@ -408,8 +450,8 @@ bool vdi_patch(void* sp) {
     vr_recfl_old = sta_vdifuncs[114].fun;
     sta_vdifuncs[114].fun = vr_recfl_new;
 
-#if 0
     /* v_gpd */
+#if VDI_ACCEL    
     v_gdp_old = sta_vdifuncs[11].fun;
     sta_vdifuncs[11].fun = v_gdp_new;
 #endif
