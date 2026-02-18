@@ -16,9 +16,10 @@
     .XREF nova_p_setscreen_first_asm
     .XREF nova_p_setscreen_first
 
-    .XREF vt_scroll_asm
-    .XREF vt_scroll_old
-    .XREF vt_scroll
+    .XREF vt_clear_rows_asm
+    .XREF vt_clear_rows_new
+    .XREF vt_copy_rows_asm
+    .XREF vt_copy_rows_new
 
 
 ;----------------------------------------------------------
@@ -95,11 +96,20 @@ nova_p_setscreen_first_asm:
     jmp     nova_p_setscreen_first
 
 ;----------------------------------------------------------
-; entry point for vt_scroll
+; entry point for vt_clear_rows
 ;----------------------------------------------------------
-vt_scroll_asm:
+vt_clear_rows_asm:
     movem.l d0-d7/a0-a6,-(sp)
-    jsr     vt_scroll
+    jsr     vt_clear_rows_new
+    movem.l (sp)+,d0-d7/a0-a6
+    rts
+
+;----------------------------------------------------------
+; entry point for vt_copy_rows
+;----------------------------------------------------------
+vt_copy_rows_asm:
+    movem.l d0-d7/a0-a6,-(sp)
+    jsr     vt_copy_rows_new
     movem.l (sp)+,d0-d7/a0-a6
     rts
 
