@@ -21,6 +21,18 @@
     .XREF vt_copy_rows_asm
     .XREF vt_copy_rows_new
 
+    .XREF vd_hline_noclip_asm
+    .XREF vd_hline_noclip_new
+    .XREF vd_hline_noclip_old
+
+    .XREF vd_hline_asm
+    .XREF vd_hline_new
+    .XREF vd_hline_old
+
+    .XREF vd_line_asm
+    .XREF vd_line_new
+    .XREF vd_line_old
+
 
 ;----------------------------------------------------------
 ; uint16_t cpu_di(void)
@@ -99,19 +111,116 @@ nova_p_setscreen_first_asm:
 ; entry point for vt_clear_rows
 ;----------------------------------------------------------
 vt_clear_rows_asm:
-    movem.l d0-d7/a0-a6,-(sp)
+    movem.l d0-d2/a0-a2,-(sp)
     jsr     vt_clear_rows_new
-    movem.l (sp)+,d0-d7/a0-a6
+    movem.l (sp)+,d0-d2/a0-a2
     rts
 
 ;----------------------------------------------------------
 ; entry point for vt_copy_rows
 ;----------------------------------------------------------
 vt_copy_rows_asm:
-    movem.l d0-d7/a0-a6,-(sp)
+    movem.l d0-d2/a0-a2,-(sp)
     jsr     vt_copy_rows_new
-    movem.l (sp)+,d0-d7/a0-a6
+    movem.l (sp)+,d0-d2/a0-a2
     rts
+
+
+;----------------------------------------------------------
+; internal: hline_noclip
+;   d0.w = x0
+;   d1.w = x1
+;   d6.w = y0 (nope, get from wks)
+;   a6   = wks
+;
+; original function trash everything
+;----------------------------------------------------------
+vd_hline_noclip_asm:
+    move.w  d1,d2
+    sub.w   d0,d2
+    cmp.w   #32,d2
+    blt.b   .2
+    move.l  d1,-(sp)
+    move.l  d0,-(sp)
+    movea.l a6,a0
+    jsr     vd_hline_noclip_new
+    tst.w   d0
+    beq.b   .1
+    addq.l  #8,sp
+    rts
+.1: move.l  (sp)+,d0
+    move.l  (sp)+,d1
+.2: move.l  vd_hline_noclip_old,a3
+    jmp     (a3)
+vd_hline_noclip_old:
+    ds.l    1
+
+;----------------------------------------------------------
+; internal: hline
+;   a0 = wks
+;----------------------------------------------------------
+vd_hline_asm:
+    move.w  (0x8c8,a0),d0   ; x0
+    move.w  (0x8cc,a0),d1   ; x1
+    move.w  (0x8ca,a0),d2   ; y0
+    cmp.w   (0x4b8,a0),d2   ; y0 < min_y ?
+    blt.b   .3
+    cmp.w   (0x4bc,a0),d2   ; y0 > max_y ?
+    bgt.b   .3
+    cmp.w   (0x4ba,a0),d0   ; x0 > max_x ?
+    bgt.b   .3
+    cmp.w   (0x4b6,a0),d1   ; x1 < min_x ?
+    blt.b   .3
+    cmp.w   (0x4b6,a0),d0   ; x0 > min_x ?
+    bgt.b   .1
+    move.w  (0x4b6,a0),d0   ; clip x0
+.1: cmp.w   (0x4ba,a0),d1   ; x1 < min_x ?
+    blt.b   .2
+    move.w  (0x4ba,a0),d1   ; clip x1
+.2: move.w  d1,d2
+    sub.w   d0,d2
+    cmp.w   #32,d2          ; don't bother if short
+    blt.b   .4
+    movem.l d0-d1/a0,-(sp)
+    jsr     vd_hline_noclip_new
+    tst.w   d0
+    movem.l (sp)+,d0-d1/a0
+    beq.b   .4
+.3: rts
+.4: movem.l d3-d7/a2-a6,-(sp)
+    movea.l a0,a6
+    move.l  vd_hline_noclip_old,a0
+    jsr     (a0)
+    movem.l (sp)+,d3-d7/a2-a6
+    rts
+vd_hline_old:
+    ds.l    1
+
+
+;----------------------------------------------------------
+; internal: line
+;   d0.w = num points
+;   d1.w = 
+;   a0  = points data (x0,y0,x1,y1,....)
+;   a1  = wks pointer
+;----------------------------------------------------------
+vd_line_asm:
+    cmp.w   #2,d0
+    bne.b   .2
+    movem.l d0-d2/a0-a2,-(sp)
+    jsr     vd_line_new
+    tst.w   d0
+    beq.b   .1
+    movem.l (sp)+,d0-d2/a0-a2
+    addq.l  #4,a0
+    subq.w  #2,d0
+    rts
+.1: movem.l (sp)+,d0-d2/a0-a2
+.2: move.l  vd_line_old,-(sp)
+    rts
+vd_line_old:
+    ds.l    1
+
 
 ;----------------------------------------------------------
 ; exception vector for bankswitcher mechanism
