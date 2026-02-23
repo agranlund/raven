@@ -150,6 +150,13 @@ static bool identify(void) {
 }
 
 
+static uint16_t prev_height;
+static uint16_t prev_width;
+static uint16_t prev_fg;
+static uint16_t prev_bg;
+static uint16_t prev_rop;
+static uint16_t prev_ctrl;
+
 static uint32_t fillpattern_addr;
 static void upload_fillpatterns(uint32_t addr) {
     int i, j, k;
@@ -177,7 +184,7 @@ static bool blit31(uint32_t cmd, rect_t* src, vec_t* dst) {
     uint32_t width_minus_one;
     uint32_t height_minus_one;
     uint16_t bytes_per_pixel;
-    uint16_t ctrl0, ctrl1;
+    uint16_t ctrl0, ctrl1, rop;
 
     ctrl0 = ((1 << 8) | (1 << 11)); /* packed pixels, start */
     ctrl1 = 0x1000;
@@ -190,6 +197,7 @@ static bool blit31(uint32_t cmd, rect_t* src, vec_t* dst) {
     vga_WritePortW(0x23c0,  (1 << 12) | (0 << 8) | (1 << 0));
 
     if (cmd & BL_FILL) {
+        uint16_t col;
         uint8_t pattern = BL_GETPATTERN(cmd);
         if (pattern) {
             srcaddr = get_fillpattern(pattern, src->min.x, src->min.y);
@@ -200,8 +208,8 @@ static bool blit31(uint32_t cmd, rect_t* src, vec_t* dst) {
         } else {
             ctrl0 |= (2 << 2);  /* source data is fixed color */
         }
-        vga_WritePortW(0x23c2, 0xA000 | BL_GETFGCOL(cmd));
-        vga_WritePortW(0x23c2, 0xB000 | BL_GETBGCOL(cmd));
+        col = BL_GETFGCOL(cmd); if (col != prev_fg) { prev_fg = col; vga_WritePortW(0x23c2, 0xA000 | col); }
+        col = BL_GETBGCOL(cmd); if (col != prev_bg) { prev_bg = col; vga_WritePortW(0x23c2, 0xB000 | col); }
     } else {
         srcaddr = (((uint32_t)src->min.y) * nova->pitch) + (src->min.x * bytes_per_pixel);
         if (srcaddr < dstaddr) {
@@ -215,9 +223,10 @@ static bool blit31(uint32_t cmd, rect_t* src, vec_t* dst) {
         vga_WritePortW(0x23c2, 0x2000 | (uint16_t)(srcaddr & 0xfff));
         vga_WritePortW(0x23c2, 0x3000 | (uint16_t)((srcaddr >> 12) & 0x0ff));
         if (cmd & BL_MONO) {
+            uint16_t col;
             ctrl0 |= (1 << 2); /* color src -> mono mask -> color expand */
-            vga_WritePortW(0x23c2, 0xA000 | BL_GETBGCOL(cmd));
-            vga_WritePortW(0x23c2, 0xB000 | BL_GETFGCOL(cmd));
+            col = BL_GETBGCOL(cmd); if (col != prev_bg) { prev_bg = col; vga_WritePortW(0x23c2, 0xA000 | col); }
+            col = BL_GETFGCOL(cmd); if (col != prev_fg) { prev_fg = col; vga_WritePortW(0x23c2, 0xB000 | col); }
         }
     }
 
@@ -225,18 +234,28 @@ static bool blit31(uint32_t cmd, rect_t* src, vec_t* dst) {
         ctrl1 |= ((1 << 2) | (1 << 0));
     }
 
-    vga_WritePortW(0x23c2, 0x9000 | wd_rop(cmd));
-    vga_WritePortW(0x23c2, 0x8000 | (uint16_t)(nova->pitch & 0x7ff));
-    vga_WritePortW(0x23c2, 0x6000 | (uint16_t)((width_minus_one + 1) & 0x7ff));
-    vga_WritePortW(0x23c2, 0x7000 | (uint16_t)((height_minus_one + 1) & 0x7ff));
+    rop = wd_rop(cmd);
+    if (prev_rop != rop) {
+        prev_rop = rop;
+        vga_WritePortW(0x23c2, 0x9000 | rop);
+    }
+    if (prev_width != width_minus_one) {
+        prev_width = width_minus_one;
+        vga_WritePortW(0x23c2, 0x6000 | (uint16_t)((width_minus_one + 1) & 0x7ff));
+    }
+    if (prev_height != height_minus_one) {
+        prev_height = height_minus_one;
+        vga_WritePortW(0x23c2, 0x7000 | (uint16_t)((height_minus_one + 1) & 0x7ff));
+    }
     vga_WritePortW(0x23c2, 0x4000 | (uint16_t)(dstaddr & 0xfff));
     vga_WritePortW(0x23c2, 0x5000 | (uint16_t)((dstaddr >> 12) & 0x0ff));
 
-    /* start blitter */
-    vga_WritePortW(0x23c2, ctrl1);
+    if (prev_ctrl != ctrl1) {
+        prev_ctrl = ctrl1;
+        vga_WritePortW(0x23c2, ctrl1);
+    }
+    /* start blitter and wait until finished */
     vga_WritePortW(0x23c2, ctrl0);
-
-    /* wait until finished */
     while(vga_ReadPortW(0x23c2) & (1 << 11));
     return true;
 }
@@ -249,23 +268,20 @@ static void wait33(uint16_t size) {
 
 static bool blit33(uint32_t cmd, rect_t* src, vec_t* dst) {
     uint16_t ctrl1, ctrl2;
+    uint16_t fg, bg, rop;
     int16_t srcx = src->min.x;
     int16_t srcy = src->min.y;
     int16_t dstx = dst->x;
     int16_t dsty = dst->y;
     int16_t height_minus_one = src->max.y - src->min.y;
     int16_t width_minus_one = src->max.x - src->min.x;
+    bool update_color = true;
+    bool update_src = true;
 
     ctrl1 = (1 <<  9);  /* bitblt */
     ctrl2 = (1 << 10) | /* 8bit chunky */
             (3 <<  5);  /* reserved bits, should be 11 */
 
-
-    /* select DE2, read index 0 with no increment */
-    vga_WritePortW(0x23c0,  (1 << 12) | (0 << 8) | (3 << 0));
-    wait33(8);
-    vga_WritePortW(0x23c2, 0x0000 | 0x00);  /* map base offset */
-    vga_WritePortW(0x23c2, 0x1000 | (uint16_t)(nova->pitch & 0xfff));   /* row pitch */
     if (cmd & BL_FILL) {
         uint8_t pattern = BL_GETPATTERN(cmd);
         if (pattern) {
@@ -274,12 +290,14 @@ static bool blit33(uint32_t cmd, rect_t* src, vec_t* dst) {
             srcx = patoffs - (nova->pitch * srcy);
             ctrl1 |= (1 << 2) |  /* source data is pattern */
                      (1 << 3);   /* source format is mono  */
-            vga_WritePortW(0x23c2, 0x2000 | BL_GETBGCOL(cmd));
-            vga_WritePortW(0x23c2, 0x4000 | BL_GETFGCOL(cmd));
+
+            fg = BL_GETBGCOL(cmd);
+            bg = BL_GETFGCOL(cmd);
         } else {
             ctrl1 |= (2 << 3);   /* source data is fixed color */
-            vga_WritePortW(0x23c2, 0x2000 | BL_GETFGCOL(cmd));
-            vga_WritePortW(0x23c2, 0x4000 | BL_GETBGCOL(cmd));
+            fg = BL_GETFGCOL(cmd);
+            bg = BL_GETBGCOL(cmd);
+            update_src = false;
         }
     } else {
         if (srcx < dstx) {
@@ -294,35 +312,61 @@ static bool blit33(uint32_t cmd, rect_t* src, vec_t* dst) {
         }
         if (cmd & BL_MONO) {
             ctrl1 |= (1 << 3); /* color src -> mono mask -> color expand */
-            vga_WritePortW(0x23c2, 0x2000 | BL_GETFGCOL(cmd));
-            vga_WritePortW(0x23c2, 0x4000 | BL_GETBGCOL(cmd));
+            fg = BL_GETFGCOL(cmd);
+            bg = BL_GETBGCOL(cmd);
+        } else {
+            update_color = false;
         }
     }
-
     if (cmd & BL_TRANSPARENT) {
         ctrl2 |= ((1 << 9) | (1 << 8)); /* positive polarity, enable */
+    }
+    rop = wd_rop(cmd);
+
+    /* update color */
+    if (update_color) {
+        /* select DE2, read index 0 with no increment */
+        vga_WritePortW(0x23c0,  (1 << 12) | (0 << 8) | (3 << 0));
+        wait33(2);
+        if (fg != prev_fg) { prev_fg = fg; vga_WritePortW(0x23c2, 0x2000 | fg); }
+        if (bg != prev_bg) { prev_bg = bg; vga_WritePortW(0x23c2, 0x4000 | bg); }
     }
 
     /* select DE1, read index 0 with no increment */
     vga_WritePortW(0x23c0,  (1 << 12) | (0 << 8) | (1 << 0));
     wait33(4);
-    vga_WritePortW(0x23c2, 0x2000 | (uint16_t)(srcx & 0xfff));
-    vga_WritePortW(0x23c2, 0x3000 | (uint16_t)(srcy & 0xfff));
+    if (update_src) {
+        vga_WritePortW(0x23c2, 0x2000 | (uint16_t)(srcx & 0xfff));
+        vga_WritePortW(0x23c2, 0x3000 | (uint16_t)(srcy & 0xfff));
+    }
     vga_WritePortW(0x23c2, 0x4000 | (uint16_t)(dstx & 0xfff));
     vga_WritePortW(0x23c2, 0x5000 | (uint16_t)(dsty & 0xfff));
     wait33(5);
-    vga_WritePortW(0x23c2, 0x6000 | (uint16_t)(width_minus_one & 0xfff));
-    vga_WritePortW(0x23c2, 0x7000 | (uint16_t)(height_minus_one & 0xfff));
-    vga_WritePortW(0x23c2, 0x8000 | wd_rop(cmd));
-    vga_WritePortW(0x23c2, 0x1000 | ctrl2);
+    if (prev_width != width_minus_one) {
+        prev_width = width_minus_one;
+        vga_WritePortW(0x23c2, 0x6000 | (uint16_t)(width_minus_one & 0xfff));
+    }
+    if (prev_height != height_minus_one) {
+        prev_height = height_minus_one;
+        vga_WritePortW(0x23c2, 0x7000 | (uint16_t)(height_minus_one & 0xfff));
+    }
+    if (prev_rop != rop) {
+        prev_rop = rop;
+        vga_WritePortW(0x23c2, 0x8000 | rop);
+    }
+    if (prev_ctrl != ctrl2) {
+        prev_ctrl = ctrl2;
+        vga_WritePortW(0x23c2, 0x1000 | ctrl2);
+    }
+    /* start blitter and wait until finished */
     vga_WritePortW(0x23c2, 0x0000 | ctrl1);
-    /* wait until finished */
     while(vga_ReadPortW(0x23ce) & 0x0080);
     return true;
 }
 
 
 static void configure_framebuffer(gfxmode_t* mode) {
+    uint32_t pitch = (mode->bpp < 8) ? (mode->width >> 3) : ((mode->width * ((mode->bpp + 7) & ~7)) >> 3);
 
     if (wd_support_linear()) {
 
@@ -358,6 +402,14 @@ static void configure_framebuffer(gfxmode_t* mode) {
 
     /* blitter configuration */
     if (wd_support_blitter() && mode) {
+
+        prev_height = 0;
+        prev_width = 0;
+        prev_fg = 0xffff;
+        prev_bg = 0;
+        prev_rop = 0xffff;
+        prev_ctrl = 0xffff;
+
         if (chipset >= WD90C33) {
             card->caps |= NV_CAPS_BLIT | NV_CAPS_FILL | NV_CAPS_DITHER | NV_CAPS_DSTKEY | NV_CAPS_AUTOMASK;
             if (mode->bpp != 8) {
@@ -366,12 +418,14 @@ static void configure_framebuffer(gfxmode_t* mode) {
             /* select DE2, read index 0 with no increment */
             vga_WritePortW(0x23c0,  (1 << 12) | (0 << 8) | (3 << 0));
             /* set default blitter registers */
-            wait33(4);
+            wait33(8);
+            vga_WritePortW(0x23c2, 0x0000 | 0x00);  /* map base offset */
+            vga_WritePortW(0x23c2, 0x1000 | (uint16_t)(pitch & 0xfff));   /* row pitch */
             vga_WritePortW(0x23c2, 0x2000 | 0xff);  /* foreground color lo */
             vga_WritePortW(0x23c2, 0x3000 | 0xff);  /* foreground color hi */
             vga_WritePortW(0x23c2, 0x4000 | 0x00);  /* background color lo */
             vga_WritePortW(0x23c2, 0x5000 | 0x00);  /* background color hi */
-            wait33(6);
+            wait33(8);
             vga_WritePortW(0x23c2, 0x6000 | 0x00);  /* transparency color lo */
             vga_WritePortW(0x23c2, 0x7000 | 0x00);  /* transparency color hi */
             vga_WritePortW(0x23c2, 0x8000 | 0xff);  /* transparency mask lo */
@@ -380,7 +434,7 @@ static void configure_framebuffer(gfxmode_t* mode) {
             vga_WritePortW(0x23c2, 0xB000 | 0xff);  /* plane mask hi */
             /* select DE1, read index 0 with no increment */
             vga_WritePortW(0x23c0,  (1 << 12) | (0 << 8) | (1 << 0));
-            wait33(4);
+            wait33(8);
             vga_WritePortW(0x23c2, 0x9000 | 0);  /* X0 clip */
             vga_WritePortW(0x23c2, 0xB000 | 0);  /* Y0 clip */
             vga_WritePortW(0x23c2, 0xA000 | (uint16_t)((mode->width-1) & 0xfff));  /* X1 clip */
@@ -393,6 +447,7 @@ static void configure_framebuffer(gfxmode_t* mode) {
             /* select blitter, read index 0 with no increment */
             vga_WritePortW(0x23c0,  (1 << 12) | (0 << 8) | (1 << 0));
             /* set default blitter registers */
+            vga_WritePortW(0x23c2, 0x8000 | (uint16_t)(pitch & 0x7ff));
             vga_WritePortW(0x23c2, 0xA000 | 0xff);  /* foreground color */
             vga_WritePortW(0x23c2, 0xB000 | 0x00);  /* background color */
             vga_WritePortW(0x23c2, 0xC000 | 0x00);  /* transparency color */
