@@ -4,6 +4,7 @@ emulator.prg
 .C[-I..\..\lib\x86]
 .C[-E1 -Y -G -M -Z -P -W2]
 .C[-W-par -W-aus -W-use -W-rch]
+.C[-2]
 
 .S[-I..\..\purec\include]
 .S[-S]
