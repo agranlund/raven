@@ -428,6 +428,8 @@ static bool blit_mmio(uint32_t cmd, rect_t* src, vec_t* dst) {
                 ((cmd & BL_TRANSPARENT) ? (1 << 11) : 0);
         } else {
             bctrl.u32 = prev_bctrl.u32;
+#if 0
+            /* todo: doesn't take into account for X pos changes */
             if (prev_filly != dst->y)  {
                 uint8_t pattern = BL_GETPATTERN(cmd);
                 if (pattern) {
@@ -446,6 +448,20 @@ static bool blit_mmio(uint32_t cmd, rect_t* src, vec_t* dst) {
             }
         }
         prev_filly = dst->y + height_minus_one + 1;
+#else
+            {
+                uint8_t pattern = BL_GETPATTERN(cmd);
+                if (pattern) {
+                    /* recalculate pattern source address */
+                    srcaddr = cl_get_colorexp_pattern(pattern, dst->x, dst->y);
+                } else {
+                    /* no need to adjust src address for the solid pattern. */
+                    /* even if we're jumping to a different ypos            */
+                    fill_continue = true;
+                }
+            }
+        }
+#endif        
     } else {
         uint16_t xoffs = (bytes_per_pixel < 2) ? src->min.x : src->min.x * bytes_per_pixel;
         srcaddr = ((uint32_t)src->min.y * nova->pitch) + xoffs;
