@@ -28,7 +28,7 @@
  
 #define wd_support_blitter() (chipset >= WD90C31)
 #define wd_support_linear()  (chipset >= WD90C30)
-#define wd_support_32bit()   (chipset >= WD90C31)   /* ??? */
+#define wd_support_32bit()   (chipset >= WD90C30)   /* ??? */
 #define wd_support_banks()   (chipset >= WD90C30)
 
 
