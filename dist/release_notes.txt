@@ -1,6 +1,10 @@
 Raven.A1
 Hardware and software binary release
 
+xxxxxxxx:
+  rom:      fixed boot font issue
+  rvnova:   more VDI acceleration for Cirrus + WDC
+
 20260216:
   rvnova:   tseng driver fixes
 
