@@ -69,13 +69,15 @@ It is easy to make misstakes during assembly and such skills can be vital for fi
 - Some kind of suitable 44pin IDE->CF adapter
 - RS232<->USB cable capable of 1Mbps
 - ISA graphics card.
-    - Hardware acceleration supported
+    - SVGA with hardware acceleration
         - Cirrus GD5434, GD5429, GD5428, GD5426
         - WDC WD90C33, WD90C31
         - Tseng ET4000/W32i
         - ATI Mach32
-    - Hardware acceleration not supported
+    - SVGA without hardware acceleration
         - Tseng ET4000AX
+        - (untested) Cirrus GD5424, GD5422
+        - (untested) WD90C30
     - Cards not listed above may work but only in standard VGA resolutions.
     
 ## Additional tools
