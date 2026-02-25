@@ -198,6 +198,7 @@ typedef struct
     void        (*vsync)(void);
     void        (*clear)(void);
     bool        (*blit)(uint32_t cmd, rect_t* src, vec_t* dst);
+    void        (*trapezoid)(uint32_t cmd, rect_t* dst, int32_t ldx, int32_t rdx);
 } card_t;
 
 typedef struct

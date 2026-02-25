@@ -429,7 +429,22 @@ static bool blit_mmio(uint32_t cmd, rect_t* src, vec_t* dst) {
         } else {
             bctrl.u32 = prev_bctrl.u32;
 #if 0
-            /* todo: doesn't take into account for X pos changes */
+            /* todo: this path disabled because while the card
+             * auto increments and wraps source-y it cannot do so for source-x
+             *
+             * Fastest way to do patterned polyfills is to keep same
+             * source address through all scanlines, modifying the 
+             * left-clip register as required to skip left-side pixels.
+             * Keeping destination xpos aligned to 8pixel blocks.
+             * 
+             * Updating source address each scanline forces the gpu
+             * to reload pattern data into cache each scanline.
+             * 
+             * For a filled rectangle, this doesn't matter much.
+             * Mainly important when doing polygon scanline rasterization.
+             * Which admittedly, should be handled in a dedicated
+             * function rather than by calling blit for each line.
+             */
             if (prev_filly != dst->y)  {
                 uint8_t pattern = BL_GETPATTERN(cmd);
                 if (pattern) {
@@ -502,6 +517,94 @@ static bool blit_mmio(uint32_t cmd, rect_t* src, vec_t* dst) {
     *((volatile uint16_t*)(mmio+0x40)) = 0x0200;
     while(*((volatile uint16_t*)(mmio+0x40)) & 0x0100);
     return true;
+}
+
+static void trapezoid(uint32_t cmd, rect_t* dst, int32_t ldx, int32_t rdx) {
+    blitctrl_t bctrl;
+    uint32_t start;
+    int16_t  width;
+    int16_t  height = dst->max.y - dst->min.y;
+    int32_t  lx = ((int32_t)dst->min.x) << 16;
+    int32_t  rx = ((int32_t)dst->max.x) << 16;
+    int32_t  lc = 0;
+    int32_t  rc = ((int32_t)nova->max_x) << 16;
+
+    uint32_t line_pitch = nova->pitch;
+    uint32_t line_addr = card->bank_addr + (line_pitch * dst->min.y);
+
+    /* setup */
+    if (1 /*cmd != prev_cmd*/) {
+
+        /* color and pattern */
+        uint16_t col;
+        uint8_t patidx = BL_GETPATTERN(cmd);
+        uint32_t patsrc = patidx ? cl_get_colorexp_pattern(patidx, dst->min.x, dst->min.y) : colorexp_addr;
+        col = BL_GETFGCOL(cmd); if (col != prev_fg) { prev_fg = col; mmio_16le(0x00, col << 8); }
+        col = BL_GETBGCOL(cmd); if (col != prev_bg) { prev_bg = col; mmio_16le(0x04, col << 8); }
+        mmio_24be(0x14, patsrc);
+        prev_cmd = cmd;
+
+        /* bitblt raster operation */
+        bctrl.u16.rop = cl_get_rop(cmd) << 8;
+        if (prev_bctrl.u16.rop != bctrl.u16.rop) {
+            mmio_16le(0x1a, bctrl.u16.rop);
+        }
+
+        /* bitblt control: forward, 8x8 pattern, color expansion enabled */
+        bctrl.u16.ctrl = 
+            0x8000 |
+            0x4000 |
+            ((bytes_per_pixel < 2) ? 0x0000 : 0x1000) |
+            ((cmd & BL_TRANSPARENT) ? (1 << 11) : 0);
+
+        if (prev_bctrl.u16.ctrl != bctrl.u16.ctrl) {
+            mmio_16le(0x18, bctrl.u16.ctrl);
+        }
+        prev_bctrl.u32 = bctrl.u32;
+
+    }
+
+    /* bitblt height minus one */
+    mmio_16be(0x0a, 0);
+
+    /* rasterize */
+    for (; height >=0; height-- ) {
+
+        /* prepare next line while blitter is drawing the previous */
+
+        /* left */
+        if (lx > rc) { break; }         /* fully outside    */
+        if (lx < lc) { lx = lc; }       /* clip left        */
+
+        /* right */
+        if (rx < lx) { break; }         /* crossed sides    */
+        if (rx < lc) { break; }         /* fully outside    */
+        if (rx > rc) { rx = rc; }       /* clip right       */
+
+        /* prepare new blitter registers */
+        start = line_addr + (lx >> 16);
+        start = ((start<<24) | ((start&0xff00UL)<<8) | ((start>>8)&0xff00UL));
+        width = (rx - lx) >> 16;
+        width = (width >> 8) | (width << 8);
+   
+        /* wait blitter ready */
+        while(*((volatile uint16_t*)(mmio+0x40)) & 0x0100);
+
+        /* update registers and start */
+        mmio_16le(0x08, width);
+        mmio_24le(0x10, start);
+        *((volatile uint16_t*)(mmio+0x40)) = 0x0200;
+
+        lx += ldx; rx += rdx;
+        line_addr += line_pitch;
+    }
+
+    /* wait blitter ready */
+    while(*((volatile uint16_t*)(mmio+0x40)) & 0x0100);
+
+    /* reset cached register values */
+    prev_width = 0;
+    prev_height = 0;
 }
 
 static bool blit(uint32_t cmd, rect_t* src, vec_t* dst) {
@@ -745,6 +848,9 @@ static bool init(card_t* card, addmode_f addmode) {
     card->setaddr = setaddr;
     if (cl_support_blitter()) {
         card->blit = blit;
+        if (chipset >= GD5429) {
+            card->trapezoid = trapezoid;
+        }
     }
     if (cl_support_linear()) {
         card->bank_addr = 0x200000UL;
