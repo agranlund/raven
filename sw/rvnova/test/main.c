@@ -28,6 +28,7 @@ static option_t options[] = {
     { "fillrate",   test_speed },
     { "sprites",    test_sprites },
     { "scroll",     test_scroll },
+    { "rasterdev",  test_raster },
     { 0, 0 }
 };
 

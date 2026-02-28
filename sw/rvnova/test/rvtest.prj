@@ -13,5 +13,6 @@ main.c
 m_speed.c
 m_sprite.c
 m_scroll.c
+m_raster.c
 ..\..\purec\lib\pctoslib.lib
 ..\..\purec\lib\pcstdlib.lib

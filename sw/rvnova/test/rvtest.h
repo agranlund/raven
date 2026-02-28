@@ -44,5 +44,6 @@ extern int16_t pollkey_press(void);
 extern void test_speed(void);
 extern void test_sprites(void);
 extern void test_scroll(void);
+extern void test_raster(void);
 
 #endif /* _RVTEST_H_ */
