@@ -261,13 +261,14 @@ static uint16_t colorexp_restore05;
 static uint16_t colorexp_restore10;
 static uint16_t colorexp_restore11;
 
+
 /* GD5429+ doesn't need pre-rotated patterns for Y offsets but still need
  * the same alignment to take advantage of polyfill functionality so
  * we may as well keep the same codepath on all */
 static void cl_upload_colorexp_patterns(void) {
     int x, y, w;
     for (w = 0; w < 8; w++) {           /* patterns 0-7 */
-        uint32_t* vram = (uint32_t*)(card->isa_mem + colorexp_addr + ((w & 7) << 8));
+        uint32_t* vram = (uint32_t*)(card->isa_mem + card->bank_addr + colorexp_addr + ((w & 7) << 8));
         uint32_t pat = ~nv_fillpatterns[w];
         for (y = 0; y < 4; y++) {       /* y offset 0-3 */
             for (x = 0; x < 8; x++) {   /* x offset 0-7 */
@@ -370,7 +371,7 @@ static void configure_blitter(gfxmode_t* mode) {
     colorexp_restore11 = 0x1100 | vga_ReadReg(0x3ce, 0x11);
     colorexp_set04 = (1<<2) | colorexp_restore04;
     colorexp_set05 = (5<<0) | (colorexp_restore05 & ~7);
-    colorexp_addr = card->bank_addr + card->bank_size - 2048;
+    colorexp_addr = card->bank_size - 2048;
     cl_upload_colorexp_patterns();
 
     /* color expansion default background color */
