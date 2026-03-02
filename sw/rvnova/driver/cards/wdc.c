@@ -160,7 +160,7 @@ static uint16_t prev_ctrl;
 static uint32_t fillpattern_addr;
 static void upload_fillpatterns(uint32_t addr) {
     int i, j, k;
-    uint8_t* vram = (uint8_t*)(card->isa_mem + addr);
+    uint8_t* vram = (uint8_t*)(card->isa_mem + card->bank_addr + addr);
     fillpattern_addr = addr;
     for (i=0; i<8; i++) {
         for (j=0; j<2; j++) {
@@ -455,7 +455,7 @@ static void configure_framebuffer(gfxmode_t* mode) {
             vga_WritePortW(0x23c2, 0xE000 | 0xff);  /* plane mask */
         }
         /* upload fill patterns to vram */
-        upload_fillpatterns(card->bank_addr + card->bank_size - 2048);
+        upload_fillpatterns(card->bank_size - 2048);
     }
 }
 
