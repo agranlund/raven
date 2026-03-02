@@ -22,10 +22,10 @@
 
 
 /* todo:
- * I have no idea when certain features came to the lesser cards so most
- * stuff is disabled for anything less than WD90C31 for now.
- */
- 
+ * -  320x200x8bpp locks up on WD90C33 but works on WD90C31
+*/
+
+
 #define wd_support_blitter() (chipset >= WD90C31)
 #define wd_support_linear()  (chipset >= WD90C30)
 #define wd_support_32bit()   (chipset >= WD90C30)   /* ??? */
@@ -507,7 +507,7 @@ static void setbank(uint16_t num) {
     vga_WritePortWLE(0x3ce, 0x0a00 | (num &0xff));  /* wrbank */
 }
 
-static bool init(card_t* card, addmode_f addmode) {
+static bool init(card_t* card, ini_t* settings, addmode_f addmode) {
 
     /* detect hardware */
     if (!identify()) {

@@ -19,6 +19,7 @@
 #include "emulator.h"
 #include "raven.h"
 #include "vga.h"
+#include "ini.h"
 #include <string.h>
 
 
@@ -248,6 +249,7 @@ void nv_validate_card(void) {
  *  initialize the whole subsystem
  *-----------------------------------------------------------------------------*/
 bool nv_init(void) {
+    ini_t settings;
     int i;
 
     card = 0;
@@ -259,14 +261,17 @@ bool nv_init(void) {
     nv_dummy_page = (uint32_t)nv_dummy_page_data;
     nv_dummy_page = ((nv_dummy_page + (PMMU_PAGEALIGN - 1)) & ~(PMMU_PAGEALIGN - 1));
 
+    /* load ini file */
+    ini_Load(&settings, "c:\\rvga.inf");
+
     /* initialize default vga */
     dprintf(("vga init\n"));
-    drv_vga.init(&nvcard, nv_addmode);
+    drv_vga.init(&nvcard, &settings, nv_addmode);
 
     /* initialize svga driver */
     for (i = 0; i < (sizeof(drivers) / sizeof(driver_t*)) && !card; i++) {
         dprintf(("svga try %s\n", drivers[i]->name));
-        if (drivers[i] && drivers[i]->init(&nvcard, nv_addmode)) {
+        if (drivers[i] && drivers[i]->init(&nvcard, &settings, nv_addmode)) {
             driver = drivers[i];
             card = &nvcard;
         }
@@ -301,9 +306,11 @@ bool nv_init(void) {
         
         /* finalize */
         cpu_flush_atc();
+        ini_Unload(&settings);
         return true;
     }
 
     dprintf(("nv_init failed\n"));
+    ini_Unload(&settings);
     return false;
 }

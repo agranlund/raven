@@ -110,7 +110,7 @@ static bool setmode(gfxmode_t* mode) {
     return false;
 }
 
-static bool init(card_t* card, addmode_f addmode) {
+static bool init(card_t* card, ini_t* settings, addmode_f addmode) {
 
     /* detect hardware */
     if (!identify()) {

@@ -831,16 +831,15 @@ static bool addmode_validated(addmode_f addmode, uint16_t w, uint16_t h, uint8_t
     return false;
 }
 
-static bool init(card_t* card, addmode_f addmode) {
-    ini_t ini_root, ini;
+static bool init(card_t* card, ini_t* settings, addmode_f addmode) {
+    ini_t cirrus_settings;
 
     /* identify cirrus card */
     if (!identify()) {
         return false;
     }
 
-    ini_Load(&ini_root, "c:\\rvga.inf");
-    ini_GetSection(&ini, &ini_root, "cirrus");
+    ini_GetSection(&cirrus_settings, settings, "cirrus");
 
     /* provide card info and callbacks */
     card->name = chipset_strings[chipset];
@@ -872,7 +871,7 @@ static bool init(card_t* card, addmode_f addmode) {
 
     /* mclk override */
     if ((chipset >= GD5424) && (chipset <= GD5434)) {
-        mclk_override = ini_GetInt(&ini, "mclk", 0);
+        mclk_override = ini_GetInt(&cirrus_settings, "mclk", 0);
     }
 
     if (chipset >= GD5430) {
@@ -940,8 +939,6 @@ static bool init(card_t* card, addmode_f addmode) {
 
     /* configure linear or banked operation */
     configure_framebuffer();
-
-    ini_Unload(&ini);
     return true;
 }
 

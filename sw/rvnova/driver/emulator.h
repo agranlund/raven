@@ -21,6 +21,7 @@
 #include <stdbool.h>
 #include "raven.h"
 #include "nova.h"
+#include "ini.h"
 
 #ifndef _EMULATOR_H_
 #define _EMULATOR_H_
@@ -204,7 +205,7 @@ typedef struct
 typedef struct
 {
     const char* name;
-    bool        (*init)(card_t* card, addmode_f addmode);
+    bool        (*init)(card_t* card, ini_t* settings, addmode_f addmode);
 } driver_t;
 
 
@@ -255,6 +256,8 @@ extern bool vga_setmode(uint16_t code);
 extern void vga_setaddr(uint32_t addr);
 extern void vga_setcolors(uint16_t index, uint16_t count, uint8_t* colors);
 extern void vga_getcolors(uint16_t index, uint16_t count, uint8_t* colors);
+extern void vga_setcolorscale(uint16_t scale);
+extern void vga_updatecolorcache(bool force);
 extern void vga_enable_fastclear(bool on);
 extern uint16_t vga_modeline(modeline_t* ml);
 

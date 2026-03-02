@@ -2,11 +2,12 @@
 # rvga configuration file
 #----------------------------------------------
 
+dacscale = 256      # digital brightness scale, 256 = 1.0
+
 [cirrus]
-# mclk = $1c       # slow, usually bios default
-# mclk = $1f       #
-# mclk = $22       # fast, xfree86 default for GD5434
+# mclk = $1c        # slow, usually bios default
+# mclk = $1f        #
+# mclk = $22        # fast, xfree86 default for GD5434
 
 [et4000.w32]
- interleave = 0
-
+ interleave = 0     # memory interleave for cards that support it

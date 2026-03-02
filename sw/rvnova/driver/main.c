@@ -23,9 +23,10 @@
 #include <linea.h>
 #include <mint/cookie.h>
 #include <mint/osbind.h>
+
+#define INI_IMPL
 #include "nova.h"
 #include "emulator.h"
-#define INI_IMPL
 #include "ini.h"
 
 
@@ -222,8 +223,8 @@ void nova_p_setcolor(uint16_t index, uint8_t* colors) {
         /* a bit of a temp hack here.. */
         /* i'm not sure which additional indices we need to set for */
         /* mono color 1 so just set all of them at the moment */
-        int idx = index;
-        int end = (index == 0) ? 1 : 255;
+        uint16_t idx = index;
+        uint16_t end = (index == 0) ? 1 : 256;
         for (; idx < end; idx++) {
             card->setcolors(idx, 1, colors);
         }

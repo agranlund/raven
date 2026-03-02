@@ -320,7 +320,7 @@ static void initclocks(void) {
 #endif
 }
 
-static bool init(card_t* card, addmode_f addmode) {
+static bool init(card_t* card, ini_t* settings, addmode_f addmode) {
     /* detect hardware */
     if (!identify()) {
         return false;
@@ -380,14 +380,12 @@ static bool init(card_t* card, addmode_f addmode) {
 
     /* interleave mode */
     if (chipset == ET4000W32I) {
-        ini_t ini_root, ini;
-        ini_Load(&ini_root, "c:\\rvga.inf");
-        ini_GetSection(&ini, &ini_root, "et4000.w32");
-        if (ini_GetInt(&ini, "interleave", 0) != 0) {
+        ini_t w32i_settings;
+        ini_GetSection(&w32i_settings, settings, "et4000.w32");
+        if (ini_GetInt(&w32i_settings, "interleave", 0) != 0) {
             vga_ModifyReg(0x3d4, 0x37, 0x01, 0x01); /* membus width */
             vga_ModifyReg(0x3d4, 0x32, 0x83, 0x80); /* interleave enable */
         }
-        ini_Unload(&ini_root);
     }
     return true;
 }
