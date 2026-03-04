@@ -1,6 +1,9 @@
 Raven.A1
 Hardware and software binary release
 
+xxxxxxxx:
+  software: (castaway) support physical floppy drive
+
 20260302:
   rvnova:   option to scale dac value
   rvnova:   fixed potential bug with blitter fillpattern address
