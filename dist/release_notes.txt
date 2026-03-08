@@ -2,6 +2,7 @@ Raven.A1
 Hardware and software binary release
 
 xxxxxxxx:
+  software: (uiptool) support 16bit transfer
   software: (castaway) support physical floppy drive
 
 20260302:
