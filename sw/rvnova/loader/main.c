@@ -243,7 +243,7 @@ long supermain()
 
 	/* early out if disabled */
 	if ((inf.drv_enable == 0) || (inf.menuinf.output != 1) || (inf.drvpath[0] == 0)) {
-		return 0;
+        goto fail;
 	}
 
 	/* sta_vdi.bib */
@@ -270,30 +270,41 @@ long supermain()
 	/* xmenu.inf */
 	sprintf(fname, "%s\\xmenu.inf", path_auto);
 	if (!rvnova_saveinf(&inf, fname)) {
-		return 0;
+        goto fail;
 	}
 
 	/* launch driver */
 	if (inf.drv_enable) {
+        long result;
         /* Card specific hackery before driver has loaded */
         drv_preload();
 
         /* start driver */
         screen_off();
 		sprintf(fname, "%s\\%s\\%s", path_nova, inf.drvpath, path_emulator);
-		Pexec(PE_LOADGO, fname, "", 0L);
+		result = Pexec(PE_LOADGO, fname, "", 0L);
+        if (result < 0) {
+            goto fail;
+        }
 
 		if (inf.vdi_enable) {
             BASEPAGE* bp;
 
             /* start xmenu */
 			sprintf(fname, "%s\\xmenu.prg", path_nova);
-			Pexec(PE_LOADGO, fname, "", 0L);
+			result = Pexec(PE_LOADGO, fname, "", 0L);
+            if (result < 0) {
+                goto fail;
+            }
 			screen_restore();
 
             /* start vdi */
 			sprintf(fname, "%s\\%s\\%s", path_nova, inf.drvpath, path_vdi);
-			bp = (BASEPAGE*)Pexec(PE_LOAD, fname, "", 0L);
+            result = Pexec(PE_LOAD, fname, "", 0L);
+            if (result < 0) {
+                goto fail;
+            }
+			bp = (BASEPAGE*)result;
             vdi_patch(bp);
             FlushCache(cpu);
             Cconws("\33p");
@@ -315,6 +326,9 @@ long supermain()
 
     ini_Unload(&ini);
     return 1;
+fail:
+    ini_Unload(&ini);
+    return 0;    
 }
 
 int main()
