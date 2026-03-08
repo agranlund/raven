@@ -31,12 +31,12 @@ int rvnova_makeinf(rvnova_menuinf_t* inf) {
     strcpy(inf->drvpath, "SVGA");
     inf->drv_enable = 1;
     inf->vdi_enable = 1;
-    inf->drv_res.w = 640;
+    inf->drv_res.w = 640;   /* default boot: standard vga 640x480 in 2 colors */
     inf->drv_res.h = 480;
     inf->drv_res.b = 1;
-    inf->vdi_res.w = 640;
+    inf->vdi_res.w = 640;   /* default desk: standard vga 640x480 in 16 colors */
     inf->vdi_res.h = 480;
-    inf->vdi_res.b = 8;
+    inf->vdi_res.b = 4;
     return 1;    
 }
 
