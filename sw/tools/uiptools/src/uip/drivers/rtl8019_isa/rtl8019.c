@@ -555,6 +555,47 @@ static bool NicReset(void)
     return false;
 }
 
+#if 0
+// todo: enable this after more testing.
+// ne2000 copies first 32bytes of eeprom to shadow prom at startup
+// providing a hardware agnostic way of getting the mac address
+// rather than reading from eeprom.
+
+static void RTL8019getMac(uint8_t* macaddr)
+{
+    short interleave = 1;
+    uint8_t shadow_prom[32];
+    writeRTL(NIC_PG0_DCR, NIC_DCR_LS | NIC_DCR_FT1);
+    writeRTL(NIC_PG0_RSAR0, 0x00);
+    writeRTL(NIC_PG0_RSAR1, 0x00);
+    writeRTL(NIC_PG0_RBCR0, 0x20);
+    writeRTL(NIC_PG0_RBCR1, 0x00);
+    writeRTL(NIC_CR, NIC_RCR_AM | NIC_CR_STA);
+    for (int i=0; i<32; i++) {
+        shadow_prom[i] = readRTL(RDMAPORT);
+    }
+    writeRTL(NIC_CR, NIC_CR_STP | NIC_CR_RD2);
+
+    // look for known signature in word shadow prom
+    if ((shadow_prom[28] == shadow_prom[30]) && ((shadow_prom[28] == 0x57) || (shadow_prom[28] == 0x42))) {
+        interleave = 2;
+    // look for known signature in byte shadow prom
+    } else if ((shadow_prom[14] == shadow_prom[15]) && ((shadow_prom[14] == 0x57) || shadow_prom[14] == 0x42)) {
+        interleave = 1;
+    // check if mac address appears interleaved
+    } else {
+        if ((shadow_prom[0] == shadow_prom[1]) && (shadow_prom[2] == shadow_prom[3]) && (shadow_prom[4] == shadow_prom[5]) &&
+            (shadow_prom[6] == shadow_prom[7]) && (shadow_prom[8] == shadow_prom[9]) && (shadow_prom[10] == shadow_prom[11])) {
+            interleave = 2;
+        }
+    }
+    for (int i=0; i<6; i++) {
+        macaddr[i] = shadow_prom[i*interleave];
+    }
+}
+
+#else
+
 /* The EEPROM commands include the alway-set leading bit. */
 enum EEPROM_Cmds { EE_WriteCmd=5, EE_ReadCmd=6, EE_EraseCmd=7, };
 /* The description of EEPROM access. */
@@ -639,6 +680,7 @@ void RTL8019getMac(uint8_t* macaddr)
     // switch register pages back
     writeRTL(CR,tempCR);
 }
+#endif
 
 bool initRTL8019(uint8_t* macaddr, uint32_t cpu_type)
 {
