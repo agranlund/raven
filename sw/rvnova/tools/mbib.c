@@ -93,7 +93,7 @@ void makebib(res_t* res) {
         default: mode = 0; break;
     }
     bib->mode    = be16(mode);
-    bib->pitch   = be16((res->b < 8) ? (res->w / 8) : (res->w * bpp));
+    bib->pitch   = be16((res->b < 8) ? (res->w / 8) : ((res->w * bpp) / 8));
     bib->planes  = be16(res->b);
     bib->colors  = be16((res->b < 16) ? (1 << res->b) : 0);
     bib->hcmode  = be16(NOVA_HCMODE_1X1);
