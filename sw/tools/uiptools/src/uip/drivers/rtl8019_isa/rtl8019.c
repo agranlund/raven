@@ -34,6 +34,7 @@
 
 #define TOTAL_HEADER_LENGTH (UIP_TCPIP_HLEN+UIP_LLH_LEN)
 
+static bool rtl_16bit = false;
 static unsigned long rtl_addr = 0;
 bool RTL8019dev_init(uint8_t* macaddr, uint32_t cpu_type)
 {
@@ -135,6 +136,11 @@ static inline void writeRTL(const uint16_t address, const unsigned char data)
     *((volatile uint8_t*)(rtl_addr + address)) = data;
 }
 
+static inline void writeRTL16(const uint16_t address, const unsigned short data)
+{
+    *((volatile uint16_t*)(rtl_addr + address)) = data;
+}
+
 /*****************************************************************************
 *  readRTL(RTL_ADDRESS)
 *  Args:        unsigned char RTL_ADDRESS - register offset of RTL register
@@ -155,6 +161,11 @@ static inline void writeRTL(const uint16_t address, const unsigned char data)
 static inline unsigned char readRTL(const uint16_t address)
 {
     return *((volatile uint8_t*)(rtl_addr + address));
+}
+
+static inline unsigned short readRTL16(const uint16_t address)
+{
+    return *((volatile uint16_t*)(rtl_addr + address));
 }
 
 /*****************************************************************************
@@ -281,8 +292,15 @@ uint32_t rtl_cpu_type = 0;
 
 inline void RTL8019sendPacketData(unsigned char * localBuffer, unsigned int length)
 {
-     for (unsigned int i=0; i<length; i++) {
-        writeRTL(RDMAPORT, localBuffer[i]);
+    if (rtl_16bit) {
+        unsigned short* src = (unsigned short*)localBuffer;
+        for (unsigned int i=0; i<((length+1)>>1); i++) {
+            writeRTL16(RDMAPORT, *src++);        
+        }
+    } else {
+        for (unsigned int i=0; i<length; i++) {
+            writeRTL(RDMAPORT, localBuffer[i]);
+        }
     }
 }
 
@@ -351,10 +369,16 @@ unsigned int RTL8019beginPacketRetreive(void)
     writeRTL(RSAR1, bnry);
     writeRTL(CR, 0x0A);
 
-    for(i=0;i<4;i++) {
-      pageheader[i] = readRTL(RDMAPORT);
+    if (rtl_16bit) {
+        *((uint16_t*)&pageheader[0]) = readRTL16(RDMAPORT);
+        *((uint16_t*)&pageheader[2]) = readRTL16(RDMAPORT);
+    } else {
+        pageheader[0] = readRTL(RDMAPORT);
+        pageheader[1] = readRTL(RDMAPORT);
+        pageheader[2] = readRTL(RDMAPORT);
+        pageheader[3] = readRTL(RDMAPORT);
     }
-    
+
     // end the DMA operation
     writeRTL(CR, 0x22);
     for(i = 0; i <= 20; i++) {
@@ -387,8 +411,15 @@ void RTL8019retreivePacketData(unsigned char * localBuffer, unsigned int length)
     writeRTL(RSAR0, (unsigned char)currentRetreiveAddress);
     writeRTL(RSAR1, (unsigned char)(currentRetreiveAddress>>8));
     writeRTL(CR, 0x0A);
-    for (unsigned int i=0; i<length; i++) {
-        localBuffer[i] = readRTL(RDMAPORT);
+    if (rtl_16bit) {
+        unsigned short* dst = (unsigned short*)localBuffer;
+        for (unsigned int i=0; i<((length+1)>>1); i++) {
+            *dst++ = readRTL16(RDMAPORT);
+        }
+    } else {
+        for (unsigned int i=0; i<length; i++) {
+            localBuffer[i] = readRTL(RDMAPORT);
+        }
     }
     // end the DMA operation
     writeRTL(CR, 0x22);
@@ -620,20 +651,42 @@ bool initRTL8019(uint8_t* macaddr, uint32_t cpu_type)
 
     RTL8019getMac( macaddr );
 
-    printf("MAC: %x:%x:%x:%x:%x:%x\r\n", macaddr[0], macaddr[1], macaddr[2], macaddr[3], macaddr[4], macaddr[5]);
+    printf("\r\n");
+    printf("MAC: %02x:%02x:%02x:%02x:%02x:%02x\r\n", macaddr[0], macaddr[1], macaddr[2], macaddr[3], macaddr[4], macaddr[5]);
 
     debug_print(("Init controller..."));
     writeRTL(NIC_PG0_IMR, 0);
     writeRTL(NIC_PG0_ISR, 0xff);
     writeRTL(NIC_CR, NIC_CR_STP | NIC_CR_RD2 | NIC_CR_PS0 | NIC_CR_PS1);
     writeRTL(NIC_PG3_EECR, NIC_EECR_EEM0 | NIC_EECR_EEM1);
+
     writeRTL(NIC_PG3_CONFIG3, 0x80>>1);
     writeRTL(NIC_PG3_CONFIG2, NIC_CONFIG2_BSELB);
     writeRTL(NIC_PG3_EECR, 0);
 
     Delay_microsec(1000);
     writeRTL(NIC_CR, NIC_CR_STP | NIC_CR_RD2);
-    writeRTL(NIC_PG0_DCR, NIC_DCR_LS | NIC_DCR_FT1);
+    writeRTL(NIC_PG0_DCR, NIC_DCR_LS | NIC_DCR_FT1 | NIC_DCR_WTS);
+
+    // test 16bit support
+    writeRTL(NIC_PG0_RSAR0, 0x00);
+    writeRTL(NIC_PG0_RSAR1, 0x40);
+    writeRTL(NIC_PG0_RBCR0, 0x02);
+    writeRTL(NIC_PG0_RBCR1, 0x00);
+    writeRTL(NIC_CR, NIC_CR_RD1 | NIC_CR_STA);
+    writeRTL16(RDMAPORT, 0x55aa);
+    writeRTL(NIC_PG0_RSAR0, 0x00);
+    writeRTL(NIC_PG0_RSAR1, 0x40);
+    writeRTL(NIC_PG0_RBCR0, 0x02);
+    writeRTL(NIC_PG0_RBCR1, 0x00);
+    writeRTL(NIC_CR, NIC_RCR_AM | NIC_CR_STA);
+    rtl_16bit = (readRTL16(RDMAPORT) == 0x55aa);
+    writeRTL(NIC_CR, NIC_CR_STP | NIC_CR_RD2);
+    if (!rtl_16bit) {
+        writeRTL(NIC_PG0_DCR, NIC_DCR_LS | NIC_DCR_FT1);
+    }
+    printf("BUS: %08lx %dbit\r\n", rtl_addr, rtl_16bit ? 16 : 8);
+
     writeRTL(NIC_PG0_RBCR0, 0);
     writeRTL(NIC_PG0_RBCR1, 0);
     writeRTL(NIC_PG0_RCR, NIC_RCR_MON);
