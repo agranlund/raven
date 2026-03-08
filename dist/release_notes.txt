@@ -1,7 +1,8 @@
 Raven.A1
 Hardware and software binary release
 
-xxxxxxxx:
+20260308:
+  rvnova:   (svga) fixed broken pitch values in .bib file
   software: (uiptool) support 16bit transfer
   software: (castaway) support physical floppy drive
 
