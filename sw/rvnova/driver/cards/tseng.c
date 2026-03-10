@@ -39,6 +39,11 @@ static chipset_e chipset;
 static uint16_t vram;
 static bool vgabios_refreshrate_support;
 
+static uint8_t crt36_mmio_on;
+static uint8_t crt36_mmio_off;
+static uint32_t mmio_base;  /* mmio address */
+static uint32_t mmua_base;  /* mmu aperture */
+
 static struct {
     uint8_t code;
     uint32_t freq;
@@ -112,6 +117,28 @@ static bool identify(void) {
     return false;
 }
 
+
+#define accel_enter()   vga_WriteReg(0x3d4, 0x36, crt36_mmio_on)
+#define accel_exit()    vga_WriteReg(0x3d4, 0x36, crt36_mmio_off)
+
+static void configure_blitter(gfxmode_t* mode) {
+#if 0
+    accel_enter();
+    /* can do mmio access in this scope */
+    accel_exit();
+#endif
+}
+
+static bool blit(uint32_t cmd, rect_t* src, vec_t* dst) {
+#if 0
+    accel_enter();
+    /* can do mmio access in this scope */
+    accel_exit();
+#endif
+    return false;
+}
+
+
 static void configure_framebuffer(card_t* card, gfxmode_t* mode) {
     if (support_linear()) {
         vga_ModifyReg(0x3ce, 0x06, 0x0c, 0x00);         /* 128kb mode */
@@ -119,6 +146,7 @@ static void configure_framebuffer(card_t* card, gfxmode_t* mode) {
         vga_WritePort(0x3cd, 0x00);                     /* segment 0 */
 
         if (chipset >= ET4000W32) {
+#if 0            
             /* detect SEGE and A22 wiring on the card */
             /* different hardware vendors wire them up in different ways */
             static int8_t lconf = -1;
@@ -138,20 +166,53 @@ static void configure_framebuffer(card_t* card, gfxmode_t* mode) {
                 vga_ModifyReg(0x3d4, 0x36, 0x10, 0x00);                             /* linear off */
                 *((volatile uint32_t*)(card->isa_mem + 0xA0000UL)) = 0;             /* clear test pattern */
             }
+            /* set base linear address */
+            vga_WriteReg(0x3d4, 0x30, lconf);
+#else
+            /* linear base address */
+            vga_WriteReg(0x3d4, 0x30, 0x00);
+#endif
 
-            /* set linear mode. address must be set first on certain cards */
-            vga_WriteReg(0x3d4, 0x30, lconf);           /* linear address */
-            vga_ModifyReg(0x3d4, 0x36, 0x18, 0x10);     /* linear enable  */
+            /*
+             * configure mmu registers
+             *
+             * mmio disabled:
+             *  vga:    000000-1fffff   (2mb linear)
+             * 
+             * mmio enabled:
+             *  vga:    b8000-bffff     (unused during accel)
+             *  mmu:    a8000-adfff     (8kb apertures)
+             *  mmio:   aff00-affff
+             * 
+             */
+            {
+                vga_ModifyReg(0x3ce, 0x06, 0x0c, 0x0c);     /* vga memory map */
+                mmua_base = card->isa_mem + card->bank_addr + 0xa8000UL;
+                mmio_base = card->isa_mem + card->bank_addr + 0xaff00UL;
+                crt36_mmio_off = vga_ReadReg(0x3d4, 0x36) & 0xc7;
+                crt36_mmio_on  = crt36_mmio_off | 0x28;     /* mmu + mmio */
+                crt36_mmio_off = crt36_mmio_off | 0x10;     /* cpu linear */
 
-            /* reset screen offsets */
+                vga_WriteReg(0x3d4, 0x36, crt36_mmio_on);
+                *((uint32_t*)(mmio_base + 0x0)) = bswap32(0x000000UL); /*   0 -  512kb */
+                *((uint32_t*)(mmio_base + 0x4)) = bswap32(0x080000UL); /* 512 - 1024kb */
+                *((uint32_t*)(mmio_base + 0x8)) = bswap32(0x080000UL); /* 512 - 1024kb */
+                *((uint8_t*)(mmio_base + 0x13)) = 0x77; /* aperture0 = accelerator linear */
+                                                        /* aperture1 = accelerator linear */
+                                                        /* aperture2 = accelerator linear */
+            }
+
+            /* cpu linear mode */
+            vga_WriteReg(0x3d4, 0x36, crt36_mmio_off);
+
 #if 0            
+            /* reset screen offsets */
             vga_WriteReg(0x3d4, 0x0c, 0x00);            /* addr start 15..8 */
             vga_WriteReg(0x3d4, 0x0d, 0x00);            /* addr start  7..0 */
             vga_ModifyReg(0x3d4, 0x33, 0x13, 0x00);     /* bit 0,1,4 = bit 16,17,18 */
             vga_ModifyReg(0x3d4, 0x35, 0x0f, 0x00);     /* another extended display start */
 #endif
         } else {
-            /* todo: can it be moved somewhere above the 1MB mark? */
             vga_ModifyReg(0x3d4, 0x36, (3<<4), (3<<4)); /* linear adressing enable */
         }
     } else if (vram >= 512) {
@@ -199,6 +260,9 @@ static bool setmode(gfxmode_t* mode) {
             }
         }
         configure_framebuffer(card, mode);
+        if (support_blitter()) {
+            configure_blitter(mode);
+        }
         return true;
     }
     return false;
@@ -344,11 +408,7 @@ static bool init(card_t* card, ini_t* settings, addmode_f addmode) {
     card->setmode = setmode;
     card->setaddr = setaddr;
     if (support_linear()) {
-        if (chipset >= ET4000W32) {
-            card->bank_addr = 0x400000UL;
-        } else {
-            card->bank_addr = 0x000000UL;   /* todo: can it be moved? */
-        }
+        card->bank_addr = 0x000000UL;
         card->bank_size = card->vram_size;
     } else if (vram >= 512) {
         card->bank_size = 1024UL * 128;

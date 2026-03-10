@@ -84,6 +84,9 @@ static void     cpu_map(uint32_t log, uint32_t phys, uint32_t size, uint32_t fla
 static void     cpu_flush_atc(void) { raven()->mmu_Flush(); }
 static void     cpu_flush_cache(void) { raven()->cache_Flush(); }
 
+#define bswap16(x)  (((x)>>8)|((x)<<8))
+#define bswap32(x)  (((x)>>24)|((x)<<24)|(((x)>>8)&0xff00UL)|(((x)&0xff00UL)<<8))
+
 /*-----------------------------------------------------------------------------*/
 #define PADDR_MEM16     RV_PADDR_ISA_RAM16
 #define PADDR_MEM8      RV_PADDR_ISA_RAM
