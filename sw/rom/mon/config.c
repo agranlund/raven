@@ -10,9 +10,9 @@
 #define CFG_ADDR_MIN        0x30
 #define CFG_ADDR_MAX        0x3B
 
-static const cfg_entry_t* cfgs[CFG_MAX];
-static uint32_t cfgcnt = 0;
-static bool cfgvalid = false;
+static const cfg_entry_t* cfgs[CFG_MAX] __attribute__((aligned(4)));
+static uint32_t cfgcnt __attribute__((aligned(4)));
+static bool cfgvalid __attribute__((aligned(4)));
 
 const cfg_entry_t confs[] = {
     { "st_ram_size",    0,  0, 0x30, 3, 0, 0, 4, 0},

@@ -109,6 +109,7 @@ void        vbr_Apply();
 // motorola support package
 //-------------------------------------------------------
 bool        msp_Init();
+void        msp_Install(uint32_t vbr);
 
 //-------------------------------------------------------
 // special register accessors

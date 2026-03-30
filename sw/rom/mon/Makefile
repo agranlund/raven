@@ -3,7 +3,6 @@
 #
 BOARD_REV	 	= 0xA1
 BIOS_ROM	 	= 0x40000000
-BIOS_EMU	 	= 0x00500000
 
 # Tools
 TOOLCHAIN	= m68k-atari-mintelf
@@ -35,15 +34,14 @@ DEFS		 = -DRAVEN_ROM \
 			-DVERSION=$(BUILD_DATE_DEC) \
 		   	-DREV=$(BOARD_REV) \
 		   	-DBIOS_ROM=$(BIOS_ROM) \
-		   	-DBIOS_EMU_MEM=$(BIOS_EMU)
+			#
 		   
 INCLUDES	= -I. -I../../lib
 
 SFLAGS		= $(DEFS) $(INCLUDES) -m68060 -D__ASM__
 
-CFLAGS		= $(DEFS) $(INCLUDES) \
+CFLAGS_BASE	= $(DEFS) $(INCLUDES) \
 		   -m68060 \
-		   -Os \
 		   -std=c17 \
 		   -ffreestanding \
 		   -fomit-frame-pointer \
@@ -54,6 +52,9 @@ CFLAGS		= $(DEFS) $(INCLUDES) \
 		   -MMD \
 		   -nostdinc \
 		   -I$(CC_INCLUDES)
+
+CFLAGS		= -Os $(CFLAGS_BASE)
+CFLAGS_OPT	= -O3 $(CFLAGS_BASE)
 
 LDFLAGS_COMMON	 = -nolibc \
 		   -nostartfiles \
@@ -81,6 +82,18 @@ $(MON_SREC): $(MON_ELF)
 %.o : %.S $(DEPS)
 	@mkdir -p $(@D)
 	$(CC) $(SFLAGS) -c $< -o $@
+
+hw/cpu.o : hw/cpu.c $(DEPS)
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS_OPT) -c $< -o $@
+
+x86/x86emu.o : x86/x86emu.c $(DEPS)
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS_OPT) -c $< -o $@
+
+x86/x86core.o : x86/x86core.c $(DEPS)
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS_OPT) -c $< -o $@
 
 %.o : %.c $(DEPS)
 	@mkdir -p $(@D)

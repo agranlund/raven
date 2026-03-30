@@ -21,13 +21,13 @@
 
 
 #define MONBUFFERSIZE 1024
-char monBuffer[MONBUFFERSIZE];
+char monBuffer[MONBUFFERSIZE] __attribute__((aligned(4)));
 
-uint32_t dump_old_addr;
-uint32_t dump_old_size;
-uint32_t dasm_old_addr;
-uint32_t dasm_old_size;
-regs_t*  cpuregs;
+uint32_t dump_old_addr __attribute__((aligned(4)));
+uint32_t dump_old_size __attribute__((aligned(4)));
+uint32_t dasm_old_addr __attribute__((aligned(4)));
+uint32_t dasm_old_size __attribute__((aligned(4)));
+regs_t*  cpuregs __attribute__((aligned(4)));
 
 static uint32_t* getRegPtr(regs_t* regs, char* name) {
     static const char* regnames[] = {
@@ -413,7 +413,7 @@ static void cmdFlash(int args, char* argv[])
 // srec
 //-----------------------------------------------------------------------
 
-int srec_sum;
+static int srec_sum __attribute__((aligned(4)));
 #define srec_mem_start  0x00600000
 #define srec_mem_end    0x00800000
 
@@ -715,6 +715,9 @@ void mon_Main(regs_t* regs)
 /*    
     showHelp();
     putchar('\n');
+*/
+/*
+    mem_Info();
 */
     uint16_t exit = 0;
     while(exit == 0)

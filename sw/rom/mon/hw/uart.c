@@ -13,7 +13,7 @@ bool uart_Init()
 //-----------------------------------------------------------------------
 uint32_t uart_get_baud()
 {
-    static const uint32_t common_rates[] =
+    static const uint32_t common_rates[] __attribute__((aligned(4))) =
     {
         110, 150, 300, 600, 900, 1200, 2400, 3600, 4800,
         9600, 14400, 19200, 28800, 31250, 38400, 57600,

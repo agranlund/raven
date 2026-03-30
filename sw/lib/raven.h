@@ -145,7 +145,8 @@ typedef struct
 /* 0x0100 */
     uint32_t    _RVAPI (*sys_reset)(uint32_t arg);      /* 0 = available, 1 = soft, 2 = hard */
     uint32_t    _RVAPI (*sys_poweroff)(uint32_t arg);   /* 0 = available, 1 = poweroff */
-    uint32_t    reserved00E0[6];
+    void        _RVAPI (*sys_installsp)(uint32_t vbr);
+    uint32_t    reserved00E0[5];
 
 } raven_t;
 
