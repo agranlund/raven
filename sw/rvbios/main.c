@@ -153,6 +153,26 @@ void InstallCookies(void)
 }
 
 /*----------------------------------------
+	Motorola 060 SP
+----------------------------------------*/
+void InstallSP(void) {
+    /*
+     * Raven bootrom installs the motorola sp in
+     * the hidden vbr proxy by default.
+     * 
+     * reinstall to TOS vectors instead because some
+     * programs use unimplemented instructions to
+     * detect between 040/060 (eg. Mint 1.16.0)
+     * 
+     */
+    if ((raven()->version & 0x00ffffffUL) >= 0x00260330UL) {
+        if (raven()->sys_installsp) {
+            raven()->sys_installsp(0L);
+        }
+    }
+}
+
+/*----------------------------------------
 	Boot info
 ----------------------------------------*/
 #include "logo.c"
@@ -395,6 +415,8 @@ long supermain()
         vt_setCursorPos(0, 0);
     }
 #endif
+
+    InstallSP();
 
 	return 1;
 }
