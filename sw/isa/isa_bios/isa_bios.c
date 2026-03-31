@@ -11,6 +11,19 @@
 /*
  * todo:
  *
+ * isa_bios should provide calibrated delayus function
+ * instead of having each app calibrate and instantiate
+ * their own version.
+ * 
+ * at startup: measure loop counts for icache on & off
+ * use correct count depending on cacr when called
+ * 
+ */
+
+
+/*
+ * todo:
+ *
  *  we could expose a PCI_BIOS interface.
  * 
  *  In fact, the PCI_BIOS API draft mentioned being suitable for ISA also.
