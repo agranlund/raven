@@ -148,7 +148,7 @@ void
 create_config_path(const char* app_path)
 {
   char* file_ext = NULL;
-  strncpy(config_path, app_path, sizeof(config_path));
+  strncpy(config_path, app_path, sizeof(config_path)-1);
   file_ext = strrchr(config_path, '.');
   if (file_ext) {
     *file_ext = 0;

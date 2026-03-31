@@ -205,11 +205,11 @@ NODEP += %.c %.h %.pot
 #
 
 # Override with 1 to use the ELF toolchain instead of the MiNT one
-ELF = 0
+ELF = 1
 
 ifeq (1,$(ELF))
 # Standard ELF toolchain
-TOOLCHAIN_PREFIX = m68k-elf-
+TOOLCHAIN_PREFIX = m68k-atari-mintelf-
 TOOLCHAIN_CFLAGS = -fleading-underscore -Wa,--register-prefix-optional -fno-reorder-functions --param=min-pagesize=0 -DELF_TOOLCHAIN
 else
 # MiNT toolchain

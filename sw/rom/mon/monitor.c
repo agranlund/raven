@@ -10,13 +10,44 @@
 #include "config.h"
 #include "m68k_disasm.h"
 
-#define MONBUFFERSIZE 1024
-char monBuffer[MONBUFFERSIZE];
+// todo:
+//  - add/remove modules (name, start, len)
+//      - support symbols
+//  - add/remove breakpoints
+//      - rom breakpoints require copy to ram and mmumap
+//  - callstack record with T0 trace (option, default off)
+//  - singlestep using T1 trace
+//
 
-uint32_t dump_old_addr;
-uint32_t dump_old_size;
-uint32_t dasm_old_addr;
-uint32_t dasm_old_size;
+
+#define MONBUFFERSIZE 1024
+char monBuffer[MONBUFFERSIZE] __attribute__((aligned(4)));
+
+uint32_t dump_old_addr __attribute__((aligned(4)));
+uint32_t dump_old_size __attribute__((aligned(4)));
+uint32_t dasm_old_addr __attribute__((aligned(4)));
+uint32_t dasm_old_size __attribute__((aligned(4)));
+regs_t*  cpuregs __attribute__((aligned(4)));
+
+static uint32_t* getRegPtr(regs_t* regs, char* name) {
+    static const char* regnames[] = {
+        "buscr","itt1","itt0","dtt1","dtt0",
+        "tc","srp","urp","cacr",
+        "dfc","sfc","vbr","pcr","usp",
+        "d0","d1","d2","d3","d4","d5","d6","d7",
+        "a0","a1","a2","a3","a4","a5","a6","a7",
+        "sr", "pc"
+    };
+
+    uint32_t offs = 0;
+    for (int i=0; i<sizeof(regnames)/sizeof(char*); i++) {
+        if (strcmp(regnames[i], name) == 0) {
+            return (uint32_t*) (offs + (uint32_t)regs);
+        }
+        offs += ((strcmp(regnames[i], "sr") == 0) ? 2 : 4);
+    }
+    return 0;
+}
 
 static bool detectTos() {
     extern uint32_t atari_DetectTos();
@@ -96,7 +127,11 @@ static void cmdPeekPoke(int args, char* argv[]) {
 //-----------------------------------------------------------------------
 static void cmdDump(int args, char* argv[])
 {
-    uint32_t addr = (args < 2) ? dump_old_addr : strtoi(argv[1]);
+    uint32_t addr = dump_old_addr;
+    if (args >= 2) {
+        uint32_t* regptr = getRegPtr(cpuregs, argv[1]);
+        addr = regptr ? *regptr : strtoi(argv[1]);
+    }
     uint32_t size = (args < 3) ? dump_old_size : strtoi(argv[2]);
     if (size == 0)              size = 256;
     else if (size > (16*256))   size = 16*256;
@@ -117,7 +152,12 @@ static void cmdDisasm(int args, char* argv[])
 	static char opcode[16];
 	static char operands[128];
 
-	m68k_word* p = (args < 2) ? (m68k_word*)dasm_old_addr : (m68k_word*)strtoi(argv[1]);
+    uint32_t addr = dasm_old_addr;
+    if (args >= 2) {
+        uint32_t* regptr = getRegPtr(cpuregs, argv[1]);
+        addr = regptr ? *regptr : strtoi(argv[1]);
+    }
+	m68k_word* p = (m68k_word*)addr;
     uint32_t size = (args < 3) ? dasm_old_size : strtoi(argv[2]);
     size = (size > 0) ? size : 8;
     dasm_old_size = size;
@@ -145,6 +185,14 @@ static void cmdDisasm(int args, char* argv[])
         puts(operands);
     }
     dasm_old_addr = (uint32_t)p;
+}
+
+
+//-----------------------------------------------------------------------
+// breakpoints
+//-----------------------------------------------------------------------
+static void cmdBreakpoint(int args, char* argv[]) {
+    // todo
 }
 
 
@@ -365,7 +413,7 @@ static void cmdFlash(int args, char* argv[])
 // srec
 //-----------------------------------------------------------------------
 
-int srec_sum;
+static int srec_sum __attribute__((aligned(4)));
 #define srec_mem_start  0x00600000
 #define srec_mem_end    0x00800000
 
@@ -552,6 +600,19 @@ static void showRegs(regs_t* regs)
     fmt("\npcr: %l bcr: %l ccr: %l\n", regs->pcr, regs->buscr, regs->cacr);
 }
 
+static void cmdRegs(int args, char* argv[]) {
+    if (args > 2) {
+        uint32_t* rp = getRegPtr(cpuregs, argv[1]);
+        if (rp == (uint32_t*)&cpuregs->sr) {
+            *((uint16_t*)rp) = strtoi(argv[2]);
+        }
+        else if ((rp >= &cpuregs->d0) && (rp != &cpuregs->a7)) {
+            *((uint32_t*)rp) = strtoi(argv[2]);
+        }
+    }
+    showRegs(cpuregs);
+}
+
 static void showHelp()
 {
     puts("Commands:\n"
@@ -562,8 +623,12 @@ static void showHelp()
          "  pl [addr] {val}   : peek/poke long\n"
          "  d  [addr] {len}   : dump memory\n"
          "  a  [addr] {len}   : disassemble");
+#if 0         
+    puts(
+         "  b  {addr}         : breakpoint");
+#endif         
     if (detectTos()) { puts(
-         "  c {id} {val}      : cookie (TOS)");
+         "  c  {id}   {val}   : cookie (TOS)");
     }
     puts(
          "  rtc {clear/reset} : dump/clear/reset rtc\n"
@@ -576,8 +641,9 @@ static void showHelp()
 }
 
 
-uint16_t mon_Parse(regs_t* regs)
+uint16_t mon_Parse()
 {
+    
     // convert whitespaces to 0 as argument delimiters
     size_t monBufferSize = strlen(monBuffer);
     for (int i=0; i<monBufferSize; i++) {
@@ -618,11 +684,12 @@ uint16_t mon_Parse(regs_t* regs)
     if (args > 0)
     {
         if (strcmp(argv[0], "x") == 0)              { exit = 1; }
-        else if (strcmp(argv[0], "r") == 0)         { showRegs(regs); }
+        else if (strcmp(argv[0], "r") == 0)         { cmdRegs(args, argv); }
         else if (strcmp(argv[0], "reset") == 0)     { cmdReset(args, argv); }
         else if (strcmp(argv[0], "flash") == 0)     { cmdFlash(args, argv); }
         else if (strcmp(argv[0], "d") == 0)         { cmdDump(args, argv); }
         else if (strcmp(argv[0], "a") == 0)         { cmdDisasm(args, argv); }
+        else if (strcmp(argv[0], "b") == 0)         { cmdBreakpoint(args, argv); }
         else if (strcmp(argv[0], "pb") == 0)        { cmdPeekPoke(args, argv); }
         else if (strcmp(argv[0], "pw") == 0)        { cmdPeekPoke(args, argv); }
         else if (strcmp(argv[0], "pl") == 0)        { cmdPeekPoke(args, argv); }
@@ -642,11 +709,16 @@ uint16_t mon_Parse(regs_t* regs)
 void mon_Main(regs_t* regs)
 {
     printf("\n# Raven monitor %06x #\n", VERSION);
+    cpuregs = regs;
     showRegs(regs);
     putchar('\n');
+/*    
     showHelp();
     putchar('\n');
-
+*/
+/*
+    mem_Info();
+*/
     uint16_t exit = 0;
     while(exit == 0)
     {
@@ -657,14 +729,15 @@ void mon_Main(regs_t* regs)
             continue;
         }
 
-        exit = mon_Parse(regs);
+        exit = mon_Parse();
     }
 }
 
 void mon_MainOnce(regs_t* regs)
 {
+    cpuregs = regs;
     cpu_SetNMI(mon_Main);
-    mon_Parse(regs);
+    mon_Parse();
 }
 
 void mon_Exec(const char* s)

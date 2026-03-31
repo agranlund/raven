@@ -20,10 +20,9 @@ ifeq ($(driver),slip)
 	DRV_OBJS = src/uip/drivers/slip/slip_dev.o
 endif
 
-
 CPUFLAGS	= 	-m68000
 
-OPTS		= 	-Os \
+OPTS		= 	-O2 \
 				-Wno-address-of-packed-member \
 				-Wno-pointer-sign \
 				-I. -I$(LIBDIR) -I$(LIBDIR)/../isa \
@@ -32,7 +31,7 @@ OPTS		= 	-Os \
 				-Isrc/uip/drivers \
 				-Isrc/atari_http_server \
 				-Isrc/atari_ftp_server \
-				-DVERSION=20250215 \
+				-DVERSION=20260308 \
 				-DWITHOUT_HTTP \
 				$(DRV_OPTS) \
 				#end

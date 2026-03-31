@@ -769,7 +769,8 @@ static bool cmdSendPort(const char* arg, const int cmd)
 
 static bool cmdDefaults(const char* arg, const int cmd)
 {
-    return cmdSendUint8(CMD_DEFAULTS, 0xff);
+    //return cmdSendUint8(CMD_DEFAULTS, 0xff);
+    return ctrlSendUint8("0", CMD_DEFAULTS, 0, 0xff);
 }
 
 static bool cmdSetVol(const char* arg, const int cmd)

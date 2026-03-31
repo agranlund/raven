@@ -43,11 +43,10 @@
 #define FORM_SETTING_DRVENABLE	        0
 #define FORM_SETTING_VDIENABLE	        1
 #define FORM_SETTING_DRIVER		        2
-#define FORM_SETTING_OPT_INTERLEAVE     3
-#define FORM_SETTING_BOOTRES	        4
-#define FORM_SETTING_DESKRES	        5
-#define FORM_SETTING_GDOS		        6
-#define FORM_SETTING_GDOSNAME	        7
+#define FORM_SETTING_BOOTRES	        3
+#define FORM_SETTING_DESKRES	        4
+#define FORM_SETTING_GDOS		        5
+#define FORM_SETTING_GDOSNAME	        6
 
 
 static void exitFormNova(void);
@@ -87,7 +86,6 @@ static form_t form_nova[]={
 	{FORM_TEXT, "Nova VDI ........... [x]",				FORM_X0, FORM_Y0+1},
 
 	{FORM_TEXT, "Driver ............. none          ",	FORM_X0, FORM_Y0+3},
-    {FORM_TEXT, "Memory Interleave... [x]",             FORM_X0, FORM_Y0+4},
 
 	{FORM_TEXT, "Boot resolution .... none          ",	FORM_X0, FORM_Y0+5},
 	{FORM_TEXT, "Desk resolution .... none          ",	FORM_X0, FORM_Y0+6},
@@ -102,7 +100,6 @@ form_setting_t form_setting_nova[]={
 	{FORM_X0+FORM_TEXTPOS+1, FORM_Y0+0, NULL, SETTING_BOOL, 1},
 	{FORM_X0+FORM_TEXTPOS+1, FORM_Y0+1, NULL, SETTING_BOOL, 1},
 	{FORM_X0+FORM_TEXTPOS+0, FORM_Y0+3, NULL, SETTING_LIST, 12, driverlist},
-	{FORM_X0+FORM_TEXTPOS+1, FORM_Y0+4, NULL, SETTING_BOOL, 1},
 	{FORM_X0+FORM_TEXTPOS+0, FORM_Y0+5, NULL, SETTING_LIST, 12, modelist_drv},
 	{FORM_X0+FORM_TEXTPOS+0, FORM_Y0+6, NULL, SETTING_LIST, 12, modelist_vdi},
 	{FORM_X0+FORM_TEXTPOS+1, FORM_Y0+8, NULL, SETTING_BOOL, 1},
@@ -149,7 +146,18 @@ static void initDrivers(void)
 	driverlist[num_drivers] = 0;
 
 	for (i = 0; i < (num_drivers - 1); i++) {
+        bool swap = false;
 		if (strCompare(driverlist[i], driverlist[i+1]) > 0) {
+            swap = true;
+        }
+        /* temp hack */
+        if (strCompare("SVGA", driverlist[i+1]) == 0) {
+            swap = true;
+        } else if (strCompare("SVGA", driverlist[i]) == 0) {
+            swap = false;
+        }
+
+        if (swap) {
 			temp = driverlist[i];
 			driverlist[i] = driverlist[i+1];
 			driverlist[i+1] = temp;
@@ -157,9 +165,20 @@ static void initDrivers(void)
 		}
 	}
 
-	if ((inf.drvpath[0]==0) && (num_drivers > 0)) {
-		strCopy(driverlist[0], inf.drvpath);
-	}
+    if (num_drivers > 0) {
+        bool found = false;
+        if (inf.drvpath[0] != 0) {
+            for (i=0; (i<num_drivers) && !found; i++) {
+                if (strCompare(inf.drvpath, driverlist[i]) == 0) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (!found) {
+            strCopy(driverlist[0], inf.drvpath);
+        }
+    }
 
 	Fsetdta(dtaold);
 }
@@ -241,15 +260,6 @@ void refreshFormNova(void)
 	form_nova[FORM_SETTING_DRVENABLE].text[FORM_TEXTPOS+1] = (inf.drv_enable ? 'x' : ' ');
 	form_nova[FORM_SETTING_VDIENABLE].text[FORM_TEXTPOS+1] = (inf.vdi_enable ? 'x' : ' ');
 
-    if (strcmp(inf.drvpath, "ET4000.W32") == 0) {
-        form_nova[FORM_SETTING_OPT_INTERLEAVE].flag = FORM_TEXT;
-        form_setting_nova[FORM_SETTING_OPT_INTERLEAVE].input = SETTING_BOOL;
-    	form_nova[FORM_SETTING_OPT_INTERLEAVE].text[FORM_TEXTPOS+1] = (inf.flags & FLG_W32I_INTERLEAVE ? 'x' : ' ');
-    } else {
-        form_nova[FORM_SETTING_OPT_INTERLEAVE].flag = FORM_HIDDEN;
-        form_setting_nova[FORM_SETTING_OPT_INTERLEAVE].input = SETTING_HIDDEN;
-    }
-
 	updateString(inf.drvpath, &form_nova[FORM_SETTING_DRIVER].text[FORM_TEXTPOS], 12);
 
 	mode = findMode(inf.drv_res.w, inf.drv_res.h, inf.drv_res.b);
@@ -284,7 +294,6 @@ void initFormNova(void)
 	form_setting_nova[FORM_SETTING_DRVENABLE].text = &form_nova[FORM_SETTING_DRVENABLE].text[FORM_TEXTPOS+1];
 	form_setting_nova[FORM_SETTING_VDIENABLE].text = &form_nova[FORM_SETTING_VDIENABLE].text[FORM_TEXTPOS+1];
 	form_setting_nova[FORM_SETTING_DRIVER].text = &form_nova[FORM_SETTING_DRIVER].text[FORM_TEXTPOS];
-    form_setting_nova[FORM_SETTING_OPT_INTERLEAVE].text = &form_nova[FORM_SETTING_OPT_INTERLEAVE].text[FORM_TEXTPOS+1];
 	form_setting_nova[FORM_SETTING_BOOTRES].text = &form_nova[FORM_SETTING_BOOTRES].text[FORM_TEXTPOS];
 	form_setting_nova[FORM_SETTING_DESKRES].text = &form_nova[FORM_SETTING_DESKRES].text[FORM_TEXTPOS];
 	form_setting_nova[FORM_SETTING_GDOS].text = &form_nova[FORM_SETTING_GDOS].text[FORM_TEXTPOS+1];
@@ -315,9 +324,6 @@ static void confirmFormNova(int num_setting, conf_setting_u* confSetting)
 			initResolutions();
             vt_clearForm(); /* completely redraw the form since settings options may change */
 			break;
-        case FORM_SETTING_OPT_INTERLEAVE:
-            inf.flags = (inf.flags & FLG_W32I_INTERLEAVE) ? (inf.flags & ~FLG_W32I_INTERLEAVE) : (inf.flags | FLG_W32I_INTERLEAVE);
-            break;
 		case FORM_SETTING_BOOTRES:
 			{
 				mode_t* mptr = modedata;

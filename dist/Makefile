@@ -34,6 +34,8 @@ SWDIR_TOOLS		= $(SWDIR)/tools
 SWDIR_RTOOLS	= $(SWDIR)/raven
 SWDIR_ISA		= $(SWDIR)/raven/drivers
 
+$(MAKE) = make -j 16
+
 
 .phony: release release-test
 .phony: setup clean copy backup upload
@@ -45,7 +47,7 @@ release-test: setup copy zipit
 
 setup: clean
 	$(MKDIR) $(OUTDIR)
-	make -C tools
+	$(MAKE) -C tools
 
 clean:
 	rm -r -f $(OUTDIR)
@@ -60,18 +62,18 @@ copydocs:
 copyroms:
 	$(MKDIR) $(ROMDIR)
 	$(COPY) $(DISTDIR)/readme_rom.txt $(ROMDIR)/readme.txt
-	make -C $(ROOTDIR)/sw/rom clean
-	make -C $(ROOTDIR)/sw/rom tos-dbg
+	$(MAKE) -C $(ROOTDIR)/sw/rom clean
+	$(MAKE) -C $(ROOTDIR)/sw/rom tos-dbg
 	$(COPY) $(ROOTDIR)/sw/rom/rom_dbg.bin $(ROMDIR)/
-	make -C $(ROOTDIR)/sw/rom clean
-	make -C $(ROOTDIR)/sw/rom tos
-	make -C $(ROOTDIR)/sw/rom emucon
+	$(MAKE) -C $(ROOTDIR)/sw/rom clean
+	$(MAKE) -C $(ROOTDIR)/sw/rom tos
+	$(MAKE) -C $(ROOTDIR)/sw/rom emucon
 	$(COPY) $(ROOTDIR)/sw/rom/rom_tos.bin $(ROMDIR)/
-	make -C $(ROOTDIR)/sw/rom mon
+	$(MAKE) -C $(ROOTDIR)/sw/rom mon
 	$(COPY) $(ROOTDIR)/sw/rom/rom_mon.bin $(ROMDIR)/
 	$(MKDIR) $(SRECDIR)
-	make -C $(ROOTDIR)/sw/rom/srec clean
-	make -C $(ROOTDIR)/sw/rom/srec all
+	$(MAKE) -C $(ROOTDIR)/sw/rom/srec clean
+	$(MAKE) -C $(ROOTDIR)/sw/rom/srec all
 	$(COPY) $(ROOTDIR)/sw/rom/srec/selftest/selftest.s19 $(SRECDIR)/
 
 copyfw:
@@ -82,7 +84,7 @@ copyfw:
 	$(COPY) $(ROOTDIR)/fw/$(BOARD)/Iksi/$(FW_IKSI) $(FWDIR)/
 	$(COPY) $(ROOTDIR)/fw/ckbd/$(FW_CKBD) $(FWDIR)/
 	$(COPY) $(ROOTDIR)/fw/ckbd/ckbd_wch.ini $(FWDIR)/
-	make -C $(ROOTDIR)/fw/eiffel
+	$(MAKE) -C $(ROOTDIR)/fw/eiffel
 	$(COPY) $(ROOTDIR)/fw/eiffel/$(FW_EIFFEL) $(FWDIR)/eiffel.hex
 	$(COPY) $(ROOTDIR)/hw/simm/programmer/firmware/build/$(FW_SIMMPROG) $(FWDIR)/
 
@@ -134,16 +136,16 @@ copysw:
 	# --------------------------------------------------
 	# RVBIOS
 	# --------------------------------------------------
-	make -C $(ROOTDIR)/sw/rvbios clean
-	make -C $(ROOTDIR)/sw/rvbios
+	$(MAKE) -C $(ROOTDIR)/sw/rvbios clean
+	$(MAKE) -C $(ROOTDIR)/sw/rvbios
 	$(COPY) $(ROOTDIR)/sw/rvbios/rvbios.prg $(SWDIR_AUTO)/
 
 
 	# --------------------------------------------------
 	# RVSND
 	# --------------------------------------------------
-	make -C $(ROOTDIR)/sw/rvsnd clean
-	make -C $(ROOTDIR)/sw/rvsnd
+	$(MAKE) -C $(ROOTDIR)/sw/rvsnd clean
+	$(MAKE) -C $(ROOTDIR)/sw/rvsnd
 
 	$(MKDIR) $(SWDIR_RVSND)
 	$(MKDIR) $(SWDIR_RVSND)/chip
@@ -165,19 +167,18 @@ copysw:
 	# --------------------------------------------------
 	# RVNOVA
 	# --------------------------------------------------
-	make -C $(ROOTDIR)/sw/rvnova/loader/ clean
-	make -C $(ROOTDIR)/sw/rvnova/loader
-	$(COPY) $(ROOTDIR)/sw/rvnova/loader/rvnova.prg $(SWDIR_AUTO)/
+	$(MAKE) -C $(ROOTDIR)/sw/rvnova clean
+	$(MAKE) -C $(ROOTDIR)/sw/rvnova
 
-	make -C $(ROOTDIR)/sw/rvnova/driver/ clean
-	make -C $(ROOTDIR)/sw/rvnova/driver
+	$(COPY) $(ROOTDIR)/sw/rvnova/loader/rvnova.prg $(SWDIR_AUTO)/
+	$(COPY) $(ROOTDIR)/sw/rvnova/rvga.inf $(SWDIR)/
 
 
 	# --------------------------------------------------
 	# TOOLS
 	# --------------------------------------------------
-	make -C $(ROOTDIR)/sw/tools clean
-	make -C $(ROOTDIR)/sw/tools
+	$(MAKE) -C $(ROOTDIR)/sw/tools clean
+	$(MAKE) -C $(ROOTDIR)/sw/tools
 	$(COPY) $(ROOTDIR)/sw/tools/thingpal/thingpal.tos $(SWDIR_TOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/mon/mon.tos $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/mon/readme.txt $(SWDIR_RTOOLS)/mon.txt
@@ -198,8 +199,8 @@ copysw:
 	# --------------------------------------------------
 	# ISA BIOS
 	# --------------------------------------------------
-	make -C $(ROOTDIR)/sw/isa/isa_bios clean
-	make -C $(ROOTDIR)/sw/isa/isa_bios
+	$(MAKE) -C $(ROOTDIR)/sw/isa/isa_bios clean
+	$(MAKE) -C $(ROOTDIR)/sw/isa/isa_bios
 	$(COPY) $(ROOTDIR)/sw/isa/isa_bios/isa_bios.prg $(SWDIR_AUTO)/
 	$(COPY) $(ROOTDIR)/sw/isa/isa_bios/isa_bios.inf $(SWDIR)/
 
@@ -212,8 +213,8 @@ copysw:
 		# FDC
 		# --------------------------------------------------
 		$(MKDIR) $(SWDIR_ISA)/fdc
-		make -C $(ROOTDIR)/sw/isa/drivers/fdc clean
-		make -C $(ROOTDIR)/sw/isa/drivers/fdc
+		$(MAKE) -C $(ROOTDIR)/sw/isa/drivers/fdc clean
+		$(MAKE) -C $(ROOTDIR)/sw/isa/drivers/fdc
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/fdc/fdc.prg $(SWDIR_ISA)/fdc/
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/fdc/readme.txt $(SWDIR_ISA)/fdc/
 
@@ -221,8 +222,8 @@ copysw:
 		# FMRADIO
 		# --------------------------------------------------
 		$(MKDIR) $(SWDIR_ISA)/fmradio
-		make -C $(ROOTDIR)/sw/isa/drivers/fmradio clean
-		make -C $(ROOTDIR)/sw/isa/drivers/fmradio
+		$(MAKE) -C $(ROOTDIR)/sw/isa/drivers/fmradio clean
+		$(MAKE) -C $(ROOTDIR)/sw/isa/drivers/fmradio
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/fmradio/fmradio.prg $(SWDIR_ISA)/fmradio/fmradio.prg
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/fmradio/fmradio.txt $(SWDIR_ISA)/fmradio/fmradio.txt
 
@@ -230,8 +231,8 @@ copysw:
 		# MPU401
 		# --------------------------------------------------
 		$(MKDIR) $(SWDIR_ISA)/mpu401
-		make -C $(ROOTDIR)/sw/isa/drivers/mpu401 clean
-		make -C $(ROOTDIR)/sw/isa/drivers/mpu401
+		$(MAKE) -C $(ROOTDIR)/sw/isa/drivers/mpu401 clean
+		$(MAKE) -C $(ROOTDIR)/sw/isa/drivers/mpu401
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/mpu401/mpu401.prg $(SWDIR_ISA)/mpu401/mpu401.prg
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/mpu401/mpu401.txt $(SWDIR_ISA)/mpu401/mpu401.txt
 
@@ -239,8 +240,8 @@ copysw:
 		# OPL-MIDI
 		# --------------------------------------------------
 		$(MKDIR) $(SWDIR_ISA)/oplmidi
-		make -C $(ROOTDIR)/sw/isa/drivers/oplmidi clean
-		make -C $(ROOTDIR)/sw/isa/drivers/oplmidi
+		$(MAKE) -C $(ROOTDIR)/sw/isa/drivers/oplmidi clean
+		$(MAKE) -C $(ROOTDIR)/sw/isa/drivers/oplmidi
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/oplmidi/oplmidi.prg $(SWDIR_ISA)/oplmidi/oplmidi.prg
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/oplmidi/oplmidi.txt $(SWDIR_ISA)/oplmidi/oplmidi.txt
 
@@ -248,16 +249,16 @@ copysw:
 		# GUS
 		# --------------------------------------------------
 		$(MKDIR) $(SWDIR_ISA)/gus
-		make -C $(ROOTDIR)/sw/isa/drivers/gus clean
-		make -C $(ROOTDIR)/sw/isa/drivers/gus
+		$(MAKE) -C $(ROOTDIR)/sw/isa/drivers/gus clean
+		$(MAKE) -C $(ROOTDIR)/sw/isa/drivers/gus
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/gus/ultrinit.prg $(SWDIR_ISA)/gus/ultrinit.prg
 
 		# --------------------------------------------------
 		# PicoGUS
 		# --------------------------------------------------
 		$(MKDIR) $(SWDIR_ISA)/picogus
-		make -C $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit -f Makefile-atari clean
-		make -C $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit -f Makefile-atari
+		$(MAKE) -C $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit -f Makefile-atari clean
+		$(MAKE) -C $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit -f Makefile-atari
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit/pgusinit.prg $(SWDIR_ISA)/picogus/pgusinit.prg
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/picogus/pgusinit/README.md $(SWDIR_ISA)/picogus/readme.txt
 
@@ -270,7 +271,7 @@ copysw:
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/ETHERNE.TXT $(SWDIR_ISA)/ne2000/etherne.txt
 		$(COPY) $(ROOTDIR)/sw/isa/drivers/ne2000/ethernec/COPYING.TXT $(SWDIR_ISA)/ne2000/copying.txt
 
-		make -C $(ROOTDIR)/sw/tools/uiptools
+		$(MAKE) -C $(ROOTDIR)/sw/tools/uiptools
 		$(COPY) $(ROOTDIR)/sw/tools/uiptools/uip.tos $(SWDIR_ISA)/ne2000/uip.tos
 		$(COPY) $(ROOTDIR)/sw/tools/uiptools/uip.txt $(SWDIR_ISA)/ne2000/uip.txt
 
@@ -308,9 +309,6 @@ copysw:
 	# NOVA
 	# --------------------------------------------------
 		$(MKDIR) $(SWDIR_NOVA)
-		unzip $(SUPPDIR)/nova/TT_ET4000T8_V300.zip -d $(SWDIR_NOVA)
-		mv $(SWDIR_NOVA)/T8 $(SWDIR_NOVA)/DEFAULT
-		$(COPY) $(ROOTDIR)/sw/rvnova/driver/emulator.prg $(SWDIR_NOVA)/DEFAULT/AUTO/EMULATOR.PRG
 
 		unzip $(SUPPDIR)/nova/TT_ET4000T0_V300.zip -d $(SWDIR_NOVA)
 		mv $(SWDIR_NOVA)/T0 $(SWDIR_NOVA)/ET4000.T0
@@ -340,7 +338,13 @@ copysw:
 		mv $(SWDIR_NOVA)/M64 $(SWDIR_NOVA)/MACH64
 		./tools/patch_nova $(SWDIR_NOVA)/MACH64/AUTO/EMULATOR.PRG
 
+		unzip $(SUPPDIR)/nova/TT_ET4000T8_V300.zip -d $(SWDIR_NOVA)
+		mv $(SWDIR_NOVA)/T8 $(SWDIR_NOVA)/SVGA
+
 		$(COPY) -r $(SUPPDIR)/nova.bib/* $(SWDIR_NOVA)/
+
+		$(COPY) $(ROOTDIR)/sw/rvnova/driver/emulator.prg $(SWDIR_NOVA)/SVGA/AUTO/EMULATOR.PRG
+		$(COPY) $(ROOTDIR)/sw/rvnova/tools/svga.bib $(SWDIR_NOVA)/SVGA/AUTO/STA_VDI.BIB
 
 		unzip -j $(SUPPDIR)/nova/NOVA_COL_171.zip "NOVA_COE.PRG" -d $(SWDIR_NOVA)
 		mv $(SWDIR_NOVA)/NOVA_COE.PRG $(SWDIR)/NOVA_COL.ACC

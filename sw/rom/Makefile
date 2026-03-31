@@ -25,6 +25,8 @@ MKROM			= ./mkrom
 
 DEPS			= $(MAKEFILE_LIST)
 
+MAKE			= make -j 16
+
 all: mkrom tos mon emucon
 mon: $(ROM_MON)
 tos: $(ROM_EMUTOS)

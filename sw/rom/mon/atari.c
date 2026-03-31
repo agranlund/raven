@@ -7,11 +7,14 @@
 #include "monitor.h"
 #include "config.h"
 
-#define DEBUG_MMU               0
+
+// todo: get rid of this
 #define RESERVED_SIZE            (4UL * (1024 * 1024))
+
 #define ACIA_EMULATION          0
 #define ENABLE_CART_TEST        0
 #define DELAY_BOOT              0
+#define DEBUG_MMU               0
 
 extern uint32_t ksimm[4];
 
@@ -26,7 +29,7 @@ extern void vecRTE_MFP1I7();
 extern void vecVBL_MPF2TC();    // vblank emulation
 extern void vecKBD_MFP1I4();    // acia emulation
 
-uint32_t vecKBD_Busy;
+uint32_t vecKBD_Busy __attribute__((aligned(4)));
 
 static void mmu_Map24bit(uint32_t log, uint32_t phys, uint32_t size, uint32_t flags) {
     mmu_Map(log & 0x00ffffff, phys, size, flags);
@@ -86,6 +89,8 @@ bool atari_InitVBR()
 #else
     vbr_Set(0x118,  (uint32_t) vecRTE_MFP1I4);      // MFP1I4 - Eiffel      - IGNORE  (ST = acia)
 #endif
+
+    vbr_Set(0x11c,  (uint32_t) vecRTE_MFP1I5);      // MFPI5 - FDC/ACSI
 
     vbr_Set(0x154,  (uint32_t) vecVBL_MPF2TC);      // MFP2 TimerC -> IRQ4 VBLANK emulation
     vbr_Apply();
@@ -222,6 +227,7 @@ bool atari_InitMMU(uint32_t* simms)
     //mmu_Redirect(0xC0000000, 0x83000000, 0x00010000);
 
     // ST emulation space
+    // todo: get rid of this from here. castaway can do it itself.
     mmu_Redirect(0x41000000, reserved_start + 0x00100000, 0x00100000);      // 1024kb ram   : 000000
     mmu_Redirect(0x41E00000, reserved_start + 0x00200000, 0x00040000);      //  256kb rom   : E00000
     mmu_Redirect(0x41FC0000, reserved_start + 0x00200000, 0x00030000);      //  192kb rom   : FC0000
@@ -229,6 +235,7 @@ bool atari_InitMMU(uint32_t* simms)
     mmu_Redirect(0x41FF0000, reserved_start + 0x00260000, 0x00010000);      //   64kb io    : FF0000
 
     // x86 emulation space
+    // todo: small amount is enough, don't need entire MB address space.
     mmu_Redirect(0x42000000, reserved_start + 0x00300000, 0x000a0000);      //  640kb ram   : 00000
     mmu_Redirect(0x420a0000, reserved_start + 0x003a0000, 0x00020000);      //  128kb video : A0000
     mmu_Redirect(0x420c0000, reserved_start + 0x003c0000, 0x00030000);      //  160kb ebios : C0000

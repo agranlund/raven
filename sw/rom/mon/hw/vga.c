@@ -16,10 +16,10 @@
 #define X86_EMU_ADDR 0x00800000UL
 #define X86_EMU_SIZE 0x00100000UL
 
-static bool vgaBiosInitied = false;
-static struct X86EMU x86emu_static;
-struct X86EMU *x86emu = 0;
-static uint32_t vgaMemBase = ISA_MEMBASE8 + VGAMEM_BASE;
+static bool vgaBiosInitied __attribute__((aligned(4))) = false;
+struct X86EMU *x86emu __attribute__((aligned(4))) = 0;
+static uint32_t vgaMemBase __attribute__((aligned(4))) = ISA_MEMBASE8 + VGAMEM_BASE;
+static struct X86EMU x86emu_static __attribute__((aligned(16)));
 
 uint32_t vga_Addr() {
     return vgaMemBase;

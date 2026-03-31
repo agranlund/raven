@@ -19,6 +19,7 @@
 #include "emulator.h"
 #include "raven.h"
 #include "vga.h"
+#include "ini.h"
 #include <string.h>
 
 
@@ -33,7 +34,7 @@ static card_t nvcard;
 
 #define MAX_MODES 32
 static int nummodes = 0;
-static mode_t modes[MAX_MODES];
+static gfxmode_t modes[MAX_MODES];
 
 uint32_t nv_dummy_page;
 static uint8_t nv_dummy_page_data[PMMU_PAGESIZE + PMMU_PAGEALIGN];
@@ -42,6 +43,7 @@ uint32_t nv_fillpatterns[8] = {
     0xffffffffUL, 0xeeffbbffUL, 0xaaffaaffUL, 0xaaddaa77UL,
     0xaa55aa55UL, 0x88552255UL, 0x00550055UL, 0x00440011UL
 };
+
 
 /*-------------------------------------------------------------------------------
  * nv_init_vram:
@@ -67,7 +69,7 @@ void nv_init_vram(uint32_t base, uint32_t size, uint16_t count) {
     cur_count = count;
 
     /* map logical framebuffer */
-    dprintf("nv_init_vram %08lx : %08lx x %d\n", cur_phys, size, count);
+    dprintf(("nv_init_vram %08lx : %08lx x %d\n", cur_phys, size, count));
     flag = (count > 1) ? PAGE_INVALID : PAGE_READWRITE;
     while (count) {
         cpu_map(log, cur_phys, cur_size, flag);
@@ -93,10 +95,10 @@ bool nv_setmode(uint16_t width, uint16_t height, uint16_t bpp) {
     int i;
     int modeidx = -1;
     bool result = false;
-    dprintf("nv_setmode %dx%dx%dx\n", width, height, bpp);
+    dprintf(("nv_setmode %dx%dx%dx\n", width, height, bpp));
     /* match against known modes */
     for (i = 0; i < nummodes && !result; i++) {
-        mode_t* mode = &modes[i];
+        gfxmode_t* mode = &modes[i];
         if (mode && mode->code && (mode->width == width) && (mode->height == height) && (mode->bpp == bpp)) {
             /* call device driver */
             result = card->setmode(mode);
@@ -142,21 +144,25 @@ extern driver_t drv_vga;
 extern driver_t drv_cirrus;
 extern driver_t drv_oak;
 extern driver_t drv_s3;
+extern driver_t drv_tseng;
 extern driver_t drv_wdc;
 static driver_t* drivers[] = {
 #if DRV_INCLUDE_CIRRUS
     &drv_cirrus,
 #endif
-#if DRV_INCLUDE_OAK
-    &drv_oak,
-#endif
-#if DRV_INCLUDE_S3
-    &drv_s3,
-#endif
 #if DRV_INCLUDE_WDC
     &drv_wdc,
 #endif    
-    &drv_vga,
+#if DRV_INCLUDE_S3
+    &drv_s3,
+#endif
+#if DRV_INCLUDE_TSENG
+    &drv_tseng,
+#endif
+#if DRV_INCLUDE_OAK
+    &drv_oak,
+#endif
+&drv_vga,
 };
 
 
@@ -194,11 +200,11 @@ void nv_validate_modes(void) {
             static first = true;
             if (first) {
                 first = false;
-                dprintf(" ignored modes:\n");
+                dprintf((" ignored modes:\n"));
             }
-            dprintf("  %4d,%4d,%2d : %02x : %04x\n", modes[i].width, modes[i].height, modes[i].bpp, modes[i].flags, modes[i].code);
+            dprintf(("  %4d,%4d,%2d : %02x : %04x\n", modes[i].width, modes[i].height, modes[i].bpp, modes[i].flags, modes[i].code));
             if (i < (nummodes - 1)) {
-                memcpy(&modes[i], &modes[nummodes-1], sizeof(mode_t));
+                memcpy(&modes[i], &modes[nummodes-1], sizeof(gfxmode_t));
             }
             nummodes--;
         }
@@ -243,6 +249,7 @@ void nv_validate_card(void) {
  *  initialize the whole subsystem
  *-----------------------------------------------------------------------------*/
 bool nv_init(void) {
+    ini_t settings;
     int i;
 
     card = 0;
@@ -254,14 +261,17 @@ bool nv_init(void) {
     nv_dummy_page = (uint32_t)nv_dummy_page_data;
     nv_dummy_page = ((nv_dummy_page + (PMMU_PAGEALIGN - 1)) & ~(PMMU_PAGEALIGN - 1));
 
+    /* load ini file */
+    ini_Load(&settings, "c:\\rvga.inf");
+
     /* initialize default vga */
-    dprintf("vga init\n");
-    drv_vga.init(&nvcard, nv_addmode);
+    dprintf(("vga init\n"));
+    drv_vga.init(&nvcard, &settings, nv_addmode);
 
     /* initialize svga driver */
     for (i = 0; i < (sizeof(drivers) / sizeof(driver_t*)) && !card; i++) {
-        dprintf("svga init %d\n", i);
-        if (drivers[i] && drivers[i]->init(&nvcard, nv_addmode)) {
+        dprintf(("svga try %s\n", drivers[i]->name));
+        if (drivers[i] && drivers[i]->init(&nvcard, &settings, nv_addmode)) {
             driver = drivers[i];
             card = &nvcard;
         }
@@ -270,19 +280,19 @@ bool nv_init(void) {
         uint32_t la;
 
         nv_validate_card();
-        dprintf("nv_init: %s : %s (%ldKb)\n",
+        dprintf(("nv_init: %s : %s (%ldKb)\n",
             driver->name,
             card->name,
-            card->vram_size / 1024);
-        dprintf(" banks: %08lx : %ldKb * %ld (%ldKb * %ld)\n",
+            card->vram_size / 1024));
+        dprintf((" banks: %08lx : %ldKb * %ld (%ldKb * %ld)\n",
             card->bank_addr,
             card->bank_size / 1024, card->bank_count,
-            card->bank_step / 1024, card->bank_count * (card->bank_size / card->bank_step));
+            card->bank_step / 1024, card->bank_count * (card->bank_size / card->bank_step)));
 
         nv_validate_modes();
-        dprintf(" valid modes:\n");
+        dprintf((" valid modes:\n"));
         for (i = 0; i < nummodes; i++) {
-            dprintf("  %4d,%4d,%2d : %02x : %04x\n", modes[i].width, modes[i].height, modes[i].bpp, modes[i].flags, modes[i].code);
+            dprintf(("  %4d,%4d,%2d : %02x : %04x\n", modes[i].width, modes[i].height, modes[i].bpp, modes[i].flags, modes[i].code));
         }
 
         /* prepare logical framebuffer */
@@ -296,9 +306,11 @@ bool nv_init(void) {
         
         /* finalize */
         cpu_flush_atc();
+        ini_Unload(&settings);
         return true;
     }
 
-    dprintf("nv_init failed\n");
+    dprintf(("nv_init failed\n"));
+    ini_Unload(&settings);
     return false;
 }

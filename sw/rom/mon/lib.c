@@ -177,6 +177,25 @@ memcpy(void *restrict dst, const void *restrict src, size_t len)
     return dst;
 }
 
+void*
+memmove(void* dst, const void* src, size_t len)
+{
+    char *d = (char *)dst;
+    const char *s = (const char *)src;
+    if (d < s) {
+        while (len--) {
+            *d++ = *s++;
+        }
+    } else if (d > s) {
+        s += len;
+        d += len;
+        while (len--) {
+            *--d = *--s;
+        }
+    }
+    return dst;
+}
+
 int
 puts(const char *str)
 {

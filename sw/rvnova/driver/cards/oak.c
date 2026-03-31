@@ -102,7 +102,7 @@ static void setbank(uint16_t num) {
     vga_WritePortWLE(0x3ce, 0x0900 | num);
 }
 
-static bool setmode(mode_t* mode) {
+static bool setmode(gfxmode_t* mode) {
     if (vga_setmode(mode->code)) {
         configure_framebuffer();
         return true;
@@ -110,7 +110,7 @@ static bool setmode(mode_t* mode) {
     return false;
 }
 
-static bool init(card_t* card, addmode_f addmode) {
+static bool init(card_t* card, ini_t* settings, addmode_f addmode) {
 
     /* detect hardware */
     if (!identify()) {

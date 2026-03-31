@@ -12,6 +12,7 @@ OBJS = main.o asm.o nv.o banksw.o vdi.o \
 	cards/cirrus.o \
 	cards/oak.o \
 	cards/s3.o \
+	cards/tseng.o \
 	cards/wdc.o
 
 ROOTDIR = ../..

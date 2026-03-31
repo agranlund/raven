@@ -21,12 +21,12 @@ all: sw rom
 clean: sw_clean rom_clean
 
 init:
-	make -C gcc/libcmini
+#	make -C gcc
 
 distclean: clean
-	make -C gcc/libcmini clean
-	rm -f gcc/lgcc.o
-	rm -f gcc/stripx/stripx
+	make -C gcc/src/libcmini clean
+	rm -f gcc/lib/lgcc.o
+	rm -f gcc/bin/stripx
 
 sw: init
 	for dir in $(DIRS); do \

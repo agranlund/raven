@@ -1,8 +1,32 @@
 Raven.A1
 Hardware and software binary release
 
+20260308:
+  rvnova:   (svga) fixed broken pitch values in .bib file
+  software: (uiptool) support 16bit transfer
+  software: (castaway) support physical floppy drive
+
+20260302:
+  rvnova:   option to scale dac value
+  rvnova:   fixed potential bug with blitter fillpattern address
+
+20260225:
+  rom:      fixed boot font issue
+  rvnova:   more VDI acceleration for Cirrus + WDC
+
+20260216:
+  rvnova:   tseng driver fixes
+
+20260215:
+  rvnova:   wip tseng driver
+  
+20260215:
+  rvnova:   added settings file
+  rvbios:   updated nova settings panel
+
 20260213:
-  rvnova:   Better 1280x720x8bpp quality on Cirrus
+  rom:      updated EmuTOS (#65a71f3 @ 20260202)
+  rvnova:   better 1280x720x8bpp quality on Cirrus
 
 20260209:
   rvnova:   1280x720x8bpp for Cirrus and WDC

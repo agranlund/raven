@@ -14,6 +14,7 @@ MEMORY
 
 __export_size = __export_end - __export_start;
 __config_size = __config_end - __config_start;
+__stack_size  = 1024 * 16;
 
 SECTIONS
 {
@@ -66,6 +67,11 @@ SECTIONS
         *(.bss.*);
         . = ALIGN(4);
         __bss_end = .;
+
+        . = ALIGN(4096);                    /* BIOS heap */
+        __heap_start = .;
+        . = ORIGIN(RAM) + LENGTH(RAM) - __stack_size;
+        __heap_end = .;
 
         __stack_base = .;                   /* BIOS stack */
         . = ORIGIN(RAM) + LENGTH(RAM) - 4;

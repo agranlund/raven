@@ -84,6 +84,17 @@ static void vga_ModifyReg(uint16_t port, uint8_t idx, uint8_t mask, uint8_t val)
     vga_WriteReg(port, idx, (vga_ReadReg(port, idx) & ~mask) | (val & mask));
 }
 
+static bool vga_TestPort(uint16_t port, uint8_t mask) {
+    uint8_t temp[3];
+    temp[0] = vga_ReadPort(port);
+    vga_WritePort(port, ~mask);
+    temp[1] = vga_ReadPort(port) & mask;
+    vga_WritePort(port, mask);
+    temp[2] = vga_ReadPort(port) & mask;
+    vga_WritePort(port, temp[0]);
+    return ((temp[1] == 0) && (temp[2] == mask));
+}
+
 static bool vga_TestReg(uint16_t port, uint8_t idx, uint8_t mask) {
     uint8_t temp[3];
     temp[0] = vga_ReadReg(port, idx);

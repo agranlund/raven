@@ -20,6 +20,7 @@
 
 static uint32_t test_lines(uint16_t flg) {
 #if 1
+    (void)flg;
     return 0;
 #else
     static int16_t pts[1024*2];
@@ -39,6 +40,27 @@ static uint32_t test_lines(uint16_t flg) {
     }
     return (((i >> 2) * size) / 1024);
 #endif
+}
+
+static uint32_t test_trapez(uint16_t flg) {
+    rect_t dst;
+    uint32_t i, tm;
+    int32_t rdx = (((int32_t)nova->max_x) << 15) / nova->max_y;
+    int32_t ldx = -rdx;
+    (void)flg;
+    dst.min.x = ((nova->max_x+1) / 2) - 1;
+    dst.min.y = 0;
+    dst.max.x = dst.min.x;
+    dst.max.y = nova->max_y;
+    if (card->trapezoid) {
+        tm = (200UL * 4) + hz200();
+        for (i = 0; hz200() < tm; i++) {
+            uint32_t cmd = BL_FILL|BL_ROP_S|BL_FGCOL(i&15);
+            card->trapezoid(cmd, &dst, ldx, rdx);
+        }
+    }
+    return ((((i >> 2) * nova->max_x * nova->max_y / 2)) / 1024);
+    /*return i * 1024;*/
 }
 
 static uint32_t test_cpufill(void) {
@@ -99,13 +121,16 @@ static uint32_t test_blitrate(void) {
 
 
 void test_speed(void) {
-    uint32_t r_swfill, r_hwfill, r_hwblit, r_hwply0, r_hwply1;
-
-    r_swfill = test_cpufill();
+    uint32_t r_swfill = 0;
+    uint32_t r_hwfill = 0;
+    uint32_t r_hwblit = 0;
+    uint32_t r_hwply0 = 0;
+    uint32_t r_hwply1 = 0;
+/*    r_swfill = test_cpufill();*/
     r_hwfill = test_fillrate();
-    r_hwply0 = test_lines(0);
-    r_hwply1 = test_lines(4);
-    r_hwblit = test_blitrate();
+/*    r_hwblit = test_blitrate();*/
+    r_hwply0 = test_trapez(0);
+/*    r_hwply1 = test_trapez(4);*/
 
     printf("swfill: %3ld Mb/s (%4ld Kb/30hz)\n", r_swfill / 1024, r_swfill / 30);
     printf("hwfill: %3ld Mb/s (%4ld Kb/30hz)\n", r_hwfill / 1024, r_hwfill / 30);

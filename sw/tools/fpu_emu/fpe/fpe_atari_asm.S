@@ -26,42 +26,42 @@
 //#define FPESTART    move.w    #0x2700,sr
 #define FPESTART
 
-    .global _fpu_emulate
+    .global fpu_emulate
 
-    .global _fpe_vec_68000
-    .global _fpe_vec_68010
-    .global _fpe_vec_68020
-    .global _fpe_vec_68030
-    .global _fpe_vec_68040
-    .global _fpe_vec_68060
+    .global fpe_vec_68000
+    .global fpe_vec_68010
+    .global fpe_vec_68020
+    .global fpe_vec_68030
+    .global fpe_vec_68040
+    .global fpe_vec_68060
 
-    .global _fpe_vec_68000_tos1
-    .global _fpe_vec_68010_tos1
-    .global _fpe_vec_68020_tos1
-    .global _fpe_vec_68030_tos1
-    .global _fpe_tos1bot
-    .global _fpe_tos1top
+    .global fpe_vec_68000_tos1
+    .global fpe_vec_68010_tos1
+    .global fpe_vec_68020_tos1
+    .global fpe_vec_68030_tos1
+    .global fpe_tos1bot
+    .global fpe_tos1top
 
-    .global _fpe_vec
-    .global _fpe_vec_sf         // 68000       : 3 word frame
-    .global _fpe_vec_0f         // 68010-68030 : 4 word frame $0
-    .global _fpe_vec_4f         // 68040-68060 : 8 word frame $4
+    .global fpe_vec
+    .global fpe_vec_sf         // 68000       : 3 word frame
+    .global fpe_vec_0f         // 68010-68030 : 4 word frame $0
+    .global fpe_vec_4f         // 68040-68060 : 8 word frame $4
 
-    .global _fpe_SetIPL
-    .global _fpe_SetVBR_010_060
-    .global _fpe_GetVBR_010_060
-    .global _fpe_GetPCR_060
-    .global _fpe_SetPCR_060
-    .global _fpe_FlushCache_020_030
-    .global _fpe_FlushCache_040_060
-    .global _fpe_DetectFpu_020_060
-    .global _fpe_DisableFpu_060
+    .global fpe_SetIPL
+    .global fpe_SetVBR_010_060
+    .global fpe_GetVBR_010_060
+    .global fpe_GetPCR_060
+    .global fpe_SetPCR_060
+    .global fpe_FlushCache_020_030
+    .global fpe_FlushCache_040_060
+    .global fpe_DetectFpu_020_060
+    .global fpe_DisableFpu_060
 
     .bss
     .even
 
-_fpe_tos1bot:   ds.l 1
-_fpe_tos1top:   ds.l 1
+fpe_tos1bot:   ds.l 1
+fpe_tos1top:   ds.l 1
 stackbot:       ds.l 128*4
 stacktop:
 
@@ -70,11 +70,11 @@ stacktop:
 
 
 // todo: fixme when this is in ROM
-_fpe_vec:       .long 0
-_fpe_xbra:      .long 0
-_fpe_xbra_id:   .long 0
-_fpe_xbra_old:  .long 0
-    move.l  _fpe_vec,-(sp)
+fpe_vec:       .long 0
+fpe_xbra:      .long 0
+fpe_xbra_id:   .long 0
+fpe_xbra_old:  .long 0
+    move.l  fpe_vec,-(sp)
     rts
 
 
@@ -85,7 +85,7 @@ _fpe_xbra_old:  .long 0
 //
 //------------------------------------------------------
 
-_fpe_SetIPL:                    // uint16_t fpe_SetIPL(uint16_t ipl)
+fpe_SetIPL:                    // uint16_t fpe_SetIPL(uint16_t ipl)
     move.l  4(sp),d1
     and.w   #0x0F00,d1
     move.w  sr,d0
@@ -98,12 +98,12 @@ _fpe_SetIPL:                    // uint16_t fpe_SetIPL(uint16_t ipl)
     move.w  (sp)+,d0
     rts
 
-_fpe_GetVBR_010_060:            // uint16_t fpe_GetVBR_010_060(void)
+fpe_GetVBR_010_060:            // uint16_t fpe_GetVBR_010_060(void)
     nop
     .dc.l   0x4e7a0801              // movec vbr,d0
     rts
 
-_fpe_SetVBR_010_060:            // uint16_t fpe_GetVBR_010_060(uint16_t vbr)
+fpe_SetVBR_010_060:            // uint16_t fpe_GetVBR_010_060(uint16_t vbr)
     nop
     .dc.l 0x4e7a0801                // movec vbr,d0
     move.l    4(sp),d1
@@ -112,12 +112,12 @@ _fpe_SetVBR_010_060:            // uint16_t fpe_GetVBR_010_060(uint16_t vbr)
     nop
     rts
 
-_fpe_GetPCR_060:                // uint32_t fpe_GetPCR_060(void)
+fpe_GetPCR_060:                // uint32_t fpe_GetPCR_060(void)
     nop
     .dc.l   0x4e7a0808              // movec pcr,d0
     rts
 
-_fpe_SetPCR_060:                // uint32_t fpe_SetPCR_060(uint32_t pcr)
+fpe_SetPCR_060:                // uint32_t fpe_SetPCR_060(uint32_t pcr)
     nop
     .dc.l   0x4e7a0808              // movec pcr,d0
     move.l  4(sp),d1
@@ -126,7 +126,7 @@ _fpe_SetPCR_060:                // uint32_t fpe_SetPCR_060(uint32_t pcr)
     nop
     rts
 
-_fpe_FlushCache_020_030:        // void fpe_FlushCache_020_030(void)
+fpe_FlushCache_020_030:        // void fpe_FlushCache_020_030(void)
     nop
     .dc.l   0x4e7a0002              // movec cacr,d0
     ori.w   #0x0808,d0              // flush
@@ -135,13 +135,13 @@ _fpe_FlushCache_020_030:        // void fpe_FlushCache_020_030(void)
     nop
     rts
 
-_fpe_FlushCache_040_060:        // void fpe_FlushCache_040_060(void)
+fpe_FlushCache_040_060:        // void fpe_FlushCache_040_060(void)
     nop
     .dc.w   0xf4f8                  // cpusha bc
     nop
     rts
 
-_fpe_DetectFpu_020_060:         // uint32_t fpe_DetectFpu_020_060(void)
+fpe_DetectFpu_020_060:         // uint32_t fpe_DetectFpu_020_060(void)
     move.l  a2,-(sp)
     move.l  sp,a0
     move.l  0x08.w,a2
@@ -165,7 +165,7 @@ _fpe_DetectFpu_020_060:         // uint32_t fpe_DetectFpu_020_060(void)
     move.l  (sp)+,a2
     rts
 
-_fpe_DisableFpu_060:            // void fpe_DisableFpu_060(void)
+fpe_DisableFpu_060:            // void fpe_DisableFpu_060(void)
     .dc.l   0x4e7a0808              // movec pcr,d0
     // todo: check if already disabled
     nop
@@ -192,13 +192,13 @@ _fpe_DisableFpu_060:            // void fpe_DisableFpu_060(void)
 //------------------------------------------------------
 // TOS2+
 //------------------------------------------------------
-_fpe_vec_68040:
-_fpe_vec_68060:
+fpe_vec_68040:
+fpe_vec_68060:
     FPESTART
     btst.b  #6,6(sp)                // format4?
     bne.b   fpe_vec_4f
     //bra.s fpe_vec_0f
-    move.l  _fpe_xbra_old,-(sp)
+    move.l  fpe_xbra_old,-(sp)
     rts
 fpe_vec_4f:
     btst    #5,(sp)                 // super?
@@ -227,7 +227,7 @@ fpe_vec_4f_super:
     move.l  a6,sp                   // emulator stack is now active
 
     move.l  a6,-(sp)
-    jbsr    _fpu_emulate            // fpu_emulate((frame*)sp)
+    jbsr    fpu_emulate             // fpu_emulate((frame*)sp)
     lea     4(sp),sp
 
     move.l  sp,a6
@@ -243,7 +243,7 @@ fpe_vec_4f_super:
 1:  movem.l (a6),#0x7FFF            // restore most regs
     rte        
 2:  movem.l (a6),#0x7FFF            // restore most regs
-    move.l  _fpe_xbra_old,-(sp)     // push previous vector
+    move.l  fpe_xbra_old,-(sp)     // push previous vector
     rts                             // and jump
 
     //---------------------------------------
@@ -256,7 +256,7 @@ fpe_vec_4f_user:
     move.l  a0,60(sp)               // save to frame
 
     move.l  sp,-(sp)
-    jbsr    _fpu_emulate            // fpu_emulate((frame*)sp)
+    jbsr    fpu_emulate             // fpu_emulate((frame*)sp)
     lea     4(sp),sp                // restore stack
 
     move.l  60(sp),a0               // get usp from frame
@@ -268,7 +268,7 @@ fpe_vec_4f_user:
     rte
 2:  movem.l (sp)+,#0x7FFF           // restore most regs
     addq.l  #8,sp                   // pop SP and stack adjust
-    move.l  _fpe_xbra_old,(sp)      // push old vector
+    move.l  fpe_xbra_old,(sp)      // push old vector
     rte                             // and jump
 
 
@@ -282,30 +282,30 @@ fpe_vec_4f_user:
 //------------------------------------------------------
 // TOS1
 //------------------------------------------------------
-_fpe_vec_68010_tos1:
-_fpe_vec_68020_tos1:
-_fpe_vec_68030_tos1:
+fpe_vec_68010_tos1:
+fpe_vec_68020_tos1:
+fpe_vec_68030_tos1:
     FPESTART
     move.l  d0,-(sp)                // save regs
     move.l  6(sp),d0                // get caller address
-    cmp.l   _fpe_tos1bot,d0         // from before tos rom?
+    cmp.l   fpe_tos1bot,d0         // from before tos rom?
     blt.s   1f
-    cmp.l   _fpe_tos1top,d0         // from after tos rom?
+    cmp.l   fpe_tos1top,d0         // from after tos rom?
     bge.s   1f
     move.l  (sp)+,d0
-    move.l  _fpe_xbra_old,-(sp)     // push previous vector
+    move.l  fpe_xbra_old,-(sp)     // push previous vector
     rts                             // and jump
 1:  move.l  (sp)+,d0
-//  bra.b   _fpe_vec_0f
+//  bra.b   fpe_vec_0f
 
 //------------------------------------------------------
 // TOS2+
 //------------------------------------------------------
-_fpe_vec_68010:
-_fpe_vec_68020:
-_fpe_vec_68030:
+fpe_vec_68010:
+fpe_vec_68020:
+fpe_vec_68030:
     FPESTART
-_fpe_vec_0f:
+fpe_vec_0f:
     btst    #5,(sp)
     beq.s   fpe_vec_0f_user
     
@@ -330,7 +330,7 @@ fpe_vec_0f_super:
     move.l  a6,sp                   // emulator stack is now active
 
     move.l  a6,-(sp)
-    jbsr    _fpu_emulate            // fpu_emulate((frame*)sp)
+    jbsr    fpu_emulate             // fpu_emulate((frame*)sp)
     lea     4(sp),sp
 
     move.l  sp,a6
@@ -344,7 +344,7 @@ fpe_vec_0f_super:
 1:  movem.l (a6),#0x7FFF            // restore most regs
     rte
 2:  movem.l (a6),#0x7FFF            // restore most regs
-    move.l  _fpe_xbra_old,-(sp)     // push previous vector
+    move.l  fpe_xbra_old,-(sp)     // push previous vector
     rts                             // and jump
 
     //---------------------------------------
@@ -357,7 +357,7 @@ fpe_vec_0f_user:
     move.l  a0,60(sp)               // save to frame
 
     move.l  sp,-(sp)
-    jbsr    _fpu_emulate            // fpu_emulate((frame*)sp)
+    jbsr    fpu_emulate             // fpu_emulate((frame*)sp)
     lea     4(sp),sp                // restore stack
 
     move.l  60(sp),a0               // get usp from frame
@@ -369,7 +369,7 @@ fpe_vec_0f_user:
     rte
 2:  movem.l (sp)+,#0x7FFF           // restore most regs
     addq.l  #8,sp                   // pop SP and stack adjust
-    move.l  _fpe_xbra_old,(sp)      // push old vector
+    move.l  fpe_xbra_old,(sp)      // push old vector
     rte
 
 
@@ -383,26 +383,26 @@ fpe_vec_0f_user:
 //------------------------------------------------------
 // TOS1
 //------------------------------------------------------
-_fpe_vec_68000_tos1:
+fpe_vec_68000_tos1:
     FPESTART
     move.l  d0,-(sp)                // save regs
     move.l  6(sp),d0                // get caller address
-    cmp.l   _fpe_tos1bot,d0         // from before tos rom?
+    cmp.l   fpe_tos1bot,d0         // from before tos rom?
     blt.b   1f
-    cmp.l   _fpe_tos1top,d0         // from after tos rom?
+    cmp.l   fpe_tos1top,d0         // from after tos rom?
     bge.b   1f
     move.l  (sp)+,d0                // restore regs
-    move.l  _fpe_xbra_old,-(sp)     // store previous vector
+    move.l  fpe_xbra_old,-(sp)     // store previous vector
     rts                             // and jump
 1:  move.l  (sp)+,d0
-//  bra.b   _fpe_vec_sf
+//  bra.b   fpe_vec_sf
 
 //------------------------------------------------------
 // TOS2+
 //------------------------------------------------------
-_fpe_vec_68000:
+fpe_vec_68000:
     FPESTART
-_fpe_vec_sf:
+fpe_vec_sf:
     btst    #5,(sp)
     beq.s   fpe_vec_sf_user
 
@@ -427,7 +427,7 @@ fpe_vec_sf_super:
     move.l  a6,sp                   // emulator stack is now active
 
     move.l  sp,-(sp)
-    jbsr    _fpu_emulate            // fpu_emulate((frame*)sp)
+    jbsr    fpu_emulate             // fpu_emulate((frame*)sp)
     lea     4(sp),sp
 
     move.l  sp,a6
@@ -440,7 +440,7 @@ fpe_vec_sf_super:
 1:  movem.l (a6),#0x7FFF            // restore most regs
     rte                                
 2:  movem.l (a6),#0x7FFF            // restore most regs
-    move.l  _fpe_xbra_old,-(sp)     // push old vector
+    move.l  fpe_xbra_old,-(sp)     // push old vector
     rts                             // and jump
 
     //---------------------------------------
@@ -457,7 +457,7 @@ fpe_vec_sf_user:
     move.l  a0,60(sp)               // save to frame
 
     move.l  sp,-(sp)
-    jbsr    _fpu_emulate            // fpu_emulate((frame*)sp)
+    jbsr    fpu_emulate             // fpu_emulate((frame*)sp)
     lea     4(sp),sp                // restore stack
 
     move.l  60(sp),a0               // get usp from frame
@@ -475,6 +475,6 @@ fpe_vec_sf_user:
     move.w  (sp),8(sp)              // restore sr
     move.l  2(sp),10(sp)            // restore pc
     addq.l  #8,sp                   // get rid of fake frame
-    move.l  _fpe_xbra_old,-(sp)     // push old vector
+    move.l  fpe_xbra_old,-(sp)     // push old vector
     rts                             // and jump
 

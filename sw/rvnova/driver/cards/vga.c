@@ -21,6 +21,9 @@
 #include "vga.h"
 #include "x86.h"
 
+#define DAC_CACHE 0     /* doesn't work correctly yet 4bpp */
+
+
 /*-------------------------------------------------------------------------------
  * custom modelines
  *-----------------------------------------------------------------------------*/
@@ -115,9 +118,9 @@ bool vga_setmode(uint16_t code) {
         vga_vsync();
         r.x.bx = code | clearflag;
         r.x.ax = 0x4f02;    /* setmode */
-        dprintf("setmode %04x %04x\n", r.x.ax, r.x.bx);
+        dprintf(("setmode %04x %04x\n", r.x.ax, r.x.bx));
         int86(0x10, &r, &r);
-        dprintf("ax = %04x %02x:%02x\n", r.x.ax, r.h.ah, r.h.al);
+        dprintf(("ax = %04x %02x:%02x\n", r.x.ax, r.h.ah, r.h.al));
         result = (r.h.ah == 0);
     } else {
         /* vga or svga */
@@ -139,7 +142,9 @@ bool vga_setmode(uint16_t code) {
     return result;
 }
 
-void vga_modeline(modeline_t* ml) {
+uint16_t vga_modeline(modeline_t* ml) {
+    uint16_t ret;
+    uint8_t  ofl;
     uint16_t hto = (ml->htotal / 8) - 5;
     uint16_t hde = (ml->hdisp / 8) - 1;
     uint16_t hbs = (ml->hdisp / 8) - 1;
@@ -153,8 +158,15 @@ void vga_modeline(modeline_t* ml) {
     uint16_t vbs = ml->vdisp;
     uint16_t vbe = ml->vtotal - 1;
 
-    /* overflow bits */
-    uint8_t ofl = 
+#if 1
+    /* wdc is getting stuck blanks. */
+    /* but this appears to work on both wdc and cirrus */
+    hbe = 0;
+    vbe = 0;
+#endif
+
+    /* vga overflow bits */
+    ofl = 
         (((vto & (1 << 8)) ? 1 : 0) << 0) |
         (((vde & (1 << 8)) ? 1 : 0) << 1) |
         (((vss & (1 << 8)) ? 1 : 0) << 2) |
@@ -162,14 +174,19 @@ void vga_modeline(modeline_t* ml) {
         (1 << 4) |
         (((vto & (1 << 9)) ? 1 : 0) << 5) |
         (((vde & (1 << 9)) ? 1 : 0) << 6) |
-        (((vss & (1 << 9)) ? 1 : 0) << 7);
+        (((vss & (1 << 9)) ? 1 : 0) << 7) ;
 
-#if 1
-    /* wdc is getting stuck blanks. */
-    /* but this appears to work on both wdc and cirrus */
-    hbe = 0;
-    vbe = 0;
-#endif
+    /* svga overflow bits */
+    ret = 
+        (((vto & (1 << 10)) ? 1 : 0) <<  0) |
+        (((vde & (1 << 10)) ? 1 : 0) <<  1) |
+        (((vss & (1 << 10)) ? 1 : 0) <<  2) |
+        (((vbs & (1 << 10)) ? 1 : 0) <<  3) |
+        (((vbe & (1 <<  8)) ? 1 : 0) <<  5) |
+        (((vbe & (1 <<  9)) ? 1 : 0) <<  6) |
+        (((hto & (1 << 10)) ? 1 : 0) <<  8) |
+        (((hbe & (1 <<  6)) ? 1 : 0) <<  9) |
+        (((hbe & (1 <<  7)) ? 1 : 0) << 10) ;
 
     /* sync polarity */
     vga_WritePort(0x3c2,
@@ -187,7 +204,7 @@ void vga_modeline(modeline_t* ml) {
     vga_WriteReg(0x3d4, 0x02, hbs & 0xff);                          /* hblank start             */
     vga_WriteReg(0x3d4, 0x03, ((hbe & 0x1f) | 0x80));               /* hblank end               */
     vga_WriteReg(0x3d4, 0x04, hss & 0xff);                          /* hsync start              */
-    vga_WriteReg(0x3d4, 0x05, hse & 0x1f);                          /* hsync end                */
+    vga_WriteReg(0x3d4, 0x05, ((hbe<<2)&0x80) | (hse & 0x1f));      /* hblank end + hsync end   */
 
     /* vertical */
     vga_WriteReg(0x3d4, 0x06, vto & 0xff);                          /* vtotal                   */
@@ -198,27 +215,124 @@ void vga_modeline(modeline_t* ml) {
     vga_WriteReg(0x3d4, 0x13, (ml->hdisp / 8)  & 0xff);             /* pitch                    */
     vga_WriteReg(0x3d4, 0x15, vbs & 0xff);                          /* vblank start             */
     vga_WriteReg(0x3d4, 0x16, vbe & 0xff);                          /* vblank end               */
+
+    /* return svga overflow */
+    return ret;
 }
 
+
+#if DAC_CACHE
+typedef struct {
+    uint8_t ar,ag,ab,aa;
+    uint8_t br,bg,bb,ba;
+} daccache_t;
+static daccache_t daccache[256];
+#endif
+static uint16_t dacscale = 256;
+
 void vga_setcolors(uint16_t index, uint16_t count, uint8_t* colors) {
-    while (count) {
-        vga_WritePort(0x3c8, index++);
-        vga_WritePort(0x3c9, (*colors++)>>2);
-        vga_WritePort(0x3c9, (*colors++)>>2);
-        vga_WritePort(0x3c9, (*colors++)>>2);
-        count--;
+    for (; (count != 0) && (index < 256); count--, index++) {
+#if DAC_CACHE
+        /* software value */
+        uint8_t r = *colors++;
+        uint8_t g = *colors++;
+        uint8_t b = *colors++;
+
+        daccache[index].ar = r;
+        daccache[index].ag = g;
+        daccache[index].ab = b;
+
+        /* hardware value */
+        r = ((dacscale * r) >> 10);
+        g = ((dacscale * g) >> 10);
+        b = ((dacscale * b) >> 10);
+
+        /* update hardware dac if changed */
+        if ((r != daccache[index].br) || (g != daccache[index].bg) || (b != daccache[index].bb)) {
+            daccache[index].br = r;
+            daccache[index].bg = g;
+            daccache[index].bb = b;
+            vga_WritePort(0x3c8, index);
+            vga_WritePort(0x3c9, r);
+            vga_WritePort(0x3c9, g);
+            vga_WritePort(0x3c9, b);
+        }
+#else
+        vga_WritePort(0x3c8, index);
+        vga_WritePort(0x3c9, ((dacscale * (*colors++)) >> 10));
+        vga_WritePort(0x3c9, ((dacscale * (*colors++)) >> 10));
+        vga_WritePort(0x3c9, ((dacscale * (*colors++)) >> 10));
+#endif        
     }
 }
 
 void vga_getcolors(uint16_t index, uint16_t count, uint8_t* colors) {
-    while (count) {
-        vga_WritePort(0x3c8, index++);
-        *colors++ = vga_ReadPort(0x3c9);
-        *colors++ = vga_ReadPort(0x3c9);
-        *colors++ = vga_ReadPort(0x3c9);
-        count--;
+    for (; (count != 0) && (index < 256); count--, index++) {
+#if DAC_CACHE
+        *colors++ = daccache[index].ar;
+        *colors++ = daccache[index].ag;
+        *colors++ = daccache[index].ab;
+#else
+        uint16_t r,g,b;
+        vga_WritePort(0x3c8, index);
+        r = vga_ReadPort(0x3c9);
+        g = vga_ReadPort(0x3c9);
+        b = vga_ReadPort(0x3c9);
+        *colors++ = (uint8_t) ((r << 10) / dacscale);
+        *colors++ = (uint8_t) ((g << 10) / dacscale);
+        *colors++ = (uint8_t) ((b << 10) / dacscale);
+#endif        
     }
 }
+
+void vga_updatecolorcache(bool force) {
+#if DAC_CACHE
+    uint16_t index,r,g,b;
+    for(index=0; index<256; index++) {
+        vga_WritePort(0x3c8, index);
+        r = vga_ReadPort(0x3c9);
+        g = vga_ReadPort(0x3c9);
+        b = vga_ReadPort(0x3c9);
+
+        if (index < 16) {
+            dprintf(("A %d : %02x %02x %02x : %02x %02x %02x\n", index, r, g, b, daccache[index].br, daccache[index].bg, daccache[index].bb ));
+        }
+
+        if (force || (r != daccache[index].br)) { daccache[index].br = r; daccache[index].ar = (uint8_t) ((r << 10) / dacscale); }
+        if (force || (g != daccache[index].bg)) { daccache[index].bg = g; daccache[index].ag = (uint8_t) ((g << 10) / dacscale); }
+        if (force || (b != daccache[index].bb)) { daccache[index].bb = b; daccache[index].ab = (uint8_t) ((b << 10) / dacscale); }
+
+        if (index < 16) {
+            dprintf(("B %d : %02x %02x %02x : %02x %02x %02x\n", index, r, g, b, daccache[index].br, daccache[index].bg, daccache[index].bb ));
+        }
+    }
+#endif    
+}
+
+void vga_setcolorscale(uint16_t scale) {
+#if DAC_CACHE
+    if (scale != dacscale) {
+        uint16_t index;
+        dacscale = scale;
+        for (index=0; index<256; index++) {
+            vga_setcolors(index, 1, &daccache[index].ar);
+        }
+    }
+#else
+    if (scale != dacscale) {
+        uint8_t c[4];
+        uint16_t index;
+        uint16_t oldscale = dacscale;
+        for (index=0; index<256; index++) {
+            dacscale = oldscale;
+            vga_getcolors(index, 1, c);
+            dacscale = scale;
+            vga_setcolors(index, 1, c);
+        }
+    }
+#endif    
+}
+
 
 void vga_setaddr(uint32_t addr) {
     uint16_t crtc = vga_GetBaseReg(4);
@@ -233,11 +347,11 @@ void vga_setaddr(uint32_t addr) {
 static void setbank(uint16_t num) {
 }
 
-static bool setmode(mode_t* mode) {
+static bool setmode(gfxmode_t* mode) {
     return vga_setmode(mode->code);
 }
 
-static bool init(card_t* card, addmode_f addmode) {
+static bool init(card_t* card, ini_t* settings, addmode_f addmode) {
 
     card->name = "unknown";
     card->bank_addr = 0xA0000UL;
@@ -262,6 +376,10 @@ static bool init(card_t* card, addmode_f addmode) {
     addmode(640, 350, 4, 0, 0x10);
     addmode(640, 480, 4, 0, 0x12);
     addmode(320, 200, 8, 0, 0x13);
+
+    vga_updatecolorcache(true);
+    vga_setcolorscale(ini_GetInt(settings, "dacscale", 256));
+
     return true;
 }
 
