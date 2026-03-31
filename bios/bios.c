@@ -2,7 +2,7 @@
  *  bios.c - C portion of BIOS initialization and front end
  *
  * Copyright (C) 2001 Lineo, Inc.
- * Copyright (C) 2001-2025 The EmuTOS development team
+ * Copyright (C) 2001-2026 The EmuTOS development team
  *
  * Authors:
  *  SCC     Steve C. Cavender
@@ -49,6 +49,7 @@
 #include "vectors.h"
 #include "asm.h"
 #include "chardev.h"
+#include "disk.h"
 #include "blkdev.h"
 #include "parport.h"
 #include "serport.h"
@@ -570,6 +571,10 @@ static void bios_init(void)
         }
     }
 #endif
+
+    /* Boot hard disks */
+    KDEBUG(("disk_try_dmaboot()\n"));
+    disk_try_dmaboot();
 
     KDEBUG(("bios_init() end\n"));
 }
