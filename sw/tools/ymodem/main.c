@@ -26,6 +26,12 @@
 #include <tos.h>
 #include "ymodem.h"
 
+/* sigh.. mintlib */
+#ifndef LINE
+#include <mint/ostruct.h>
+typedef _CCONLINE LINE;
+#endif
+
 void flush_cin(void) {
     int max = 1024;
     while((Cconis() == -1) && (max != 0)) {
@@ -33,6 +39,9 @@ void flush_cin(void) {
         Crawcin();
     }
 }
+
+
+
 
 static LINE pbuf;
 int main(int args, char** argv)

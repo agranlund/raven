@@ -5,20 +5,20 @@
     .text
 
 cpu_InstallSP:
-    movec.l     %vbr,%a1
-    move.l      #sp060_isp+0x80+0x00,0xf4(%a1) // unsupported integer instruction
+    move.l      4(%sp),%a0
+    move.l      #sp060_isp+0x80+0x00,0xf4(%a0) // unsupported integer instruction
     movec.l     %pcr,%d0
     btst        #16,%d0
     bne.b       1f
-    move.l      #sp060_fsp+0x80+0x00,0xd8(%a1) // snan
-    move.l      #sp060_fsp+0x80+0x08,0xd0(%a1) // operr
-    move.l      #sp060_fsp+0x80+0x10,0xd4(%a1) // overflow
-    move.l      #sp060_fsp+0x80+0x18,0xcc(%a1) // underflow
-    move.l      #sp060_fsp+0x80+0x20,0xc8(%a1) // divide by zero
-    move.l      #sp060_fsp+0x80+0x28,0xc4(%a1) // inexact result
-    move.l      #sp060_fsp+0x80+0x30,0x2c(%a1) // line-f
-    move.l      #sp060_fsp+0x80+0x38,0xdc(%a1) // unsupported fpu instruction
-    move.l      #sp060_fsp+0x80+0x40,0xf0(%a1) // unsupported effective address
+    move.l      #sp060_fsp+0x80+0x00,0xd8(%a0) // snan
+    move.l      #sp060_fsp+0x80+0x08,0xd0(%a0) // operr
+    move.l      #sp060_fsp+0x80+0x10,0xd4(%a0) // overflow
+    move.l      #sp060_fsp+0x80+0x18,0xcc(%a0) // underflow
+    move.l      #sp060_fsp+0x80+0x20,0xc8(%a0) // divide by zero
+    move.l      #sp060_fsp+0x80+0x28,0xc4(%a0) // inexact result
+    move.l      #sp060_fsp+0x80+0x30,0x2c(%a0) // line-f
+    move.l      #sp060_fsp+0x80+0x38,0xdc(%a0) // unsupported fpu instruction
+    move.l      #sp060_fsp+0x80+0x40,0xf0(%a0) // unsupported effective address
     fmovem.l    #0,%fpcr
 1:  rts
 

@@ -12504,6 +12504,12 @@
 		(uuid "51a80a58-a296-4eb8-9d52-1b7101d7fc9b")
 	)
 	(junction
+		(at 415.29 71.755)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "53cfb692-74ed-450b-adbc-c2657f2a66e4")
+	)
+	(junction
 		(at 234.315 216.535)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -13540,10 +13546,6 @@
 		(uuid "04a248d4-c49a-4cc3-9eec-976b0e549f19")
 	)
 	(no_connect
-		(at 419.1 69.215)
-		(uuid "09e4b9aa-af2d-45b6-acf3-7550a417564e")
-	)
-	(no_connect
 		(at 180.34 349.25)
 		(uuid "183216e0-29c4-410a-86f1-cd0914d43619")
 	)
@@ -13558,10 +13560,6 @@
 	(no_connect
 		(at 180.34 354.33)
 		(uuid "381f8015-fe7d-472d-be18-414fc428fa6d")
-	)
-	(no_connect
-		(at 419.1 71.755)
-		(uuid "416a8b94-b595-4bef-b8f3-f0f43b019949")
 	)
 	(no_connect
 		(at 180.34 339.09)
@@ -21767,6 +21765,16 @@
 	)
 	(wire
 		(pts
+			(xy 415.29 69.215) (xy 415.29 71.755)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6a1133f2-a55d-4b86-9e27-b1409a5020ac")
+	)
+	(wire
+		(pts
 			(xy 718.185 185.42) (xy 721.995 185.42)
 		)
 		(stroke
@@ -27357,6 +27365,16 @@
 	)
 	(wire
 		(pts
+			(xy 415.29 71.755) (xy 419.1 71.755)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d06615b5-68bb-40ff-bff5-8d102c2a468c")
+	)
+	(wire
+		(pts
 			(xy 657.225 305.435) (xy 657.225 306.705)
 		)
 		(stroke
@@ -28935,6 +28953,16 @@
 		)
 		(uuid "f0ae0f17-62a3-437f-9686-56738b90655a")
 	)
+	(wire
+		(pts
+			(xy 419.1 69.215) (xy 415.29 69.215)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f0c8a4db-a7cf-41af-b1ed-49417257af86")
+	)
 	(bus
 		(pts
 			(xy 596.9 400.685) (xy 596.9 403.225)
@@ -29864,6 +29892,16 @@
 			(type default)
 		)
 		(uuid "fec79324-f1a3-4e75-bcc9-2aae53feeb12")
+	)
+	(wire
+		(pts
+			(xy 410.21 71.755) (xy 415.29 71.755)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fef42b5e-4be1-46f9-a980-45de105892d9")
 	)
 	(wire
 		(pts
@@ -36841,6 +36879,71 @@
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
 					(reference "#PWR0121")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 410.21 71.755 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "099486bf-5a8c-4f31-aae2-71f80acdcee3")
+		(property "Reference" "#PWR0165"
+			(at 403.86 71.755 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 407.035 71.755 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 410.21 71.755 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 410.21 71.755 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 410.21 71.755 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "00bab5c0-79a8-45c2-ae71-167d322e919f")
+		)
+		(instances
+			(project "raven"
+				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
+					(reference "#PWR0165")
 					(unit 1)
 				)
 			)

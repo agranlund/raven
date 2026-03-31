@@ -1186,7 +1186,7 @@
 					)
 				)
 			)
-			(property "Footprint" "68k:SHDR44W55P200_2X22_4665X630X640P"
+			(property "Footprint" "68k:IDE44PIN"
 				(at -31.75 -3.81 0)
 				(effects
 					(font
@@ -1213,7 +1213,7 @@
 					(hide yes)
 				)
 			)
-			(property "Manufacturer_Name" "Molex"
+			(property "Manufacturer_Name" "Wurth"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1222,7 +1222,7 @@
 					(hide yes)
 				)
 			)
-			(property "Manufacturer_Part_Number" "87831-4420"
+			(property "Manufacturer_Part_Number" "62004421121"
 				(at 0 0 0)
 				(effects
 					(font
@@ -17983,7 +17983,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "68k:SHDR44W55P200_2X22_4665X630X640P"
+		(property "Footprint" "68k:IDE44PIN"
 			(at 58.42 194.945 0)
 			(effects
 				(font
@@ -18001,15 +18001,16 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 90.17 191.135 0)
+		(property "Description" "Connector pin header"
+			(at 101.6 225.425 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
-		(property "Manufacturer_Name" "Molex"
+		(property "Manufacturer_Name" "Wurth"
 			(at 90.17 191.135 0)
 			(effects
 				(font
@@ -18018,7 +18019,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "87831-4420"
+		(property "Manufacturer_Part_Number" "62004421121"
 			(at 90.17 191.135 0)
 			(effects
 				(font

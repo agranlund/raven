@@ -22,14 +22,14 @@
 
 
 /* todo:
- * I have no idea when certain features came to the lesser cards so most
- * stuff is disabled for anything less than WD90C31 for now.
- */
- 
-#define wd_support_blitter() (chipset == WD90C31)   /* not WD90C33 yet since it has a different blitter engine */
-#define wd_support_linear()  (chipset >= WD90C31)
-#define wd_support_32bit()   (chipset >= WD90C31)
-#define wd_support_banks()   (chipset >= WD90C31)
+ * -  320x200x8bpp locks up on WD90C33 but works on WD90C31
+*/
+
+
+#define wd_support_blitter() (chipset >= WD90C31)
+#define wd_support_linear()  (chipset >= WD90C30)
+#define wd_support_32bit()   (chipset >= WD90C30)   /* ??? */
+#define wd_support_banks()   (chipset >= WD90C30)
 
 
 #if DRV_INCLUDE_WDC
@@ -150,10 +150,17 @@ static bool identify(void) {
 }
 
 
+static uint16_t prev_height;
+static uint16_t prev_width;
+static uint16_t prev_fg;
+static uint16_t prev_bg;
+static uint16_t prev_rop;
+static uint16_t prev_ctrl;
+
 static uint32_t fillpattern_addr;
 static void upload_fillpatterns(uint32_t addr) {
     int i, j, k;
-    uint8_t* vram = (uint8_t*)(card->isa_mem + addr);
+    uint8_t* vram = (uint8_t*)(card->isa_mem + card->bank_addr + addr);
     fillpattern_addr = addr;
     for (i=0; i<8; i++) {
         for (j=0; j<2; j++) {
@@ -172,12 +179,12 @@ static uint32_t get_fillpattern(uint16_t idx, int16_t xoffs, int16_t yoffs) {
 
 #define wd_rop(cmd) (((uint16_t)cmd) & 0x0F00)
 
-static bool blit(uint32_t cmd, rect_t* src, vec_t* dst) {
+static bool blit31(uint32_t cmd, rect_t* src, vec_t* dst) {
     uint32_t dstaddr, srcaddr;
     uint32_t width_minus_one;
     uint32_t height_minus_one;
     uint16_t bytes_per_pixel;
-    uint16_t ctrl0, ctrl1;
+    uint16_t ctrl0, ctrl1, rop;
 
     ctrl0 = ((1 << 8) | (1 << 11)); /* packed pixels, start */
     ctrl1 = 0x1000;
@@ -190,6 +197,7 @@ static bool blit(uint32_t cmd, rect_t* src, vec_t* dst) {
     vga_WritePortW(0x23c0,  (1 << 12) | (0 << 8) | (1 << 0));
 
     if (cmd & BL_FILL) {
+        uint16_t col;
         uint8_t pattern = BL_GETPATTERN(cmd);
         if (pattern) {
             srcaddr = get_fillpattern(pattern, src->min.x, src->min.y);
@@ -200,8 +208,8 @@ static bool blit(uint32_t cmd, rect_t* src, vec_t* dst) {
         } else {
             ctrl0 |= (2 << 2);  /* source data is fixed color */
         }
-        vga_WritePortW(0x23c2, 0xA000 | BL_GETFGCOL(cmd));
-        vga_WritePortW(0x23c2, 0xB000 | BL_GETBGCOL(cmd));
+        col = BL_GETFGCOL(cmd); if (col != prev_fg) { prev_fg = col; vga_WritePortW(0x23c2, 0xA000 | col); }
+        col = BL_GETBGCOL(cmd); if (col != prev_bg) { prev_bg = col; vga_WritePortW(0x23c2, 0xB000 | col); }
     } else {
         srcaddr = (((uint32_t)src->min.y) * nova->pitch) + (src->min.x * bytes_per_pixel);
         if (srcaddr < dstaddr) {
@@ -215,9 +223,10 @@ static bool blit(uint32_t cmd, rect_t* src, vec_t* dst) {
         vga_WritePortW(0x23c2, 0x2000 | (uint16_t)(srcaddr & 0xfff));
         vga_WritePortW(0x23c2, 0x3000 | (uint16_t)((srcaddr >> 12) & 0x0ff));
         if (cmd & BL_MONO) {
+            uint16_t col;
             ctrl0 |= (1 << 2); /* color src -> mono mask -> color expand */
-            vga_WritePortW(0x23c2, 0xA000 | BL_GETBGCOL(cmd));
-            vga_WritePortW(0x23c2, 0xB000 | BL_GETFGCOL(cmd));
+            col = BL_GETBGCOL(cmd); if (col != prev_bg) { prev_bg = col; vga_WritePortW(0x23c2, 0xA000 | col); }
+            col = BL_GETFGCOL(cmd); if (col != prev_fg) { prev_fg = col; vga_WritePortW(0x23c2, 0xB000 | col); }
         }
     }
 
@@ -225,23 +234,139 @@ static bool blit(uint32_t cmd, rect_t* src, vec_t* dst) {
         ctrl1 |= ((1 << 2) | (1 << 0));
     }
 
-    vga_WritePortW(0x23c2, 0x9000 | wd_rop(cmd));
-    vga_WritePortW(0x23c2, 0x8000 | (uint16_t)(nova->pitch & 0x7ff));
-    vga_WritePortW(0x23c2, 0x6000 | (uint16_t)((width_minus_one + 1) & 0x7ff));
-    vga_WritePortW(0x23c2, 0x7000 | (uint16_t)((height_minus_one + 1) & 0x7ff));
+    rop = wd_rop(cmd);
+    if (prev_rop != rop) {
+        prev_rop = rop;
+        vga_WritePortW(0x23c2, 0x9000 | rop);
+    }
+    if (prev_width != width_minus_one) {
+        prev_width = width_minus_one;
+        vga_WritePortW(0x23c2, 0x6000 | (uint16_t)((width_minus_one + 1) & 0x7ff));
+    }
+    if (prev_height != height_minus_one) {
+        prev_height = height_minus_one;
+        vga_WritePortW(0x23c2, 0x7000 | (uint16_t)((height_minus_one + 1) & 0x7ff));
+    }
     vga_WritePortW(0x23c2, 0x4000 | (uint16_t)(dstaddr & 0xfff));
     vga_WritePortW(0x23c2, 0x5000 | (uint16_t)((dstaddr >> 12) & 0x0ff));
 
-    /* start blitter */
-    vga_WritePortW(0x23c2, ctrl1);
+    if (prev_ctrl != ctrl1) {
+        prev_ctrl = ctrl1;
+        vga_WritePortW(0x23c2, ctrl1);
+    }
+    /* start blitter and wait until finished */
     vga_WritePortW(0x23c2, ctrl0);
-
-    /* wait until finished */
     while(vga_ReadPortW(0x23c2) & (1 << 11));
     return true;
 }
 
-static void configure_framebuffer(mode_t* mode) {
+static void wait33(uint16_t size) {
+    vga_WritePortW(0x23ce, 0x0020);
+    while ((vga_ReadPortW(0x23ce) & 0x000f) > (8 - size)) {
+    }
+}
+
+static bool blit33(uint32_t cmd, rect_t* src, vec_t* dst) {
+    uint16_t ctrl1, ctrl2;
+    uint16_t fg, bg, rop;
+    int16_t srcx = src->min.x;
+    int16_t srcy = src->min.y;
+    int16_t dstx = dst->x;
+    int16_t dsty = dst->y;
+    int16_t height_minus_one = src->max.y - src->min.y;
+    int16_t width_minus_one = src->max.x - src->min.x;
+    bool update_color = true;
+    bool update_src = true;
+
+    ctrl1 = (1 <<  9);  /* bitblt */
+    ctrl2 = (1 << 10) | /* 8bit chunky */
+            (3 <<  5);  /* reserved bits, should be 11 */
+
+    if (cmd & BL_FILL) {
+        uint8_t pattern = BL_GETPATTERN(cmd);
+        if (pattern) {
+            uint32_t patoffs = get_fillpattern(pattern, src->min.x, src->min.y) - card->bank_addr;
+            srcy = patoffs / ((int16_t)nova->pitch);
+            srcx = patoffs - (nova->pitch * srcy);
+            ctrl1 |= (1 << 2) |  /* source data is pattern */
+                     (1 << 3);   /* source format is mono  */
+
+            fg = BL_GETBGCOL(cmd);
+            bg = BL_GETFGCOL(cmd);
+        } else {
+            ctrl1 |= (2 << 3);   /* source data is fixed color */
+            fg = BL_GETFGCOL(cmd);
+            bg = BL_GETBGCOL(cmd);
+            update_src = false;
+        }
+    } else {
+        if (srcx < dstx) {
+            ctrl1 |= (1 << 8);  /* right -> left */
+            srcx += width_minus_one;
+            dstx += width_minus_one;
+        }
+        if (srcy < dsty) {
+            ctrl1 |= (1 << 7);  /* bottom -> top */
+            srcy += height_minus_one;
+            dsty += height_minus_one;
+        }
+        if (cmd & BL_MONO) {
+            ctrl1 |= (1 << 3); /* color src -> mono mask -> color expand */
+            fg = BL_GETFGCOL(cmd);
+            bg = BL_GETBGCOL(cmd);
+        } else {
+            update_color = false;
+        }
+    }
+    if (cmd & BL_TRANSPARENT) {
+        ctrl2 |= ((1 << 9) | (1 << 8)); /* positive polarity, enable */
+    }
+    rop = wd_rop(cmd);
+
+    /* update color */
+    if (update_color) {
+        /* select DE2, read index 0 with no increment */
+        vga_WritePortW(0x23c0,  (1 << 12) | (0 << 8) | (3 << 0));
+        wait33(2);
+        if (fg != prev_fg) { prev_fg = fg; vga_WritePortW(0x23c2, 0x2000 | fg); }
+        if (bg != prev_bg) { prev_bg = bg; vga_WritePortW(0x23c2, 0x4000 | bg); }
+    }
+
+    /* select DE1, read index 0 with no increment */
+    vga_WritePortW(0x23c0,  (1 << 12) | (0 << 8) | (1 << 0));
+    wait33(4);
+    if (update_src) {
+        vga_WritePortW(0x23c2, 0x2000 | (uint16_t)(srcx & 0xfff));
+        vga_WritePortW(0x23c2, 0x3000 | (uint16_t)(srcy & 0xfff));
+    }
+    vga_WritePortW(0x23c2, 0x4000 | (uint16_t)(dstx & 0xfff));
+    vga_WritePortW(0x23c2, 0x5000 | (uint16_t)(dsty & 0xfff));
+    wait33(5);
+    if (prev_width != width_minus_one) {
+        prev_width = width_minus_one;
+        vga_WritePortW(0x23c2, 0x6000 | (uint16_t)(width_minus_one & 0xfff));
+    }
+    if (prev_height != height_minus_one) {
+        prev_height = height_minus_one;
+        vga_WritePortW(0x23c2, 0x7000 | (uint16_t)(height_minus_one & 0xfff));
+    }
+    if (prev_rop != rop) {
+        prev_rop = rop;
+        vga_WritePortW(0x23c2, 0x8000 | rop);
+    }
+    if (prev_ctrl != ctrl2) {
+        prev_ctrl = ctrl2;
+        vga_WritePortW(0x23c2, 0x1000 | ctrl2);
+    }
+    /* start blitter and wait until finished */
+    vga_WritePortW(0x23c2, 0x0000 | ctrl1);
+    while(vga_ReadPortW(0x23ce) & 0x0080);
+    return true;
+}
+
+
+static void configure_framebuffer(gfxmode_t* mode) {
+    uint32_t pitch = (mode->bpp < 8) ? (mode->width >> 3) : ((mode->width * ((mode->bpp + 7) & ~7)) >> 3);
 
     if (wd_support_linear()) {
 
@@ -277,25 +402,93 @@ static void configure_framebuffer(mode_t* mode) {
 
     /* blitter configuration */
     if (wd_support_blitter() && mode) {
-        card->caps |= NV_CAPS_BLIT | NV_CAPS_FILL | NV_CAPS_DITHER | NV_CAPS_DSTKEY | NV_CAPS_AUTOMASK;
-        if (mode->bpp != 8) {
-            card->caps &= ~(NV_CAPS_BLIT | NV_CAPS_FILL);
+
+        prev_height = 0;
+        prev_width = 0;
+        prev_fg = 0xffff;
+        prev_bg = 0;
+        prev_rop = 0xffff;
+        prev_ctrl = 0xffff;
+
+        if (chipset >= WD90C33) {
+            card->caps |= NV_CAPS_BLIT | NV_CAPS_FILL | NV_CAPS_DITHER | NV_CAPS_DSTKEY | NV_CAPS_AUTOMASK;
+            if (mode->bpp != 8) {
+                card->caps &= ~(NV_CAPS_BLIT | NV_CAPS_FILL);
+            }
+            /* select DE2, read index 0 with no increment */
+            vga_WritePortW(0x23c0,  (1 << 12) | (0 << 8) | (3 << 0));
+            /* set default blitter registers */
+            wait33(8);
+            vga_WritePortW(0x23c2, 0x0000 | 0x00);  /* map base offset */
+            vga_WritePortW(0x23c2, 0x1000 | (uint16_t)(pitch & 0xfff));   /* row pitch */
+            vga_WritePortW(0x23c2, 0x2000 | 0xff);  /* foreground color lo */
+            vga_WritePortW(0x23c2, 0x3000 | 0xff);  /* foreground color hi */
+            vga_WritePortW(0x23c2, 0x4000 | 0x00);  /* background color lo */
+            vga_WritePortW(0x23c2, 0x5000 | 0x00);  /* background color hi */
+            wait33(8);
+            vga_WritePortW(0x23c2, 0x6000 | 0x00);  /* transparency color lo */
+            vga_WritePortW(0x23c2, 0x7000 | 0x00);  /* transparency color hi */
+            vga_WritePortW(0x23c2, 0x8000 | 0xff);  /* transparency mask lo */
+            vga_WritePortW(0x23c2, 0x9000 | 0xff);  /* transparency mask hi */
+            vga_WritePortW(0x23c2, 0xA000 | 0xff);  /* plane mask lo */
+            vga_WritePortW(0x23c2, 0xB000 | 0xff);  /* plane mask hi */
+            /* select DE1, read index 0 with no increment */
+            vga_WritePortW(0x23c0,  (1 << 12) | (0 << 8) | (1 << 0));
+            wait33(8);
+            vga_WritePortW(0x23c2, 0x9000 | 0);  /* X0 clip */
+            vga_WritePortW(0x23c2, 0xB000 | 0);  /* Y0 clip */
+            vga_WritePortW(0x23c2, 0xA000 | (uint16_t)((mode->width-1) & 0xfff));  /* X1 clip */
+            vga_WritePortW(0x23c2, 0xC000 | (uint16_t)((mode->height-1) & 0xfff));  /* Y1 clip */
+        } else {
+            card->caps |= NV_CAPS_BLIT | NV_CAPS_FILL | NV_CAPS_DITHER | NV_CAPS_DSTKEY | NV_CAPS_AUTOMASK;
+            if (mode->bpp != 8) {
+                card->caps &= ~(NV_CAPS_BLIT | NV_CAPS_FILL);
+            }
+            /* select blitter, read index 0 with no increment */
+            vga_WritePortW(0x23c0,  (1 << 12) | (0 << 8) | (1 << 0));
+            /* set default blitter registers */
+            vga_WritePortW(0x23c2, 0x8000 | (uint16_t)(pitch & 0x7ff));
+            vga_WritePortW(0x23c2, 0xA000 | 0xff);  /* foreground color */
+            vga_WritePortW(0x23c2, 0xB000 | 0x00);  /* background color */
+            vga_WritePortW(0x23c2, 0xC000 | 0x00);  /* transparency color */
+            vga_WritePortW(0x23c2, 0xD000 | 0xff);  /* transparency mask */
+            vga_WritePortW(0x23c2, 0xE000 | 0xff);  /* plane mask */
         }
-        /* select blitter, read index 0 with no increment */
-        vga_WritePortW(0x23c0,  (1 << 12) | (0 << 8) | (1 << 0));
-        /* set default blitter registers */
-        vga_WritePortW(0x23c2, 0xA000 | 0xff);  /* foreground color */
-        vga_WritePortW(0x23c2, 0xB000 | 0x00);  /* background color */
-        vga_WritePortW(0x23c2, 0xC000 | 0x00);  /* transparency color */
-        vga_WritePortW(0x23c2, 0xD000 | 0xff);  /* transparency mask */
-        vga_WritePortW(0x23c2, 0xE000 | 0xff);  /* plane mask */
         /* upload fill patterns to vram */
-        upload_fillpatterns(card->bank_addr + card->bank_size - 2048);
+        upload_fillpatterns(card->bank_size - 2048);
     }
 }
 
-static bool setmode(mode_t* mode) {
+static bool setmode(gfxmode_t* mode) {
     if (vga_setmode(mode->code)) {
+
+        /* custom 1280x720 mode */
+        if ((mode->width == 1280) && (mode->height == 720)) {
+
+            /* assume card is set to 70hz for 1024x768 (75Mhz clock) */
+            modeline_t* ml = &modeline_720p_75mhz;
+
+            /* PR5: unlock PR0-4 */
+            vga_WriteReg(0x3ce, 0x0f, 0x05);
+
+            /* PR3: unlock polarity and crtc */
+            vga_WritePort(0x3ce, 0x0d);
+            vga_WritePort(0x3cf, vga_ReadPort(0x3cf) & 0x1c);    
+
+            /* update vga crtc registers */
+            vga_modeline(ml);
+
+            /* todo: relock (hangs) */
+            #if 0
+            /* PR3: relock polarity and crtc */
+            vga_WritePort(0x3ce, 0x0d);
+            vga_WritePort(0x3cf, vga_ReadPort(0x3cf) | 0xe3);
+
+            /* WDC PR5: relock PR0-4 */
+            vga_WriteReg(0x3ce, 0x0f, 0x00);
+            #endif     
+        }
+
         configure_framebuffer(mode);
         return true;
     }
@@ -314,7 +507,7 @@ static void setbank(uint16_t num) {
     vga_WritePortWLE(0x3ce, 0x0a00 | (num &0xff));  /* wrbank */
 }
 
-static bool init(card_t* card, addmode_f addmode) {
+static bool init(card_t* card, ini_t* settings, addmode_f addmode) {
 
     /* detect hardware */
     if (!identify()) {
@@ -338,9 +531,12 @@ static bool init(card_t* card, addmode_f addmode) {
         card->bank_size = 1024UL * 128;
     }
 
-    if (wd_support_blitter()) {
-        card->blit = blit;
+    if (chipset >= WD90C33) {
+        card->blit = blit33;
+    } else if (chipset >= WD90C31) {
+        card->blit = blit31;
     }
+
 
     /* 4bpp modes */
     addmode( 800, 600,  4, 0, 0x58);
@@ -357,6 +553,7 @@ static bool init(card_t* card, addmode_f addmode) {
     }
     if (chipset >= WD90C30) {
         addmode(1024, 768,  8, 0, 0x60);
+        addmode(1280, 720,  8, 0, 0x60);    /* tweaked from 1024x768 */
     }
     /* todo: 16bpp modes */
     /* todo: 24bpp modes */

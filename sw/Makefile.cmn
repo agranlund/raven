@@ -27,7 +27,6 @@ ifeq ($(OPTS),)
     OPTS 	        = -Os
 endif
 
-
 # -----------------------------------------------------------------------------------
 # Tools
 # -----------------------------------------------------------------------------------
@@ -35,15 +34,24 @@ endif
 GCDIR			:= $(ROOTDIR)/gcc
 LIBDIR			:= $(ROOTDIR)/lib
 
-GCC			    := m68k-atari-mint-gcc
-GAS			    := m68k-atari-mint-gcc
-GLD			    := m68k-atari-mint-gcc
-GSTRIP          := m68k-atari-mint-strip -s
-GFLAGS          := m68k-atari-mint-flags
+GCC			    := m68k-atari-mintelf-gcc
+GAS			    := m68k-atari-mintelf-gcc
+GLD			    := m68k-atari-mintelf-gcc
+GSTRIP          := m68k-atari-mintelf-strip -s
+GFLAGS          := m68k-atari-mintelf-flags
 
-GCC_OBJS		:= $(GCDIR)/lgcc.o
-LIBCMINI_DIR	:= $(GCDIR)/libcmini
-LIBCMINI_CRT	:= $(LIBCMINI_DIR)/build/objs/crt0.o
+GCC_OBJS		:= $(GCDIR)/lib/lgcc.o
+
+GCC_LIBDIR      := $(GCDIR)/lib
+GCC_INCDIR      := $(GCDIR)/inc
+GCC_BINDIR      := $(GCDIR)/bin
+
+LIBCMINI_DIR	:= $(GCDIR)
+LIBCMINI_INC    := $(GCDIR)/include
+LIBCMINI_LIB    := $(GCDIR)/lib
+LIBCMINI_CRT	:= $(LIBCMINI_LIB)/crt0.o
+LIBCMINI_SRC    := $(GCDIR)/src/libcmini
+
 
 
 # -----------------------------------------------------------------------------------
@@ -54,14 +62,15 @@ MAPFILE = $(BIN).map
 
 INCLUDE = -I. -I$(ROOTDIR)/gcc -I$(ROOTDIR)/lib
 
-SFLAGS = $(OPTS) $(INCLUDE) 
+SFLAGS = $(OPTS) $(INCLUDE) -Wa,--register-prefix-optional
 
-CFLAGS = $(OPTS) $(DEFS) $(INCLUDE) \
-	-I$(LIBCMINI_DIR)/include \
+CFLAGS = $(OPTS) $(DEFS) $(INCLUDE) -I$(LIBCMINI_INC) \
 	-std=c99 -fomit-frame-pointer -fno-exceptions -ffast-math \
-	-Wall -Wno-multichar -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unused-function -Wno-format
+    -Wa,--register-prefix-optional \
+	-Wall -Wno-multichar -Wno-unused -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unused-function -Wno-format
+	#
 
-LFLAGS = -L$(LIBCMINI_DIR)/build -nodefaultlibs -nostdlib -nostartfiles -lgcc -lcmini -Wl,-Map,$(MAPFILE)
+LFLAGS = -L$(LIBCMINI_LIB) -nodefaultlibs -nostdlib -nostartfiles -lgcc -lcmini -Wl,-Map,$(MAPFILE)
 
 LINKOBJS = $(LIBCMINI_CRT) $(GCC_OBJS) $(OBJS)
 
@@ -87,9 +96,9 @@ endif
 
 clean:
 	rm -f $(BIN)
-	rm -f $(LINKOBJS)
-	rm -f $(LINKOBJS:.o=.d)
-	rm -f $(LINKOBJS:.o=.O)
+	rm -f $(OBJS)
+	rm -f $(OBJS:.o=.d)
+	rm -f $(OBJS:.o=.O)
 ifneq ($(MAPFILE),)
 	rm -f $(MAPFILE)
 endif
@@ -99,8 +108,6 @@ endif
 
 common_clean:
 	rm -f $(GCC_OBJS)
-	rm -f gcc/stripx/stripx
-	cd $(LIBCMINI_DIR) && make clean
 
 
 # -----------------------------------------------------------------------------------
@@ -122,12 +129,6 @@ gcc: $(current_makefile) $(LINKOBJS)
 	$(GSTRIP) $(BIN)
 	$(GFLAGS) $(PRGFLAGS) $(BIN)
 	$(POST)
-
-$(GCDIR)/lgcc.o : $(GCDIR)/lgcc.S
-	$(GCC) $(SFLAGS) $(CPUFLAGS) -c $< -o $@
-
-$(LIBCMINI_CRT) :
-	cd $(LIBCMINI_DIR) && make
 
 %.o : %.S
 	$(GCC) $(SFLAGS) $(CPUFLAGS) -c $< -o $@

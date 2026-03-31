@@ -229,7 +229,7 @@ void mixer_debuglist(void) {
     uint16_t i;
     for (i=0; i<num_mixctrl; i++) {
         mixer_ctr_t* ctr = &mix_ctrs[i];
-        dprintf("%04x: %s:%s : %d\n", ctr->id, ctr->dev->names[0], ctr->ctr->name, mixer_GetValue(ctr));
+        dprintf(("%04x: %s:%s : %d\n", ctr->id, ctr->dev->names[0], ctr->ctr->name, mixer_GetValue(ctr)));
     }
 }
 

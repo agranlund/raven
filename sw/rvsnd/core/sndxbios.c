@@ -39,13 +39,16 @@
 #define SNDCMD_IS_ATTENUATION IMPERSONATE_GSXB
 
 
+#if !XBDEBUG
+#undef dprintf
+#define dprintf(x)
+#endif
+
 /*------------------------------------------------------------------------------*/
 /* $80 : locksnd                                                                */
 /*------------------------------------------------------------------------------*/
 int32_t xb_locksnd(void) {
-#if XBDEBUG
-    dprintf("xb_locksnd\n");
-#endif
+    dprintf(("xb_locksnd\n"));
     return 128;
 }
 
@@ -53,9 +56,7 @@ int32_t xb_locksnd(void) {
 /* $81 : unlocksnd                                                              */
 /*------------------------------------------------------------------------------*/
 int32_t xb_unlocksnd(void) {
-#if XBDEBUG
-    dprintf("xb_unlocksnd\n");
-#endif
+    dprintf(("xb_unlocksnd\n"));
     return 129;
 }
 
@@ -65,9 +66,7 @@ int32_t xb_unlocksnd(void) {
 typedef struct {int16_t mode; int16_t data; int32_t data2; } xb_soundcmd_args;
 int32_t xb_soundcmd(xb_soundcmd_args* args) {
     bool enquire = (args->data == -1) ? true : false;
-#if XBDEBUG
-    dprintf("xb_soundcmd %04x %04x %08lx\n", args->mode, args->data, args->data2);
-#endif
+    dprintf(("xb_soundcmd %04x %04x %08lx\n", args->mode, args->data, args->data2));
     switch (args->mode) {
 
         /* Falcon DAC output attenuation */
@@ -165,9 +164,7 @@ int32_t xb_soundcmd(xb_soundcmd_args* args) {
 typedef struct {int16_t reg; void* begaddr; void* endaddr;} xb_setbuffer_args;
 int32_t xb_setbuffer(xb_setbuffer_args* args) {
     (void)args;
-#if XBDEBUG
-    dprintf("xb_setbuffer %04x %08lx %08lx\n", args->reg, args->begaddr, args->endaddr);
-#endif
+    dprintf(("xb_setbuffer %04x %08lx %08lx\n", args->reg, args->begaddr, args->endaddr));
     return 131;
 }
 
@@ -177,9 +174,7 @@ int32_t xb_setbuffer(xb_setbuffer_args* args) {
 typedef struct {int16_t mode; } xb_setmode_args;
 int32_t xb_setmode(xb_setmode_args* args) {
     (void)args;
-#if XBDEBUG
-    dprintf("xb_setmode %04x\n", args->mode);
-#endif
+    dprintf(("xb_setmode %04x\n", args->mode));
     return 132;
 }
 
@@ -189,9 +184,7 @@ int32_t xb_setmode(xb_setmode_args* args) {
 typedef struct {int16_t playtracks; int16_t rectracks; } xb_settracks_args;
 int32_t xb_settracks(xb_settracks_args* args) {
     (void)args;
-#if XBDEBUG
-    dprintf("xb_settracks %04x %04x\n", args->playtracks, args->rectracks);
-#endif
+    dprintf(("xb_settracks %04x %04x\n", args->playtracks, args->rectracks));
     return 133;
 }
 
@@ -201,9 +194,7 @@ int32_t xb_settracks(xb_settracks_args* args) {
 typedef struct {int16_t montrack; } xb_setmontracks_args;
 int32_t xb_setmontracks(xb_setmontracks_args* args) {
     (void)args;
-#if XBDEBUG
-    dprintf("xb_setmontracks %04x %04x\n", args->montrack);
-#endif
+    dprintf(("xb_setmontracks %04x %04x\n", args->montrack));
     return 134;
 }
 
@@ -213,9 +204,7 @@ int32_t xb_setmontracks(xb_setmontracks_args* args) {
 typedef struct {int16_t src_inter; int16_t cause; } xb_setinterrupt_args;
 int32_t xb_setinterrupt(xb_setinterrupt_args* args) {
     (void)args;
-#if XBDEBUG
-    dprintf("xb_setinterrupt %04x %04x\n", args->src_inter, args->cause);
-#endif
+    dprintf(("xb_setinterrupt %04x %04x\n", args->src_inter, args->cause));
     return 135;
 }
 
@@ -225,9 +214,7 @@ int32_t xb_setinterrupt(xb_setinterrupt_args* args) {
 typedef struct {int16_t mode; } xb_buffoper_args;
 int32_t xb_buffoper(xb_buffoper_args* args) {
     (void)args;
-#if XBDEBUG
-    dprintf("xb_buffoper %04x\n", args->mode);
-#endif
+    dprintf(("xb_buffoper %04x\n", args->mode));
     return 136;
 }
 
@@ -237,9 +224,7 @@ int32_t xb_buffoper(xb_buffoper_args* args) {
 typedef struct {int16_t dspxmit; int16_t dsprec; } xb_dsptristate_args;
 int32_t xb_dsptristate(xb_dsptristate_args* args) {
     (void)args;
-#if XBDEBUG
-    dprintf("xb_dsptristate %04x\n", args->dspxmit, args->dsprec);
-#endif
+    dprintf(("xb_dsptristate %04x\n", args->dspxmit, args->dsprec));
     return 137;
 }
 
@@ -251,9 +236,7 @@ int32_t xb_gpio(xb_gpio_args* args) {
     /* this is sometimes used to detect the presence of an external */
     /* clock on Falcon, used for standard pc sound frequencies      */
     (void)args;
-#if XBDEBUG
-    dprintf("xb_gpio %04x\n", args->mode, args->data);
-#endif
+    dprintf(("xb_gpio %04x\n", args->mode, args->data));
     return 138;
 }
 
@@ -263,9 +246,7 @@ int32_t xb_gpio(xb_gpio_args* args) {
 typedef struct {int16_t src; int16_t dst; int16_t srcclk; int16_t prescale; int16_t protcol; } xb_devconnect_args;
 int32_t xb_devconnect(xb_devconnect_args* args) {
     (void)args;
-#if XBDEBUG
-    dprintf("xb_devconnect %04x\n", args->src, args->dst, args->srcclk, args->prescale, args->protcol);
-#endif
+    dprintf(("xb_devconnect %04x\n", args->src, args->dst, args->srcclk, args->prescale, args->protcol));
     return 139;
 }
 
@@ -275,9 +256,7 @@ int32_t xb_devconnect(xb_devconnect_args* args) {
 typedef struct {int16_t reset; } xb_sndstatus_args;
 int32_t xb_sndstatus(xb_sndstatus_args* args) {
     (void)args;
-#if XBDEBUG
-    dprintf("xb_sndstatus %04x\n", args->reset);
-#endif
+    dprintf(("xb_sndstatus %04x\n", args->reset));
     switch (args->reset) {
         case 0: case 1: {
             if (args->reset) {
@@ -375,8 +354,6 @@ int32_t xb_sndstatus(xb_sndstatus_args* args) {
 typedef struct {int32_t* ptr; } xb_buffptr_args;
 int32_t xb_buffptr(xb_buffptr_args* args) {
     (void)args;
-#if XBDEBUG
-    dprintf("xb_buffptr %08lx\n", (uint32_t)args->ptr);
-#endif
+    dprintf(("xb_buffptr %08lx\n", (uint32_t)args->ptr));
     return 141;
 }

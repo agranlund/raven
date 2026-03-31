@@ -21,6 +21,10 @@
 #include "vga.h"
 #include "x86.h"
 
+
+
+
+
 #if DRV_INCLUDE_S3
 
 typedef enum {
@@ -31,7 +35,17 @@ static const char* chipset_strings[] = {
     "unknown", "86C911", "86C924", "86C801", "86C928"
 };
 
-#define s3_support_linear()     0 /*(chipset >= S86C801)*/
+
+
+/*
+ * linear todo:
+ *  very work in progress. hacky testing with 86C801. other variants not tested.
+ * 
+ *  - 1024x768x8 no sync, probably goes 84hz interlaced?
+ *  - fast writebuffer cause pixeltrash over 640x480, some tuning reg?
+ *
+ */
+#define s3_support_linear()     (chipset >= S86C801)
 #define s3_support_blitter()    0 /*(chipset >= S86C801)*/
 
 static uint16_t vram = 0;
@@ -83,40 +97,78 @@ static bool identify(void) {
     return false;
 }
 
-static void configure_framebuffer(mode_t* mode) {
-   
+
+static void configure_framebuffer(gfxmode_t* mode) {
+
+    /* standard vga bank */
+    card->bank_addr = 0x0A0000UL;
+    card->bank_size = 1024UL * 64;
+
+    /* linear setup */
     if (s3_support_linear()) {
-        uint8_t reg58;
-        uint16_t crtc = vga_GetBaseReg(4);
 
-        /* disable banked mode */
-        vga_ModifyReg(crtc, 0x31, 0x01, 0x00);
-        vga_ModifyReg(crtc, 0x31, 0x02, 0x00);
-        vga_ModifyReg(crtc, 0x31, 0x08, 0x01);
+        /* can't do linear in standard vga modes */
+        if (mode->code >= 0x100) {
+            uint8_t r;
 
-        /* set linear aperture address */
-        /*vga_WriteReg(crtc, 0x59, 0x20);*/
-        vga_WritePort(crtc, 0x59);
-        vga_WritePortW(crtc+1, 0x0020);
+            /* it appears the vgabios locks registers after */
+            /* mode change and unlock is required for reg58 */
+            vga_WriteReg(0x3d4, 0x38, 0x48);   /* unlock special */
+            vga_WriteReg(0x3d4, 0x39, 0xa5);   /* unlock sysctrl */
 
-        /* fast write buffer enable */
-        /*vga_ModifyReg(crtc, 0x40, 0x0a, 0x0a);
-        /* enable linear adressing */
-        reg58 = (vram > 1024) ? 0x12 : 0x11;
-        vga_ModifyReg(crtc, 0x58, 0x13, reg58);
+            /* select page 0 */
+            vga_ModifyReg(0x3d4, 0x35, 0x0f, 0x00);
+            vga_ModifyReg(0x3d4, 0x51, 0x0c, 0x00);
+            r = vga_ReadPort(0x3d5);
+
+            /* no banks, enable >256kb mem, 16bit membus */
+            vga_ModifyReg(0x3d4, 0x31, 0x0f, 0x0c);
+
+            /* unlock and set fast write buffer */
+            vga_WritePort(0x3d4, 0x40);
+            r = vga_ReadPort(0x3d5);
+            r &= ~(3 << 6); /* zero waitstate reads     */
+            r |=  (1 << 0); /* enable 8514/a registers  */ 
+
+            /* todo: fast fifo cause pixel trash around mousecursor in 800x600 */
+            if (mode->width <= 640) {
+                r |=  (1 << 3); /* enable fifo writebuffer  */
+            }
+
+            vga_WritePort(0x3d5, r);
+
+
+            /* linear mode, 1MB */
+            if (mode && (mode->bpp >= 8) ) {
+                vga_WritePort(0x3d4, 0x58);
+                r = vga_ReadPort(0x3d4+1);
+                vga_WritePort(0x3d5 , (r & ~3) | 0x11);
+            }
+
+            /* set linear address */
+            vga_WriteReg(0x3d4, 0x59, 0x00);
+            vga_WriteReg(0x3d4, 0x5a, 0x20);
+
+            /* lock registers */
+            vga_WriteReg(0x3d4, 0x39, 0x00);   /* lock sysctrl */
+            vga_WriteReg(0x3d4, 0x38, 0x00);   /* lock special */
+
+            /* full linear framebuffer access */
+            card->bank_addr = 0x00200000UL;
+            card->bank_size = card->vram_size;
+        }
     }
 }
 
 static void setaddr(uint32_t addr) {
-    uint16_t crtc = vga_GetBaseReg(4);
-    vga_WritePortWLE(crtc, 0x3848);
-    vga_ModifyReg(crtc, 0x31, 0x30, (addr >> 14) & 0xff);
-    vga_WritePortWLE(crtc, 0x3800);
-    vga_WritePortWLE(crtc, 0x0D00 | ((addr >>  2) & 0xff));
-    vga_WritePortWLE(crtc, 0x0C00 | ((addr >> 10) & 0xff));
+    vga_WritePortWLE(0x3d4, 0x3848);
+    vga_ModifyReg(0x3d4, 0x31, 0x30, (addr >> 14) & 0xff);
+    vga_WritePortWLE(0x3d4, 0x3800);
+    vga_WritePortWLE(0x3d4, 0x0D00 | ((addr >>  2) & 0xff));
+    vga_WritePortWLE(0x3d4, 0x0C00 | ((addr >> 10) & 0xff));
 }
 
-static bool setmode(mode_t* mode) {
+static bool setmode(gfxmode_t* mode) {
     if (vga_setmode(mode->code)) {
         configure_framebuffer(mode);
         return true;
@@ -124,7 +176,7 @@ static bool setmode(mode_t* mode) {
     return false;
 }
 
-static bool init(card_t* card, addmode_f addmode) {
+static bool init(card_t* card, ini_t* settings, addmode_f addmode) {
 
     if (!identify()) {
         return false;
@@ -135,7 +187,7 @@ static bool init(card_t* card, addmode_f addmode) {
     card->vram_size = 1024UL * vram;
     card->setmode = setmode;
     if (s3_support_linear()) {
-        card->bank_addr = 0x200000UL;/* 0x0A0000UL;*/
+        card->bank_addr = 0x00200000UL;/* 0x0A0000UL;*/
         card->bank_size = card->vram_size;
     }
 
@@ -144,10 +196,13 @@ static bool init(card_t* card, addmode_f addmode) {
     addmode(1024, 768, 4, 0, 0x104);
     addmode( 640, 480, 8, 0, 0x101);
     addmode( 800, 600, 8, 0, 0x103);
-    addmode(1024, 768, 8, 0, 0x205);
+#if 0
+    /* todo: no sync, is this choosing interlace?
+    addmode(1024, 768, 8, 0, 0x205);    /* 0x105 or 0x205 ?? */
+#endif
 
     /* configure linear or banked operation */
-    /*configure_framebuffer();*/
+    configure_framebuffer(0);
     return true;
 }
 

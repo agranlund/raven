@@ -80,6 +80,7 @@ NMIBusy:    .space 4
     .endm
 
 // ----------------------------------------------------------
+    .align 4
 cpu_TriggerNMI:
 
     // todo: run in our own stack
@@ -92,6 +93,7 @@ cpu_TriggerNMI:
     rts
 
 // ----------------------------------------------------------
+    .align 4
 vecNMI:
     move.w  #0x2700,%sr
     bset    #0,NMIBusy
@@ -101,12 +103,14 @@ vecNMI:
 2:  rte
 
 // ----------------------------------------------------------
+    .align 4
 vecRTE:
     rte
 
 
 
 // ----------------------------------------------------------
+    .align 4
 cpu_Lock:
     move.l  4(%a7),%a0
     bset.b  #0,(%a0)
@@ -116,18 +120,21 @@ cpu_Lock:
 1:  moveq.l #0,%d0
     rts
 
+    .align 4
 cpu_Unlock:
     move.l  4(%a7),%a0
     bclr.b  #0,(%a0)
     rts
 
 // ----------------------------------------------------------
+    .align 4
 cpu_GetIPL:
     move.w  %sr,%d0
     lsr.w   #8,%d0
     and.l   #0x00000007,%d0
     rts
 
+    .align 4
 cpu_SetIPL:
     move.l  4(%a7),%d0
     lsl.w   #8,%d0
@@ -143,6 +150,7 @@ cpu_SetIPL:
     rts
 
 
+    .align 4
 cpu_CacheFlush:
     move.w  %sr,%d1         // disable interrupts
     or.w    #0x0700,%sr
@@ -160,18 +168,22 @@ cpu_CacheFlush:
     move.w  %d1,%sr         // restore interrupts
     rts
 
+    .align 4
 cpu_CacheOn:
     move.l  #0xa0c08000,%d1
     bra.b   cpu_SetCACR_asmcall
 
+    .align 4
 cpu_CacheOff:
     moveq.l #0,%d1
     bra.b   cpu_SetCACR_asmcall
 
+    .align 4
 cpu_GetCACR:
     movec.l %cacr,%d0
     rts
 
+    .align 4
 cpu_SetCACR:
     move.l  4(%a7),%d1          // d1 = new cacr
 cpu_SetCACR_asmcall:
@@ -199,10 +211,12 @@ cpu_SetCACR_asmcall:
     rts
 
 // ----------------------------------------------------------
+    .align 4
 cpu_GetPCR:
     movec.l %pcr,%d0
     rts
 
+    .align 4
 cpu_SetPCR:
     move.l  4(%a7),%d1
     nop
@@ -212,10 +226,12 @@ cpu_SetPCR:
     rts
 
 // ----------------------------------------------------------
+    .align 4
 cpu_GetVBR:
     movec.l %vbr,%d0
     rts
 
+    .align 4
 cpu_SetVBR:
     move.l  4(%a7),%d1
     nop
@@ -227,6 +243,7 @@ cpu_SetVBR:
     rts
 
 // ----------------------------------------------------------
+    .align 4
 cpu_GetMMU:
     move.l  4(%a7),%a0      // mmu struct
     movec.l %urp,%d0
@@ -245,6 +262,7 @@ cpu_GetMMU:
     move.l  %d0,(%a0)+
     rts
 
+    .align 4
 cpu_SetMMU:
     move.l  4(%a7),%a0
     moveq.l #0,%d0          // turn off mmu
@@ -275,6 +293,7 @@ cpu_SetMMU:
     nop
     rts
 
+    .align 4
 cpu_FlushMMU:
 mmu_Flush:
     nop

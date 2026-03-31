@@ -30,10 +30,18 @@
 
 #include "rvsnd/core/drvapi.h"
 
+#ifndef DEBUG
+#define DEBUG 0
+#endif
+
 extern rvsnd_driver_api_t*  rvsnd;      /* driver.s */
 extern ini_t*               rvini;      /* driver.s */
 
-#define dprintf             rvsnd->dprintf
+#if DEBUG
+#define dprintf(x)          rvsnd->dprintf x
+#else
+#define dprintf(x)
+#endif
 #define printf              rvsnd->printf
 
 #define sprintf             rvsnd->sprintf

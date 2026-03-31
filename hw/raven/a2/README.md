@@ -20,11 +20,14 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - BOM: Replaced PLCC64 socket for U104 with black part
 - BOM: Replaced PLCC84 socket for U108 with black part
 - BOM: Replaced buttons SW101,SW201,SW202 with black parts
+- BOM: Replaced J401 IDE header
 - BOM: Changed C310 to 0.1uF (was 0.01uF)
 - Replaced through-hole DS1818 with DS1818R (SMD version)
-- Fixed RTC power delivery, now using ATX standby power 
+- Fixed RTC power delivery, now using ATX standby power
+- Fixed unused but floating inputs on U102
 - Added small solderpad for securing Y402 to board
 - Added 68150:BUSCS signal separate from 68150:CS
+- Added A6 signal instead of A5 to ATF1508 (for BERR on SFP004 access)
 - Added pullups on 68150 data bus
 - Added pulldown on IDE:IRQ
 - Added i2c eprom with preprogrammed MAC address
@@ -41,7 +44,6 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
 ## Planned:
 - get rid of old ym pins expansion header
-- route A6 instead of A5 to CPLD to generate BERR on SFP004 access
 
 ## Optional / non-critical:
 - Pushbuttons:     SW101, SW201, SW202

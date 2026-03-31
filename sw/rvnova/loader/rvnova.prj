@@ -11,6 +11,7 @@ rvnova.prg
 ..\..\purec\lib\cstart0.o
 main.c
 rvnova.c
+..\..\purec\lib\pcsyslib.lib
 ..\..\purec\lib\pctoslib.lib
 ..\..\purec\lib\pcstdlib.lib
 ..\..\purec\lib\pclnalib.lib

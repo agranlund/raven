@@ -36,7 +36,7 @@ Raven060 Revision.A1
 | TE Connectivity       | 1-1775099-3                 | atx         | 1     | (1)  |
 | TE Connectivity       | 5822030-3                   | simm        | 4     |      |
 | TE Connectivity       | 5176139-2                   | isa         | 4     |      |
-| Molex                 | 87831-4420                  | ide44       | 1     |      |
+| Molex                 | 87831-4420                  | ide44       | 1     | (6)  |
 | Molex                 | 171856-1003                 | fan         | 4     |      |
 | Harwin                | S8401-46                    | bat         | 1     |      |
 | Amphenol              | L17H26R0121                 | db25/9/9    | 1     |      |
@@ -97,9 +97,15 @@ Raven060 Revision.A1
 (3) buttons are red, possible black replacement (not tested)
  * SKHHAKA010, Alps Alpine
 
-(3) these jumpers are very hard to grab. todo: find better alternative.
+(4) these jumpers are very hard to grab. todo: find better alternative.
 
-(4) for 48mhz bus speed and 96/48 cpu.
+(5) for 48mhz bus speed and 96/48 cpu.
+
+(6) This socket is too narrow for IDC cable connectors.
+    Don't have a part number but IDC box headers for 44pin ATA is
+    available all over the place.
+    Alternatively, use a normal 2mm pitch 2x22pin pin header such
+    as: Wurth 62004421121
 
 You may need to use a slower oscillator depending on your MC68060 / MC68150 combination. 
 I don't know how far a lower rated MC68150FN33 overclocks but the 40mzh version seems comfortable at 48mhz.

@@ -88,9 +88,6 @@ static bool mpu401_Detect(uint16_t port) {
     if (!mpu401_WriteCommand(0xff)) {   /* reset */
         goto fail;
     }
-    if (!mpu401_WriteCommand(0xff)) {   /* reset */
-        goto fail;
-    }
     if (!mpu401_WaitAck()) {            /* wait ack */
         goto fail;
     }
@@ -126,29 +123,6 @@ static rvdev_midirx_t rxdev = {
     midirx_st,
     midirx_rx 
 };
-
-
-/* -------------------------------------------------------------------- */
-bool detect(uint16_t port) {
-    mpu401_port = port;
-    if (mpu401_port == 0) { goto fail; }
-    if (!mpu401_WriteCommand(0xff)) {   /* reset */
-        goto fail;
-    }
-    if (!mpu401_WriteCommand(0xff)) {   /* reset */
-        goto fail;
-    }
-    if (!mpu401_WaitAck()) {            /* wait ack */
-        goto fail;
-    }
-    if (!mpu401_WriteCommand(0x3f)) {   /* uart mode */
-        goto fail;
-    }
-    return true;
-fail:
-    mpu401_port = 0;
-    return false;
-}
 
 
 /* -------------------------------------------------------------------- */
@@ -200,6 +174,10 @@ int32_t init(void) {
                 break;
             }
         }
+    }
+
+    if (!mpu401_port) {
+        return -1;
     }
 
     /* publish driver */

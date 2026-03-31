@@ -120,7 +120,7 @@ bool ensureFolderExists(const char* path, bool stripFileName)
 
   // remove file name from the path file path base
   if (stripFileName) {
-    for (; len != 0; --len) {
+    for (; len > 0; --len) {
       if (temp_path[len] == '\\') {
         temp_path[len] = '\0';
         break;
@@ -128,7 +128,7 @@ bool ensureFolderExists(const char* path, bool stripFileName)
     }
   }
   // remove trailing backslash
-  if (temp_path[len - 1] == '\\') {
+  if ((len > 0) && (temp_path[len - 1] == '\\')) {
     temp_path[len - 1] = '\0';
   }
   // skip the drive letter in the path

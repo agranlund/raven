@@ -21,6 +21,7 @@
 #include <stdbool.h>
 #include "raven.h"
 #include "nova.h"
+#include "ini.h"
 
 #ifndef _EMULATOR_H_
 #define _EMULATOR_H_
@@ -31,13 +32,13 @@
 #if defined(DEBUG) && DEBUG
     #if DEBUGPRINT_UART
         extern void dprintf_uart(char* s, ...);
-        #define dprintf dprintf_uart
+        #define dprintf(x) dprintf_uart x
     #else
         #include <stdio.h>
-        #define dprintf printf
+        #define dprintf(x) printf x
     #endif
 #else
-    static void dprintf(char* s, ...) { }
+    #define dprintf(x) { }
 #endif
 
 /*-----------------------------------------------------------------------------*/
@@ -53,6 +54,9 @@
 #endif
 #ifndef DRV_INCLUDE_S3
 #define DRV_INCLUDE_S3          0
+#endif
+#ifndef DRV_INCLUDE_TSENG
+#define DRV_INCLUDE_TSENG       1
 #endif
 #ifndef DRV_INCLUDE_WDC
 #define DRV_INCLUDE_WDC         1
@@ -79,6 +83,9 @@ static void     cpu_nop(void) 0x4E71;
 static void     cpu_map(uint32_t log, uint32_t phys, uint32_t size, uint32_t flags) { raven()->mmu_Map(log, phys, size, flags); }
 static void     cpu_flush_atc(void) { raven()->mmu_Flush(); }
 static void     cpu_flush_cache(void) { raven()->cache_Flush(); }
+
+#define bswap16(x)  (((x)>>8)|((x)<<8))
+#define bswap32(x)  (((x)>>24)|((x)<<24)|(((x)>>8)&0xff00UL)|(((x)&0xff00UL)<<8))
 
 /*-----------------------------------------------------------------------------*/
 #define PADDR_MEM16     RV_PADDR_ISA_RAM16
@@ -174,7 +181,7 @@ typedef struct
     uint8_t     bpp;
     uint8_t     flags;
     uint16_t    code;
-} mode_t;
+} gfxmode_t;
 
 typedef struct
 {
@@ -187,7 +194,7 @@ typedef struct
     uint32_t    bank_step;
     uint32_t    isa_mem;
     uint32_t    isa_io;
-    bool        (*setmode)(mode_t* mode);
+    bool        (*setmode)(gfxmode_t* mode);
     void        (*setaddr)(uint32_t addr);
     void        (*setbank)(uint16_t num);
     void        (*setcolors)(uint16_t index, uint16_t count, uint8_t* colors);
@@ -195,13 +202,35 @@ typedef struct
     void        (*vsync)(void);
     void        (*clear)(void);
     bool        (*blit)(uint32_t cmd, rect_t* src, vec_t* dst);
+    void        (*trapezoid)(uint32_t cmd, rect_t* dst, int32_t ldx, int32_t rdx);
 } card_t;
 
 typedef struct
 {
     const char* name;
-    bool        (*init)(card_t* card, addmode_f addmode);
+    bool        (*init)(card_t* card, ini_t* settings, addmode_f addmode);
 } driver_t;
+
+
+typedef struct {
+    const char* name;
+    uint32_t pclk;
+    uint16_t hdisp;
+    uint16_t hsyncstart;
+    uint16_t hsyncend;
+    uint16_t htotal;
+    uint16_t vdisp;
+    uint16_t vsyncstart;
+    uint16_t vsyncend;
+    uint16_t vtotal;
+    int8_t   hpolarity;
+    int8_t   vpolarity;
+} modeline_t;
+
+extern modeline_t modeline_720p_cea;
+extern modeline_t modeline_720p_cvt;
+extern modeline_t modeline_720p_cvtrb;
+extern modeline_t modeline_720p_75mhz;
 
 /*-------------------------------------------------------------------------------
  * core
@@ -218,6 +247,9 @@ extern void nv_banksw_install(void);
 extern void nv_banksw_prepare(uint16_t width, uint16_t height, uint16_t bpp);
 extern bool nv_accel_hlines(uint16_t flg, uint16_t col, int16_t num, int16_t ypos, int16_t* pts);
 
+extern void timer_start(void);
+extern uint32_t timer_stop(void);
+
 /* standard vga functionality */
 extern void vga_vsync(void);
 extern void vga_vblank_out(void);
@@ -227,6 +259,20 @@ extern bool vga_setmode(uint16_t code);
 extern void vga_setaddr(uint32_t addr);
 extern void vga_setcolors(uint16_t index, uint16_t count, uint8_t* colors);
 extern void vga_getcolors(uint16_t index, uint16_t count, uint8_t* colors);
+extern void vga_setcolorscale(uint16_t scale);
+extern void vga_updatecolorcache(bool force);
 extern void vga_enable_fastclear(bool on);
+extern uint16_t vga_modeline(modeline_t* ml);
+
+#define VGA_OFL_VTO_10  (1 <<  0)
+#define VGA_OFL_VDE_10  (1 <<  1)
+#define VGA_OFL_VSS_10  (1 <<  2)
+#define VGA_OFL_VBS_10  (1 <<  3)
+#define VGA_OFL_VBE_8   (1 <<  5)
+#define VGA_OFL_VBE_9   (1 <<  6)
+#define VGA_OFL_HTO_10  (1 <<  8)
+#define VGA_OFL_HBE_6   (1 <<  9)
+#define VGA_OFL_HBE_7   (1 << 10)
+
 
 #endif /* _EMULATOR_H_ */

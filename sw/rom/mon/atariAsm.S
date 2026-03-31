@@ -29,27 +29,35 @@
 // MFP interrupt blockers
 // ----------------------------------------------------------
 
+    .align 4
 vecRTE_MFP1I0:  // 0x100
     move.b  #0xfe,0xfffffa11        // clear lpt1 in service
     rte
+    .align 4
 vecRTE_MFP1I1:  // 0x104
     move.b  #0xfd,0xfffffa11        // clear cd in service
     rte
+    .align 4
 vecRTE_MFP1I2:  // 0x108
     move.b  #0xfb,0xfffffa11        // clear cts in service
     rte
+    .align 4
 vecRTE_MFP1I3:  // 0x10C
     move.b  #0xf7,0xfffffa11        // clear blitter in service
     rte
+    .align 4
 vecRTE_MFP1I4:  // 0x118
     move.b  #0xbf,0xfffffa11        // clear acia in service
     rte
+    .align 4
 vecRTE_MFP1I5:  // 0x11C
     move.b  #0x7f,0xfffffa11        // clear fdd/hdd in service
     rte
+    .align 4
 vecRTE_MFP1I6:  // 0x138
     move.b  #0xbf,0xfffffa13        // clear ri in service
     rte
+    .align 4
 vecRTE_MFP1I7:  // 0x13C
     move.b  #0x7f,0xfffffa13        // clear mono in service
     rte
@@ -59,6 +67,7 @@ vecRTE_MFP1I7:  // 0x13C
 // Vblank emulation
 // ----------------------------------------------------------
 
+    .align 16
 vecVBL_MPF2TC:
     move.w   #0x2700,%sr
     move.l  %d0,-(%sp)
@@ -75,7 +84,7 @@ vecVBL_MPF2TC:
     move.b  #0xDF,RV_PADDR_MFP2+0x11    // clear timerC in-service
     rte
 
-
+    .align 16
 vecVBL_MFP2I0:
     move.w   #0x2700,%sr
     move.l  %d0,-(%sp)
@@ -97,6 +106,7 @@ vecVBL_MFP2I0:
 // ACIA emulation
 // ----------------------------------------------------------
 
+    .align 16
 vecKBD_MFP1I4:
     bset.b  #0,vecKBD_Busy
     beq.b   0f

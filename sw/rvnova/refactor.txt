@@ -1,0 +1,80 @@
+
+split:
+
+- rvga: hardware driver.
+    - cookie: RVGA
+    - low level direct card interface
+    - can be used directly by application code
+    - can be used by nova/nvdi/fvdi etc
+    - this is mostly the code in driver/cards/
+
+- nova driver
+    - nova "wrapper"
+    - vdi patching, hooks, etc
+    - uses rvga
+    - combine loader and the "emulator" part of existing code?
+    - get rid of xmenu dependency?
+    - this is mostly the code in loader/ and driver/
+
+- nvdi driver
+    - uses rvga
+    - new code
+
+
+/rvga
+    /core
+        /cirrus
+        /vga
+        /wdc
+        rvga.c
+        banksw.c
+    /nova
+        main.c      -> RVNOVA.PRG
+
+    /nvdi
+        main.c      -> RVSCREEN.SYS
+                    -> RV8BPP.SYS
+
+folder structure:
+c:\gemsys
+
+    \rvga
+        \nova
+            \vga
+                emulator.prg
+                sta_vdi.bib
+            \cirrus
+                emulator.prg
+                sta_vdi.bib
+            \wdc
+                emulator.prg
+                sta_vdi.bib
+            \et4000.w31i
+                <original driver>                
+            sta_vdi.prg
+            emulator.bib
+            xmenu.prg   <- todo: remove
+            xmenu.inf   <- todo: remove
+            rvnova.prg
+            rvnova.inf
+
+rvnova.inf
+
+driver = cirrus
+
+[cirrus]
+drv = c:\rvga\nova\cirrus\emulator.prg
+vdi = c:\rvga\nova\sta_vdi.prg
+mnu = c:\rvga\nova\xmenu.prg
+
+[wdc]
+drv = c:\rvga\nova\cirrus\emulator.prg
+vdi = c:\rvga\nova\sta_vdi.prg
+
+[et4000.w32]
+drv = c:\rvga\nova\et4000.w32\auto\emulator.prg
+vdi = c:\rvga\nova\et4000.w32\auto\sta_vdi.prg
+ebib = c:\rvga\nova\et4000.w32\auto\emulator.bib
+vbib = c:\rvga\nova\et4000.w32\auto\sta_vdi.prg
+interleave = 1
+

@@ -182,7 +182,7 @@ char* ftp_file_stat(const char* path)
   *response.malloc_block = 0;
   response.current = response.malloc_block;
 
-  strncpy (dos_path, path, sizeof(dos_path));
+  strncpy (dos_path, path, sizeof(dos_path)-1);
 
 
   if (dos_path[0] == '/' && dos_path[1] == '\0') {
@@ -201,7 +201,7 @@ char* ftp_file_stat(const char* path)
     /* if we're at the root of the drive or at a folder */
   else {
 
-    strncpy (dos_path, path, sizeof(dos_path));
+    strncpy (dos_path, path, sizeof(dos_path)-1);
     char *fn = dos_path;
     /* convert path to dos/atari format */
     for (int i = 0; i < strlen(dos_path); i++) {
@@ -1277,9 +1277,8 @@ PT_THREAD(ftpd_data_connection(struct ftpd_data_state *s))
       while (true) {
         int32_t write_ret = 0;
         PSOCK_READBUF_LEN(&s->sin, s->inputbuf_size);
-
+        // todo: buffer in memory and touch disk more seldom
         write_ret = Fwrite(s->fd, PSOCK_DATALEN(&s->sin), s->inputbuf);
-
         if (write_ret < 0 || write_ret != PSOCK_DATALEN(&s->sin)) {
           LOG_TRACE("Fwrite failed!\r\n");
           s->ftp_result_code = 452;
@@ -1317,6 +1316,7 @@ PT_THREAD(ftpd_data_connection(struct ftpd_data_state *s))
       s->buffer_start_offset = 0;
 
       while (1) {
+        // todo: buffer in memory and touch disk more seldom
         s->bytes_read = Fread(
           s->fd,
           s->send_buffer_size-s->buffer_start_offset,

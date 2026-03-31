@@ -12,33 +12,30 @@
 #include "config.h"
 #include "atari.h"
 
-bool mem_Init();
-
 //-----------------------------------------------------------------------
-#define KMEMSIZE  512 * 1024
-
-
-//-----------------------------------------------------------------------
-uint8_t  kheap[KMEMSIZE];
-uint32_t kheapPtr;
-uint32_t ksimm[4];
-
 extern uint8_t __text_end;
 extern uint8_t __data_load;
 extern uint8_t __data_start;
 extern uint8_t __data_end;
 extern uint8_t __bss_start;
 extern uint8_t __bss_end;
+extern uint8_t __heap_start;
+extern uint8_t __heap_end;
+extern uint8_t __stack_base;
 extern uint8_t __stack_top;
 
-#define resmagic0   0x752019f3
-#define resmagic1   0x237698aa
-#define resmagic2   0x1357bd13
-#define resmagic3   0x31415926
-
-
 //-----------------------------------------------------------------------
-const char * const cpuNames[] = {
+#define resmagic0 0x752019f3
+#define resmagic1 0x237698aa
+#define resmagic2 0x1357bd13
+#define resmagic3 0x31415926
+
+bool mem_Init();
+static uint32_t kheapPtrA __attribute__((aligned(4))); // top area
+static uint32_t kheapPtrB __attribute__((aligned(4))); // btm area
+uint32_t ksimm[4] __attribute__((aligned(4)));
+
+static const char * const cpuNames[] = {
     "M68XC060",
     "M68EC060",
     "M68LC060",
@@ -214,31 +211,54 @@ rvcfg_t* sys_GetCfg(uint32_t id) {
 }
 
 //-----------------------------------------------------------------------
-//
-// kmemory
-//
+// split-heap memory.
+//  top: linear region that cannot free
+//  btm: sbrk-like region which can grow/shrink
 //-----------------------------------------------------------------------
 bool mem_Init()
 {
-    // init heap pointer
-    kheapPtr = ((uint32_t)&kheap[0] + KMEMSIZE - 4) & ~16UL;
-
+    // init heap pointers
+    kheapPtrA = ((uint32_t)&__heap_end) & ~15;
+    kheapPtrB = ((uint32_t)&__heap_start + 15) & ~15UL;
     return true;
 }
 
-uint32_t mem_Alloc(uint32_t size, uint32_t alignment)
+uint32_t mem_LinearAlloc(uint32_t size, uint32_t alignment)
 {
-    if (alignment < 4)
-        alignment = 4;
-
-    uint32_t m = ((kheapPtr - size) & ~(alignment - 1));
-    if (m >= (uint32_t) &kheap[0])
-    {
-        kheapPtr = m;
-        return kheapPtr;
+    alignment = (alignment > 4) ? alignment : 4;
+    uint32_t m2 = ((kheapPtrA - size) & ~(alignment - 1));
+    if (m2 < kheapPtrB) {
+        printf("ERROR: mem_LinearAlloc(%d, %d)", size, alignment);
+        return 0;
     }
-    puts("ERROR: mem_Alloc()");
-    return 0;
+    //printf("alloc %d:%d = %d (%08x, %08x)\n", size, alignment, kheapPtrA - m2, kheapPtrA, m2);
+    kheapPtrA = m2;
+    return kheapPtrA;
+}
+
+uint32_t mem_Sbrk(int32_t size)
+{
+    uint32_t m1 = kheapPtrB;
+    uint32_t m2 = kheapPtrB + size;
+    if ((m2 > kheapPtrA) || (m2 < (uint32_t)(&__heap_start))) {
+        printf("ERROR: mem_Sbrk(%d)", size);
+        return 0;
+    }
+    kheapPtrB = m2;
+    return m1;
+}
+
+void mem_Info(void) {
+    uint32_t m1,m2;
+    m1 = (uint32_t)&__stack_base;
+    m2 = (uint32_t)&__stack_top;
+    printf("stck %08x %08x : %d\n", m1, m2, m2 - m1);
+    m1 = (uint32_t)&__heap_start;
+    m2 = (uint32_t)&__heap_end;
+    printf("heap %08x %08x : %d\n", m1, m2, m2 - m1);
+    printf("ktop %08x %08x : %d\n", kheapPtrA, m2, m2 - kheapPtrA);
+    printf("kbtm %08x %08x : %d\n", m1, kheapPtrB, kheapPtrB - m1);
+    printf("free %08x %08x : %d\n", kheapPtrB, kheapPtrA, kheapPtrA - kheapPtrB);
 }
 
 

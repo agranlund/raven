@@ -59,7 +59,7 @@ static void dputc(char c) {
 }
 #endif
 static char printbuf[256];
-void dprintf(const char* s, ...)
+void dprint(const char* s, ...)
 {
     va_list args;
     char* buf = printbuf;
@@ -74,7 +74,9 @@ void dprintf(const char* s, ...)
     #endif
 }
 #else
-void dprintf(const char* s, ...) { (void)s; }
+void dprint(const char* s, ...) {
+    (void)s;
+ }
 #endif /* DEBUG*/
 
 
@@ -199,7 +201,7 @@ extern void sys_InstallBios(void);
 
 void load_drivers(void) {
     ini_t ini;
-    dprintf("load drivers...\n");
+    dprintf(("load drivers...\n"));
     if (ini_GetSection(&ini, &sys.ini, "drivers")) {
         const char* name = ini.data;
         while (name) {
@@ -238,7 +240,7 @@ void load_drivers(void) {
 long super_main(int args, char** argv) {
     UNUSED(args); UNUSED(argv);
 
-    dprintf("init...\n");
+    dprintf(("init...\n"));
 
     /* system setup */
     sys_Init();
@@ -254,11 +256,11 @@ long super_main(int args, char** argv) {
     mixer_Setup();
 
     /* inject bios overrides */
-    dprintf("install xbios...\n");
+    dprintf(("install xbios...\n"));
     sys_InstallBios();
 
     /* init public api */
-    dprintf("finalize...\n");
+    dprintf(("finalize...\n"));
     pubapi_Init();
 
     /* apply settings from inifile */
@@ -348,7 +350,7 @@ long super_main(int args, char** argv) {
     sys_setcookie("GSXB", SND_PSG | SND_8BIT | SND_16BIT | SND_EXT);
 #endif
 
-    dprintf("done.\n");
+    dprintf(("done.\n"));
     return 0;
 }
 
