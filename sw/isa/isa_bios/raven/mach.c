@@ -142,6 +142,7 @@ void raven_irq_setup(void) {
 
     /* initialize interrupt vectors */
     isa_irq_assign = raven_isa_irq_assign;
+    raven_isa_irq_assign();
 
     /* enable isa interrupts */
     mfpbase[0x0b] &= ~ia_mask;  /* clear pending    */
