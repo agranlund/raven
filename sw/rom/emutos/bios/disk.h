@@ -118,5 +118,6 @@ void romdisk_init(WORD dev, LONG *devices_available);
 LONG romdisk_ioctl(WORD dev, UWORD ctrl, void *arg);
 LONG romdisk_rw(WORD rw, LONG sector, WORD count, UBYTE *buf, WORD dev);
 #endif
+void disk_try_dmaboot(void);
 
 #endif /* DISK_H */
