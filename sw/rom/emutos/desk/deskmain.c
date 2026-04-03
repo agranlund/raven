@@ -429,6 +429,11 @@ static void desktop_set_cache(void)
 {
     set_cache(G.g_cache);
 }
+
+static long desktop_get_cache(void)
+{
+    return get_cache();
+}
 #endif
 
 
@@ -2064,6 +2069,25 @@ BOOL deskmain(void)
      */
     if (blitter_is_present)
         Blitmode(G.g_blitter?1:0);
+#endif
+
+#if CONF_WITH_CACHE_CONTROL
+     /*
+      * cached cache status may be out of sync if an
+      * auto-run program has changed it.
+      */
+    if (cache_is_present)
+    {
+        WORD cache = Supexec((LONG)desktop_get_cache);
+        if (cache != G.g_cache)
+        {
+#if 1
+            Supexec((LONG)desktop_set_cache); /* emudek decides */
+#else
+            G.g_cnxsave->cs_cache = G.g_cache = cache; /* auto-run program decides */
+#endif
+        }
+    }
 #endif
 
     men_update();
