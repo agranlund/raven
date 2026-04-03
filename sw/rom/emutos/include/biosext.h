@@ -54,6 +54,7 @@ void invalidate_instruction_cache(void *start, long size);
 
 #if CONF_WITH_CACHE_CONTROL
 WORD cache_exists(void);
+WORD get_cache(void);
 void set_cache(WORD enable);
 #endif
 

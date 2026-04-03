@@ -31,6 +31,7 @@
 #endif
 #if CONF_WITH_CACHE_CONTROL
         .globl  _cache_exists
+        .globl  _get_cache
         .globl  _set_cache
 #endif
 
@@ -614,6 +615,18 @@ _cache_exists:
         jmi     ce_exit
         moveq.l #1,d0
 ce_exit:
+        rts
+
+_get_cache:
+        jbsr    _cache_exists
+        tst.w   d0
+        jeq     gc_exit             // no cache, do nothing
+        moveq.l #0,d0               // assume disable
+        MOVEC_CACR_D0
+        cmp.l   #0,d0
+        beq     gc_exit
+        moveq.l #1,d0
+gc_exit:
         rts
 
 _set_cache:
