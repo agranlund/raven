@@ -660,6 +660,9 @@
 # ifndef CONF_WITH_IDE
 #  define CONF_WITH_IDE 1
 # endif
+# ifndef CONF_WITH_EXTERNAL_DISK_DRIVER
+#  define CONF_WITH_EXTERNAL_DISK_DRIVER 0
+#endif
 # ifndef CONF_WITH_SCSI_DRIVER
 #  define CONF_WITH_SCSI_DRIVER 1
 # endif
