@@ -58,6 +58,7 @@ copy: copydocs copyhw copyfw copyroms copysw
 copydocs:
 	$(COPY) $(ROOTDIR)/doc/raven_a1.pdf $(OUTDIR)/manual.pdf
 	$(COPY) $(DISTDIR)/license.gpl $(OUTDIR)/license.gpl
+	$(COPY) $(DISTDIR)/release_history.txt $(OUTDIR)/history.txt
 
 copyroms:
 	$(MKDIR) $(ROMDIR)
