@@ -406,6 +406,12 @@ static void process_inf1(void)
  */
 static BOOL process_inf2(BOOL *isauto)
 {
+#if CONF_WITH_BLITTER
+    WORD    env_blitter = 0x80;
+#endif
+#if CONF_WITH_CACHE_CONTROL
+    WORD    env_cache = 0x00;
+#endif
     WORD    env, isgem = TRUE;
     char    *pcurr;
     char    tmp;
@@ -425,14 +431,13 @@ static BOOL process_inf2(BOOL *isauto)
             ev_dclick(env & 0x07, TRUE);
             pcurr = scan_2(pcurr, &env);    /* get desired blitter state */
 #if CONF_WITH_BLITTER
-            if (has_blitter)
-                Blitmode((env&0x80)?1:0);
-#endif
+            env_blitter = env;
+#endif            
 #if CONF_WITH_CACHE_CONTROL
             pcurr = scan_2(pcurr, &env);    /* skip over video bytes if present */
             pcurr = scan_2(pcurr, &env);
             scan_2(pcurr, &env);            /* get desired cache state */
-            set_cache((env&0x08)?0:1);
+            env_cache = env;
 #endif
         }
         else if (tmp == 'Z')        /* something like "#Z 01 C:\THING.APP@" */
@@ -459,6 +464,15 @@ static BOOL process_inf2(BOOL *isauto)
             ++pcurr;
         }
     }
+
+#if CONF_WITH_BLITTER
+    if (has_blitter)
+        Blitmode((env_blitter&0x80)?1:0);
+#endif
+
+#if CONF_WITH_CACHE_CONTROL
+    set_cache((env_cache&0x08)?0:1);
+#endif
 
     return (*isauto && !isgem) ? FALSE : TRUE;
 }
