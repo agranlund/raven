@@ -29,7 +29,7 @@
 #if CONF_WITH_APOLLO_68080
         .globl  _is_apollo_68080
 #endif
-#if CONF_WITH_CACHE_CONTROL
+#if CONF_WITH_CACHE_CONTROL || defined(MACHINE_RAVEN)
         .globl  _cache_exists
         .globl  _get_cache
         .globl  _set_cache
@@ -275,7 +275,7 @@ _processor_init:
         nop
 
         move.l  d1,d0           // recover the enable value
-#if CONF_WITH_CACHE_CONTROL
+#if CONF_WITH_CACHE_CONTROL || defined(MACHINE_RAVEN)
         move.l  d0,cacr_enable  // save value to use when enabling caches
 #endif
         MOVEC_D0_CACR
@@ -599,7 +599,7 @@ cpushl_bc:
 #endif
 
 
-#if CONF_WITH_CACHE_CONTROL
+#if CONF_WITH_CACHE_CONTROL || defined(MACHINE_RAVEN)
 /*
  * C A C H E   C O N T R O L   F O R   E M U D E S K
  *
@@ -689,6 +689,6 @@ temp:           .ds.l   1
 _is_apollo_68080:   .ds.w   1
 #endif
 
-#if CONF_WITH_CACHE_CONTROL
+#if CONF_WITH_CACHE_CONTROL || defined(MACHINE_RAVEN)
 cacr_enable:    .ds.l   1
 #endif

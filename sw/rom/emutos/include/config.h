@@ -640,7 +640,7 @@
 #  define CONF_WITH_APOLLO_68080 0
 # endif
 # ifndef CONF_WITH_CACHE_CONTROL
-#  define CONF_WITH_CACHE_CONTROL 1
+#  define CONF_WITH_CACHE_CONTROL 0
 # endif
 # ifndef CONF_WITH_MFP
 #  define CONF_WITH_MFP 1

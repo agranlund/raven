@@ -693,12 +693,35 @@ static void run_auto_program(const char* filename)
 {
     char path[30];
 
+#ifdef MACHINE_RAVEN
+    const char* cache_fix[] = {
+        "NVDI.PRG",
+        "ETOS_FIX.PRG",
+        0
+    };
+    int cacheoff = 0;
+    if (get_cache()) {
+        const char** c = cache_fix;
+        for (; *c && !cacheoff; c++)
+        {
+            cacheoff = (strcmp(*c, filename) == 0) ? 1 : 0;
+        }
+    }
+    if (cacheoff)
+        set_cache(0);
+#endif    
+
     strcpy(path, "\\AUTO\\");
     strcat(path, filename);
 
     KDEBUG(("Loading %s ...\n", path));
     Pexec(PE_LOADGO, path, "", NULL);
     KDEBUG(("[OK]\n"));
+
+#ifdef MACHINE_RAVEN
+    if (cacheoff)
+        set_cache(1);
+#endif
 }
 
 static void autoexec(void)

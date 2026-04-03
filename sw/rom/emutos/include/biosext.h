@@ -52,7 +52,7 @@ void flush_data_cache(void *start, long size);
 void invalidate_data_cache(void *start, long size);
 void invalidate_instruction_cache(void *start, long size);
 
-#if CONF_WITH_CACHE_CONTROL
+#if CONF_WITH_CACHE_CONTROL || defined(MACHINE_RAVEN)
 WORD cache_exists(void);
 WORD get_cache(void);
 void set_cache(WORD enable);
