@@ -1,7 +1,5 @@
 isa_bios.prg
 .C[-I..\..\purec\include]
-.C[-DXBTIME=0]
-.C[-DXBNVM=0]
 .C[-E1 -P -W2]
 .S[-S]
 .L[-V -S=4096]
@@ -9,10 +7,15 @@ isa_bios.prg
 ..\..\purec\lib\cstart0.o
 isa_bios.c
 isa_asm.s
-isa_core.c
 isa_rw.c
 isa_pnp.c
-isa_prob.c
+isa_misc.c
+isa_inf.c
+hades\mach.c
+milan\mach.c
+panther\mach.c
+raven\mach.c
+raven\asm.s
 ..\..\purec\lib\pctoslib.lib
 ..\..\purec\lib\pcstdlib.lib
 

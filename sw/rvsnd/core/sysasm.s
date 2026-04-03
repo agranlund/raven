@@ -143,7 +143,7 @@ sys_icache_clear40:
     move.w  sr,d1
     or.w    #$2700,sr
     nop
-    cinva   ic              ; clear instr cache
+    cpusha  bc              ; push + clear both caches
     nop
     move.w  d1,sr
     rts
@@ -154,9 +154,11 @@ sys_icache_enable40:
     move.l  d0,d1
     or.l    #$00008000,d1   ; enable instr cache
     nop
-    cinva   ic              ; clear instr cache
+    cpusha  bc              ; push + clear both caches
     nop
     movec   d1,cacr         ; apply
+    nop
+    cpusha  bc
     nop
     move.w  (sp)+,sr
     rts
@@ -168,9 +170,11 @@ sys_icache_restore40:
     and.l   #$00008000,d0
     or.l    d0,d1
     nop
+    cpusha  bc
+    nop
     movec   d1,cacr
     nop
-    cinva   ic
+    cpusha  bc
     nop
     move.w  (sp)+,sr
     rts
