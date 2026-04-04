@@ -391,6 +391,74 @@ void print_devices(void) {
  *
  *---------------------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------------------
+ * microsecond delay calibration
+ *---------------------------------------------------------------------------------*/
+
+static uint32_t isabios_dlycount;
+void _ISA_API dlyfunc(uint32_t us) {
+    while (us) {
+        uint16_t parts = (us > 1000UL) ? 1000 : (uint16_t)us;
+        uint32_t loops = 1UL + ((isabios_dlycount * (parts << 2)) / (1000UL * 1000));
+        us -= parts;
+        for (; loops; loops--) {
+            isabios_nop(); isabios_nop(); isabios_nop(); isabios_nop(); isabios_nop();
+            isabios_nop(); isabios_nop(); isabios_nop(); isabios_nop(); isabios_nop();
+            isabios_nop(); isabios_nop(); isabios_nop(); isabios_nop(); isabios_nop();
+            isabios_nop(); isabios_nop(); isabios_nop(); isabios_nop(); isabios_nop();
+        }
+    }
+}
+
+static void dlyfunc_calibrate(void) {
+    uint32_t cacr_old, cacr_new, cpu;
+    if (Getcookie(C__CPU, (long*)&cpu) != C_FOUND) {
+        cpu = 0;
+    }
+
+    /* run calibration with instruction cache enabled */
+    if (cpu >= 40) {
+        cacr_old = isabios_getcacr40();
+        cacr_new = cacr_old | 0x00008000UL;
+        if (cacr_new != cacr_old) {
+            isabios_setcacr40(cacr_new);
+        }
+    } else if (cpu >= 20) {
+        cacr_old = isabios_getcacr20();
+        cacr_new = cacr_old | 0x00000001UL;
+        if (cacr_new != cacr_old) {
+            isabios_setcacr20(cacr_new);
+        }
+    } else {
+        cacr_old = 0;
+        cacr_new = 0;
+    }
+
+    /* calibrate, relies on timerc being up and running */ 
+    {
+        uint32_t tick_start = *((volatile uint32_t*)0x4ba);
+        uint32_t tick_end = tick_start;
+        isabios_dlycount = 0;
+        do {
+            isabios_nop(); isabios_nop(); isabios_nop(); isabios_nop(); isabios_nop();
+            isabios_nop(); isabios_nop(); isabios_nop(); isabios_nop(); isabios_nop();
+            isabios_nop(); isabios_nop(); isabios_nop(); isabios_nop(); isabios_nop();
+            isabios_nop(); isabios_nop(); isabios_nop(); isabios_nop(); isabios_nop();
+            tick_end = *((volatile uint32_t*)0x4ba); isabios_dlycount++;
+            if (isabios_dlycount >= 1000000UL) { break; }
+        } while ((tick_end - tick_start) <= 50);
+    }
+
+    /* restore instruction cache */
+    if (cacr_new != cacr_old) {
+        if (cpu >= 40) {
+            isabios_setcacr40(cacr_old);
+        } else if (cpu >= 20) {
+            isabios_setcacr20(cacr_old);
+        }
+    }
+}
+
 
 /*-----------------------------------------------------------------------------------
  * bus initialize
@@ -415,6 +483,9 @@ bool isabios_bus_init(void) {
     /* irq setup */
     isa_irq_assign      = 0;
 
+    /* delay func calibration */
+    dlyfunc_calibrate();
+
     /* machine dependent setup */
 #if ISABIOS_MACH_HADES
     if (!mach) { mach = isabios_setup_hades(); }
@@ -435,6 +506,7 @@ bool isabios_bus_init(void) {
 
     /* common functions */
     isa.bus.version = ISA_BIOS_VERSION;
+    isa.bus.delayus = dlyfunc;
     isa.bus.find_dev = _TEMP_pubdevs_find;
     switch (isa.bus.endian) {
         case ISA_ENDIAN_BE:

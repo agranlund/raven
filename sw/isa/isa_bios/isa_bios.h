@@ -110,16 +110,21 @@ extern isabios_t isa; /* todo: rename */
 /*----------------------------------------------------------------------
  * generic helpers
  *--------------------------------------------------------------------*/
-
-#if defined(__GNUC__) && (__GNUC__ > 4)
-static uint16_t isabios_swap16(uint16_t d) { return __builtin_bisabios_swap16(d); }
-static uint32_t isabios_swap32(uint32_t d) { return __builtin_bisabios_swap32(d); }
+#if defined(__GNUC__)
+static inline void isabios_nop(void) { __asm__ volatile ( "nop\n\t" : : : ); }
+static inline uint16_t isabios_swap16(uint16_t d) { return __builtin_bswap16(d); }
+static inline uint32_t isabios_swap32(uint32_t d) { return __builtin_bswap32(d); }
 /* todo: interrupt disable/restore*/
 #else
+static void     isabios_nop(void) 0x4E71;
 static uint16_t isabios_swap16(uint16_t d) { return ((d >> 8) & 0xff) | (( d & 0xff) << 8); }
 static uint32_t isabios_swap32(uint32_t d) { return (((d >> 24) & 0x000000ffUL) | ((d & 0x000000ffUL) << 24) | ((d >> 8) & 0x0000ff00UL) | ((d & 0x0000ff00UL) << 8) ); }
 extern uint16_t isabios_disable_interrupts(void);
 extern void     isabios_restore_interrupts(uint16_t);
+extern uint32_t isabios_getcacr20(void);
+extern uint32_t isabios_getcacr40(void);
+extern void     isabios_setcacr20(uint32_t cacr);
+extern void     isabios_setcacr40(uint32_t cacr);
 #endif
 
 /*----------------------------------------------------------------------

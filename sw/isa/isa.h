@@ -80,9 +80,8 @@ typedef struct {
     void        _ISA_API (*outpw)(uint16l_t port, uint16l_t data);
     uint8_t     _ISA_API (*inp)(uint16l_t port);
     uint16_t    _ISA_API (*inpw)(uint16l_t addr);
-
-    uint32_t    reserved[4];
-
+    uint32_t    reserved[3];
+    void        _ISA_API (*delayus)(uint32_t us);
     uint32_t    _ISA_API (*irq_attach)(uint8l_t irq, void(*func)(void));
     uint32_t    _ISA_API (*irq_remove)(uint8l_t irq, void(*func)(void));
 
@@ -92,6 +91,7 @@ typedef struct {
     isa_dev_t*  devs;
     /* DEPRECATED - WILL BE REMOVED WHEN SUITABLE REPLACEMENT IS IMPLEMENTED */
 
+    uint32_t    reserved2[32];
 } isa_t;
 
 
@@ -127,50 +127,16 @@ typedef struct {
 
 static isa_t* isa_if = NULL;
 
-#if defined(__GNUC__)
-static inline void _isapriv_nop(void) { __asm__ volatile ( "nop\n\t" : : : ); }
-#else
-static void _isapriv_nop(void) 0x4E71;
-#endif
-
-static int32_t _isapriv_delayus_calibrate(void) {
-    uint32_t tick_start = *((volatile uint32_t*)0x4ba);
-    uint32_t tick_end = tick_start; uint32_t calib = 0;
-    do {
-        _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop();
-        _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop();
-        _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop();
-        _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop();
-        tick_end = *((volatile uint32_t*)0x4ba); calib++;
-        if (calib > 1000000UL) { return 1000000UL; }
-    } while ((tick_end - tick_start) <= 50);
-    return calib;
-}
-
-static void isa_delay(uint32_t us) {
-    static uint32_t calib = 0L;
-    if (!calib) {
-        calib = (uint32_t)Supexec(_isapriv_delayus_calibrate);
-    } else {
-        while (us) {
-            uint32_t loops = (us > 1000) ? 1000 : us; us -= loops;
-            loops = 1 + ((4 * calib * loops) / (1000 * 1000UL));
-            for (; loops; loops--) {
-                _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop();
-                _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop();
-                _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop();
-                _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop(); _isapriv_nop();
-            }
-        }
-    }
-}
-
 #ifndef ISA_EXCLUDE_LIB_FALLBACK
-#if defined(__GNUC__) && (__GNUC__ > 4)
+
+    #if defined(__GNUC__)
+    static inline void      _isa_nop(void) { __asm__ volatile ( "nop\n\t" : : : ); }
     static inline uint16_t  _isa_swap16(uint16_t data) { return __builtin_bswap16(data); }
-#else
+    #else
+    static void             _isa_nop(void) 0x4E71;
     static uint16_t         _isa_swap16(uint16_t data) { return ((data>>8)|(data<<8)); }
-#endif
+    #endif
+
     static isa_t            _isapriv_if_fallback;
     static void             _ISA_API _isa_outp_fallback(uint16l_t port, uint8l_t data)  { *((volatile uint8_t*)(_isapriv_if_fallback.iobase + port)) = (uint8_t)data; }
     static void             _ISA_API _isa_outpw_fallback(uint16l_t port, uint16l_t data) { *((volatile uint16_t*)(_isapriv_if_fallback.iobase + port)) = _isa_swap16(data); }
@@ -179,18 +145,56 @@ static void isa_delay(uint32_t us) {
     static isa_dev_t*       _ISA_API _isa_find_dev_fallback(const char* id, uint16l_t idx) { (void)id; (void)idx; return NULL; }
     static uint32_t         _ISA_API _isa_irq_attach_fallback(uint8l_t irq, void(*func)(void)) { (void)irq; (void)func; return 0; }
     static uint32_t         _ISA_API _isa_irq_remove_fallback(uint8l_t irq, void(*func)(void)) { (void)irq; (void)func; return 0; }
+
+    static int32_t _isa_delayus_fallback_calibrate(void) {
+        uint32_t tick_start = *((volatile uint32_t*)0x4ba);
+        uint32_t tick_end = tick_start; uint32_t calib = 0;
+        do {
+            _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop();
+            _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop();
+            _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop();
+            _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop();
+            tick_end = *((volatile uint32_t*)0x4ba); calib++;
+            if (calib > 1000000UL) { return 1000000UL; }
+        } while ((tick_end - tick_start) <= 50);
+        return calib;
+    }
+
+    static void _ISA_API _isa_delayus_fallback(uint32_t us) {
+        static uint32_t calib = 0L;
+        if (!calib) {
+            calib = (uint32_t)Supexec(_isa_delayus_fallback_calibrate);
+        } else {
+            while (us) {
+                uint32_t loops = (us > 1000) ? 1000 : us; us -= loops;
+                loops = 1 + ((4 * calib * loops) / (1000 * 1000UL));
+                for (; loops; loops--) {
+                    _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop();
+                    _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop();
+                    _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop();
+                    _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop(); _isa_nop();
+                }
+            }
+        }
+    }
+
 #endif /* ISA_EXCLUDE_LIB_FALLBACK */
+
 
 _ISA_INL isa_t* isa_init(void) {
     static bool inited = false;
     uint32_t cookie;
     if (!inited) {
         inited = true;
+        isa_if = 0;
         if ((Getcookie(C__ISA, (long*)&cookie) == 0) && (cookie != 0)) {
             isa_if = (isa_t*)cookie;
+            if (isa_if->version < ISA_BIOS_VERSION) {
+                isa_if = 0;
+            }
         }
 #ifndef ISA_EXCLUDE_LIB_FALLBACK
-        else {
+        if (isa_if == 0) {
             /* create some kind of minimal interface when isa_bios is not available */
             /* todo: should we really bother? */
             uint32_t cookie, iobase, membase;
@@ -226,11 +230,12 @@ _ISA_INL isa_t* isa_init(void) {
                 isa_if->find_dev = _isa_find_dev_fallback;
                 isa_if->irq_attach = _isa_irq_attach_fallback;
                 isa_if->irq_remove = _isa_irq_remove_fallback;
+                isa_if->delayus = _isa_delayus_fallback;
+                /* calibrate delay counters */
+                isa_if->delayus(1);
             }
         }
 #endif /* ISA_EXCLUDE_LIB_FALLBACK */
-        /* calibrate microsecond delay counter */
-        isa_delay(1);
     }
     return isa_if;
 }
@@ -241,6 +246,7 @@ _ISA_INL void isa_writew(uint16_t port, uint16_t data) { isa_t* isa = isa_get();
 _ISA_INL uint8_t isa_readb(uint16_t port) { isa_t* isa = isa_get(); return isa ? isa->inp(port) : 0xff; }
 _ISA_INL uint16_t isa_readw(uint16_t port) { isa_t* isa = isa_get(); return isa ? isa_if->inpw(port) : 0xffff; }
 _ISA_INL isa_dev_t* isa_find(const char* id, uint16_t idx) { isa_t* isa = isa_get(); return isa ? isa->find_dev(id, idx) : 0; }
+_ISA_INL void isa_delay(uint32_t us) { isa_t* isa = isa_get(); if (isa) { isa->delayus(us); } }
 
 /*----------------------------------------------------------------------
  *

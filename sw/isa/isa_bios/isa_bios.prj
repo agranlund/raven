@@ -1,7 +1,7 @@
 isa_bios.prg
 .C[-I..\..\purec\include]
 .C[-E1 -P -W2]
-.S[-S]
+.S[-S -4]
 .L[-V -S=4096]
 =
 ..\..\purec\lib\cstart0.o
