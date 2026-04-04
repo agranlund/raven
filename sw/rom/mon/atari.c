@@ -275,7 +275,7 @@ bool atari_Init()
     atari_InitEMU();
 
     initprint("InitTos");
-    for (int i=0x400; i<0x700; i+=4) {
+    for (int i=0x400; i<0x100000; i+=4) {
         IOL(0, i) = 0;
     }
 
@@ -310,6 +310,7 @@ bool atari_Init()
     cpu_SetCACR(cacr);
 
     puts("Starting TOS");
+    cpu_SetIPL(7);
     cpu_Call(0xe00000);
     return false;
 }
