@@ -145,6 +145,11 @@ https://github.com/freemint/freemint
 fpupatch
 (c) 1993 Hartmut Pfitzinger
 
+general.cpx
+(c) 1990-1993 Atari Corporation
+Patched for 68060 (c) 2003 Roger Burrows
+https://github.com/mikrosk/ct60tos
+
 NOVA drivers and utilities
 (c) Computerinsel
 (c) John McLoud
@@ -156,6 +161,10 @@ https://github.com/joysfera/parcp
 
 parrun (c) Daniel Illgen
 https://insane.tscc.de/
+
+patch_xc
+(c) 2003 Roger Burrows
+https://github.com/mikrosk/ct60tos
 
 pcmake
 (c) Thorsten Otto:
@@ -195,6 +204,11 @@ https://github.com/firebee-org/BaS_gcc
 xboot 3.20e
 (c) Gribnif Software
 Patched by Atarian Computing
+
+xcontrol 1.36
+(c) 1990-1993 Atari Corporation
+Patched for 68060 (c) 2003 Roger Burrows
+https://github.com/mikrosk/ct60tos
 
 ymodem
 (c) 2025 Anders Granlund
