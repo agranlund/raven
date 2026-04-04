@@ -155,9 +155,7 @@ sys_icache_enable40:
     or.l    #$00008000,d1   ; enable instr cache
     nop
     cpusha  bc              ; push + clear both caches
-    nop
     movec   d1,cacr         ; apply
-    nop
     cpusha  bc
     nop
     move.w  (sp)+,sr
@@ -171,9 +169,7 @@ sys_icache_restore40:
     or.l    d0,d1
     nop
     cpusha  bc
-    nop
     movec   d1,cacr
-    nop
     cpusha  bc
     nop
     move.w  (sp)+,sr
