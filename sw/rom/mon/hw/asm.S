@@ -154,16 +154,8 @@ cpu_SetIPL:
 cpu_CacheFlush:
     move.w  %sr,%d1         // disable interrupts
     or.w    #0x0700,%sr
-    movec.l %cacr,%d0
-    bset.l  #22,%d0         // clear branch cache
-    btst.l  #31,%d0         // data cache enabled?
-    beq.b   1f
     nop
-    cpusha  %dc             // push data cache
-1:  nop
-    cinva   %bc             // invalidate both caches
-    nop
-    movec.l %d0,%cacr       // clear branch cache
+    cpusha  %bc             // push/invalidate both caches
     nop
     move.w  %d1,%sr         // restore interrupts
     rts
@@ -193,20 +185,11 @@ cpu_SetCACR_asmcall:
     rts
 1:  move.w  %sr,-(%a7)          // save sr
     or.w    #0x0700,%sr         // disable interrupts
-    move.l  %d2,-(%a7)          // save d2
-    move.l  #0x00400000,%d2     // d2 = tmp cacr
     nop
-    movec.l %d2,%cacr           // disabled caches
-    btst    #31,%d0             // datacache was enabled?
-    beq.b   2f
+    cpusha  %bc                 // push/invalidate both caches
+    movec.l %d1,%cacr           // set cacr
+    cpusha  %bc                 // push/invalidate both caches
     nop
-    cpusha  %dc                 // yes, push data cache
-2:  nop
-    cinva   %bc                 // invalidate both caches
-    nop
-    movec.l %d1,%cacr           // set new cache state
-    nop
-    move.l  (%a7)+,%d2          // restore d2
     move.w  (%a7)+,%sr          // restore interrupts
     rts
 
