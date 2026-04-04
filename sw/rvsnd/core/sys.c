@@ -159,16 +159,21 @@ void sys_icache_restore(uint32_t cacr) {
 }
 
 /* ------------------------------------------------------------------- */
+
+/* todo: don't rely on _isa_delayus_fallback for this */
+void sys_delayus_calibrate(void) {
+    uint32_t cacr = sys_icache_enable();
+    _isa_delayus_fallback_calibrate();
+    sys_icache_restore(cacr);
+}
+
 void sys_delayus(uint32_t us) {
-    isa_delay(us);
+    _isa_delayus_fallback(us);
 }
 
 /* ------------------------------------------------------------------- */
 static void sys_InitIsa(void) {
-    uint32_t cacr = sys_icache_enable();
     sys.isa = isa_init();
-    isa_delay(1);
-    sys_icache_restore(cacr);
 }
 
 /* ------------------------------------------------------------------- */
@@ -185,10 +190,8 @@ static bool sys_Init(void) {
         ini_Load(&sys.ini, "c:\\rvsnd.inf");
     }
 
-    /* calibrate delays */
-    cookie = sys_icache_enable();
-    sys_delayus(1);
-    sys_icache_restore(cookie);
+    /* calibrate delay counter */
+    sys_delayus_calibrate();
 
     /* initialize isabus */
     sys_InitIsa();
@@ -237,10 +240,16 @@ void load_drivers(void) {
 }
 
 /* ------------------------------------------------------------------- */
+void print_startup(void) {
+    printf("\r\n\33pRVSOUND v%06x\33q\r\n", V_RSND);
+}
+
+/* ------------------------------------------------------------------- */
 long super_main(int args, char** argv) {
     UNUSED(args); UNUSED(argv);
 
     dprintf(("init...\n"));
+    print_startup();
 
     /* system setup */
     sys_Init();
