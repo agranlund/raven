@@ -333,14 +333,17 @@ void msp_Restore(uint32_t vbr) {
 }
 
 void msp_Install(uint32_t vbr) {
+    uint32_t ipl = cpu_SetIPL(7);
     if (msp_ins && (msp_vbr != vbr)) {
         msp_Restore(msp_vbr);
     }
     msp_Backup(vbr);
     cpu_InstallSP(vbr);
     vbr_Apply();
+    cpu_CacheFlush();
     msp_vbr = vbr;
     msp_ins = true;
+    cpu_SetIPL(ipl);
 }
 
 bool msp_Init() {
