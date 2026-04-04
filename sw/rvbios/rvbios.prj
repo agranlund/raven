@@ -14,9 +14,9 @@ rvbios.prg
 =
 ..\purec\lib\cauto.o
 main.c
-xbios_c.c
 utils.s
-xbios.s
+trap14.s
+trap14_c.c
 eiffel.s
 setup\setup.c
 setup\form_vt.c

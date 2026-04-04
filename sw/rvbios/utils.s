@@ -23,7 +23,11 @@
 	.EXPORT pcr_get		; u32 pcr_get()
 	.EXPORT vbr_get		; u32 vbr_get()
 	.EXPORT cacr_get	; u32 cacr_get()
-	.EXPORT cache_clear	; void cache_clear()
+    .EXPORT cacr_set    ; u32 cacr_set(u32)
+
+	.EXPORT cache_flush ; void cache_flush()
+    .EXPORT cache_set   ; void cache_set(int16_t enable)
+
 	.EXPORT ticks_get	; u32 ticks_get()
 
     .EXPORT reset_warm  ; void reset_warm()
@@ -51,20 +55,41 @@ vbr_get:
 	dc.l	0x4e7a0801			; movec vbr,d0
 	rts
 
+
 cacr_get:
-	movec	cacr,d0
+	movec.l cacr,d0
 	rts
 
-ticks_get:
-	move.l	0x4ba.w,d0
-	rts
+cacr_set:
+    move.w  sr,-(sp)
+    or.w    #0x0700,sr
+    nop
+    cpusha  bc
+    movec.l d0,cacr
+    cpusha  bc
+    nop
+    move.w  (sp)+,sr
+    rts
 
-cache_clear:
+cache_set:
+    cmp.w   #0,d0
+    beq.b   cache_off
+cache_on:
+    move.l  #0xA0C08000,d0
+    bra.s   cacr_set
+cache_off:
+    moveq.l #0,d0
+    bra.s   cacr_set
+
+cache_flush:
 	nop
 	cpusha	bc
 	nop
 	rts
 
+ticks_get:
+	move.l	0x4ba.w,d0
+	rts
 
 reset_warm:
     nop

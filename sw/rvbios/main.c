@@ -395,13 +395,13 @@ long supermain()
 #if !SETUP_ONLY
 	InitTime();
 
-	InstallXbios();
+	InstallTrap14();
 
 	InstallEiffel();
 
 	InstallCookies();
 #endif
-	cache_clear();
+	cache_flush();
 
 	ipl_set(ipl);
 

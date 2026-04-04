@@ -104,14 +104,6 @@ int16_t xbc_nvmaccess(
 	return 0;
 }
 
-void xbc_cache_flush(void) {
-    raven()->cache_Flush();
-}
-
-void xbc_cache_enable(void) {
-    raven()->cache_On();
-}
-
-void xbc_cache_disable(void) {
-    raven()->cache_Off();
+uint32_t xbc_read_temp(void) {
+    return 0;
 }

@@ -26,42 +26,28 @@
 
 #define RVBIOS_VERSION	0x00251110UL
 
-/*
-	main.c
-*/
-
+/* main.c */
 extern void		SetCookie(uint32_t id, uint32_t value);
 
+/* xbios.s */
+extern void		InstallTrap14(void);
 
-/*
-	xbios.s
-*/
-extern void		InstallXbios(void);
-extern uint16_t ipl_set(uint16_t ipl);
-
-
-/*
-	xbios_c.c
-*/
+/* xbios_c.c */
 extern uint32_t xbc_gettime(void);
 extern int16_t	xbc_nvmaccess(uint16_t op, int16_t start, int16_t count, uint8_t* buffer);
 
-
-/*
-	eiffel.s
-*/
+/* eiffel.s */
 extern void		InstallEiffel(void);
 
-
-/*
-	utils.s
-*/
+/* utils.s */
 extern uint16_t	ipl_set(uint16_t ipl);
 extern uint32_t	pcr_get(void);
 extern uint32_t	vbr_get(void);
 extern uint32_t cacr_get(void);
+extern void     cacr_set(uint32_t value);
 extern uint32_t ticks_get(void);
-extern void		cache_clear(void);
+extern void		cache_flush(void);
+extern void     cache_set(int16_t enable);
 
 #endif /* _RVBIOS_H_ */
 
