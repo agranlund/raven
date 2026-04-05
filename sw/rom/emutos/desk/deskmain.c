@@ -2072,22 +2072,14 @@ BOOL deskmain(void)
 #endif
 
 #if CONF_WITH_CACHE_CONTROL
-     /*
-      * cached cache status may be out of sync if an
-      * auto-run program has changed it.
-      */
+    /*
+     * we now have the desired cache state from EMUDESK.INF, so we can
+     * call Blitmode() here.  note that we call it here, even if we've
+     * called it in process_inf2() in geminit.c, because an auto-run
+     * program may have changed the state in between.
+     */
     if (cache_is_present)
-    {
-        WORD cache = Supexec((LONG)desktop_get_cache);
-        if (cache != G.g_cache)
-        {
-#if 1
-            Supexec((LONG)desktop_set_cache); /* emudek decides */
-#else
-            G.g_cnxsave->cs_cache = G.g_cache = cache; /* auto-run program decides */
-#endif
-        }
-    }
+        Supexec((LONG)desktop_set_cache);
 #endif
 
     men_update();
