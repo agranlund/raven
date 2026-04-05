@@ -190,7 +190,7 @@ copysw:
 	$(COPY) $(ROOTDIR)/sw/tools/cacheon/cacheon.prg $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/cacheoff/cacheoff.prg $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/resetnvm/resetnvm.prg $(SWDIR_RTOOLS)/
-	$(COPY) $(ROOTDIR)/sw/tools/patch_xc/patch_xc.prg $(SWDIR_RTOOLS)/
+#	$(COPY) $(ROOTDIR)/sw/tools/patch_xc/patch_xc.prg $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/fpu_emu/fpemu.prg $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/fpu_emu/fpemu.txt $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/flash/flash.ttp $(SWDIR_RTOOLS)/
