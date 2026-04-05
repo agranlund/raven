@@ -5,6 +5,7 @@ Romdisk content
  mon.tos        - raven debug monitor
  parrun.tos     - parcp file execute
  parserve.tos 	- parcp file transfer
+ uip.tos        - ftp server (rtl8019)
  ymodem.tos     - serial file transfer
  docs/*         - documentation
 
