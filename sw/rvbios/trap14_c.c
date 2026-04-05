@@ -107,3 +107,27 @@ int16_t xbc_nvmaccess(
 uint32_t xbc_read_temp(void) {
     return 0;
 }
+
+int32_t xbc_puntaes(uint8_t* a0) {
+
+    if (*((uint32_t*)&a0[0]) == 0x416E4B72UL) { /* 'AnKr' */
+        int16_t p0 = *((int16_t*)&a0[4]);
+
+        /* poweroff */
+        if (p0 == -1) {
+            raven()->sys_poweroff(1L);
+        }
+
+        /* warm reset */
+        else if (p0 == 2) {
+            raven()->sys_reset(1L);
+        }
+
+        /* coldboot */
+        else if (p0 == 3) {
+            raven()->sys_reset(2L);
+        }
+    }
+
+    return 0;
+}

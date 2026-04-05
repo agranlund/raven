@@ -47,6 +47,7 @@
 	.XREF 	xbc_settime
 	.XREF 	xbc_gettime
 	.XREF 	xbc_nvmaccess
+    .XREF   xbc_puntaes
     .XREF   xbc_read_temp
 
 	.EXPORT InstallTrap14
@@ -98,6 +99,9 @@ IFNE XBTIME
 	beq		xb_gettime
 ENDIF
 
+    cmp.w   #39,d0          ; Puntaes
+    beq     xb_puntaes
+
 IFNE XBNVM
 	cmp.w	#46,d0			; NVMaccess
 	beq		xb_nvmaccess
@@ -141,6 +145,13 @@ xb_nvmaccess:
 	move.l	8(a0),a0		    ; buffer
 	bsr		xbc_nvmaccess
 	rte
+
+;----------------------------------------------------------
+xb_puntaes:
+    addq.l  #2,a0
+    bsr     xbc_puntaes
+	movea.l	xbios_old(pc),a0    ; call original
+	jmp		(a0)                ; to update internal tos variables
 
 ;----------------------------------------------------------
 xb_cache_ctrl:
