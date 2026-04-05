@@ -407,10 +407,10 @@ static void process_inf1(void)
 static BOOL process_inf2(BOOL *isauto)
 {
 #if CONF_WITH_BLITTER
-    WORD    env_blitter = 0x80;
+    WORD    env_blitter = 0x80;     /* default ON if no emudesk.inf exist */
 #endif
 #if CONF_WITH_CACHE_CONTROL
-    WORD    env_cache = 0x00;
+    WORD    env_cache = 0x00;       /* default ON if no emudesk.inf exist */
 #endif
     WORD    env, isgem = TRUE;
     char    *pcurr;
