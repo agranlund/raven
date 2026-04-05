@@ -606,6 +606,9 @@ cpushl_bc:
  * WORD cache_exists(void);
  *  returns 1 if processor has cache, 0 otherwise
  *
+ * WORD get_cache(void);
+ *  gets cache state: returns zero if disabled, otherwise enabled
+ *
  * void set_cache(WORD enable);
  *  sets cache state: if 'enable' is zero, disables, otherwise enables
  */
