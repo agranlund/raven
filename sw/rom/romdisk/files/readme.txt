@@ -9,4 +9,5 @@ Romdisk content
  ymodem.tos     - serial file transfer
  docs/*         - documentation
 
-A ramdisk of 2MB with drive letter M: is also created when no bootable harddrive partition was found.
+A ramdisk of 2MB with drive letter M: is also created
+when no bootable harddrive partition was found.
