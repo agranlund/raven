@@ -2,10 +2,29 @@ Raven.A1
 Hardware and software binary release
 
 20260403:
-  rom:      updated EmuTOS (#f96a524 @ 20260331)
-  rom:      monitor d and a commands can take register as parameter
-  rom:      export ability to reinstall 060sp in any vector table
-  rvbios:   reinstall 060sp in TOS vectors (fix Mint 1.16.0 crash)
-  rvsound:  maybe fix cache related crash
-  isa_bios: more flexible device config options (isa_bios.inf)
-  isa_bios: more useful device info log (isa_bios.log)
+
+  rom (bios)
+    faster vgabios x86emu
+    export function for moving 060sp to any vector table
+    d and a commands can now take register as parameter
+
+  rom (emutos)
+    updated to #f96a524 @ 20260331
+    correct cache status when menudesk.inf is not present
+    removed cache menu item (as Falcon, use control panel if needed)
+  
+  rvbios:
+    move 060sp to TOS vectors (fix Mint 1.16.0 crash)
+    support puntaes xbios call (MagiC poweroff)
+
+  isa_bios:
+    more flexible device config options (isa_bios.inf)
+    more useful device info log (isa_bios.log)
+    provide helper delayus function
+
+  rvsound:
+    maybe fix cache related crash
+  
+  software:
+    added xcontrol.acc (CT60 patched version)
+    added general.cpx  (CT60 patched version)
