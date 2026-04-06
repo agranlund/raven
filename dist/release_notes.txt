@@ -24,6 +24,7 @@ xxxxxxxx:
 
   rvsound:
     fix cache related crash
+    (update entire folder, including drivers)
   
   software:
     added xcontrol.acc (CT60 patched version)
