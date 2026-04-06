@@ -1,15 +1,6 @@
 Raven.A1
 Hardware and software binary release
 
-20260403:
-  rom:      updated EmuTOS (#f96a524 @ 20260331)
-  rom:      monitor d and a commands can take register as parameter
-  rom:      export ability to reinstall 060sp in any vector table
-  rvbios:   reinstall 060sp in TOS vectors (fix Mint 1.16.0 crash)
-  rvsound:  maybe fix cache related crash
-  isa_bios: more flexible device config options (isa_bios.inf)
-  isa_bios: more useful device info log (isa_bios.log)
-
 20260308:
   rvnova:   (svga) fixed broken pitch values in .bib file
   software: (uiptool) support 16bit transfer

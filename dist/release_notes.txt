@@ -1,7 +1,7 @@
 Raven.A1
 Hardware and software binary release
 
-20260403:
+xxxxxxxx:
 
   rom (bios)
     faster vgabios x86emu
@@ -15,12 +15,12 @@ Hardware and software binary release
   
   rvbios:
     move 060sp to TOS vectors (fix Mint 1.16.0 crash)
+    support older CT60 xbios calls (fix xcontrol for CT60 crash)
     support puntaes xbios call (MagiC poweroff)
 
   isa_bios:
     more flexible device config options (isa_bios.inf)
     more useful device info log (isa_bios.log)
-    provide helper delayus function
 
   rvsound:
     maybe fix cache related crash
