@@ -122,6 +122,7 @@ tools/autoexec      : autoexec with support for commandline parameters
 tools/autosort      : utility to set file order in auto folder
 tools/emucon2       : EmuTOS console as standalone application
 tools/fpupatch      : remove SFP-004 detection from PureC applications
+tools/gsxbmix       : gsxb volume mixer, compatible with rvsnd
 tools/setenv        : environment variables for TOS
 tools/setflags      : utility to set program flags
 tools/thingpal      : convert nova_col palette to Photoshop and ThingImg
@@ -179,6 +180,10 @@ general.cpx
 (c) 1990-1993 Atari Corporation
 Patched for 68060 (c) 2003 Roger Burrows
 https://github.com/mikrosk/ct60tos
+
+GSXB Mixer
+(c) Odd Skancke
+https://assemsoft.atari.org/gsxb/index.html
 
 NOVA drivers and utilities
 (c) Computerinsel

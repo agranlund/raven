@@ -390,6 +390,7 @@ copysw:
 		$(COPY) $(ROOTDIR)/sw/rom/emutos/cli/readme.txt $(SWDIR_TOOLS)/emucon2/
 
 		unzip -L $(SUPPDIR)/xcontrol.zip -d $(SWDIR_TOOLS)/
+		unzip -L $(SUPPDIR)/gsxbmix.zip -d $(SWDIR_TOOLS)/
 
 #		$(COPY) $(SWDIR_TOOLS)/xcontrol/uk/xcontrol.acc $(SWDIR)/
 		$(COPY) $(SWDIR_TOOLS)/xcontrol/uk/general6.cpx $(SWDIR_CPX)/

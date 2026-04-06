@@ -29,3 +29,4 @@ xxxxxxxx:
   software:
     added xcontrol.acc (CT60 patched version)
     added general.cpx  (CT60 patched version)
+    added gsxbmixer
