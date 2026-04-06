@@ -42,6 +42,7 @@ ipl_set:
 	and.w	#0x0F00,d0
 	or.w	d0,d1
 	move.w	d1,sr
+	nop
 	move.w	d2,d0
 	and.w	#0x0F00,d0
 	rts
@@ -61,14 +62,16 @@ cacr_get:
 	rts
 
 cacr_set:
-    move.w  sr,-(sp)
+    move.w  sr,d1
     or.w    #0x0700,sr
     nop
     cpusha  bc
+    nop
     movec.l d0,cacr
+    nop
     cpusha  bc
     nop
-    move.w  (sp)+,sr
+    move.w  d1,sr
     rts
 
 cache_set:
@@ -82,9 +85,12 @@ cache_off:
     bra.s   cacr_set
 
 cache_flush:
+	move.w	sr,d0
+	or.w	#0x0700,sr
 	nop
 	cpusha	bc
 	nop
+	move.w  d0,sr
 	rts
 
 ticks_get:
@@ -95,13 +101,11 @@ reset_warm:
     nop
     move.w  #0x2700,sr
     nop
-    move.l  #0x00e00000,-(sp)
-    rts
-
+    jmp     0x00e00000
+    
 reset_cold:
     nop
     move.w  #0x2700,sr
     nop
-    move.l  0x40000004,-(sp)
-    rts
-
+    move.l  0x40000004,a0
+    jmp     (a0)

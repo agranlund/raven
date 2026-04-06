@@ -86,7 +86,7 @@ xbios_new:
 	;------------------------------------
 	; CT60
 	;------------------------------------
-	cmp.w	#0xC600,d0
+	cmp.w	#0x0C6A,d0
 	bcc		xb_ct60
 	
 	;------------------------------------
@@ -207,18 +207,33 @@ xb_cache_ctrl:
 
 ;----------------------------------------------------------
 xb_ct60:
+	cmp.w   #0xC600,d0
+	bcc.s   xb_ct60new
+
+	cmp.w   #0x0C6A,d0
+	beq     xb_ct60_read_temp
+;	cmp.w	#0x0C6B,d0
+;	beq 	xb_ct60_rwparam
+	cmp.w   #0x0C6C,d0
+	beq 	xb_ct60_cache
+	cmp.w   #0x0C6D,d0
+	beq 	xb_ct60_flush_cache
+;	cmp.w	#0x0C6E,d0
+;	beq 	xb_ct60_vmalloc
+	movea.l	xbios_old(pc),a0
+	jmp		(a0)
+
+xb_ct60new:
+	cmp.w	#0xC60A,d0
+	beq 	xb_ct60_read_temp
+;	cmp.w	#0xC60B,d0
+;	beq 	xb_ct60_rwparam
 	cmp.w	#0xC60C,d0
 	beq 	xb_ct60_cache
 	cmp.w	#0xC60D,d0
 	beq 	xb_ct60_flush_cache
-	cmp.w	#0xC60A,d0
-	beq 	xb_ct60_read_temp
-#if 0
-	cmp.w	#0xC60B,d0
-	beq 	xb_ct60_rwparam
-	cmp.w	#0xC60E,d0
-	beq 	xb_ct60_vmalloc
-#endif    
+;	cmp.w	#0xC60E,d0
+;	beq 	xb_ct60_vmalloc
 	movea.l	xbios_old(pc),a0
 	jmp		(a0)
 
