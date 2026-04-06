@@ -241,7 +241,7 @@ void load_drivers(void) {
 
 /* ------------------------------------------------------------------- */
 void print_startup(void) {
-    printf("\r\n\33pRVSOUND v%06x\33q\r\n", V_RSND);
+    printf("\r\n\33pRVSOUND v%06lx\33q\r\n", V_RSND);
 }
 
 /* ------------------------------------------------------------------- */
