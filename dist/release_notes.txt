@@ -1,7 +1,7 @@
 Raven.A1
 Hardware and software binary release
 
-xxxxxxxx:
+260406:
 
   rom (bios)
     faster vgabios x86emu
