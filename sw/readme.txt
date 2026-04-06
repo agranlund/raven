@@ -11,6 +11,7 @@ rom/emutos                  : m68k-atari-mintelf-gcc
 
 rvbios                      : pureC
 rvnova                      : pureC
+rvsnd                       : pureC
 tools/cache                 : pureC
 tools/eiffel                : pureC
 tools/flash                 : pureC

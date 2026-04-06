@@ -23,7 +23,7 @@ xxxxxxxx:
     more useful device info log (isa_bios.log)
 
   rvsound:
-    maybe fix cache related crash
+    fix cache related crash
   
   software:
     added xcontrol.acc (CT60 patched version)

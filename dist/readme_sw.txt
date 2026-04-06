@@ -11,6 +11,11 @@ https://www.exxosforum.co.uk/forum/viewforum.php?f=119
 - Installation:
 ---------------
 Copy the folder structure to the root of Ravens boot drive.
+Take care to copy the files in the AUTO folder in the
+order you need them to run.
+
+XBOOT patched for 060 is available in the tools directory
+XCONTROL patched for 060 is available in the tools directory
 
 
 - AUTO Folder:
@@ -18,67 +23,91 @@ Copy the folder structure to the root of Ravens boot drive.
 The files need to execute in a particular order.
 Use "tools/autosort.prg" to assign execution order.
 
-RVBIOS.PRG   : Raven core xbios extension
- Needs to be first, or very early in the boot process.
- Temporarily supplied as a PRG but will eventually become part of the ROM.
+Example autorun order:
+ rvbios.prg
+ xboot.prg
+ magxboot.prg  <- if using MagiC
+ rnova.prg
+ nvdi.prg
+ isa_bios.prg
+ rvsnd.prg
+ mint.prg  <- if using MiNT
+
+
+RVBIOS.PRG   : Raven xbios extension
+ Needs to be first, or _very_ early in the boot process.
+
+RVNOVA.PRG   : Graphics driver
+ Early in the boot process.
+ Needs to be before NVDI if you have that installed.
 
 ISA_BIOS.PRG : ISA PnP bios
- Early in the boot process. After RVBIOS.PRG is a good idea.
 
-RVNOVA.PRG   : NOVA driver launcher
- Early in the boot process, after RVBIOS.PRG but before NVDI or other external GDOS.
-
-SETENV.PRG   : (optional)
- Assign environment variables for plain TOS
- Example "c:\setenv.txt" is provided
-
-AUTOEXEC.PRG : (optional)
- Launch programs with command line arguments
- Example, "c:\autoexec.cnf" is provided
-
-
-Example file order:
-
-rvbios.prg
-  (xboot.prg)
-rvnova.prg
-  (nvdi.prg)
-isa_bios.prg
-setenv.prg      <- optional
-autoexec.prg    <- optional
-  (mint.prg)
+RVSND.PRG    : Sound driver
 
 
 
-- NOVA setup:
+
+- NOVA SETUP:
 -------------
-Do not put the usual nova executables in the AUTO folder, you're only going
-to need RVBIOS.PRG and RVNOVA.PRG.
+Do not put the usual nova executables in the AUTO folder.
+You're only going to need RVBIOS.PRG and RVNOVA.PRG.
 The correct nova executables, and their settings, are automatically executed
 from "c:\nova" according to your settings in Raven BIOS.
 
 To configure NOVA press the DELETE when you see the Atari logo at boot to enter BIOS setup.
 Navigate to the NOVA tab to select graphics card and desired settings.
 
-Modifying resolutions:
- Use VMG.PRG in the driver folder for you particular graphicscard.
- ex: if you use the ET4000.W32 driver then you run "c:\nova\et4000.w32\vmg.prg"
 
- Only sta_vdi.bib is of importance, even for boot resolutions.
- You want to modify the file that lives in the auto subfolder of your driver
- (NOT the one in c:\auto)
- ex: "c:\nova\et4000.w32\auto\sta_vdi.bib"
+The driver called SVGA is a generic driver supporting multiple cards:
 
- Refer to VMG documentation and/or Atari forums for help on how to modify or create
- new NOVA resolutions using the VMG tool.
+SVGA + Hardware acceleration:
+- Cirrus Logic GD5426, GD5428, GD5429, GD5434
+- WD90C31, WD90C33
+
+SVGA:
+- ET4000, ET4000W32
+
+VGA:
+- just about any card should work in regular VGA resolutions
+  (640x480 in 16 colors, 320x200 in 256 colors)
+
+
+Additionally, official NOVA drivers are included for following cards:
+- ET4000AX, ET4000W32i, Mach32
 
 
 
-- TOOLS:
---------
+- SOUND SETUP:
+--------------
 
-raven/drivers       : hardware drivers
+1. read rvsnd/readme.txt
+2. copy rvsnd/rvsnd.prg -> c:\auto
+3. copy rvsnd/rvsnd.inf -> c:\
+4. edit c:\rvsnd.inf
 
+The old drivers are no longer needed but kept in the archive for now:
+  raven/drivers/gus
+  raven/drivers/oplmidi
+  raven/drivers/mpu401
+
+
+- ISA CARDS:
+--------------
+
+Look at the example c:\isa_bios.inf and modify as needed.
+
+A file called c:\isa_bios.log will be written after each boot.
+This file lists all detected cards and devices, the settings
+each of them accepts, as well as the current configuration.
+
+Use this file as a guide for configuring c:\isa_bios.inf.
+
+
+- MISC TOOLS:
+-------------
+
+raven/drivers       : misc hardware drivers
 raven/cacheon       : enable cpu caches
 raven/cacheoff      : disable cpu caches
 raven/castaway      : Atari ST emulation
@@ -91,12 +120,13 @@ raven/ymodem        : serial port file transfer
 
 tools/autoexec      : autoexec with support for commandline parameters
 tools/autosort      : utility to set file order in auto folder
+tools/emucon2       : EmuTOS console as standalone application
 tools/fpupatch      : remove SFP-004 detection from PureC applications
 tools/setenv        : environment variables for TOS
 tools/setflags      : utility to set program flags
 tools/thingpal      : convert nova_col palette to Photoshop and ThingImg
-tools/xboot32e      : boot manager, patched
-
+tools/xboot32e      : boot manager, patched for 060
+tools/xcontrol      : Atari control panel + general.cpx patched for 060
 cpx/serial.cpx      : Serial port control panel extension
 
 

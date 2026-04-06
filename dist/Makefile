@@ -367,12 +367,12 @@ copysw:
 		$(MKDIR) $(SWDIR_TOOLS)/autoexec
 		unzip -j -L $(SUPPDIR)/autoexec-for-tos-main.zip "autoexec-for-tos-main/autoexec.prg" -d $(SWDIR_TOOLS)/autoexec/
 		unzip -j -L $(SUPPDIR)/autoexec-for-tos-main.zip "autoexec-for-tos-main/readme.md" -d $(SWDIR_TOOLS)/autoexec/
-		$(COPY) $(SUPPDIR)/autoexec.cnf $(SWDIR)/
+		$(COPY) $(SUPPDIR)/autoexec.cnf $(SWDIR_TOOLS)/autoexec/
 
 		$(MKDIR) $(SWDIR_TOOLS)/setenv
 		unzip -j -L $(SUPPDIR)/setenv-main.zip "setenv-main/setenv.prg" -d $(SWDIR_TOOLS)/setenv/
 		unzip -j -L $(SUPPDIR)/setenv-main.zip "setenv-main/readme.md" -d $(SWDIR_TOOLS)/setenv/
-		$(COPY) $(SUPPDIR)/setenv.txt $(SWDIR)/
+		$(COPY) $(SUPPDIR)/setenv.txt $(SWDIR_TOOLS)/setenv/
 
 		$(MKDIR) $(SWDIR_TOOLS)/setflags
 		unzip -j -L $(SUPPDIR)/setfl200.zip -d $(SWDIR_TOOLS)/setflags/
@@ -385,11 +385,17 @@ copysw:
 		unzip -L $(SUPPDIR)/xboot32E.zip "xboot.prg" -d $(SWDIR_TOOLS)/xboot32e/
 		./tools/patch_xboot $(SWDIR_TOOLS)/xboot32e/xboot.prg
 
-		$(COPY) $(SWDIR_TOOLS)/autoexec/autoexec.prg $(SWDIR_AUTO)/
-		$(COPY) $(SWDIR_TOOLS)/setenv/setenv.prg $(SWDIR_AUTO)/
-
 		$(MKDIR) $(SWDIR_TOOLS)/emucon2
 		$(COPY) $(ROOTDIR)/sw/rom/emucon2.tos $(SWDIR_TOOLS)/emucon2/
 		$(COPY) $(ROOTDIR)/sw/rom/emutos/cli/readme.txt $(SWDIR_TOOLS)/emucon2/
 
 		unzip -L $(SUPPDIR)/xcontrol.zip -d $(SWDIR_TOOLS)/
+
+#		$(COPY) $(SWDIR_TOOLS)/xcontrol/uk/xcontrol.acc $(SWDIR)/
+		$(COPY) $(SWDIR_TOOLS)/xcontrol/uk/general6.cpx $(SWDIR_CPX)/
+
+#		$(COPY) $(SWDIR_TOOLS)/autoexec/autoexec.prg $(SWDIR_AUTO)/
+#		$(COPY) $(SWDIR_TOOLS)/autoexec/autoexec.cfg $(SWDIR)/
+
+#		$(COPY) $(SWDIR_TOOLS)/setenv/setenv.prg $(SWDIR_AUTO)/
+#		$(COPY) $(SWDIR_TOOLS)/setenv/setenv.txt $(SWDIR)/
