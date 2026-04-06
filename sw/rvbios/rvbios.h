@@ -24,7 +24,7 @@
 #include <stdbool.h>
 #include "raven.h"
 
-#define RVBIOS_VERSION	0x00251110UL
+#define RVBIOS_VERSION	0x00260406UL
 
 /* main.c */
 extern void		SetCookie(uint32_t id, uint32_t value);

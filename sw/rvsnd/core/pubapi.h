@@ -21,7 +21,7 @@
 #define _RVSND_PUBAPI_H_
 
 #define C_RSND 0x52534E44UL
-#define V_RSND 0x00251130UL
+#define V_RSND 0x00260406UL
 
 #ifdef __GNUC__
     #define _RVSND_API
