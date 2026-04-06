@@ -633,6 +633,21 @@ gc_exit:
         rts
 
 _set_cache:
+#ifdef MACHINE_RAVEN
+        moveq.l #0,d0
+        tst.w   4(sp)
+        beq     sc_enable
+        move.l  cacr_enable,d0
+sc_enable:
+        nop
+        CPUSHA_BC
+        nop
+        MOVEC_D0_CACR
+        nop
+        CPUSHA_BC
+        nop
+        rts
+#else
         jbsr    _cache_exists
         tst.w   d0
         jeq     sc_exit             // no cache, do nothing
@@ -650,11 +665,7 @@ sc_enable:
         cmpi.b  #40,_mcpu+3         // 040/060 ?
         jmi     sc_cacr             // no, just go set cacr
         nop
-#ifdef MACHINE_RAVEN
-        CPUSHA_BC                   // 040/060: invalidate the caches first
-#else        
         CINVA_BC                    // 040/060: invalidate the caches first
-#endif        
         nop
 sc_cacr:
         MOVEC_D0_CACR
@@ -662,6 +673,7 @@ sc_exit:
         rts
 #endif
 
+#endif
         SECTION_RODATA
 
 #if CONF_WITH_68030_PMMU
