@@ -402,9 +402,10 @@ static void setup_form_select(unsigned long key_pressed)
 					vt_setting_newValue(menu[menu_row].form, NULL);
 					break;
 				case SETTING_LIST:
-					setup_state = STATE_FORM_LIST;
-                    stat_refresh = 1;
-					vt_setting_listInit();
+					if (vt_setting_listInit()) {
+                        setup_state = STATE_FORM_LIST;
+                        stat_refresh = 1;
+                    }
 					break;
 				case SETTING_UPDOWN:
 					setup_state = STATE_FORM_UPDOWN;

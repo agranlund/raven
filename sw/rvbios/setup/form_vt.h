@@ -139,7 +139,7 @@ void vt_setting_newValue(const form_menu_t *form_menu, const char *str);
 void vt_setting_execFunc(void);
 
 /* List selection for setting */
-void vt_setting_listInit(void);
+int  vt_setting_listInit(void);
 void vt_setting_listPrint(void);
 void vt_setting_listPrev(void);
 void vt_setting_listNext(void);

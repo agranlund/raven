@@ -345,9 +345,14 @@ void vt_setting_execFunc(void)
 	settingFunc();
 }
 
-void vt_setting_listInit(void)
+int vt_setting_listInit(void)
 {
-	vt_list_selected = 0;
+	const char **setting_list = (const char **) form_settings[vt_selected].param;
+	if (setting_list && setting_list[0]) {
+    	vt_list_selected = 0;
+        return 1;
+    }
+    return 0;
 }
 
 void vt_setting_listPrint(void)

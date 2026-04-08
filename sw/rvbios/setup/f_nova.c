@@ -87,8 +87,8 @@ static form_t form_nova[]={
 
 	{FORM_TEXT, "Driver ............. none          ",	FORM_X0, FORM_Y0+3},
 
-	{FORM_TEXT, "Boot resolution .... none          ",	FORM_X0, FORM_Y0+5},
-	{FORM_TEXT, "Desk resolution .... none          ",	FORM_X0, FORM_Y0+6},
+	{FORM_TEXT, "Boot resolution .... 640x480x1     ",	FORM_X0, FORM_Y0+5},
+	{FORM_TEXT, "Desk resolution .... 640x480x1     ",	FORM_X0, FORM_Y0+6},
 
 	{FORM_TEXT, "GDOS ............... [x]", 			FORM_X0, FORM_Y0+8},
 	{FORM_TEXT, "Driver .............               ",	FORM_X0, FORM_Y0+9},
@@ -143,8 +143,9 @@ static void initDrivers(void)
 			num_drivers++;
 		} } while (Fsnext() == 0);
 	}
-	driverlist[num_drivers] = 0;
+    Fsetdta(dtaold);
 
+	driverlist[num_drivers] = 0;
 	for (i = 0; i < (num_drivers - 1); i++) {
         bool swap = false;
 		if (strCompare(driverlist[i], driverlist[i+1]) > 0) {
@@ -180,7 +181,6 @@ static void initDrivers(void)
         }
     }
 
-	Fsetdta(dtaold);
 }
 
 static mode_t* findMode(uint16_t w, uint16_t h, uint8_t b) {
@@ -256,24 +256,26 @@ static void updateString(char* src, char* dst, int len)
 
 void refreshFormNova(void)
 {
-	mode_t* mode;
-	form_nova[FORM_SETTING_DRVENABLE].text[FORM_TEXTPOS+1] = (inf.drv_enable ? 'x' : ' ');
-	form_nova[FORM_SETTING_VDIENABLE].text[FORM_TEXTPOS+1] = (inf.vdi_enable ? 'x' : ' ');
+    mode_t* mode;
+    form_nova[FORM_SETTING_DRVENABLE].text[FORM_TEXTPOS+1] = (inf.drv_enable ? 'x' : ' ');
+    form_nova[FORM_SETTING_VDIENABLE].text[FORM_TEXTPOS+1] = (inf.vdi_enable ? 'x' : ' ');
 
-	updateString(inf.drvpath, &form_nova[FORM_SETTING_DRIVER].text[FORM_TEXTPOS], 12);
+    if (num_drivers) {
+        updateString(inf.drvpath, &form_nova[FORM_SETTING_DRIVER].text[FORM_TEXTPOS], 12);
+    }
 
-	mode = findMode(inf.drv_res.w, inf.drv_res.h, inf.drv_res.b);
-	if (mode) {
-		updateString(mode->name, &form_nova[FORM_SETTING_BOOTRES].text[FORM_TEXTPOS], 12);
-	}
+    mode = findMode(inf.drv_res.w, inf.drv_res.h, inf.drv_res.b);
+    if (mode) {
+        updateString(mode->name, &form_nova[FORM_SETTING_BOOTRES].text[FORM_TEXTPOS], 12);
+    }
 
-	mode = findMode(inf.vdi_res.w, inf.vdi_res.h, inf.vdi_res.b);
-	if (mode) {
-		updateString(mode->name, &form_nova[FORM_SETTING_DESKRES].text[FORM_TEXTPOS], 12);
-	}
+    mode = findMode(inf.vdi_res.w, inf.vdi_res.h, inf.vdi_res.b);
+    if (mode) {
+        updateString(mode->name, &form_nova[FORM_SETTING_DESKRES].text[FORM_TEXTPOS], 12);
+    }
 
-	form_nova[FORM_SETTING_GDOS].text[FORM_TEXTPOS+1] = (inf.menuinf.gdos ? 'x' : ' ');
-	updateString(inf.menuinf.gdosfile, &form_nova[FORM_SETTING_GDOSNAME].text[FORM_TEXTPOS], 8);
+    form_nova[FORM_SETTING_GDOS].text[FORM_TEXTPOS+1] = (inf.menuinf.gdos ? 'x' : ' ');
+    updateString(inf.menuinf.gdosfile, &form_nova[FORM_SETTING_GDOSNAME].text[FORM_TEXTPOS], 8);
 }
 
 void initFormNova(void)
@@ -312,53 +314,55 @@ void updateFormNova(void)
 
 static void confirmFormNova(int num_setting, conf_setting_u* confSetting)
 {
-	switch(num_setting) {
-		case FORM_SETTING_DRVENABLE:
-			inf.drv_enable = inf.drv_enable ? 0 : 1;
-			break;
-		case FORM_SETTING_VDIENABLE:
-			inf.vdi_enable = inf.vdi_enable ? 0 : 1;
-			break;
-		case FORM_SETTING_DRIVER:
-			strCopy(driverlist[confSetting->num_list], inf.drvpath);
-			initResolutions();
-            vt_clearForm(); /* completely redraw the form since settings options may change */
-			break;
-		case FORM_SETTING_BOOTRES:
-			{
-				mode_t* mptr = modedata;
-				while (mptr) {
-					if (mptr->name == modelist_drv[confSetting->num_list]) {
-						inf.drv_res.w = mptr->w;
-						inf.drv_res.h = mptr->h;
-						inf.drv_res.b = mptr->b;
-						break;
-					}
-					mptr++;
-				}
-			}
-			break;
-		case FORM_SETTING_DESKRES:
-			{
-				mode_t* mptr = modedata;
-				while (mptr) {
-					if (mptr->name == modelist_vdi[confSetting->num_list]) {
-						inf.vdi_res.w = mptr->w;
-						inf.vdi_res.h = mptr->h;
-						inf.vdi_res.b = mptr->b;
-						break;
-					}
-					mptr++;
-				}
-			}
-			break;
-		case FORM_SETTING_GDOS:
-			inf.menuinf.gdos = inf.menuinf.gdos ? 0 : 1;
-			break;
-		case FORM_SETTING_GDOSNAME:
-			strCopyUpper(confSetting->input, inf.menuinf.gdosfile);
-			break;
-	}
+    switch(num_setting) {
+        case FORM_SETTING_DRVENABLE:
+            inf.drv_enable = inf.drv_enable ? 0 : 1;
+            break;
+        case FORM_SETTING_VDIENABLE:
+            inf.vdi_enable = inf.vdi_enable ? 0 : 1;
+            break;
+        case FORM_SETTING_DRIVER:
+            if (num_drivers) {
+                strCopy(driverlist[confSetting->num_list], inf.drvpath);
+                initResolutions();
+                vt_clearForm(); /* completely redraw the form since settings options may change */
+            }
+            break;
+        case FORM_SETTING_BOOTRES:
+            {
+                mode_t* mptr = modedata;
+                while (mptr) {
+                    if (mptr->name == modelist_drv[confSetting->num_list]) {
+                        inf.drv_res.w = mptr->w;
+                        inf.drv_res.h = mptr->h;
+                        inf.drv_res.b = mptr->b;
+                        break;
+                    }
+                    mptr++;
+                }
+            }
+            break;
+        case FORM_SETTING_DESKRES:
+            {
+                mode_t* mptr = modedata;
+                while (mptr) {
+                    if (mptr->name == modelist_vdi[confSetting->num_list]) {
+                        inf.vdi_res.w = mptr->w;
+                        inf.vdi_res.h = mptr->h;
+                        inf.vdi_res.b = mptr->b;
+                        break;
+                    }
+                    mptr++;
+                }
+            }
+            break;
+        case FORM_SETTING_GDOS:
+            inf.menuinf.gdos = inf.menuinf.gdos ? 0 : 1;
+            break;
+        case FORM_SETTING_GDOSNAME:
+            strCopyUpper(confSetting->input, inf.menuinf.gdosfile);
+            break;
+    }
 	refreshFormNova();
 	displayFormNova();
 }
