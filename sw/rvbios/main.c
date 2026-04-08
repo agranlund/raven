@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------
  * Raven support software
- * (c)2024 Anders Granlund
+ * (c) 2024-2026 Anders Granlund
  *-------------------------------------------------------------------------------
  * This file is free software  you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include <string.h>
 #include <mint/cookie.h>
 #include <mint/osbind.h>
+#include <mint/sysvars.h>
 #include "raven.h"
 #include "rvbios.h"
 
@@ -36,8 +37,7 @@
 /*----------------------------------------
 	Constants
 ----------------------------------------*/
-#define SETUP_ONLY		0
-#define ENABLE_SETUP	1
+#define C__MCH_RAVEN    0x00070000UL
 
 #define COL_FG_TOS		COL_BLACK
 #define COL_BG_TOS		COL_WHITE
@@ -45,16 +45,10 @@
 #define BOOTSCREEN_HELP 1
 #define BOOTSCREEN_NAME 1
 
-
 #define FONTSIZE_8x8     1
 #define FONTSIZE_8x16    2
 
-#define C__MCH_RAVEN    0x00070000UL
-#define MIN_ROM_VERSION 0x00251110UL
 
-static bool RomVersionValid(void) {
-    return ((raven()->version & 0x00ffffffUL) >= MIN_ROM_VERSION) ? true : false;
-}
 
 /*----------------------------------------
 	Globals
@@ -150,26 +144,6 @@ void InstallCookies(void)
 #if defined(C__MCH_RAVEN)
 	Setcookie(C__MCH, C__MCH_RAVEN);
 #endif    
-}
-
-/*----------------------------------------
-	Motorola 060 SP
-----------------------------------------*/
-void InstallSP(void) {
-    /*
-     * Raven bootrom installs the motorola sp in
-     * the hidden vbr proxy by default.
-     * 
-     * reinstall to TOS vectors instead because some
-     * programs use unimplemented instructions to
-     * detect between 040/060 (eg. Mint 1.16.0)
-     * 
-     */
-    if ((raven()->version & 0x00ffffffUL) >= 0x00260330UL) {
-        if (raven()->sys_installsp) {
-            raven()->sys_installsp(0L);
-        }
-    }
 }
 
 /*----------------------------------------
@@ -291,35 +265,26 @@ void font_setsize(uint16_t idx) {
 ----------------------------------------*/
 int setup(void)
 {
-#if SETUP_ONLY
-	setup_main();
-#else
-
 	unsigned long boot_delay = 5;
-	
-    if (!RomVersionValid()) {
-        boot_delay = 10;
-    }
 
 	if (boot_delay > 0) {
 		unsigned long dot_tick, cur_tick, start_tick;
 		int start_setup = 0;
 
-#if ENABLE_SETUP
 
-    #if BOOTSCREEN_NAME
+        #if BOOTSCREEN_NAME
         vt_setCursorPos(79-8, 58);
         printf("RAVEN060");
-    #endif        
+        #endif        
 
-    #if BOOTSCREEN_HELP
+        #if BOOTSCREEN_HELP
         vt_setCursorPos(1, 58);
 		printf("[DEL] Setup");
-    #endif
-#else
-		Cconws(" ");
-#endif
-		start_tick = dot_tick = cur_tick = ticks_get();
+        #endif
+
+        Cconws(" ");
+
+        start_tick = dot_tick = cur_tick = ticks_get();
 
 		while (cur_tick-start_tick < (200*boot_delay)) {
 			if (Cconis() != 0) {
@@ -343,14 +308,14 @@ int setup(void)
 		}
 		
     	Cconws(DEL_BOL "\r");
-   		if (ENABLE_SETUP && start_setup) {
+   		if (start_setup) {
             Cconws(CLEAR_HOME "\r\n");
             font_setsize(FONTSIZE_8x16);
    			setup_main();
    			return 1;
    		}
 	}
-#endif
+
 	return 0;
 }
 
@@ -359,23 +324,27 @@ int setup(void)
 	Main
 ----------------------------------------*/
 
+static bool is_tsr_only(void) {
+    uint32_t tos = *((uint32_t*)0x4f2);     /* _sysbase */
+    if ( *((uint32_t*)(tos + 0x2c)) == 0x45544F53UL) {  /* 'ETOS' */
+        return false;
+    }
+
+    return true;
+}
+
 long supermain()
 {
     uint16_t ipl;
-    long cookie;
-    bool tsr_only = false;
+    bool tsr_only;
 
     /* fetch pointer rom bios */
 	if (raven()->magic != C_RAVN) {
 		return -1;
 	}
 
-    /* in magic, skip boot and configuration screens
-     * assume rvbios.prg has already been run before magxboot.prg
-     * so we only install the tsr parts this time around */
-    if (Getcookie(C_MagX, &cookie) == C_FOUND) {
-        tsr_only = true;        
-    }
+    /* no boot logo or setup for soft-loaded os's */
+    tsr_only = is_tsr_only();
 
 	/* boot screen */
     if (!tsr_only) {
@@ -383,29 +352,19 @@ long supermain()
         font_get(&fnt_data_old);
         font_setsize(FONTSIZE_8x8);
         bootscreen();
-
-        if (!RomVersionValid()) {
-            printf("*** ROM version is old, please update ***\n");
-        }
     }
 
 	/* install xbios extensions */
 	ipl = ipl_set(0x0700);
-
-#if !SETUP_ONLY
 	InitTime();
-
 	InstallTrap14();
-
 	InstallEiffel();
-
 	InstallCookies();
-#endif
-	cache_flush();
-
+    raven()->sys_installsp(0L);
+    cache_flush();
 	ipl_set(ipl);
 
-#if ENABLE_SETUP
+    /* setup screen */
     if (!tsr_only) {
         setup();
         vt_setFgColor(COL_FG_TOS);
@@ -414,24 +373,13 @@ long supermain()
         font_set(&fnt_data_old);
         vt_setCursorPos(0, 0);
     }
-#endif
-
-    InstallSP();
 
 	return 1;
 }
 
-long main()
-{
+long main() {
 	if (Supexec(supermain)) {
 		Ptermres(_PgmSize, 0);
 	}
 	return 0;
 }
-
-long rom_main()
-{
-	return Supexec(supermain);
-}
-
-
