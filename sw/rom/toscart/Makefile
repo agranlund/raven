@@ -16,13 +16,13 @@ OUT_ELF		= cart.elf
 OUT_BIN		= cart.bin
 
 # Programgs
-PROGS		= rvbios.sys
+PROGS		= rvbios.bin
 
 # Sources
 SFILES		:= cart.S
 CFILES		:= $(wildcard *.c)
 OFILES		= $(SFILES:%.S=%.o) $(CFILES:%.c=%.o)
-DEPS		= $(MAKEFILE_LIST) cart.ld rvbios.sys
+DEPS		= $(MAKEFILE_LIST) cart.ld rvbios.bin
 
 BUILD_DATE_HEX	:= $(shell date +%Y%m%d)
 BUILD_DATE_DEC	:= $(shell printf %d 0x$(BUILD_DATE_HEX))
@@ -64,10 +64,10 @@ $(OUT_ELF): $(OFILES) $(DEPS)
 $(OUT_BIN): $(OUT_ELF)
 	$(OBJCOPY) -O binary --gap-fill 0xff $(OUT_ELF) $@
 
-.PHONY: rvbios.sys
-rvbios.sys:
+.PHONY: rvbios.bin
+rvbios.bin:
 	make -C ../../rvbios
-	cp ../../rvbios/rvbios.prg rvbios.sys
+	cp ../../rvbios/rvbios.prg rvbios.bin
 
 %.o : %.S $(DEPS)
 	@mkdir -p $(@D)

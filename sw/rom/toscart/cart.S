@@ -412,7 +412,7 @@ rr_nuke:
     .align 4
 .global prg_rvbios
 prg_rvbios:
-    .incbin "rvbios.sys"
+    .incbin "rvbios.bin"
     .align 4
 prg_rvbios_end:
 
