@@ -87,5 +87,6 @@ extern WORD boot_status;
 #define DOS_AVAILABLE   0x04
 #define SCC_AVAILABLE   0x08
 #define CHARDEV_AVAILABLE 0x10
+#define VT52_AVAILABLE   0x20
 
 #endif /* BIOS_H */

@@ -45,12 +45,13 @@ Important:
 #endif
 
 /*--------------------------------------------------------------------------------*/
-#define RV_TOC__ROM         0x5F524F4D  /* '_ROM' */
-#define RV_TOC__API         0x5F415049  /* '_API' */
-#define RV_TOC__CFG         0x5F434647  /* '_CFG' */
-#define RV_TOC_BOOT         0x424F4F54  /* 'BOOT' */
-#define RV_TOC_ETOS         0x45544F53  /* 'ETOS' */
-#define RV_TOC_RSDK         0x5244534B  /* 'RDSK' */
+#define RV_TOC__ROM         0x5F524F4DUL  /* '_ROM' */
+#define RV_TOC__API         0x5F415049UL  /* '_API' */
+#define RV_TOC__CFG         0x5F434647UL  /* '_CFG' */
+#define RV_TOC_BOOT         0x424F4F54UL  /* 'BOOT' */
+#define RV_TOC_CART         0x43415254UL  /* 'CART' */
+#define RV_TOC_ETOS         0x45544F53UL  /* 'ETOS' */
+#define RV_TOC_RSDK         0x5244534BUL  /* 'RDSK' */
 
 typedef struct
 {
@@ -61,7 +62,7 @@ typedef struct
 } rvtoc_t;
 
 /*--------------------------------------------------------------------------------*/
-#define RV_CFG_ROOT         0x5F434647  /* '_CFG' */
+#define RV_CFG_ROOT         0x5F434647UL  /* '_CFG' */
 
 typedef struct
 {
@@ -69,6 +70,15 @@ typedef struct
     uint32_t size;
     /* data follows */
 } rvcfg_t;
+
+
+/*--------------------------------------------------------------------------------*/
+typedef struct
+{
+    uint32_t    reset_magic[4];
+    int16_t     coldboot;
+    int16_t     osbooted;
+} rvsys_t;
 
 /*--------------------------------------------------------------------------------*/
 typedef struct { uint16_t ax, bx, cx, dx, si, di, cflag; } x86_wregs_t;

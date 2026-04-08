@@ -42,6 +42,9 @@ static const char * const cpuNames[] = {
     "M68060"
 };
 
+rvsys_t sysvars __attribute__((section(".bss.sysvar")));
+
+
 //-----------------------------------------------------------------------
 //
 // Startup

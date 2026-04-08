@@ -947,6 +947,13 @@ void vt52_init(void)
     }
     v_col_bg = 0;
 
+#ifdef MACHINE_RAVEN
+    if (!(boot_status & VT52_AVAILABLE)) {
+        v_col_bg = 1;
+        v_col_fg = 1;
+    }
+#endif
+
     con_state = normal_ascii;           /* Init conout state machine */
 
     clear_and_home();

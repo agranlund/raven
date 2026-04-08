@@ -73,7 +73,12 @@
 /*==== Defines ============================================================*/
 
 #define DBGBIOS 0               /* If you want to enable debug wrappers */
+
+#ifdef MACHINE_RAVEN
+#define ENABLE_RESET_RESIDENT 1
+#else
 #define ENABLE_RESET_RESIDENT 0 /* enable to run "reset-resident" code (see below) */
+#endif
 
 #define ENV_SIZE    12          /* sufficient for standard PATH=^X:\^^ (^=nul byte) */
 #define DEF_PATH    "A:\\"      /* default value for path */
@@ -845,6 +850,11 @@ void biosmain(void)
 
 #if ENABLE_RESET_RESIDENT
     run_reset_resident();       /* see comments above */
+#endif
+
+#ifdef MACHINE_RAVEN
+    boot_status |= VT52_AVAILABLE;
+    vt52_init();
 #endif
 
 #if WITH_CLI

@@ -21,6 +21,9 @@ ROM_EMUTOS_DBG	= rom_dbg.bin
 ROMDISK_DIR		= romdisk
 ROMDISK_IMG		= romdisk.bin
 
+TOSCART_DIR		= toscart
+TOSCART_IMG		= $(TOSCART_DIR)/cart.bin
+
 MKROM			= ./mkrom
 
 DEPS			= $(MAKEFILE_LIST)
@@ -46,21 +49,22 @@ $(PRG_EMUCON):
 	cp $(EMUTOS_DIR)/cli/emucon2.tos $(PRG_EMUCON)
 
 .PHONY: $(ROM_EMUTOS)
-$(ROM_EMUTOS): $(MKROM) $(EMUTOS_IMG) $(MON_IMG) $(ROMDISK_IMG) $(DEPS)
+$(ROM_EMUTOS): $(MKROM) $(EMUTOS_IMG) $(MON_IMG) $(ROMDISK_IMG) $(TOSCART_IMG) $(DEPS)
 	rm -f $@
 	$(MKROM) $@ "BOOT" $(MON_IMG) 
+	$(MKROM) $@ "CART" $(TOSCART_IMG)
 	$(MKROM) $@ "ETOS" $(EMUTOS_RAW)
 	$(MKROM) $@ "RDSK" $(ROMDISK_IMG)
 
 .PHONY: $(ROM_EMUTOS_CON)
-$(ROM_EMUTOS_CON): $(MKROM) $(EMUTOS_IMG_CON) $(MON_IMG) $(ROMDISK_IMG) $(DEPS)
+$(ROM_EMUTOS_CON): $(MKROM) $(EMUTOS_IMG_CON) $(MON_IMG) $(ROMDISK_IMG) $(TOSCART_IMG) $(DEPS)
 	rm -f $@
 	$(MKROM) $@ "BOOT" $(MON_IMG) 
 	$(MKROM) $@ "ETOS" $(EMUTOS_RAW)
 	$(MKROM) $@ "RDSK" $(ROMDISK_IMG)
 
 .PHONY: $(ROM_EMUTOS_DBG)
-$(ROM_EMUTOS_DBG): $(MKROM) $(EMUTOS_IMG_DBG) $(MON_IMG) $(ROMDISK_IMG) $(DEPS)
+$(ROM_EMUTOS_DBG): $(MKROM) $(EMUTOS_IMG_DBG) $(MON_IMG) $(ROMDISK_IMG) $(TOSCART_IMG) $(DEPS)
 	rm -f $@
 	$(MKROM) $@ "BOOT" $(MON_IMG) 
 	$(MKROM) $@ "ETOS" $(EMUTOS_RAW)
@@ -107,6 +111,10 @@ $(ROMDISK_IMG): $(wildcard $(ROMDISK_DIR)/files/*) $(ROMDISK_DIR)/romdisk.sh $(D
 	cp ../tools/uiptools/uip.tos $(ROMDISK_DIR)/files/
 	cp ../tools/uiptools/uip.txt $(ROMDISK_DIR)/files/docs/uip.txt
 	$(ROMDISK_DIR)/romdisk.sh --diskfile $@ $(ROMDISK_DIR)/files/*
+
+.PHONY: $(TOSCART_IMG)
+$(TOSCART_IMG) :
+	make -C $(TOSCART_DIR)
 
 clean:
 	$(MAKE) -C $(MON_DIR) clean

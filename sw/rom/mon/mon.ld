@@ -38,12 +38,21 @@ SECTIONS
         __config_end = .;
         __code_start = .;
         *(.text* .rodata* .eh_frame*)       /* text and text-like things */
-        . = ALIGN(4);
+        . = ALIGN(16);
         __text_end = .;
     } >ROM
 
+    .bss.sysvar :
+    {
+        __sysvar_start = .;                 /* sysvar bss section at bottom of ram */
+        *(.bss.sysvar);
+        . = ALIGN(16);
+        __sysvar_end = .;
+    } >RAM
+
     .data (READONLY):
     {
+        . = ALIGN(16);
         __data_start = .;
         *(.data* .ramtext*)                 /* non-constant initialised data */
         . = ALIGN(4);
@@ -51,6 +60,27 @@ SECTIONS
     } >RAM AT>ROM
 
     __data_load = LOADADDR(.data);
+
+    .bss :
+    {
+        . = ALIGN(4);
+        __bss_start = .;
+        *(.bss);                            /* non-constant, non-initialised data */
+        *(.bss.*);
+
+        . = ALIGN(4);
+        __bss_end = .;
+
+        . = ALIGN(4096);                    /* BIOS heap */
+        __heap_start = .;
+
+        . = ORIGIN(RAM) + LENGTH(RAM) - __stack_size - 256;
+        __heap_end = .;
+        __stack_base = .;                   /* BIOS stack */
+        . += __stack_size;
+        __stack_top = .;
+
+    } >RAM
 
     .end :
     {
@@ -60,22 +90,4 @@ SECTIONS
         __mon_end = .;
     } >ROM
 
-    .bss :
-    {
-        __bss_start = .;
-        *(.bss);                            /* non-constant, non-initialised data */
-        *(.bss.*);
-        . = ALIGN(4);
-        __bss_end = .;
-
-        . = ALIGN(4096);                    /* BIOS heap */
-        __heap_start = .;
-        . = ORIGIN(RAM) + LENGTH(RAM) - __stack_size;
-        __heap_end = .;
-
-        __stack_base = .;                   /* BIOS stack */
-        . = ORIGIN(RAM) + LENGTH(RAM) - 4;
-        . = ALIGN(4);
-        __stack_top = .;
-    } > RAM
 }

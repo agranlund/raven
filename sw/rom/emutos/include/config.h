@@ -672,6 +672,9 @@
 # ifndef CONF_WITH_ROMDISK
 #  define CONF_WITH_ROMDISK 1
 # endif
+# ifndef CONF_WITH_CARTRIDGE
+#  define CONF_WITH_CARTRIDGE 1
+# endif
 # ifndef CONF_WITH_SHUTDOWN
 #  define CONF_WITH_SHUTDOWN 1
 # endif

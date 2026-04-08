@@ -207,6 +207,11 @@ bool atari_InitMMU(uint32_t* simms)
     // 0xF00000 : reserved io space
     mmu_Map24bit(0x00F00000, 0xA0000000, 0x00001000, PMMU_READWRITE | PMMU_CM_PRECISE);  // IDE ($f00000 -> $a0000000)
 
+    rvtoc_t* cart = sys_GetToc(RV_TOC_CART);
+    if (cart) {
+        mmu_Map24bit(0x00FA0000, cart->start, cart->size, PMMU_READONLY | PMMU_CM_WRITETHROUGH);
+    }
+
 #if ENABLE_CART_TEST
     // 0xFA0000 : cart : 128kb
     // mmu_Map24bit(0x00FA0000, 0x400C0000, 0x00020000, PMMU_READONLY  | PMMU_CM_WRITETHROUGH);
