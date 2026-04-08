@@ -1,32 +1,8 @@
 Raven.A1
 Hardware and software binary release
 
-260406:
+xxxxxx:
+      
+  rom:  rvbios is now in rom.
+        the old c:\auto\rvbios.prg is automatically deleted.
 
-  rom (bios)
-    faster vgabios x86emu
-    export function for moving 060sp to any vector table
-    d and a commands can now take register as parameter
-
-  rom (emutos)
-    updated to #f96a524 @ 20260331
-    correct cache status when menudesk.inf is not present
-    removed cache menu item (as Falcon, use control panel if needed)
-  
-  rvbios:
-    move 060sp to TOS vectors (fix Mint 1.16.0 crash)
-    support older CT60 xbios calls (fix xcontrol for CT60 crash)
-    support puntaes xbios call (MagiC poweroff)
-
-  isa_bios:
-    more flexible device config options (isa_bios.inf)
-    more useful device info log (isa_bios.log)
-
-  rvsound:
-    fix cache related crash
-    (update entire folder, including drivers)
-  
-  software:
-    added xcontrol.acc (CT60 patched version)
-    added general.cpx  (CT60 patched version)
-    added gsxbmixer
