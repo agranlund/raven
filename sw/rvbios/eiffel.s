@@ -1,6 +1,6 @@
 ;-------------------------------------------------------------------------------
 ; Raven eiffel extensions
-; (c) 2024 Anders Granlund
+; (c) 2024-2026 Anders Granlund
 ;
 ; Parts of this code is derived from CT60 xbios (c) Didier Mequignon
 ;-------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------
- * Bios logo image converter
- * (c)2025 Anders Granlund
+ * Raven bios image generator
+ * (c) 2025-2026 Anders Granlund
  *-------------------------------------------------------------------------------
  * This file is free software  you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

@@ -1,6 +1,6 @@
 ;-------------------------------------------------------------------------------
 ; Raven hardware utilities
-; (c) 2024 Anders Granlund
+; (c) 2024-2026 Anders Granlund
 ;-------------------------------------------------------------------------------
 ;
 ; This file is free software  you can redistribute it and/or modify

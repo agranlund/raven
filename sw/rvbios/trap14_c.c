@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------
  * Raven support software
- * (c)2024 Anders Granlund
+ * (c) 2024-2026 Anders Granlund
  *-------------------------------------------------------------------------------
  * This file is free software  you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
