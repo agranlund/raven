@@ -25,7 +25,7 @@
 #include <mint/falcon.h>
 #include <mint/cookie.h>
 #include "../rvbios.h"
-
+#include "raven.h"
 #include "form_vt.h"
 #include "misc.h"
 #include "f_cpu.h"
@@ -42,21 +42,13 @@ typedef enum
 	FORM_FPU,
 	FORM_RAM,
 
-	FORM_XBIOS,
-	FORM_ROM,
-	FORM_TOS,
-
 	FORM_STRAM_SIZE,
 	FORM_TTRAM_SIZE,
 	FORM_STRAM_CACHE,
 	FORM_TTRAM_CACHE,
 
-	FORM_CACR_EIC,
-	FORM_CACR_EDC,
-	FORM_CACR_EBC,
-	FORM_CACR_ESB,
-
-	FORM_PCR_SS,
+	FORM_ROM_UPDATE,
+	FORM_KBD_UPDATE,
 	FORM_MAX
 };
 
@@ -65,11 +57,8 @@ typedef enum
 	FORM_SETTING_STRAM_SIZE=0,
 	FORM_SETTING_STRAM_CACHE,
 	FORM_SETTING_TTRAM_CACHE,
-	FORM_SETTING_CACR_EIC,
-	FORM_SETTING_CACR_EDC,
-	FORM_SETTING_CACR_EBC,
-	FORM_SETTING_CACR_ESB,
-	FORM_SETTING_PCR_SS,
+	FORM_SETTING_ROM_UPDATE,
+	FORM_SETTING_KBD_UPDATE,
 	FORM_SETTING_MAX
 };
 
@@ -80,6 +69,11 @@ typedef enum
 #define FORM_TEXTPOS_CPUREV		(FORM_TEXTPOS + 6)
 
 #define CHAR_DEG	"\xf8"
+
+
+static void funcUpdateRom(void);
+static void funcUpdateKbd(void);
+
 
 /*--- Const ---*/
 static void updownSTRAM(int direction);
@@ -93,27 +87,20 @@ enum								{ CM_WT,          CM_CB,          CM_PRECISE,     CM_IMPRECISE,  CM_
 static const char* cm_string[] =	{ "Writethrough", "Copyback    ", "Precise     ", "Imprecise   " };
 
 static form_t form_cpu[]={
-	{FORM_TEXT, "CHIPSET ............ __",				FORM_X0, FORM_Y0+0},
+	{FORM_TEXT, "CHIPSET ............ RAVEN __",		FORM_X0, FORM_Y0+0},
 	{FORM_TEXT, "CPU ................ -----       ", 	FORM_X0, FORM_Y0+2},
 	{FORM_TEXT, "FPU ................ -----       ", 	FORM_X0, FORM_Y0+3},
 	{FORM_TEXT, "RAM ................ -- MB",			FORM_X0, FORM_Y0+4},
 
-	{FORM_TEXT, "XBIOS .............. ------",			FORM_X1, FORM_Y0+2},
-	{FORM_TEXT, "ROM ................ ------",			FORM_X1, FORM_Y0+3},
-	{FORM_TEXT, "TOS ................ ----     ",		FORM_X1, FORM_Y0+4},
-
-	{FORM_TEXT, "ST-RAM Size ........ -- MB", 			FORM_X0, FORM_Y0+6},
+    {FORM_TEXT, "ST-RAM Size ........ -- MB", 			FORM_X0, FORM_Y0+6},
 	{FORM_TEXT, "TT-RAM Size ........ -- MB", 			FORM_X0, FORM_Y0+7},
 
 	{FORM_TEXT, "ST-RAM Cache ....... ------------", 	FORM_X0, FORM_Y0+9},
 	{FORM_TEXT, "TT-RAM Cache ....... ------------", 	FORM_X0, FORM_Y0+10},
 
-	{FORM_TEXT, "Instr cache ........ [ ]",				FORM_X0, FORM_Y0+12},
-	{FORM_TEXT, "Data cache ......... [ ]",				FORM_X0, FORM_Y0+13},
-	{FORM_TEXT, "Branch cache ....... [ ]",				FORM_X0, FORM_Y0+14},
-	{FORM_TEXT, "Storebuffer ........ [ ]",				FORM_X0, FORM_Y0+15},
+    {FORM_TEXT, "ROM xxxxxx ......... UPDATE",          FORM_X0, FORM_Y0+13},
 
-	{FORM_TEXT, "Superscalar ........ [ ]",				FORM_X0, FORM_Y0+17},
+    {FORM_TEXT, "KBD Eiffel ......... UPDATE",		    FORM_X0, FORM_Y0+15},
 
 	{FORM_END, 0,0,0}
 };
@@ -123,11 +110,9 @@ form_setting_t form_setting_cpu[]={
 	{FORM_X0+FORM_TEXTPOS, FORM_Y0+ 9, NULL, SETTING_UPDOWN, 12, updownSTRAMC},
 	{FORM_X0+FORM_TEXTPOS, FORM_Y0+10, NULL, SETTING_UPDOWN, 12, updownTTRAMC},
 
-	{FORM_X0+FORM_TEXTPOS+1, FORM_Y0+12, NULL, SETTING_BOOL, 1},
-	{FORM_X0+FORM_TEXTPOS+1, FORM_Y0+13, NULL, SETTING_BOOL, 1},
-	{FORM_X0+FORM_TEXTPOS+1, FORM_Y0+14, NULL, SETTING_BOOL, 1},
-	{FORM_X0+FORM_TEXTPOS+1, FORM_Y0+15, NULL, SETTING_BOOL, 1},
-	{FORM_X0+FORM_TEXTPOS+1, FORM_Y0+17, NULL, SETTING_BOOL, 1},
+	{FORM_X0+FORM_TEXTPOS, FORM_Y0+13, NULL, SETTING_FUNC, 1, funcUpdateRom},
+
+    {FORM_X0+FORM_TEXTPOS, FORM_Y0+15, NULL, SETTING_FUNC, 1, funcUpdateKbd},
 	{0, 0, NULL, SETTING_END}
 };
 
@@ -257,12 +242,6 @@ void refreshFormCpu(void)
 	format_number(&form_cpu[FORM_TTRAM_SIZE].text[FORM_TEXTPOS], ram_total - stram_size, 2, ' ');
 	strCopy(cm_string[stram_cm], &form_cpu[FORM_STRAM_CACHE].text[FORM_TEXTPOS]);
 	strCopy(cm_string[ttram_cm], &form_cpu[FORM_TTRAM_CACHE].text[FORM_TEXTPOS]);
-
-	form_cpu[FORM_CACR_EIC].text[FORM_TEXTPOS+1] = ((nv_flags & (1<<0)) ? 'x' : ' ');
-	form_cpu[FORM_CACR_EDC].text[FORM_TEXTPOS+1] = ((nv_flags & (1<<1)) ? 'x' : ' ');
-	form_cpu[FORM_CACR_EBC].text[FORM_TEXTPOS+1] = ((nv_flags & (1<<2)) ? 'x' : ' ');
-	form_cpu[FORM_CACR_ESB].text[FORM_TEXTPOS+1] = ((nv_flags & (1<<3)) ? 'x' : ' ');
-	form_cpu[FORM_PCR_SS].text[FORM_TEXTPOS+1]   = ((nv_flags & (1<<4)) ? 'x' : ' ');
 }
 
 void exitFormCpu(void)
@@ -276,8 +255,8 @@ void initFormCpu(void)
 
 	unsigned long fpu_type, cpu_type, cpu_rev;
 	unsigned long rom;
+    unsigned long kbd;
 	unsigned short rev;
-	unsigned short tos;
 
 	loadSettings();		
 	detectRAM();
@@ -301,27 +280,33 @@ void initFormCpu(void)
 		rev = 0;
 		rom = 0;
 	}
-	tos = *((unsigned short*)0x00E00002L) & 0xffff;
+    kbd = 0;
+
+    if (Getcookie(0x54656D70UL, (long*)&kbd) == C_FOUND) {
+        kbd = *((uint32_t*)(kbd+14)) & 0x00ffffffUL;
+    }
 
 	/* chipset */
 	rev = raven()->chipset ? (raven()->chipset() & 0xFF) : 0xA1;
-
-	format_number_hex(&form_cpu[FORM_CHIPSET].text[FORM_TEXTPOS], rev, 2, 0);
-	format_number_hex(&form_cpu[FORM_XBIOS].text[FORM_TEXTPOS], RVBIOS_VERSION & 0x00ffffffUL, 6, 0);
-	format_number_hex(&form_cpu[FORM_ROM].text[FORM_TEXTPOS], rom, 6, 0);
-	format_number_hex(&form_cpu[FORM_TOS].text[FORM_TEXTPOS], tos, 4, 0);
+	format_number_hex(&form_cpu[FORM_CHIPSET].text[FORM_TEXTPOS+6], rev, 2, 0);
 
 	/* ram */
 	form_setting_cpu[FORM_SETTING_STRAM_SIZE].text = &form_cpu[FORM_STRAM_SIZE].text[FORM_TEXTPOS];
 	form_setting_cpu[FORM_SETTING_STRAM_CACHE].text = &form_cpu[FORM_STRAM_CACHE].text[FORM_TEXTPOS];
 	form_setting_cpu[FORM_SETTING_TTRAM_CACHE].text = &form_cpu[FORM_TTRAM_CACHE].text[FORM_TEXTPOS];
 
-	/* flags */
-	form_setting_cpu[FORM_SETTING_CACR_EDC].text = &form_cpu[FORM_CACR_EDC].text[FORM_TEXTPOS+1];
-	form_setting_cpu[FORM_SETTING_CACR_ESB].text = &form_cpu[FORM_CACR_ESB].text[FORM_TEXTPOS+1];
-	form_setting_cpu[FORM_SETTING_CACR_EBC].text = &form_cpu[FORM_CACR_EBC].text[FORM_TEXTPOS+1];
-	form_setting_cpu[FORM_SETTING_CACR_EIC].text = &form_cpu[FORM_CACR_EIC].text[FORM_TEXTPOS+1];
-	form_setting_cpu[FORM_SETTING_PCR_SS].text = &form_cpu[FORM_PCR_SS].text[FORM_TEXTPOS+1];
+	/* rom version */
+    format_number_hex(&form_cpu[FORM_ROM_UPDATE].text[4], rom, 6, 0);
+	form_setting_cpu[FORM_SETTING_ROM_UPDATE].text = &form_cpu[FORM_ROM_UPDATE].text[FORM_TEXTPOS];
+
+    /* kbd version */
+    if (kbd > 0) {
+        format_number_hex(&form_cpu[FORM_KBD_UPDATE].text[4], kbd, 6, 0);
+    } else {
+        form_cpu[FORM_KBD_UPDATE].text[FORM_TEXTPOS] = 0;
+        form_setting_cpu[FORM_SETTING_KBD_UPDATE].input = SETTING_HIDDEN;
+    }
+	form_setting_cpu[FORM_SETTING_KBD_UPDATE].text = &form_cpu[FORM_KBD_UPDATE].text[FORM_TEXTPOS];
 
 	refreshFormCpu();
 }
@@ -397,4 +382,74 @@ static void updownTTRAMC(int direction)
 		case SETTING_DIR_DOWN:  ttram_cm -= (ttram_cm > 0) ? 1 : 0; break;
 		case SETTING_DIR_PRINT: Cconws(cm_string[ttram_cm]); break;
 	}
+}
+
+
+static void cdecl (*mon_putc_old)(int32_t);
+static int32_t cdecl (*mon_getc_old)(void);
+
+static void cdecl mon_putc(int32_t c) {
+    if (c == '\n') { Cconout('\r'); }
+    Cconout((int16_t)c);
+}
+static int32_t cdecl mon_getc(void) {
+    return (int32_t)Cconin();
+}
+
+static void delay(uint16_t ms) {
+    uint32_t ta = *((volatile uint32_t*)0x4ba);
+    uint32_t tb = ta + ((ms / 5) + 1);
+    while ( *((volatile uint32_t*)0x4ba) < tb);
+}
+
+extern void display_restore(void);
+
+static void funcUpdateRom(void) {
+    int16_t key;
+
+    Cconws(CLEAR_HOME "\r\n");
+    Cconws("Raven ROM update\r\n\r\n");
+    Cconws("** WARNING **\r\n");
+    Cconws("This will flash a new system ROM over serial port COM1.\r\n");
+    Cconws("Press Y if you want to proceed. ");
+
+    key = mon_getc();
+    if ((key == 'Y') || (key == 'y')) {
+        Cconws("\r\n\r\n");
+        *(raven()->mon_fgetchar) = mon_getc;
+        *(raven()->mon_fputchar) = mon_putc;
+        raven()->mon_Exec("flash");
+        *(raven()->mon_fgetchar) = mon_getc_old;
+        *(raven()->mon_fputchar) = mon_putc_old;
+        delay(2000);
+        Cconws(CLEAR_HOME "\r\n");
+        raven()->sys_reset(2);
+        delay(500);
+    }
+    display_restore();
+    displayFormCpu();
+}
+
+static void funcUpdateKbd(void) {
+    int16_t key;
+	Cconws(CLEAR_HOME "\r\n");
+    Cconws("Raven KBD update\r\n\r\n");
+    Cconws("** WARNING **\r\n");
+    Cconws("This will flash a new CKBD firmware over serial port COM1.\r\n");
+    Cconws("Press Y if you want to proceed. ");
+    key = mon_getc();
+    if ((key == 'Y') || (key == 'y')) {
+        Cconws("\r\n\r\n");
+        *(raven()->mon_fgetchar) = mon_getc;
+        *(raven()->mon_fputchar) = mon_putc;
+        raven()->mon_Exec("kbd flash");
+        *(raven()->mon_fgetchar) = mon_getc_old;
+        *(raven()->mon_fputchar) = mon_putc_old;
+        delay(2000);
+        Cconws(CLEAR_HOME "\r\n");
+        raven()->sys_reset(2);
+        delay(500);
+    }
+    display_restore();
+    displayFormCpu();
 }

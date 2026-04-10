@@ -28,13 +28,14 @@
 #include "f_nvram.h"
 #include "f_nova.h"
 #include "f_cpu.h"
+#include "f_debug.h"
 #include "f_exit.h"
 #include "misc.h"
 #include "../rvbios.h"
 
 /*--- Defines ---*/
 
-#define NUM_MENU_ENTRIES 7
+#define NUM_MENU_ENTRIES 9
 
 enum {
 	STATE_MENU=0,		/* Selecting a form in left menu */
@@ -60,19 +61,21 @@ static const form_menu_t form_menu_empty={
 };
 
 static const menu_t menu[NUM_MENU_ENTRIES]={
-	{"NVRAM ",	    &form_menu_nvram,       &form_setting_nvram[0]},
-	{"",	        &form_menu_empty,       NULL},
 	{"SYSTEM",	    &form_menu_cpu,         &form_setting_cpu[0]},
 	{"",	        &form_menu_empty,       NULL},
 	{"NOVA  ",      &form_menu_nova,       	&form_setting_nova[0]},
 	{"",	        &form_menu_empty,       NULL},	
-	{"Exit  ",	    &form_menu_exit,        &form_setting_exit[0]},
+	{"NVRAM ",	    &form_menu_nvram,       &form_setting_nvram[0]},
+	{"",	        &form_menu_empty,       NULL},
+	{"DEBUG ",	    &form_menu_debug,       &form_setting_debug[0]},
+    {"",	        &form_menu_empty,       NULL},
+	{"EXIT  ",	    &form_menu_exit,        &form_setting_exit[0]},
 };
 
-static int stat_refresh = 1;
+int setup_state = STATE_MENU;
+int stat_refresh = 1;
 static int menu_refresh = 1;
 static int form_refresh = 1;
-static int setup_state = STATE_MENU;
 static int menu_row = 0;
 
 static int SCR_W = 80;
@@ -91,7 +94,6 @@ static void setup_menu(unsigned long key_pressed);
 static void setup_form_select(unsigned long key_pressed);
 static void setup_list_select(unsigned long key_pressed);
 static void setup_updown_select(unsigned long key_pressed);
-
 
 extern void reset_warm(void);
 extern void reset_cold(void);
@@ -212,7 +214,20 @@ int setup_main(void)
 	return 1;
 }
 
-static void display_banner(void)
+extern void font_setsize(uint16_t idx);
+void display_restore(void) {
+    Cconws(C_OFF);
+	vt_setFgColor(COL_BLACK);
+	vt_setBgColor(COL_WHITE);
+    Cconws(CLEAR_HOME "\r\n");
+    font_setsize(2);
+    Cconws(CLEAR_HOME "\r\n");
+    display_banner();
+    display_menu();
+    display_status();
+}
+
+void display_banner(void)
 {
     int i;
 
@@ -226,8 +241,10 @@ static void display_banner(void)
 	vt_setBgColor(COL_BANNER_BG);
     vt_setCursorPos(0, 0);
     Cconws(DEL_EOL);
+    /*
 	vt_setCursorPos((SCR_W-8)>>1,0);
 	Cconws("RAVEN060");
+    */
 
     /* bottom banner */
 	vt_setFgColor(COL_BANNER_FG);
@@ -246,7 +263,7 @@ static void display_banner(void)
     }
 }
 
-static void display_menu(void)
+void display_menu(void)
 {
 	int i;
     for (i=0; i<NUM_MENU_ENTRIES; i++) {
@@ -266,7 +283,7 @@ static void display_menu(void)
     }
 }
 
-static void display_status(void)
+void display_status(void)
 {
 	vt_setFgColor(COL_BANNER_FG);
 	vt_setBgColor(COL_BANNER_BG);

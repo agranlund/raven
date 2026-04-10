@@ -20,9 +20,10 @@ OBJS = \
 	setup/setup.o \
 	setup/form_vt.o \
 	setup/misc.o \
-	setup/f_nvram.o \
 	setup/f_cpu.o \
 	setup/f_nova.o \
+	setup/f_nvram.o \
+	setup/f_debug.o \
 	setup/f_exit.o \
 	../rvnova/loader/rvnova.o \
 	#

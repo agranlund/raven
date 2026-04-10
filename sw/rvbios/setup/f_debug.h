@@ -1,9 +1,8 @@
 /*
-	Setup GUI
-	Misc functions
+	CPU settings
 
 	Copyright (C) 2024	Anders Granlund
-	Copyright (C) 2009	Patrice Mandin
+    Copyright (C) 2009	Patrice Mandin
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,12 +19,18 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef SETUP_H
-#define SETUP_H 1
+#ifndef FORM_DEBUG_H
+#define FORM_DEBUG_H
 
-extern int setup_main(void);
-extern long get200hz(void);
+/*--- Variables ---*/
 
-extern void display_restore(void);
+extern const form_menu_t form_menu_debug;
+extern form_setting_t form_setting_debug[];
 
-#endif /* SETUP_H */
+/*--- Functions prototypes ---*/
+
+void displayFormDebug(void);
+
+void updateFormDebug(void);
+
+#endif /* FORM_DEBUG_H */
