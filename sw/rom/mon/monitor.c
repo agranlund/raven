@@ -376,8 +376,8 @@ static void cmdKbd(int args, char* argv[])
                 uint32_t ipl = cpu_SetIPL(7);
                 uint8_t* data = (uint8_t*)0x00600000;
                 uint32_t size = getSerialFile(data);
-                size = (size + 1023) & ~1023;
-                if (size > 0) {
+                if (size >= 1024) {
+                    size = (size + 1023) & ~1023;
                     ikbd_Flash(data, size);
                 }
                 cpu_SetIPL(ipl);
@@ -403,7 +403,7 @@ static void cmdFlash(int args, char* argv[])
     uint8_t* data = (uint8_t*)0x00600000;
     uint32_t size = getSerialFile(data);
     size = (size + 3) & ~3;
-    if (size > 0) {
+    if (size >= 1024) {
         flash_Program(data, size);
     }
     cpu_SetIPL(ipl);
