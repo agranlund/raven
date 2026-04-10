@@ -444,7 +444,7 @@ void ikbd_Flash(uint8_t* data, uint32_t size)
 
     // wait for ckbd to reset and reconnect
     printf("\ndone\n");
-    sys_Delay(1000);
-    ikbd_ConnectEx(IKBD_BAUD_7812, ikbd_baud);
-    ikbd_Info();
+    sys_Delay(2000);
+    extern void start();
+    start();
 }
