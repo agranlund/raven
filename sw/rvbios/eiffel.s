@@ -83,7 +83,7 @@ statvec_new:
     move.w  5(a0),eiffel_temp+6+4
     rts
     ; ckbd version info
-.2: cmp.b   #0x2C,(a0)
+.2: cmp.b   #0x2B,(a0)
     bne.b   .3
     move.l  1(a0),eiffel_temp+12
     move.w  5(a0),eiffel_temp+12+4
@@ -91,6 +91,8 @@ statvec_new:
 
 
 ;----------------------------------------------------------
+EiffelGetTempString:
+    dc.b 0x03, 0x00
 InstallEiffel:
 	movem.l	d0-d1/a0,-(sp)		; save registers
 	move.w	sr,-(sp)			; disable interrupts
@@ -126,6 +128,12 @@ ENDIF
 	jsr		Setcookie
 
 	move.w	(sp)+,sr			; restore interrupts
+
+    move.l  #EiffelGetTempString,-(sp)
+    move.w  #0,-(sp)
+    move.w  #25,-(sp)
+    trap    #14
+    addq.l  #8,sp
+
 	movem.l	(sp)+,d0-d1/a0		; restore registers
 	rts
-
