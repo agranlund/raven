@@ -12,7 +12,7 @@
 #endif
 
 #define MFP_BITMASK     ((1 << MFP_BIT_CLK) | (1 << MFP_BIT_DTA))
-#define I2C_DELAY       10
+#define I2C_DELAY       20
 
 bool i2cLocked __attribute__((aligned(4)));
 unsigned char i2cOldMfp07;
