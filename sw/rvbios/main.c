@@ -37,16 +37,18 @@
 /*----------------------------------------
 	Constants
 ----------------------------------------*/
-#define C__MCH_RAVEN    0x00070000UL
+#define C__MCH_RAVEN        0x00070000UL
 
-#define COL_FG_TOS		COL_BLACK
-#define COL_BG_TOS		COL_WHITE
+#define COL_FG_TOS		    COL_BLACK
+#define COL_BG_TOS		    COL_WHITE
 
-#define BOOTSCREEN_HELP 1
-#define BOOTSCREEN_NAME 1
+#define BOOTSCREEN_HELP     1
+#define BOOTSCREEN_NAME     1
 
-#define FONTSIZE_8x8     1
-#define FONTSIZE_8x16    2
+#define FONTSIZE_8x8        1
+#define FONTSIZE_8x16       2
+
+#define SETUP_ONLY          0
 
 
 
@@ -329,14 +331,13 @@ static bool is_tsr_only(void) {
     if ( *((uint32_t*)(tos + 0x2c)) == 0x45544F53UL) {  /* 'ETOS' */
         return false;
     }
-
     return true;
 }
 
 long supermain()
 {
     uint16_t ipl;
-    bool tsr_only;
+    bool tsr_only = false;
 
     /* fetch pointer rom bios */
 	if (raven()->magic != C_RAVN) {
@@ -344,7 +345,9 @@ long supermain()
 	}
 
     /* no boot logo or setup for soft-loaded os's */
+#if !SETUP_ONLY
     tsr_only = is_tsr_only();
+#endif
 
 	/* boot screen */
     if (!tsr_only) {
@@ -355,6 +358,7 @@ long supermain()
     }
 
 	/* install xbios extensions */
+#if !SETUP_ONLY    
 	ipl = ipl_set(0x0700);
 	InitTime();
 	InstallTrap14();
@@ -363,6 +367,7 @@ long supermain()
     raven()->sys_installsp(0L);
     cache_flush();
 	ipl_set(ipl);
+#endif    
 
     /* setup screen */
     if (!tsr_only) {
