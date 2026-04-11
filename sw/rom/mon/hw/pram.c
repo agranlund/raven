@@ -167,6 +167,8 @@ uint16_t pram_Get(uint8_t idx) {
 }
 
 void pram_Set(uint8_t idx, uint16_t val) {
-    pram_Write(idx, val);
-    pram_cache[idx] = val;
+    if (pram_cache[idx] != val) {
+        pram_Write(idx, val);
+        pram_cache[idx] = val;
+    }
 }
