@@ -1,13 +1,16 @@
 Raven.A1
 Hardware and software binary release
 
-xxxxxx:
-      
+260412:
+
   rom:
     - rvbios is now in rom.
       (old c:\auto\rvbios.prg is automatically deleted)
-    - improved flash init and detect
-    - wip pram area in flash (expanded from old 4kb to 16kb)
+    - improved flash detection and init
+    - wip pram support in flash
+    - initial com1 baudrate setting at pram location 1
+    - ability to flash ROM from bios setup screen
+    - ability to flash CKBD firmware from bios setup screen
 
   firmware: (rom programmer)
-    - support roms with 16kb pram area
+    - support roms with 16kb pram area (was 4kb)
