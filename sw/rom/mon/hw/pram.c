@@ -39,6 +39,45 @@ static bool pram_decode(uint32_t entry, uint8_t* idx_out, uint16_t* val_out) {
     return true;
 }
 
+bool pram_GetIfExist(uint8_t idx, uint16_t* val) {
+    bool ret = false;
+    if (pram_vars_start && pram_vars_size) {
+        uint32_t* ptr = (uint32_t*)pram_vars_start;
+        for (int i=0; i<(pram_vars_size>>2); i++) {
+            uint8_t eidx; uint16_t eval;
+            if (!pram_decode(ptr[i], &eidx, &eval)) {
+                break;
+            }
+            if (eidx == idx) {
+                ret = true;
+                if (val) {
+                    *val = eval;
+                }
+            }
+        }
+    }
+    return ret;
+}
+
+void pram_Capacity(uint32_t* total, uint32_t* used) {
+    uint32_t count = 0;
+    if (pram_vars_start && pram_vars_size) {
+        uint32_t* ptr = (uint32_t*)pram_vars_start;
+        for (; count<(pram_vars_size>>2); count++) {
+            uint8_t eidx; uint16_t eval;
+            if (!pram_decode(ptr[count], &eidx, &eval)) {
+                break;
+            }
+        }
+    }
+    if (used) {
+        *used = (count << 2) + 4;
+    }
+    if (total) {
+        *total = pram_vars_size + 4;
+    }
+}
+
 void pram_Clear(void) {
     memset(pram_cache, 0, 256 * 2);
     if (pram_start && pram_size) {
@@ -61,7 +100,7 @@ static void pram_WriteInternal(uint8_t idx, uint16_t val) {
     }
 }
 
-static void pram_Compact(void) {
+void pram_Compact(void) {
     if (pram_start && pram_size) {
         uint32_t magic = PRAM_MAGIC;
         flash_SectorErase((uint32_t*)pram_start, pram_size);

@@ -6,6 +6,7 @@
 #include "hw/ikbd.h"
 #include "hw/vga.h"
 #include "hw/flash.h"
+#include "hw/pram.h"
 #include "monitor.h"
 #include "config.h"
 #include "m68k_disasm.h"
@@ -394,6 +395,62 @@ static void cmdKbd(int args, char* argv[])
     }
 }
 
+
+//-----------------------------------------------------------------------
+// pram
+//-----------------------------------------------------------------------
+static void cmdPram(int args, char* argv[])
+{
+    bool print_used = false;
+    bool print_help = false;
+
+    if (args < 2) {
+        print_help = true;
+        print_used = true;
+    } else {
+        if (strcmp(argv[1], "list") == 0) {
+            uint16_t val;
+            for (int i=1; i<255; i++) {
+                if (pram_GetIfExist(i, &val)) {
+                    printf("%02x %04x\n", i, val);
+                }
+            }
+            print_used = true;
+        } else if ((strcmp(argv[1], "get") == 0) && (args > 2)) {
+            uint8_t idx = strtoi(argv[2]);
+            printf("%02x %04x\n", idx, pram_Get(idx));
+        } else if ((strcmp(argv[1], "set") == 0) && (args > 3)){
+            uint8_t idx = strtoi(argv[2]);
+            uint16_t val = strtoi(argv[3]);
+            pram_Set(idx, val);
+        } else if (strcmp(argv[1], "compact") == 0) {
+            pram_Compact();
+            print_used = true;
+        } else if (strcmp(argv[1], "clear") == 0) {
+            pram_Clear();
+            print_used = true;
+        }
+    }
+
+    if (print_used) {
+        uint32_t total, used;
+        pram_Capacity(&total, &used);
+        printf("Used %d / %d\n", used, total);
+    }
+
+    if (print_help) {
+        rvtoc_t* toc = sys_GetToc(RV_TOC__CFG);
+        printf("Addr %08x\n", toc ? toc->start : 0);
+        puts(   "Commands:\n"
+                "  pram get [idx]\n"
+                "  pram set [idx] [val]\n"
+                "  pram list\n"
+                "  pram compact\n"
+                "  pram clear");
+
+    }
+}
+
 //-----------------------------------------------------------------------
 // flash
 //-----------------------------------------------------------------------
@@ -616,28 +673,29 @@ static void cmdRegs(int args, char* argv[]) {
 static void showHelp()
 {
     puts("Commands:\n"
-         "  x                 : exit monitor\n"
-         "  r                 : show registers\n"
-         "  pb [addr] {val}   : peek/poke byte\n"
-         "  pw [addr] {val}   : peek/poke word\n"
-         "  pl [addr] {val}   : peek/poke long\n"
-         "  d  [addr] {len}   : dump memory\n"
-         "  a  [addr] {len}   : disassemble");
+         "  x                    : exit monitor\n"
+         "  r                    : show registers\n"
+         "  pb    [addr] {val}   : peek/poke byte\n"
+         "  pw    [addr] {val}   : peek/poke word\n"
+         "  pl    [addr] {val}   : peek/poke long\n"
+         "  d     [addr] {len}   : dump memory\n"
+         "  a     [addr] {len}   : disassemble");
 #if 0         
     puts(
          "  b  {addr}         : breakpoint");
 #endif         
     if (detectTos()) { puts(
-         "  c  {id}   {val}   : cookie (TOS)");
+         "  c     {id} {val}     : cookie (TOS)");
     }
     puts(
-         "  rtc {clear/reset} : dump/clear/reset rtc\n"
-         "  vga {cmd} {opt}   : screen commands\n"
-         "  kbd {cmd} {opt}   : ikbd commands\n"
-         "  cfg {opt} {val}   : list/get/set option\n"
-         "  run [addr]        : call program at address\n"
-         "  flash             : flash rom image over serial\n"
-         "  reset             : reset computer");
+         "  rtc   {clear/reset}  : dump/clear/reset rtc\n"
+         "  pram  {cmd} {opt}    : pram commands\n"
+         "  vga   {cmd} {opt}    : screen commands\n"
+         "  kbd   {cmd} {opt}    : ikbd commands\n"
+         "  cfg   {opt} {val}    : list/get/set option\n"
+         "  run   [addr]         : call program at address\n"
+         "  flash                : flash rom image over serial\n"
+         "  reset                : reset computer");
 }
 
 
@@ -698,6 +756,7 @@ uint16_t mon_Parse()
         else if (strcmp(argv[0], "cfg") == 0)       { cmdCfg(args, argv); }
         else if (strcmp(argv[0], "vga") == 0)       { cmdVga(args, argv); }
         else if (strcmp(argv[0], "kbd") == 0)       { cmdKbd(args, argv); }
+        else if (strcmp(argv[0], "pram") == 0)      { cmdPram(args, argv); }
         else if (strcmp(argv[0], "run") == 0)       { cmdRun(args, argv); }
         else if (strncmp(argv[0], "S0", 2) == 0)    { cmdSrec(args, argv); }
         else                                        { showHelp(); }
