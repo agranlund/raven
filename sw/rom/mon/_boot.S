@@ -1,10 +1,7 @@
     #include "raven.h"
     #include "hw/uart.h"
 
-//
-// todo: settings stored in rom so they can be reflashed without recompiling
-//       or from motherboard jumper on rev.A2 boards
-//
+// todo: grab baudrate from pram, with 115200 as fallback
 
 //    #define UART_BAUDR      921600
 //    #define UART_BAUDR      460800
@@ -53,8 +50,8 @@ rom_toc:
     .dcb.l  1,0x00000000
 
     .dcb.l  1,0x5F434647    // '_CFG'
-    .dcb.l  1,__config_start
-    .dcb.l  1,__config_size
+    .dcb.l  1,__pram_start
+    .dcb.l  1,__pram_size
     .dcb.l  1,0x00000000
 
 
@@ -72,9 +69,8 @@ rom_export:
 // ----------------------------------------------------------
     .section    .config
 rom_config:
-
-    //.dcb.l   255,0xDEADBEEF
-
+    // filled by linker script
+  
 
 // ----------------------------------------------------------
 // 0x40002000

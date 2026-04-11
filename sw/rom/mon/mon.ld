@@ -8,13 +8,13 @@ ENTRY(start)
 
 MEMORY
 {
-    ROM(RX) : ORIGIN = 0x40000000, LENGTH = 256k
+    ROM(RX) : ORIGIN = 0x40000000, LENGTH = 512k
     RAM(RW) : ORIGIN = 0x00501000, LENGTH = 0x000ff000
 }
 
-__export_size = __export_end - __export_start;
-__config_size = __config_end - __config_start;
-__stack_size  = 1024 * 16;
+__export_size   = __export_end - __export_start;
+__stack_size    = 1024 * 16;
+__pram_size     = 1024 * 16;
 
 SECTIONS
 {
@@ -30,12 +30,19 @@ SECTIONS
         __toc_end = .;
         __export_start = .;
         KEEP(*(.export))                    /* function exports */
-        . = 0x1000;
+        . = 0x1000;                         /* size can be adjusted, we don't need all */
         __export_end = .;
-        __config_start = .;
-        KEEP(*(.config))                    /* configs stored in ROM */
-        . = 0x2000;
-        __config_end = .;
+
+        . = ALIGN(4);
+        hw/motorola_sp.o(.text* .rodata*)   /* fills up the space between fixed-location areas */
+
+        . = ALIGN(__pram_size);
+        __pram_start = .;
+        KEEP(*(.pram))                      /* pram stored in flash */
+        FILL(0xFF);
+        . = __pram_start + __pram_size;
+        __pram_end = .;
+
         __code_start = .;
         *(.text* .rodata* .eh_frame*)       /* text and text-like things */
         . = ALIGN(16);

@@ -3,6 +3,9 @@
 #include "config.h"
 #include "hw/rtc.h"
 
+// todo: refactor to use pram instead
+// todo: simplify cfg_entry_t struct
+
 #define CFG_VERSION_NUM     1
 #define CFG_VERSION_ADDR    0x3F
 

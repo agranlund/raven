@@ -62,17 +62,6 @@ typedef struct
 } rvtoc_t;
 
 /*--------------------------------------------------------------------------------*/
-#define RV_CFG_ROOT         0x5F434647UL  /* '_CFG' */
-
-typedef struct
-{
-    uint32_t id;
-    uint32_t size;
-    /* data follows */
-} rvcfg_t;
-
-
-/*--------------------------------------------------------------------------------*/
 typedef struct
 {
     uint32_t    reset_magic[4];
@@ -93,8 +82,7 @@ typedef struct
     uint32_t    magic;
     uint32_t    version;
     uint32_t    variant;
-    uint32_t    reserved0000[2];
-    rvcfg_t*    cfgptr;
+    uint32_t    reserved0000[3];
     rvtoc_t*    tocptr;
     uint32_t    _RVAPI (*chipset)(void);
 

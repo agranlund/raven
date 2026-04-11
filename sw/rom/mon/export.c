@@ -41,7 +41,7 @@ static void b_i2c_Stop() { i2c_Stop(); }
 static uint32_t b_i2c_Read(uint32_t ack) { return (uint32_t) i2c_Read((uint8_t)ack); }
 static uint32_t b_i2c_Write(uint32_t val) { return (uint32_t) i2c_Write((uint8_t)val); }
 
-static uint32_t b_flash_Identify(void) { return flash_Identify(); }
+static uint32_t b_flash_Identify(void) { return flash_Id(); }
 static uint32_t b_flash_Program(void* data, uint32_t size) { return flash_Program(data, size) ? 1 : 0; }
 
 static void b_vga_SetMode(uint32_t mode) { vga_SetMode((uint16_t)mode); }
@@ -124,7 +124,7 @@ static uint32_t b_sys_poweroff(uint32_t arg) {
 }
 
 extern uint8_t __toc_start;
-extern uint8_t __config_start;
+extern uint8_t __pram_start;
 
 const raven_t ravenBios __attribute__((section(".export"))) =
 {
@@ -132,9 +132,8 @@ const raven_t ravenBios __attribute__((section(".export"))) =
     C_RAVN,                     // magic
     VERSION,                    // rom version
     REV,
-    {0,0},
-    (rvcfg_t*)&__toc_start,
-    (rvtoc_t*)&__config_start,
+    {0,0,0},
+    (rvtoc_t*)&__toc_start,
     sys_Chipset,                  // chipset info
 //0x0020
     b_dbg_GPI,

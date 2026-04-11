@@ -8,6 +8,7 @@
 #include "hw/i2c.h"
 #include "hw/rtc.h"
 #include "hw/flash.h"
+#include "hw/pram.h"
 #include "monitor.h"
 #include "config.h"
 #include "atari.h"
@@ -128,6 +129,13 @@ bool sys_Init()
 
     initprint(safemode ? "Safemode" : coldboot ? "Coldboot" : "Warmboot");
 
+    initprint("InitFlash");
+    flash_Init();
+    printf("%s %08x\n", flash_Name(), flash_Id());
+
+    initprint("InitPram");
+    pram_Init();
+
     initprint("InitHeap");
     mem_Init();
 
@@ -196,19 +204,6 @@ rvtoc_t* sys_GetToc(uint32_t id) {
             return toc;
         }
         toc++;
-    }
-    return 0;
-}
-
-//-----------------------------------------------------------------------
-rvcfg_t* sys_GetCfg(uint32_t id) {
-    extern uint8_t __config_start;
-    rvcfg_t* cfg = (rvcfg_t*)&__config_start;
-    while(cfg) {
-        if ((cfg->id == id) || (id == 0)) {
-            return cfg;
-        }
-        cfg = (rvcfg_t*)(cfg->size + (uint32_t)cfg);
     }
     return 0;
 }

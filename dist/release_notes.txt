@@ -3,6 +3,11 @@ Hardware and software binary release
 
 xxxxxx:
       
-  rom:  rvbios is now in rom.
-        the old c:\auto\rvbios.prg is automatically deleted.
+  rom:
+    - rvbios is now in rom.
+      (old c:\auto\rvbios.prg is automatically deleted)
+    - improved flash init and detect
+    - wip pram area in flash (expanded from old 4kb to 16kb)
 
+  firmware: (rom programmer)
+    - support roms with 16kb pram area
