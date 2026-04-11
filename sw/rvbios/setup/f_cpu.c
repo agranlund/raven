@@ -413,7 +413,9 @@ static void funcUpdateRom(void) {
     Cconws("This will flash a new system ROM over serial port COM1.\r\n");
     Cconws("Press Y if you want to proceed. ");
 
+    Cconws(C_ON);
     key = mon_getc();
+    Cconws(C_OFF);
     if ((key == 'Y') || (key == 'y')) {
         Cconws("\r\n\r\n");
         *(raven()->mon_fgetchar) = mon_getc;
@@ -437,7 +439,10 @@ static void funcUpdateKbd(void) {
     Cconws("** WARNING **\r\n");
     Cconws("This will flash a new CKBD firmware over serial port COM1.\r\n");
     Cconws("Press Y if you want to proceed. ");
+
+    Cconws(C_ON);
     key = mon_getc();
+    Cconws(C_OFF);
     if ((key == 'Y') || (key == 'y')) {
         Cconws("\r\n\r\n");
         *(raven()->mon_fgetchar) = mon_getc;
