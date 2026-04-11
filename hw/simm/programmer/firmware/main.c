@@ -8,12 +8,12 @@
 #include "flash.h"
 
 #define APP_NAME    "Raven ROM programmer"
-#define APP_VER     "20250731"
+#define APP_VER     "20260411"
 #define HDR_MAGIC   0x5241564E      /* 'RAVN' */
 #define CFG_MAGIC   0x434F4E46      /* 'CONF' */
 #define GPIO_LED    25
 
-#define cfgbuflen 4096
+#define cfgbuflen (16 * 1024)
 char cfgbuf[cfgbuflen];
 
 #define iobuflen 512
