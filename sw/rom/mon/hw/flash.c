@@ -335,7 +335,7 @@ bool flash_Program(void* data, uint32_t size) {
     printf(" new version....%08lx\n", header_new->version);
     printf(" new size.......%ld Kb\n", size / 1024);
     printf(" device id......%04x:%04x\n", (flash.id>>16), (flash.id & 0xffff));
-    printf(" device name....%04x:%04x\n", flash_Name());
+    printf(" device name....%s\n", flash_Name());
     printf("\n");
     printf("-----------------------------------------------------\n");
     printf(" WARNING: Do not turn off the computer.\n");
