@@ -1,13 +1,12 @@
 #include "sys.h"
 #include "hw/flash.h"
+#include "hw/pram.h"
 
 // log-structured parameter storage on flash eeprom
 
 // todo: get rid of index checksum.
 // each entry is a 32bit atomic write anyway and we can have
 // those extra 8bit for something more useful.
-
-#define PRAM_MAGIC 0x50524D01  /* 'PRM' + version */
 
 static uint32_t pram_start;
 static uint32_t pram_size;

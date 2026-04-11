@@ -1,5 +1,11 @@
 #ifndef _PRAM_H_
 #define _PRAM_H_
+
+#define PRAM_MAGIC 0x50524D01  /* 'PRM' + version */
+
+#define PRAM_IDX_BAUDRATE   0x01
+
+
 #ifndef __ASM__
 #include "sys.h"
 #include "flash.h"
