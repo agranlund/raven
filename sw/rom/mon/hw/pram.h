@@ -9,9 +9,12 @@ void pram_Clear(void);
 
 uint16_t pram_Get(uint8_t idx);
 void pram_Set(uint8_t idx, uint16_t val);
-void pram_Compact(void);
-bool pram_GetIfExist(uint8_t idx, uint16_t* val);
+
+uint32_t param_Remain(void);
 void pram_Capacity(uint32_t* total, uint32_t* used);
+void pram_Compact(void);
+
+bool pram_GetIfExist(uint8_t idx, uint16_t* val);
 
 #endif //!__ASM__
 #endif // _FLASH_H_

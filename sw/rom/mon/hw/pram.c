@@ -1,15 +1,13 @@
 #include "sys.h"
-#include "raven.h"
-#include "hw/cpu.h"
 #include "hw/flash.h"
 
+// log-structured parameter storage on flash eeprom
 
 // todo: get rid of index checksum.
 // each entry is a 32bit atomic write anyway and we can have
 // those extra 8bit for something more useful.
 
-
-#define PRAM_MAGIC      0x50524D01          /* 'PRM' + version */
+#define PRAM_MAGIC 0x50524D01  /* 'PRM' + version */
 
 static uint32_t pram_start;
 static uint32_t pram_size;
@@ -34,8 +32,8 @@ static bool pram_decode(uint32_t entry, uint8_t* idx_out, uint16_t* val_out) {
     if ((uid1 == 0xff) || (uid1 != uid2)) {
         return false;
     }
-    if (idx_out) { *idx_out = uid1; }
-    if (val_out) { *val_out = (uint16_t)(entry >> 16); }
+    *idx_out = uid1;
+    *val_out = (uint16_t)(entry >> 16);
     return true;
 }
 
@@ -50,9 +48,7 @@ bool pram_GetIfExist(uint8_t idx, uint16_t* val) {
             }
             if (eidx == idx) {
                 ret = true;
-                if (val) {
-                    *val = eval;
-                }
+                *val = eval;
             }
         }
     }
@@ -70,12 +66,14 @@ void pram_Capacity(uint32_t* total, uint32_t* used) {
             }
         }
     }
-    if (used) {
-        *used = (count << 2) + 4;
-    }
-    if (total) {
-        *total = pram_vars_size + 4;
-    }
+    *used = (count << 2) + 4;
+    *total = pram_vars_size + 4;
+}
+
+uint32_t param_Remain(void) {
+    uint32_t total, used;
+    pram_Capacity(&total, &used);
+    return total - used;
 }
 
 void pram_Clear(void) {
