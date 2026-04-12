@@ -8,6 +8,7 @@ Hardware and software binary release
       (old c:\auto\rvbios.prg is automatically deleted)
     - improved flash detection and init
     - wip pram support in flash
+    - bios confs now in pram instead of rtc
     - initial com1 baudrate setting at pram location 1
     - ability to flash ROM from bios setup screen
     - ability to flash CKBD firmware from bios setup screen
