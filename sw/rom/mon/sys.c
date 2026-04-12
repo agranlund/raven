@@ -175,8 +175,7 @@ bool sys_Init()
     if (!safemode)
     {
         initprint("IkbdConnect");
-        uint8_t ikbdcfgbaud = 7 & ((uint8_t) cfg_GetValue(cfg_Find("ikbd_baud")));
-        ikbd_ConnectEx(ikbdbaud, ikbdcfgbaud);
+        ikbd_ConnectEx(ikbdbaud, (uint8_t) cfg_GetValue(cfg_Find("ikbd_speed")));
         ikbd_Info();
 
         initprint("InitAtari");

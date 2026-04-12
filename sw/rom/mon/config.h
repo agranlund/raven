@@ -8,15 +8,13 @@ typedef enum
 
 typedef struct
 {
-    const char * name;
-    const char * const * opts;
-    uint8_t flags;
-    uint8_t addr;
-    uint8_t bits;
-    uint8_t shift;
-    uint32_t min;
-    uint32_t max;
-    uint32_t def;
+    const char * name;  // human readable name
+    uint16_t addr;      // address in pram
+    uint16_t mask;      // bitmask at addr
+    uint32_t def;       // default value
+    uint32_t min;       // min value
+    uint32_t max;       // max value
+    uint16_t div;       // divider for storage
 } cfg_entry_t;
 
 extern bool cfg_Init();

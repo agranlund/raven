@@ -6,14 +6,15 @@
 #define IKBD_GPO_PWRLED     0
 #define IKBD_GPO_TP307      1
 
-#define IKBD_BAUD_7812      0
-#define IKBD_BAUD_15625     1
-#define IKBD_BAUD_31250     2
-#define IKBD_BAUD_62500     3
-#define IKBD_BAUD_125000    4
-#define IKBD_BAUD_250000    5
-#define IKBD_BAUD_500000    6
-#define IKBD_BAUD_1000000   7
+#define IKBD_BAUD_AUTO      0
+#define IKBD_BAUD_7812      1
+#define IKBD_BAUD_15625     2
+#define IKBD_BAUD_31250     3
+#define IKBD_BAUD_62500     4
+#define IKBD_BAUD_125000    5
+#define IKBD_BAUD_250000    6
+#define IKBD_BAUD_500000    7
+#define IKBD_BAUD_1000000   8
 
 bool        ikbd_Init();
 uint32_t    ikbd_Connect(uint8_t baud);

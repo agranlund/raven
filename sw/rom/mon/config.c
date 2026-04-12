@@ -1,22 +1,24 @@
 #include "sys.h"
 #include "lib.h"
 #include "config.h"
-#include "hw/rtc.h"
+#include "hw/pram.h"
 
-// todo: refactor to use pram instead
-// todo: simplify cfg_entry_t struct
-
-#define CFG_VERSION_NUM     1
-#define CFG_VERSION_ADDR    0x3F
-
-#define CFG_MAX             32
-#define CFG_ADDR_MIN        0x30
-#define CFG_ADDR_MAX        0x3B
-
+#define CFG_MAX 1024
 static const cfg_entry_t* cfgs[CFG_MAX] __attribute__((aligned(4)));
 static uint32_t cfgcnt __attribute__((aligned(4)));
-static bool cfgvalid __attribute__((aligned(4)));
 
+const cfg_entry_t confs[] = {
+    { "com1_baud",      0x01, 0b1111111111111111, 115200, 2400, 1000000, 100 },
+
+    { "ikbd_speed",     0x04, 0b0000000000001111, 5, 1, 8, 0 },
+
+    // these should be moved to atari specific code
+    { "st_ram_size",    0x40, 0b0000000000000111, 0, 0, 4, 0 },
+    { "st_ram_cache",   0x40, 0b0000000000110000, 0, 0, 3, 0 },
+    { "tt_ram_cache",   0x40, 0b0000000011000000, 0, 0, 3, 0 },
+};
+
+/*
 const cfg_entry_t confs[] = {
     { "st_ram_size",    0,  0, 0x30, 3, 0, 0, 4, 0},
     { "st_ram_cache",   0,  0, 0x31, 2, 0, 0, 3, 0},
@@ -26,59 +28,24 @@ const cfg_entry_t confs[] = {
     { "boot_enable",    0,  0, 0x3B, 1, 0, 0, 1,    1 },
     { "boot_delay",     0,  0, 0x3B, 4, 4, 0, 15,   0 },
 };
+*/
 
-bool cfg_Init()
-{
+bool cfg_Init() {
     cfg_Add(confs, sizeof(confs) / sizeof(confs[0]));
-    cfgvalid = rtc_Valid();
-    if (cfgvalid) {
-        uint8_t ver = 0;
-        rtc_Read(CFG_VERSION_ADDR, (uint8_t*)&ver, 1);
-        if (ver != CFG_VERSION_NUM) {
-            puts("ResetCfg");
-            cfg_Reset();
-        }
-    }
-    return cfgvalid;
+    return true;
 }
 
 void cfg_Reset() {
     for (int i=0; i<cfgcnt; i++) {
-        uint32_t val = cfgs[i]->def;
-        if (cfgs[i]->flags & CFGFLAG_INVERT) {
-            val = ~val;
-        }
-        cfg_SetValue(cfgs[i], val);
+        cfg_SetValue(cfgs[i], cfgs[i]->def);
     }
-    uint8_t ver = CFG_VERSION_NUM;
-    rtc_Write(CFG_VERSION_ADDR, (uint8_t*)&ver, 1);
 }
 
-static uint8_t cfg_GetRtcAddress(const cfg_entry_t* entry) {
-    if (entry && (entry->addr >= CFG_ADDR_MIN) && (entry->addr <= CFG_ADDR_MAX))
-        return entry->addr;
-    return 0xff;
-}
-
-static uint32_t cfg_GetMask(const cfg_entry_t* entry) {
-    uint32_t mask = 0;
-    for (int i=0; i<entry->bits; i++) {
-        mask <<= 1; mask |= 1;
-    }
-    return mask;
-}
-
-void cfg_Add(const cfg_entry_t* cfg, int num)
-{
-    for (int i=0; i<num; i++) {
-        // verify config
-        const cfg_entry_t* cfgnew = &cfg[i];
-        if (cfg_GetRtcAddress(cfgnew) == 0xff) {
-            continue;
-        }
-        // look for existing entry with same name
+void cfg_Add(const cfg_entry_t* cfg, int num) {
+    for (short i=0; i<num; i++) {
         const cfg_entry_t** found = 0;
-        for (int j=0; j<cfgcnt && !found; j++) {
+        const cfg_entry_t* cfgnew = &cfg[i];
+        for (short j=0; j<cfgcnt && !found; j++) {
             if (strcmp(cfgs[j]->name, cfgnew->name) == 0) {
                 found = &cfgs[j];
             }
@@ -89,7 +56,6 @@ void cfg_Add(const cfg_entry_t* cfg, int num)
         } else if (cfgcnt < CFG_MAX) {
             cfgs[cfgcnt] = cfgnew;
             cfgcnt++;
-        } else {
         }
     }
 }
@@ -98,66 +64,56 @@ int cfg_Num() {
     return (int)cfgcnt;
 }
 
+static uint16_t mask_offset(uint16_t mask) {
+    for (uint16_t i = 0; i < 16; i++) {
+        if (mask & (1 << i)) { return i; }
+    }
+    return 16;
+}
+
+/*
+static uint16_t mask_size(uint16_t mask) {
+    uint16_t size = 0;
+    for (uint16_t i = mask_offset(mask); i < 16; i++, size++) {
+        if ((mask & (1 << i)) == 0) { break; }
+    } return size;
+}
+*/
+
 const cfg_entry_t* cfg_Get(int idx) {
     return ((idx >= 0) && (idx < cfgcnt)) ? cfgs[idx] : 0;
 }
 
-const cfg_entry_t* cfg_Find(const char* name)
-{
-    const cfg_entry_t* found = 0;
-    for (int i=0; i<cfgcnt && !found; i++) {
+const cfg_entry_t* cfg_Find(const char* name) {
+    for (short i=0; i<cfgcnt; i++) {
         if (strcmp(cfgs[i]->name, name) == 0) {
-            found = cfgs[i];
-        }
-    }
-    return found;
-}
-
-uint32_t cfg_GetValue(const cfg_entry_t* entry)
-{
-    if (entry) {
-        if (!cfgvalid) {
-            return entry->def;
-        } else {
-            uint8_t siz = (entry->bits + 7) >> 3;
-            if (siz > 0) {
-                uint32_t v = 0;
-                rtc_Read(cfg_GetRtcAddress(entry), (uint8_t*)&v, siz);
-                v >>= (((4-siz) << 3) + entry->shift);
-                if (entry->flags & CFGFLAG_INVERT) {
-                    v = ~v;
-                }
-                v &= cfg_GetMask(entry);
-                return v;
-            }
+            return cfgs[i];
         }
     }
     return 0;
 }
 
-void cfg_SetValue(const cfg_entry_t* entry, uint32_t val)
-{
-    if (cfgvalid && entry) {
+uint32_t cfg_GetValue(const cfg_entry_t* entry) {
+    uint32_t v32 = 0;
+    if (entry) {
+        uint8_t addr = entry->addr & 0xff;
+        uint16_t v16 = pram_Get(addr);
+        v32 = (uint32_t)((v16 & entry->mask) >> mask_offset(entry->mask));
+        if (entry->div) { v32 *= entry->div; }
+        if (v32 == 0) { v32 = entry->def; }
+    }
+    return v32;
+}
 
-        if (val < 0)
-            val = 0;
-        if (val > entry->max)
-            val = entry->max;
-        if (entry->flags & CFGFLAG_INVERT)
-            val = ~val;
-
-        uint8_t a = cfg_GetRtcAddress(entry);
-        if (a != 0xff) {
-            uint8_t siz = (entry->bits + 7) >> 3;
-            if (siz > 0) {
-                uint32_t v = 0;
-                rtc_Read(a, (uint8_t*)&v, siz);
-                uint32_t s = ((4-siz) << 3) + entry->shift;
-                uint32_t m = cfg_GetMask(entry);
-                v &= ~(m << s);
-                v |= ((val & m) << s);
-                rtc_Write(a, (uint8_t*)&v, siz);
-            }
-        }
+void cfg_SetValue(const cfg_entry_t* entry, uint32_t val) {
+    if (entry) {
+        if (val < entry->min) { val = entry->min; }
+        if (entry->max && (val > entry->max)) { val = entry->max; }
+        if (val == entry->def) { val = 0; }
+        if (entry->div) { val /= entry->div; }
+        uint8_t addr = (entry->addr & 0xff);
+        uint16_t v16 = (uint16_t)val;
+        v16 = (v16 << mask_offset(entry->mask)) & entry->mask;
+        pram_Set(addr, v16 | (pram_Get(addr) & ~entry->mask));
     }
 }

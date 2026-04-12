@@ -289,6 +289,7 @@ bool atari_Init()
         return true;
     }
 
+/*    
     if (cfg_GetValue(cfg_Find("boot_enable")) == 0) {
         puts("TOS boot disabled");
         return true;
@@ -308,6 +309,7 @@ bool atari_Init()
             bootdelay--;
         }
     }
+*/
 
     initprint("InitVga");
     uint32_t cacr = cpu_CacheOn();

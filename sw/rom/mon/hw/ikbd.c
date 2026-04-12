@@ -22,16 +22,21 @@ typedef struct
     uint32_t speed;
 } ikbd_baud_regs_t;
 
-const ikbd_baud_regs_t ikbd_baud_regs[8] =
+#define IKBD_BAUD_MIN IKBD_BAUD_7812
+#define IKBD_BAUD_MAX IKBD_BAUD_1000000
+
+
+const ikbd_baud_regs_t ikbd_baud_regs[9] =
 {  //  dlm  dll  dld
-    { 0x00, 192, 0x00,    7812 },
-    { 0x00,  96, 0x00,   15625 },
-    { 0x00,  48, 0x00,   31250 },
-    { 0x00,  24, 0x00,   62500 },
-    { 0x00,  12, 0x00,  125000 },
-    { 0x00,   6, 0x00,  250000 },
-    { 0x00,   3, 0x00,  500000 },
-    { 0x00,   1, 0x08, 1000000 },
+    { 0x00, 192, 0x00,    7812 },   // <- unused zero entry
+    { 0x00, 192, 0x00,    7812 },   // x1
+    { 0x00,  96, 0x00,   15625 },   // x2
+    { 0x00,  48, 0x00,   31250 },   // x4
+    { 0x00,  24, 0x00,   62500 },   // x8
+    { 0x00,  12, 0x00,  125000 },   // x16
+    { 0x00,   6, 0x00,  250000 },   // x32
+    { 0x00,   3, 0x00,  500000 },   // x64
+    { 0x00,   1, 0x08, 1000000 },   // x128
 };
 
 static uint8_t ikbd_baud;       // according to table above
@@ -45,12 +50,17 @@ static inline uint32_t eiffel_version() {
     return ((ikbd_version & 0xf0) == 0) ? ikbd_version : 0;
 }
 
+const ikbd_baud_regs_t* ikbd_GetRegs(uint8_t baud) {
+    if (baud < IKBD_BAUD_MIN) { baud = IKBD_BAUD_MIN; }
+    if (baud > IKBD_BAUD_MAX) { baud = IKBD_BAUD_MAX; }
+    return &ikbd_baud_regs[baud];
+}
+
 bool ikbd_Init()
 {
-    ikbd_version = 0;
-    ikbd_baud = IKBD_BAUD_7812;
-
+    const ikbd_baud_regs_t* regs = ikbd_GetRegs(ikbd_baud);
     volatile uint8_t* uart1 = (volatile uint8_t*) RV_PADDR_UART1;
+
     uart1[UART_LCR] = 0x00;         // access normal regs
     uart1[UART_IER] = 0x00;         // disable interrupts
     uart1[UART_FCR] = 0x01;         // fifo enabled
@@ -62,9 +72,9 @@ bool ikbd_Init()
     uart1[UART_LCR] = 0xBF;         // access efr
     uart1[UART_EFR] = 0x10;         // enable access
     uart1[UART_LCR] = 0x80;         // access baud regs
-    uart1[UART_DLM] = ikbd_baud_regs[ikbd_baud].dlm;
-    uart1[UART_DLL] = ikbd_baud_regs[ikbd_baud].dll;
-    uart1[UART_DLD] = ikbd_baud_regs[ikbd_baud].dld;
+    uart1[UART_DLM] = regs->dlm;
+    uart1[UART_DLL] = regs->dll;
+    uart1[UART_DLD] = regs->dld;
     uart1[UART_MCR] |= (1 << 6);    // enable tcr/tlr access
     uart1[UART_TCR] = 0x00;         // rx fifo halt/resume
     uart1[UART_TLR] = 0x11;         // rx/tx fifo trigger level (4/4)
@@ -77,9 +87,11 @@ bool ikbd_Init()
 
 uint8_t ikbd_SetBaud(uint8_t baud)
 {
-    baud &= 0x7;
     uint8_t oldbaud = ikbd_baud;
+    if (baud < IKBD_BAUD_MIN) { baud = IKBD_BAUD_MIN; }
+    if (baud > IKBD_BAUD_MAX) { baud = IKBD_BAUD_MAX; }
     if (baud != oldbaud) {
+        const ikbd_baud_regs_t* regs = ikbd_GetRegs(baud);
         volatile uint8_t* uart1 = (volatile uint8_t*) RV_PADDR_UART1;
         uint8_t ier = uart1[UART_IER];  // save interrupt register
         uart1[UART_IER] = 0x00;         // disable interrupts
@@ -89,9 +101,9 @@ uint8_t ikbd_SetBaud(uint8_t baud)
         uart1[UART_LCR] = 0xBF;         // access efr
         uart1[UART_EFR] = 0x10;         // enable dld access
         uart1[UART_LCR] = 0x80;         // access baud regs
-        uart1[UART_DLM] = ikbd_baud_regs[baud].dlm;
-        uart1[UART_DLL] = ikbd_baud_regs[baud].dll;
-        uart1[UART_DLD] = ikbd_baud_regs[baud].dld;
+        uart1[UART_DLM] = regs->dlm;
+        uart1[UART_DLL] = regs->dll;
+        uart1[UART_DLD] = regs->dld;
         uart1[UART_LCR] = 0xBF;         // access efr
         uart1[UART_EFR] = 0x00;         // latch and disable dld access
         uart1[UART_LCR] = 0x03;         // 8 data bits, no parity, 1 stop bit
@@ -270,10 +282,11 @@ uint32_t ikbd_Version(void)
 //-----------------------------------------------------------------------
 uint32_t ikbd_Info(void)
 {
+    const ikbd_baud_regs_t* regs = ikbd_GetRegs(ikbd_baud);
     if (ckbd_version()) {
-        printf("CKBD.%08x %dbps\n", ikbd_version, ikbd_baud_regs[ikbd_baud].speed);
+        printf("CKBD.%08x %dbps\n", ikbd_version, regs->speed);
     } else if (eiffel_version()) {
-        printf("Eiffel %dbps\n", ikbd_baud_regs[ikbd_baud].speed);
+        printf("Eiffel %dbps\n", regs->speed);
     } else {
         printf("Unknown IKBD\n");
     }
@@ -334,6 +347,10 @@ void ikbd_WriteSetting(uint8_t idx, uint8_t val)
     if (!ckbd_version()) {
         printf("requires ckbd controller\n");
     } else {
+        // baudrate is zero-offset on ckbd controller
+        if ((idx == 0xFE) && (val > 0)) {
+            val -= 1;
+        }
         ikbd_send(0x2B);
         ikbd_send(idx);
         ikbd_send(val);

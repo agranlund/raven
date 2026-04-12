@@ -229,6 +229,7 @@ static void cmdCfg(int args, char* argv[])
         for (int i=0; i<cfg_Num(); i++) {
             const cfg_entry_t* c = cfg_Get(i);
             if (c) {
+                /*
                 if (c->opts) {
                     fmt(" %s : %d [", c->name, cfg_GetValue(c));
                     for (int j=0; j<=c->max; j++) {
@@ -236,7 +237,7 @@ static void cmdCfg(int args, char* argv[])
                         if (j < c->max) { fmt(" "); }
                     }
                     fmt("]\n");
-                } else {
+                } else*/ {
                     uint32_t v = cfg_GetValue(c);
                     fmt(" %s : %d [%d-%d]\n", c->name, v, c->min, c->max);
                 }
@@ -249,14 +250,7 @@ static void cmdCfg(int args, char* argv[])
         const cfg_entry_t* e = cfg_Find(argv[1]);
         if (e) {
             uint32_t v = cfg_GetValue(e);
-            uint32_t s = ((e->bits + 7) >> 3);
-            if (s <= 1) {
-                fmt("$%b\n", v);
-            } else if (s <= 2) {
-                fmt("$%w\n", v);
-            } else {
-                fmt("$%l\n", v);
-            }
+            printf("$%x\n", v);
         }
     }
     else {
