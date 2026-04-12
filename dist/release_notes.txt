@@ -7,11 +7,11 @@ Hardware and software binary release
     - rvbios is now in rom.
       (old c:\auto\rvbios.prg is automatically deleted)
     - improved flash detection and init
-    - wip pram support in flash
-    - bios confs now in pram instead of rtc
-    - initial com1 baudrate setting at pram location 1
     - ability to flash ROM from bios setup screen
     - ability to flash CKBD firmware from bios setup screen
+    - monitor can be launched from bios setup screen
+    - wip pram support in flash
+    - bios confs now in pram instead of rtc-nvram
 
   firmware: (rom programmer)
-    - support roms with 16kb pram area (was 4kb)
+    - support rom images with 16kb pram area (was 4kb)
