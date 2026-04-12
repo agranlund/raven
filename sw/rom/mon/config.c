@@ -7,13 +7,24 @@
 static const cfg_entry_t* cfgs[CFG_MAX] __attribute__((aligned(4)));
 static uint32_t cfgcnt __attribute__((aligned(4)));
 
+//
+// todo: maybe rethink how default values are handled.
+//
+// now default is simply what value to swap a pram value 0 for, meaning that
+// if a cfg has a default value of 2 then you get back 2 if the pram value was 0.
+// and the opposite for writes; writing cfg 2 will write pram 0
+//
+// it is impossible to set a cfg to zero if it has specified a default value.
+// can be worked around when designing a cfg but needs to be kept in mind.
+//
+
 const cfg_entry_t confs[] = {
     { "com1_baud",      0x01, 0b1111111111111111, 115200, 2400, 1000000, 100 },
 
     { "ikbd_speed",     0x04, 0b0000000000001111, 5, 1, 8, 0 },
 
     // these should be moved to atari specific code
-    { "st_ram_size",    0x40, 0b0000000000000111, 0, 0, 4, 0 },
+    { "st_ram_size",    0x40, 0b0000000000000111, 4, 1, 4, 0 },
     { "st_ram_cache",   0x40, 0b0000000000110000, 0, 0, 3, 0 },
     { "tt_ram_cache",   0x40, 0b0000000011000000, 0, 0, 3, 0 },
 };
