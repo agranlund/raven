@@ -1,3 +1,68 @@
+# v4.1.0
+
+## Fixes/improvements
+
+### SB mode
+
+- Sound Blaster ADPCM playback is now supported (4, 2.6, and 2-bit modes). This allows for sound effects in Duke Nukem 2 without needing to patch the game. Thanks to [Tube Time (@schlae)'s annotated disassembly of the SB DSP firmware](https://github.com/schlae/sb-firmware/tree/master) and [Torsten Stremlau (@TerrySoba)'s VocTool](https://github.com/TerrySoba/VocTool) for an MIT-licensed C implementation to use as a basis.
+- Sample rates >44100Hz are now supported, for example 45454Hz, the fastest supported by SB16.
+- SBMIDI is supported in addition to MPU-401 in SB mode.
+- Fake ADC (recording) is supported. This records garbage data but should help SB16 sound card detection in some OSes.
+- Fixes bug in passing DMA from BLASTER variable when running pgusinit. Thanks @andreacampanella for the fix in PR #134.
+- More helpful error messages when the BLASTER variable does not match the port/IRQ/DMA settings stored on the PicoGUS.
+
+### MPU-401
+
+- Behavior of the MPU-401 emulation is now much more in line with a real MPU-401: it has a 256 byte ring buffer for MIDI out data, and flow control is done via bit 6 of the status port. Previously, MPU support had no flow control and used a pretty enormous buffer to make up for that. The SRAM savings from the smaller buffer will allow for more PicoGUS features in the future.
+- Sysex delay is now accurately calculated (we were using microseconds, not milliseconds).
+- Re-introduces the song change fix for Frederik Pohl's Gateway.
+
+### CD-ROM
+
+- Read multiple sectors at a time during CD audio playback. Should help with pops/distortion on marginal USB drives.
+- Fixes loading .iso images in Win9x w/ MKEPanasonic driver by handling lead-out.
+- The loaded image is printed after a successful `pgusinit /cdload`.
+
+### General
+
+- SRAM usage is saved across the board by completely eliminating debug prints in release builds, as well as eliminating use of sscanf() type functions. These debug prints didn't go anywhere in release builds (since the UART is taken by MIDI out, and USB by joystick), but they still had runtime overhead in calling printf(), etc.
+
+# v4.0.0
+
+## New features/changes
+
+### Sound Blaster 16
+
+SB mode now emulates a Sound Blaster 16. I had a somewhat-working implementation of the SB16 DSP in late 2024 but was discouraged by poor compatibility in Windows. Recently the ISA analyzer firmware (see below) gave me an easier way to compare PicoGUS to how a real SB16 behaves when detected by Windows and fix the long-standing bugs. Massive thanks to [Artem Vasilev (wbcbz7)](https://github.com/wbcbz7) who implemented proper mixer support and implemented a ton of additional fixes, including support for DMA controller demand mode, all of which made SB16 and SBPro support truly usable.
+
+OPL3 support is provided by the dbopl OPL3 emulator (this was the default OPL3 emulator in DOSbox until somewhat recently). The previous emu8950 OPL2 emulator is still available in Adlib mode, and has some improvements thanks to [Daniel Arnold (Delphius)](https://github.com/RetroLoom): fixes to timer 2 and disabling of some of the optimizations made to emu8950 for rp2040-doom that affect sound quality. Delphius also experimented with Aaron Giles's [ymfm](https://github.com/aaronsgiles/ymfm) for OPL2/OPL3 emulation but it has some issues with RAM and CPU usage so it's not used for now.
+
+Because PicoGUS is an 8-bit card, it does not support high DMA. This is actually a mostly-supported configuration for SB16: several versions could be jumpered to disable high DMA, and the Creative Vibra 16X/16XV does not support high DMA at all. Almost all SB16-supporting software is fine working without high DMA, or configuring the same DMA channel for both low and high DMA.
+
+SB mode also supports Sound Blaster Pro stereo properly and still supports SB 2.0. `pgusinit` can be used to set the DSP version reported by PicoGUS. The Line In channel in the SB mixer also controls the volume of the wavetable header.
+
+### ISA analyzer firmware
+
+PicoGUS now has an ISA analyzer firmware that captures and logs ISA bus activity. This was inspired by the IDE analyzer firmware I wrote for PicoIDE. Having a tool like this brings a ton of insight into what's going on in the bus. Note that this firmware is made for the PicoGUS 1.x board with the RP2350-based Pico 2 or Pimoroni Pico Plus 2.
+
+## Fixes/improvements
+
+### CD-ROM support
+
+- The stock Win9x MKEPanasonic driver can now be used with PicoGUS. This driver does not peg the CPU like the Creative driver, which should give much more acceptable performance. Credit to 86Box as a reference for this fix.
+- CD-ROM speed in SB mode is even faster again - I've gotten speeds between 3.75X and 4.75X in DOS.
+- Lots of general fixes & improvements to CD-ROM support, thanks to [Daniel Arnold (Delphius)](https://github.com/RetroLoom): protocol correctness fixes, pgusinit /cdlist stability, CUE parsing, and larger CD audio buffer.
+
+### GUS mode
+
+- The audio rendering in GUS mode is now interrupt-driven like SB mode. This allows for finer grained handling of IRQs which should help random freezes in GUS titles, and frees up CPU to allow more titles to work with forced 44.1kHz sampling rate.
+- Fixes volume ramp rate calculation in force 44.1kHz mode.
+- Fixes a race condition when updating volume ramp, again helping random freezes.
+
+### General
+
+- Reverted back to the pre-v3.2.0 method of overclocking the RP2040. This should hopefully fix the "doesn't come back after changing modes" issue reported by some people.
+
 # v3.2.1
 
 ## Fixes/improvements

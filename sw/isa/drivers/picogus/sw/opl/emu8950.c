@@ -200,7 +200,11 @@ static int16_t kl_tablex16[16] = {dB2x16(0.000), dB2x16(9.000), dB2x16(12.000), 
 #endif
 
 #if !EMU8950_NO_TLL
+#ifdef EMU8950_TLL_FLASH
+extern const uint32_t tll_table[8 * 16][1 << TL_BITS][4];
+#else
 static uint32_t tll_table[8 * 16][1 << TL_BITS][4];
+#endif
 #endif
 static int32_t rks_table[2][32][2];
 
@@ -368,7 +372,7 @@ static void makeSinTable(void) {
 }
 
 static void makeTllTable(void) {
-#if !EMU8950_NO_TLL
+#if !EMU8950_NO_TLL && !defined(EMU8950_TLL_FLASH)
     int32_t tmp;
     int32_t fnum, block, TL, KL, kx;
 
@@ -441,7 +445,7 @@ static void initializeTables() {
 #define CAR(o, x) (&(o)->slot[((x) << 1) | 1])
 #define BIT(s, b) (((s) >> (b)) & 1)
 
-#if OPL_DEBUG
+#if PGDEBUG_OPL
 static void _debug_print_patch(OPL_SLOT *slot) {
   OPL_PATCH *p = slot->patch;
   printf("[slot#%d am:%d pm:%d eg:%d kr:%d ml:%d kl:%d tl:%d ws:%d fb:%d A:%d D:%d S:%d R:%d]\n", slot->number, //
@@ -562,7 +566,7 @@ static void commit_slot_update(OPL_SLOT *slot, uint8_t notesel) {
         }
     }
 
-#if OPL_DEBUG
+#if PGDEBUG_OPL
     if (slot->last_eg_state != slot->eg_state) {
       _debug_print_slot_info(slot);
       slot->last_eg_state = slot->eg_state;
@@ -1058,7 +1062,7 @@ static INLINE int16_t calc_slot_hat(OPL *opl) {
 }
 #endif
 
-#define _MO(x) (-(x) >> 1)
+#define _MO(x) (-(x))
 #define _RO(x) (x)
 
 static INLINE int16_t calc_fm(OPL *opl, int ch) {
@@ -1204,7 +1208,7 @@ INLINE static void mix_output(OPL *opl) {
 #endif
 }
 
-INLINE static int16_t mix_output_raw(OPL *opl) {
+INLINE static int32_t mix_output_raw(OPL *opl) {
     int32_t out = 0;
 
 #if !EMU8950_NO_PERCUSSION_MODE
@@ -1374,7 +1378,7 @@ int16_t OPL_calc(OPL *opl) {
     return opl->mix_out[0];
 }
 
-void OPL_calc_buffer(OPL *opl, int16_t *buffer, uint32_t nsamples) {
+void OPL_calc_buffer(OPL *opl, int32_t *buffer, uint32_t nsamples) {
     assert(opl->out_step == opl->inp_step);
     for (unsigned i = 0; i < nsamples; i++) {
         update_output(opl);

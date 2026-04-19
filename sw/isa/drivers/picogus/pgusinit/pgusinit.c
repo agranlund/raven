@@ -52,13 +52,16 @@ static const char *modenames[8] = { "INVALID", "GUS", "ADLIB", "MPU", "PSG", "SB
 
 #include "../common/picogus.h"
 
+
 static card_mode_t gMode;
 static card_mode_t newMode = 0;
 static board_type_t board_type;
 static bool wifichg = false;
 static bool permanent = false;
+static bool resources_from_env = false;
 static bool is_console;
 static uint8_t page_lines;
+
 
 // REMOVED FOR ATARI BUILD
 //ATARI GCC Build Added
@@ -103,7 +106,7 @@ static void pageprintf(char *format, ...)
 
 static void banner(void)
 {
-    printf("PicoGUSinit v3.7.1 (c) 2025 Ian Scott - licensed under the GNU GPL v2\n");
+    printf("PicoGUSinit v3.9.0a Raven060 (c) 2026 Ian Scott - licensed under the GNU GPL v2\n");
 }
 
 
@@ -128,6 +131,7 @@ static void usage(card_mode_t mode, bool print_all)
     if (mode == GUS_MODE || print_all) {
         //         "...............................................................................\n"
         pageprintf("GUS settings:\n");
+        pageprintf("   /gusenv     - set the base port of the GUS from ULTRASND variable\n");
         pageprintf("   /gusport x  - set the base port of the GUS. Default: 240\n");
         pageprintf("   /gusbuf n   - set audio buffer to n samples. Default: 4, Min: 1, Max: 256\n");
         pageprintf("                 (tweaking can help programs that hang or have audio glitches)\n");
@@ -140,8 +144,17 @@ static void usage(card_mode_t mode, bool print_all)
     if (mode == SB_MODE || print_all) {
         //         "...............................................................................\n"
         pageprintf("Sound Blaster settings:\n");
-        pageprintf("   /sbport x    - set the base port of the Sound Blaster. Default: 220\n");
-        pageprintf("   /sbvol x     - set the Sound Blaster audio volume: 0 - 100%\n");
+        pageprintf("   /sbenv         - set the SB base port, IRQ, DMA and type from SET BLASTER=\n");
+        pageprintf("   /sbport x      - set the SB base port. Default: 220\n");
+        pageprintf("   /sbirq x       - set the SB IRQ (must match jumper settings!). Default: 5\n");
+        pageprintf("   /sbdma x       - set the SB DMA (must match jumper settings!). Default: 1\n");
+        pageprintf("   /sbtype x      - set the Sound Blaster type. Default: 6 (SB 16)\n");
+        pageprintf("          1 - SB 1.x,          2 - SB Pro 1 (dual OPL2), 3 - SB 2.0,\n");
+        pageprintf("          4 - SB Pro 2 (OPL3), 6 - SB 16\n");
+        pageprintf("   /sbvol x       - set the Sound Blaster audio volume: 0 - 100%\n");
+        pageprintf("   /sbfixtc 1|0   - fix SB time constant to match common rates. Default: 0\n");
+        pageprintf("   /sblockmixer n - lock SB mixer settings. Default: 0 (no lock)\n");
+        pageprintf("          0 - no lock, 1 - lock all but Voice Volume, 2 - lock all\n");
     }
     if (mode == SB_MODE || mode == ADLIB_MODE || print_all) {
         pageprintf("AdLib settings:\n");
@@ -150,13 +163,13 @@ static void usage(card_mode_t mode, bool print_all)
         pageprintf("   /oplvol x    - set the OPL2 audio volume: 0 - 100\n");
     }
     if (mode == SB_MODE || mode == USB_MODE || print_all) {
-        pageprintf("CD-ROM settings:\n");
-        pageprintf("   /cdport x     - set base port of CD interface. Default: 250, 0 to disable\n");
-        pageprintf("   /cdlist       - list CD images on the inserted USB drive\n");
-        pageprintf("   /cdload n     - load image n in the list given by /cdlist. 0 to unload image\n");
-        pageprintf("   /cdloadname x - load CD image by name. Names with spaces can be quoted\n");
-        pageprintf("   /cdvol n      - set the CD audio volume: 0 - 100\n");
-        pageprintf("   /cdauto 1|0   - auto-advance loaded image when same USB drive is reinserted\n");
+ //       pageprintf("CD-ROM settings:\n");
+ //       pageprintf("   /cdport x     - set base port of CD interface. Default: 250, 0 to disable\n");
+ //       pageprintf("   /cdlist       - list CD images on the inserted USB drive\n");
+ //       pageprintf("   /cdload n     - load image n in the list given by /cdlist. 0 to unload image\n");
+ //       pageprintf("   /cdloadname x - load CD image by name. Names with spaces can be quoted\n");
+ //       pageprintf("   /cdvol n      - set the CD audio volume: 0 - 100\n");
+ //       pageprintf("   /cdauto 1|0   - auto-advance loaded image when same USB drive is reinserted\n");
     }
     if (mode == PSG_MODE || print_all) {
         //         "...............................................................................\n"
@@ -178,12 +191,12 @@ static void usage(card_mode_t mode, bool print_all)
     }
     if (mode == NE2000_MODE) { // NE2000 mode is special enough it should only be shown if the card is running the dedicated pg-ne2k firmware
         //         "...............................................................................\n"
-        pageprintf("NE2000/WiFi settings:\n");
-        pageprintf("   /ne2kport x   - set the base port of the NE2000. Default: 300\n");
-        pageprintf("   /wifissid abc - set the WiFi SSID to abc\n");
-        pageprintf("   /wifipass xyz - set the WiFi WPA/WPA2 password/key to xyz\n");
-        pageprintf("   /wifinopass   - unset the WiFi password to connect to an open access point\n");
-        pageprintf("   /wifistatus   - print current WiFi status\n");
+//        pageprintf("NE2000/WiFi settings:\n");
+//        pageprintf("   /ne2kport x   - set the base port of the NE2000. Default: 300\n");
+//        pageprintf("   /wifissid abc - set the WiFi SSID to abc\n");
+//        pageprintf("   /wifipass xyz - set the WiFi WPA/WPA2 password/key to xyz\n");
+//        pageprintf("   /wifinopass   - unset the WiFi password to connect to an open access point\n");
+//        pageprintf("   /wifistatus   - print current WiFi status\n");
     }
 }
 
@@ -204,16 +217,49 @@ static void err_ultrasnd(void)
 }
 
 
-static void err_blaster(void)
+typedef enum {
+    BLASTER_UNSET,
+    BLASTER_MALFORMED,
+    BLASTER_DMA16_MISMATCH,
+    BLASTER_MISMATCH,
+} blaster_err_t;
+
+static void err_blaster_format_help(void)
 {
     //              "................................................................................\n"
-    fprintf(stderr, "ERROR: In SB mode but no BLASTER variable set or is malformed!\n");
     fprintf(stderr, "The BLASTER environment variable must be set in the following format:\n");
-    fprintf(stderr, "\tset BLASTER=Axxx Iy Dz T3\n");
-    fprintf(stderr, "Where xxx = port, y = IRQ, z = DMA. T3 indicates an SB 2.0 compatible card.\n");
-    fprintf(stderr, "Port is set via /sbport xxx option; DMA and IRQ configued via jumper.\n");
+    fprintf(stderr, "\tset BLASTER=Axxx Iy Dz Hz Tw\n");
+    fprintf(stderr, "Where xxx = port, y = IRQ, z = DMA. w = SB type:\n");
+    fprintf(stderr, "    1 - SB 1.x,          2 - SB Pro 1 (dual OPL2), 3 - SB 2.0,\n");
+    fprintf(stderr, "    4 - SB Pro 2 (OPL3), 6 - SB 16\n");
 }
 
+static void err_blaster(blaster_err_t reason)
+{
+    //                      "................................................................................\n"
+    switch (reason) {
+        case BLASTER_UNSET:
+            fprintf(stderr, "ERROR: In SB mode but BLASTER environment variable is not set!\n");
+            err_blaster_format_help();
+            fprintf(stderr, "Then run pgusinit /sbenv to apply the BLASTER settings to the card.\n");
+            break;
+        case BLASTER_MALFORMED:
+            fprintf(stderr, "ERROR: BLASTER environment variable is malformed!\n");
+            fprintf(stderr, "Current value: BLASTER=%s\n", getenv("BLASTER"));
+            err_blaster_format_help();
+            break;
+        case BLASTER_DMA16_MISMATCH:
+            fprintf(stderr, "ERROR: In SB 16 mode, low (Dx) and high (Hx) DMA in BLASTER variable must match!\n");
+            fprintf(stderr, "Current value: BLASTER=%s\n", getenv("BLASTER"));
+            break;
+        case BLASTER_MISMATCH:
+            fprintf(stderr, "ERROR: SB settings on card don't match the BLASTER environment variable!\n");
+            fprintf(stderr, "Double-check that PicoGUS is jumpered correctly for the desired IRQ and DMA,\n");
+            fprintf(stderr, "then run pgusinit /sbenv to set card resources from the BLASTER variable.\n");
+            fprintf(stderr, "Alternatively, use /sbport, /sbirq, /sbdma, /sbtype to set values directly.\n");
+            break;
+    }
+}
 
 static void err_pigus(void)
 {
@@ -246,11 +292,18 @@ static int init_gus(void)
         return 2;
     }
 
-    outp(CONTROL_PORT, CMD_GUSPORT); // Select port register
-    uint16_t tmp_port = inpw(DATA_PORT_LOW);
-    if (port != tmp_port) {
-        err_ultrasnd();
-        return 2;
+    if (resources_from_env) {
+        // init GUS base port from ULTRASND environment variable
+        outp(CONTROL_PORT, CMD_GUSPORT); // Select port register
+        outpw(DATA_PORT_LOW, port);
+    } else {
+        // verify ULTRASND against GUS mode settings
+        outp(CONTROL_PORT, CMD_GUSPORT); // Select port register
+        uint16_t tmp_port = inpw(DATA_PORT_LOW);
+        if (port != tmp_port) {
+            err_ultrasnd();
+            return 2;
+        }
     }
 
     // Detect if there's something GUS-like...
@@ -280,27 +333,85 @@ static int init_gus(void)
 
 static int init_sb(void)
 {
+    // SB DSP version table
+    const uint16_t dspver[] = {0, 0x105, 0x300, 0x201, 0x301, 0, 0x405};
+
     char* blaster = getenv("BLASTER");
     if (blaster == NULL) {
-        err_blaster();
+        err_blaster(BLASTER_UNSET);
         return 1;
     }
+    char blasterTemp[256];
+    strncpy(blasterTemp, blaster, sizeof(blasterTemp));
 
     // Parse BLASTER
-    uint16_t port;
-    int e;
-    e = sscanf(blaster, "A%hx I%*hhu D%*hhu T3", &port);
-    if (e != 1) {
-        err_blaster();
+    char* p = strtok(blasterTemp, " ");
+    uint16_t port = -1, irq  = -1, dma8 = -1, dma16 = -1, sbtype = 0;
+    while (p != NULL) {
+        switch (*p) {
+            case 'a': case 'A': port   = strtol(p + 1, NULL, 16); break;
+            case 'i': case 'I': irq    = strtol(p + 1, NULL, 10); break;
+            case 'd': case 'D': dma8   = strtol(p + 1, NULL, 10); break;
+            case 'h': case 'H': dma16  = strtol(p + 1, NULL, 10); break;
+            case 't': case 'T': sbtype = strtol(p + 1, NULL, 10); break;
+            default: break;
+        }
+        p = strtok(NULL, " ");
+    }
+
+    if ((port == -1) || (irq == -1) || (dma8 == -1) || (sbtype > 6) || (dspver[sbtype] == 0)) {
+        err_blaster(BLASTER_MALFORMED);
+        return 2;
+    }
+    if ((sbtype == 6) && (dma8 != dma16)) {
+        err_blaster(BLASTER_DMA16_MISMATCH);
         return 2;
     }
 
-    outp(CONTROL_PORT, CMD_SBPORT); // Select port register
-    uint16_t tmp_port = inpw(DATA_PORT_LOW);
-    if (port != tmp_port) {
-        err_blaster();
-        return 2;
+    if (resources_from_env) {
+        // update resources from BLASTER environment variable
+        outp(CONTROL_PORT, CMD_SBPORT); // Select port register
+        outpw(DATA_PORT_LOW, port);
+
+        outp(CONTROL_PORT, CMD_SBIRQ); // Select IRQ register
+        outp(DATA_PORT_HIGH, irq);
+
+        outp(CONTROL_PORT, CMD_SBDMA); // Select DMA register
+        outp(DATA_PORT_HIGH, dma8);
+
+        outp(CONTROL_PORT, CMD_SBTYPE); // Select SB type register
+        outp(DATA_PORT_HIGH, sbtype);
+    } else {
+        // verify BLASTER variable against current SB mode settings
+        outp(CONTROL_PORT, CMD_SBPORT); // Select port register
+        uint16_t tmp_port = inpw(DATA_PORT_LOW);
+        if (port != tmp_port) {
+            err_blaster(BLASTER_MISMATCH);
+            return 2;
+        }
+
+        outp(CONTROL_PORT, CMD_SBIRQ); // Select IRQ register
+        uint8_t tmp_irq = inp(DATA_PORT_HIGH);
+        if (irq != tmp_irq) {
+            err_blaster(BLASTER_MISMATCH);
+            return 2;
+        }
+
+        outp(CONTROL_PORT, CMD_SBDMA); // Select DMA register
+        uint8_t tmp_dma = inp(DATA_PORT_HIGH);
+        if (dma8 != tmp_dma) {
+            err_blaster(BLASTER_MISMATCH);
+            return 2;
+        }
+
+        outp(CONTROL_PORT, CMD_SBTYPE); // Select SB type register
+        uint8_t tmp_type = inp(DATA_PORT_HIGH);
+        if (sbtype != tmp_type) {
+            err_blaster(BLASTER_MISMATCH);
+            return 2;
+        }
     }
+
     return 0;
 }
 
@@ -563,16 +674,18 @@ static int write_firmware(const char* fw_filename)
                ((val << 24) & 0xFF000000);
     }
 
- //       if (uf2_buf.uf2.magicStart0 != 0x0A324655 || uf2_buf.uf2.magicStart1 != 0x9E5D5157 || uf2_buf.uf2.magicEnd != 0x0AB16F30) {
-          if (swap32(uf2_buf.uf2.magicStart0) != 0x0A324655 || swap32(uf2_buf.uf2.magicStart1) != 0x9E5D5157 || swap32(uf2_buf.uf2.magicEnd)    != 0x0AB16F30) {
+// ATARI CODE REPLACES LINE BELOW - NEEDS SWAP32() FOR ATARI
+//       if (uf2_buf.uf2.magicStart0 != 0x0A324655 || uf2_buf.uf2.magicStart1 != 0x9E5D5157 || uf2_buf.uf2.magicEnd != 0x0AB16F30) {
+         if (swap32(uf2_buf.uf2.magicStart0) != 0x0A324655 || swap32(uf2_buf.uf2.magicStart1) != 0x9E5D5157 || swap32(uf2_buf.uf2.magicEnd)    != 0x0AB16F30) {
  
-           fprintf(stderr, "ERROR: file %s is not a valid UF2 file - bad magic\n", fw_filename);
+            fprintf(stderr, "ERROR: file %s is not a valid UF2 file - bad magic\n", fw_filename);
             return 12;
         }
 
         if (i == 0) {
-            numBlocks = swap32(uf2_buf.uf2.numBlocks);
+            // ATARI CODE REPLACES LINE BELOW - NEEDS SWAP32() FOR ATARI
             // numBlocks = uf2_buf.uf2.numBlocks;
+            numBlocks = swap32(uf2_buf.uf2.numBlocks);
 
             // Put card into programming mode
             outp(CONTROL_PORT, 0xCC); // Knock on the door...
@@ -587,6 +700,7 @@ static int write_firmware(const char* fw_filename)
             fprintf(stderr, "Preparing to program %d blocks...", numBlocks);
         }
 
+// ATARI CODE REPLACES LINE BELOW - NEEDS SWAP32() FOR ATARI
 //        if (i != uf2_buf.uf2.blockNo) {
 //            fprintf(stderr, "\nERROR: file %s is not a valid UF2 file - block mismatch\n", fw_filename);
 //            return 14;
@@ -599,7 +713,7 @@ static int write_firmware(const char* fw_filename)
         for (uint16_t b = 0; b < 512; ++b) {
             // Write firmware byte
             outp(DATA_PORT_HIGH, uf2_buf.buf[b]);
-            if (b == 512 && protocol == 1) {
+            if (b == 511 && protocol == 1) {
                 // Protocol 1 abuses IOCHRDY to pause during flash erase/write. Some chipsets give
                 // up waiting on IOCHRDY and release the ISA bus after a certain amount of time before
                 // the flash operation is finished. This is an extra delay to work around this issue.
@@ -641,8 +755,12 @@ static int write_firmware(const char* fw_filename)
 
 
 #ifdef __ATARI__
+static void wifi_printStatus(void)
+  {
+    printf("WiFi status not supported on Raven060 build.\n");
+  }
 #else
-  static void wifi_printStatus(void)
+static void wifi_printStatus(void)
   {
        outp(CONTROL_PORT, 0xCC); // Knock on the door...
        outp(CONTROL_PORT, CMD_WIFISTAT); // Select WiFi status command
@@ -652,7 +770,7 @@ static int write_firmware(const char* fw_filename)
        uint16_t try = 0;
        char c;
        while (c = inp(DATA_PORT_HIGH)) {
-           if (c == 255) {
+           if ((unsigned char)c == 255) {
                if (++try == 10000) {
                    printf("Error getting WiFI status\n");
                    break;
@@ -680,13 +798,19 @@ static void send_string(const uint8_t cmd, const char* str, const int16_t max_le
     outp(DATA_PORT_HIGH, 0);
 }
 
-static bool cmdDisplayUsage(const char* arg, const int print_all)
+static bool cmdSetResourcesFromEnv(const char* arg, const int cmd, const int cmd2, const int cmd3) 
+{
+    resources_from_env = true;
+    return true;
+}
+
+static bool cmdDisplayUsage(const char* arg, const int print_all, const int cmd2, const int cmd3)
 {
     usage(gMode, print_all);
     return true;
 }
 
-static bool cmdSendBool(const char* arg, const int cmd)
+static bool cmdSendBool(const char* arg, const int cmd, const int cmd2, const int cmd3)
 {
     uint8_t value;
 
@@ -704,7 +828,27 @@ static bool cmdSendBool(const char* arg, const int cmd)
     return true;
 }
 
-static bool cmdSetMode(const char* arg, const int cmd)
+static bool cmdSendBoolMasked(const char* arg, const int cmd, const int mask, const int shift)
+{
+    uint8_t value, oldvalue;
+
+    if (!strcmp(arg, "1") || !stricmp(arg, "true") || !stricmp(arg, "on")) {
+        value = 1;
+    } else if (!strcmp(arg, "0") || !stricmp(arg, "false") || !stricmp(arg, "off")) {
+        value = 0;
+    } else {
+        usage(gMode, false);
+        return false;
+    }
+
+    outp(CONTROL_PORT, cmd);
+    oldvalue = inp(DATA_PORT_HIGH);
+    outp(DATA_PORT_HIGH, (uint8_t)(oldvalue & ~mask) | ((value << shift) & mask));
+    return true;
+}
+
+
+static bool cmdSetMode(const char* arg, const int cmd, const int cmd2, const int cmd3)
 {
     if (!stricmp(arg, "TANDY") || !stricmp(arg, "CMS")) {
         // Backwards compatibility for old tandy and cms modes
@@ -718,7 +862,7 @@ static bool cmdSetMode(const char* arg, const int cmd)
             return true;
         }
     }
-    fprintf(stderr, "Invalid mode %s. Valid modes: gus, sb, mpu, psg, adlib, usb\n");
+    fprintf(stderr, "Invalid mode %s. Valid modes: gus, sb, mpu, psg, adlib, usb\n", arg);
     return false;
 }
 
@@ -737,9 +881,45 @@ static bool ctrlSendUint8(const char *arg, int cmd, int min, int max)
     return true;
 }
 
-static bool cmdSendUint8(const char* arg, const int cmd)
+static bool ctrlSendUint8Masked(const char *arg, int cmd, int min, int max, int mask, int shift) {
+    char* endptr;
+    uint8_t val = (uint8_t)strtoul(arg, &endptr, 10);
+    uint8_t oldval = 0;
+
+    if (*endptr != '\0' || val < min || val > max) {
+        usage(gMode, false);
+        return false;
+    }
+
+    outp(CONTROL_PORT, cmd);
+    oldval = inp(DATA_PORT_HIGH);
+    outp(DATA_PORT_HIGH, (uint8_t)(oldval & ~mask) | ((val << shift) & mask));
+    return true;
+}
+
+static bool cmdSendUint8(const char* arg, const int cmd, const int cmd2, const int cmd3)
 {   
     return ctrlSendUint8(arg, cmd, 0, 255);
+}
+
+static bool cmdSendSBType(const char* arg, const int cmd, const int cmd2, const int cmd3) {
+    char* endptr;
+    uint8_t val = (uint8_t)strtoul(arg, &endptr, 10);
+
+    if (*endptr != '\0' || val < 1 || val > 6 || val == 5) {
+        usage(gMode, false);
+        return false;
+    }
+
+    outp(CONTROL_PORT, cmd);
+    outp(DATA_PORT_HIGH, (uint8_t)val);
+    return true;
+}
+
+static bool cmdSendUint8Masked(const char* arg, const int cmd, const int cmd2, const int cmd3)
+{   
+    // cmd2 - mask, cmd3 - shift
+    return ctrlSendUint8Masked(arg, cmd, 0, 255, cmd2, cmd3);
 }
 
 static bool ctrlSendUint16(const char *arg, int cmd, long min, long max, int base)
@@ -757,28 +937,29 @@ static bool ctrlSendUint16(const char *arg, int cmd, long min, long max, int bas
     return true;
 }
 
-static bool cmdSendUint16(const char* arg, const int cmd)
+static bool cmdSendUint16(const char* arg, const int cmd, const int cmd2, const int cmd3)
 {
     return ctrlSendUint16(arg, cmd, 0, 65535, 10);
 }
 
-static bool cmdSendPort(const char* arg, const int cmd)
+static bool cmdSendPort(const char* arg, const int cmd, const int cmd2, const int cmd3)
 {
     return ctrlSendUint16(arg, cmd, 0, 0x3FF, 16);
 }
 
-static bool cmdDefaults(const char* arg, const int cmd)
+static bool cmdDefaults(const char* arg, const int cmd, const int cmd2, const int cmd3)
 {
-    //return cmdSendUint8(CMD_DEFAULTS, 0xff);
-    return ctrlSendUint8("0", CMD_DEFAULTS, 0, 0xff);
+    outp(CONTROL_PORT, CMD_DEFAULTS);
+    outp(DATA_PORT_HIGH, 0xff);
+    return true;
 }
 
-static bool cmdSetVol(const char* arg, const int cmd)
+static bool cmdSetVol(const char* arg, const int cmd, const int cmd2, const int cmd3)
 {
     return ctrlSendUint8(arg, cmd, 0, 100);
 }
 
-static bool cmdSendMousePort(const char *arg, const int cmd)
+static bool cmdSendMousePort(const char *arg, const int cmd, const int cmd2, const int cmd3)
 {
     char* endptr;
     uint8_t val = (uint8_t)strtoul(arg, &endptr, 10);
@@ -804,69 +985,74 @@ static bool cmdSendMousePort(const char *arg, const int cmd)
     return true;
 }
 
-static bool cmdSendMouseSen(const char* arg, const int cmd)
+static bool cmdSendMouseSen(const char* arg, const int cmd, const int cmd2, const int cmd3)
 {
     return ctrlSendUint16(arg, cmd, 0, 1024, 10);
 }
 
-static bool cmdSendMouseProto(const char* arg, const int cmd)
+static bool cmdSendMouseProto(const char* arg, const int cmd, const int cmd2, const int cmd3)
 {
     return ctrlSendUint8(arg, cmd, 0, 3);
 }
 
-static bool cmdSendMouseRate(const char* arg, const int cmd)
+static bool cmdSendMouseRate(const char* arg, const int cmd, const int cmd2, const int cmd3)
 {
     return ctrlSendUint8(arg, cmd, 20, 200);
 }
 
+static bool cmdSendSBLockMixer(const char* arg, const int cmd, const int cmd2, const int cmd3)
+{
+    return ctrlSendUint8Masked(arg, cmd, 0, 2, (2 << 1), 1);
+}
 #ifdef __ATARI__
 #else
-  static bool cmdWifiStatus(const char* arg, const int cmd)
-  {
-      wifi_printStatus();
-      exit(0);
-  }
 
-  static bool cmdWifiSSID(const char* arg, const int cmd)
-  {
-      wifichg = true;
-      send_string(cmd, arg, 32);
-      return true;
-  }
+static bool cmdWifiStatus(const char* arg, const int cmd, const int cmd2, const int cmd3)
+{
+    wifi_printStatus();
+    exit(0);
+}
 
-  static bool cmdWifiPass(const char* arg, const int cmd)
-  {
-      wifichg = true;
-      send_string(cmd, arg, 63);
-      return true;
-  }
+static bool cmdWifiSSID(const char* arg, const int cmd, const int cmd2, const int cmd3)
+{
+    wifichg = true;
+    send_string(cmd, arg, 32);
+    return true;
+}
 
-  static bool cmdWifiNoPass(const char* arg, const int cmd)
-  {
-      wifichg = true;
-      send_string(cmd, "", 1);
-      return true;
-  }
+static bool cmdWifiPass(const char* arg, const int cmd, const int cmd2, const int cmd3)
+{
+    wifichg = true;
+    send_string(cmd, arg, 63);
+    return true;
+}
+
+static bool cmdWifiNoPass(const char* arg, const int cmd, const int cmd2, const int cmd3)
+{
+    wifichg = true;
+    send_string(cmd, "", 1);
+    return true;
+}
 #endif
 
-static bool cmdCDLoadName(const char* arg, const int cmd)
+static bool cmdCDLoadName(const char* arg, const int cmd, const int cmd2, const int cmd3)
 {
     send_string(cmd, arg, 127);
     exit(wait_for_cd_load());
 }
 
-static bool cmdCDList(const char* arg, const int cmd)
+static bool cmdCDList(const char* arg, const int cmd, const int cmd2, const int cmd3)
 {
     exit(print_cdimage_list());
 }
 
-static bool cmdCDLoad(const char* arg, const int cmd)
+static bool cmdCDLoad(const char* arg, const int cmd, const int cmd2, const int cmd3)
 {
     ctrlSendUint8(arg, cmd, 0, 255);
     exit(wait_for_cd_load());
 }
 
-static bool cmdGUSBuffer(const char* arg, const int cmd)
+static bool cmdGUSBuffer(const char* arg, const int cmd, const int cmd2, const int cmd3)
 {
     uint8_t tmp_uint8;
     uint8_t e = sscanf(arg, "%hhu", &tmp_uint8);
@@ -880,7 +1066,7 @@ static bool cmdGUSBuffer(const char* arg, const int cmd)
     return true;
 }
 
-static bool cmdFlashPico(const char* arg, const int cmd)
+static bool cmdFlashPico(const char* arg, const int cmd, const int cmd2, const int cmd3)
 {
     if (strlen(arg) > 255)
     {
@@ -891,7 +1077,7 @@ static bool cmdFlashPico(const char* arg, const int cmd)
     return true;
 }
 
-static bool cmdSave(const char* arg, const int cmd)
+static bool cmdSave(const char* arg, const int cmd, const int cmd2, const int cmd3)
 {
     permanent = true;
     return true;
@@ -917,11 +1103,18 @@ ParseCommand parseCommands[] = {
     {"/joy", cmdSendBool, CMD_JOYEN, ARG_REQUIRE},
     {"/mode", cmdSetMode, 0, ARG_REQUIRE},
     {"/wtvol", cmdSetVol, CMD_WTVOL, ARG_REQUIRE},
+    {"/gusenv", cmdSetResourcesFromEnv, 1, ARG_NONE},
     {"/gus44k", cmdSendBool, CMD_GUS44K, ARG_REQUIRE, "false"},
     {"/gusbuf", cmdGUSBuffer, CMD_GUSBUF, ARG_REQUIRE, "4"},
     {"/gusdma", cmdSendUint8, CMD_GUSDMA, ARG_REQUIRE, "0"},
     {"/gusport", cmdSendPort, CMD_GUSPORT, ARG_REQUIRE, "240"},
+    {"/sbenv", cmdSetResourcesFromEnv, 1, ARG_NONE},
     {"/sbport", cmdSendPort, CMD_SBPORT, ARG_REQUIRE, "220"},
+    {"/sbirq", cmdSendUint8, CMD_SBIRQ, ARG_REQUIRE, "5"},
+    {"/sbdma", cmdSendUint8, CMD_SBDMA, ARG_REQUIRE, "1"},
+    {"/sbtype", cmdSendSBType, CMD_SBTYPE, ARG_REQUIRE, "6"},
+    {"/sbfixtc", cmdSendBoolMasked, CMD_SBOPTS, ARG_REQUIRE, "0", (1 << 0), 0},
+    {"/sblockmixer", cmdSendSBLockMixer, CMD_SBOPTS, ARG_REQUIRE, "0"},
     {"/oplport", cmdSendPort, CMD_OPLPORT, ARG_REQUIRE, "388"},
     {"/oplwait", cmdSendBool, CMD_OPLWAIT, ARG_REQUIRE, "false"},
     {"/mpuport", cmdSendPort, CMD_MPUPORT, ARG_REQUIRE, "330"},
@@ -936,10 +1129,10 @@ ParseCommand parseCommands[] = {
     {"/ne2kport", cmdSendPort, CMD_NE2KPORT, ARG_REQUIRE, "300"},
     #ifdef __ATARI__
     #else
-        {"/wifistatus", cmdWifiStatus, 0, ARG_NONE},
-        {"/wifissid", cmdWifiSSID, CMD_WIFISSID, ARG_REQUIRE},
-        {"/wifipass", cmdWifiPass, CMD_WIFIPASS, ARG_REQUIRE},
-        {"/wifinopass", cmdWifiNoPass, CMD_WIFIPASS, ARG_NONE},
+    {"/wifistatus", cmdWifiStatus, 0, ARG_NONE},
+    {"/wifissid", cmdWifiSSID, CMD_WIFISSID, ARG_REQUIRE},
+    {"/wifipass", cmdWifiPass, CMD_WIFIPASS, ARG_REQUIRE},
+    {"/wifinopass", cmdWifiNoPass, CMD_WIFIPASS, ARG_NONE},
     #endif
     {"/cdport", cmdSendPort, CMD_CDPORT, ARG_REQUIRE, "250"},
     {"/cdlist", cmdCDList, 0, ARG_NONE},
@@ -989,16 +1182,15 @@ int parseCommand(int argc, char* argv[], int* i, ParseCommand commands[])
                 return retVal;  
             }
             arg = argv[++(*i)];
-        }
-
-        if (!stricmp(argv[idx + 1], "default")) {
-            if (command->def) {
-                argv[idx + 1] = command->def;
-            } else {
-                return retVal;
+            if (!stricmp(arg, "default")) {
+                if (command->def) {
+                    arg = command->def;
+                } else {
+                    return retVal;
+                }
             }
         }
-        return command->routine(arg, command->cmd);
+        return command->routine(arg, command->cmd, command->cmd2, command->cmd3);
     } else {
         printf("Invalid command %s. Run pgusinit /? for usage help", argv[idx]);
     }
@@ -1063,7 +1255,7 @@ static void printGUSMode()
 static void printAdlibMode()
 {
     printf("Running in AdLib/OPL2 mode on port %x", ctrlGetUint16(CMD_OPLPORT));
-    printf("%s\n", ctrlGetUint8(CMD_OPLWAIT) ? ", wait on" : "");
+    printf("%s\n", ctrlGetUint8(CMD_OPLWAIT) & 1 ? ", wait on" : "");
 }
 
 static void printUSBMode()
@@ -1080,27 +1272,40 @@ static void printPSGMode()
 
 static void printSBMode()
 {
+    static char *strMode[] = {"(invalid)", "1.x", "Pro 1", "2.0", "Pro 2", "(invalid)", "16"};
+    static char *strLockMixerMode[] = {"unlocked", "locked except Voice Volume", "locked", "(invalid)"};
+    
     if (init_sb()) {
         return;
     }
-    printf("Running in Sound Blaster 2.0 mode on port %x ", ctrlGetUint16(CMD_SBPORT));
+    printf("Running in Sound Blaster %s mode on port %x, IRQ %d, DMA %d\n",
+        ctrlGetUint8(CMD_SBTYPE) > 6 ? "(invalid)" : strMode[ctrlGetUint8(CMD_SBTYPE)],
+        ctrlGetUint16(CMD_SBPORT),
+        ctrlGetUint8(CMD_SBIRQ),
+        ctrlGetUint8(CMD_SBDMA)
+    );
+    uint8_t tmp_uint8 = ctrlGetUint8(CMD_SBOPTS);
+    printf("SB Time Constant fix: %s, SB mixer: %s\n",
+        (tmp_uint8 >> 0) & 1 ? "enabled" : "disabled",
+        strLockMixerMode[(tmp_uint8 >> 1) & 3]
+    );
     uint16_t tmp_uint16 = ctrlGetUint16(CMD_OPLPORT);
     if (tmp_uint16) {
-        printf("(AdLib port %x", tmp_uint16);
-        printf("%s)\n", ctrlGetUint8(CMD_OPLWAIT) ? ", wait on" : "");
+        printf("AdLib port %x", tmp_uint16);
+        printf("%s\n", ctrlGetUint8(CMD_OPLWAIT) & 1 ? ", wait on" : "");
     } else {
-        printf("(AdLib port disabled)\n");
+        printf("AdLib port disabled\n");
     }
     print_cdemu_status();
 }
 
 #ifdef __ATARI__
 #else
-   static void printNE2000Mode()
-   {
-       printf("Running in NE2000 mode on port %x\n", ctrlGetUint16(CMD_NE2KPORT));
-       wifi_printStatus();
-   }
+static void printNE2000Mode()
+{
+    printf("Running in NE2000 mode on port %x\n", ctrlGetUint16(CMD_NE2KPORT));
+    wifi_printStatus();
+}
 #endif
 
 static void printMultiMode()
@@ -1272,9 +1477,9 @@ int main(int argc, char* argv[]) {
         break;
     #ifdef __ATARI__
     #else
-        case NE2000_MODE:
-            printNE2000Mode();
-            break;
+    case NE2000_MODE:
+        printNE2000Mode();
+        break;
     #endif
     default:
         printf("Running in unknown mode (maybe upgrade pgusinit?)\n");

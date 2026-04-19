@@ -67,7 +67,7 @@ using namespace std;
 
 // #define GUS_BASE myGUS.portbase
 #define GUS_RATE myGUS.rate
-#define LOG_GUS 0
+#define PGDEBUG_GUS 0
 
 #define VOL_SHIFT 14
 
@@ -148,6 +148,7 @@ static uint32_t dma_interval = 0;
 
 class GUSChannels;
 static void CheckVoiceIrq(void);
+static void CheckVoiceIrq_unlocked(void);
 
 struct GFGus {
     uint8_t gRegSelectData;     // what is read back from 3X3. not necessarily the index selected, but
@@ -211,6 +212,10 @@ struct GFGus {
 
 extern uint8_t GUS_activeChannels(void) {
     return myGUS.ActiveChannels;
+}
+
+extern uint8_t GUS_timingChannels(void) {
+    return myGUS.fixed_44k_output ? 14 : myGUS.ActiveChannels;
 }
 
 extern uint32_t GUS_basefreq(void) {
@@ -404,7 +409,7 @@ class GUSChannels {
         __force_inline void WriteWaveFreq(uint16_t val) {
             WaveFreq = val;
 #ifdef FORCE_28CH_27CH
-            if (!myGUS.fixed_44k_output && myGUS.ActiveChannels == 28) { // fudge to the 27 channel rate
+            if (myGUS.ActiveChannels == 28) { // fudge to the 27 channel rate
                 val = (uint16_t)((uint32_t)val * 22050ul / 22866ul);
             }
 #endif
@@ -414,14 +419,16 @@ class GUSChannels {
             }
         }
         __force_inline void WriteWaveCtrl(uint8_t val) {
+            critical_section_enter_blocking(&gus_crit);
             uint32_t oldirq=myGUS.WaveIRQ;
             WaveCtrl = val & 0x7f;
 
             if ((val & 0xa0)==0xa0) myGUS.WaveIRQ|=irqmask;
             else myGUS.WaveIRQ&=~irqmask;
 
-            if (oldirq != myGUS.WaveIRQ) 
-                CheckVoiceIrq();
+            if (oldirq != myGUS.WaveIRQ)
+                CheckVoiceIrq_unlocked();
+            critical_section_exit(&gus_crit);
         }
         INLINE uint8_t ReadWaveCtrl(void) {
             uint8_t ret=WaveCtrl;
@@ -442,6 +449,7 @@ class GUSChannels {
             return PanPot;
         }
         __force_inline void WriteRampCtrl(uint8_t val) {
+            critical_section_enter_blocking(&gus_crit);
             uint32_t old=myGUS.RampIRQ;
             RampCtrl = val & 0x7f;
             //Manually set the irq
@@ -450,7 +458,8 @@ class GUSChannels {
             else
                 myGUS.RampIRQ &= ~irqmask;
             if (old != myGUS.RampIRQ)
-                CheckVoiceIrq();
+                CheckVoiceIrq_unlocked();
+            critical_section_exit(&gus_crit);
         }
         INLINE uint8_t ReadRampCtrl(void) {
             uint8_t ret=RampCtrl;
@@ -472,7 +481,12 @@ class GUSChannels {
                 LOG_MSG("RampAdd nonfixed error %ld (%lu != %lu)",error,(unsigned long)checkadd,(unsigned long)RampAdd);
 #endif
             if (myGUS.fixed_44k_output) {
-                RampAdd = ((RampAdd * sample_rates[myGUS.ActiveChannels + 1]) + (44100 >> 1)) / 44100;
+#ifdef FORCE_28CH_27CH
+                if (myGUS.ActiveChannels == 28) {
+                    RampAdd = RampAdd * 22050ul / 22866ul;
+                }
+#endif
+                RampAdd = ((RampAdd * sample_rates[myGUS.ActiveChannels - 1]) + (44100 >> 1)) / 44100;
             }
         }
         INLINE void WaveUpdate(void) {
@@ -556,8 +570,8 @@ class GUSChannels {
             templeft&=~(templeft >> 31); /* <- NTS: This is a rather elaborate way to clamp negative values to zero using negate and sign extend */
             int32_t tempright=(int32_t)RampVol - (int32_t)PanRight;
             tempright&=~(tempright >> 31); /* <- NTS: This is a rather elaborate way to clamp negative values to zero using negate and sign extend */
-            VolLeft=vol16bit[templeft >> RAMP_FRACT];
-            VolRight=vol16bit[tempright >> RAMP_FRACT];
+            VolLeft=scale_sample(vol16bit[templeft >> RAMP_FRACT], volume.gus, false);
+            VolRight=scale_sample(vol16bit[tempright >> RAMP_FRACT], volume.gus, false);
         }
         INLINE void RampUpdate(void) {
             if (RampCtrl & 0x3) return; /* if the ramping is turned off, then don't change the ramp */
@@ -616,7 +630,7 @@ class GUSChannels {
 
             // Output stereo sample if DAC enable on
             // if ((GUS_reset_reg & 0x02/*DAC enable*/) == 0x02) {
-                tmpsamp = scale_sample(tmpsamp, gus_volume, 0);
+                // volume.gus is pre-folded into VolLeft/VolRight by UpdateVolumes
                 stream[0] += tmpsamp * VolLeft;
                 stream[1] += tmpsamp * VolRight;
                 WaveUpdate();
@@ -921,12 +935,11 @@ static INLINE void GUS_CheckIRQ(void) {
     }
 }
 
-__force_inline static void CheckVoiceIrq(void) {
-    critical_section_enter_blocking(&gus_crit);
+// Inner version: caller must already hold gus_crit
+__force_inline static void CheckVoiceIrq_unlocked(void) {
     Bitu totalmask=(myGUS.RampIRQ|myGUS.WaveIRQ) & myGUS.ActiveMask;
     if (!totalmask) {
         GUS_CheckIRQ();
-        critical_section_exit(&gus_crit);
         return;
     }
 
@@ -943,6 +956,11 @@ __force_inline static void CheckVoiceIrq(void) {
         myGUS.IRQChan++;
         if (myGUS.IRQChan>=myGUS.ActiveChannels) myGUS.IRQChan=0;
     }
+}
+
+__force_inline static void CheckVoiceIrq(void) {
+    critical_section_enter_blocking(&gus_crit);
+    CheckVoiceIrq_unlocked();
     critical_section_exit(&gus_crit);
 }
 
@@ -1020,6 +1038,7 @@ __force_inline static uint16_t ExecuteReadRegister(void) {
         if (curchan) return curchan->ReadRampCtrl() << 8;
         else return 0x0300;
     case 0x8f: // General channel IRQ status register
+        critical_section_enter_blocking(&gus_crit);
         tmpreg=myGUS.IRQChan|0x20;
         uint32_t mask;
         mask=1u << myGUS.IRQChan;
@@ -1028,13 +1047,11 @@ __force_inline static uint16_t ExecuteReadRegister(void) {
         myGUS.RampIRQ&=~mask;
         myGUS.WaveIRQ&=~mask;
         myGUS.IRQStatus&=0x9f;
-        // mega hack
-        // PIC_DeActivateIRQ();
-        CheckVoiceIrq();
-        // PIC_AddEvent(CheckVoiceIrq_async, 2, 3);
+        CheckVoiceIrq_unlocked();
+        critical_section_exit(&gus_crit);
         return (uint16_t)(tmpreg << 8);
     default:
-#if LOG_GUS
+#if PGDEBUG_GUS
         LOG_MSG("Read Register num 0x%x", myGUS.gRegSelect);
 #endif
         return myGUS.gRegData;
@@ -1197,7 +1214,7 @@ __force_inline static void ExecuteGlobRegister(void) {
         // myGUS.basefreq = (uint32_t)(1000000.0/(1.619695497*(float)(myGUS.ActiveChannels)));
         myGUS.basefreq = myGUS.fixed_44k_output ? 44100 : sample_rates[myGUS.ActiveChannels - 1];
 
-#if LOG_GUS
+#if PGDEBUG_GUS
         LOG_MSG("GUS set to %d channels freq=%luHz", myGUS.ActiveChannels,(unsigned long)myGUS.basefreq);
 #endif
         for (i=0;i<myGUS.ActiveChannels;i++) guschan[i]->UpdateWaveRamp();
@@ -1253,7 +1270,7 @@ __force_inline static void ExecuteGlobRegister(void) {
         GUSReset();
         break;
     default:
-#if LOG_GUS
+#if PGDEBUG_GUS
         LOG_MSG("Unimplemented global register %x -- %x", myGUS.gRegSelect, myGUS.gRegData);
 #endif
         break;
@@ -1347,7 +1364,7 @@ __force_inline uint8_t read_gus(Bitu port) {
         }
     case 0x106:
     default:
-#if LOG_GUS
+#if PGDEBUG_GUS
         LOG_MSG("Read GUS at port 0x%x", port);
 #endif
         break;
@@ -1431,7 +1448,7 @@ __force_inline void write_gus(Bitu port, Bitu val) {
         }
         break;
     default:
-#if LOG_GUS
+#if PGDEBUG_GUS
         LOG_MSG("Write GUS at port 0x%x with %x", port, val);
 #endif
         break;
@@ -1711,6 +1728,22 @@ extern uint32_t GUS_CallBack(Bitu max_len, int16_t* play_buffer) {
     return s;
 }
 
+// Generate one stereo sample for IRQ-driven audio output.
+// Returns packed stereo: low 16 bits = left, high 16 bits = right.
+extern uint32_t GUS_sample_stereo(void) {
+    if ((GUS_reset_reg & 0x03) != 0x03) {
+        return 0;
+    }
+    int32_t accum[2] = {0, 0};
+    for (Bitu c = 0; c < myGUS.ActiveChannels; ++c) {
+        guschan[c]->generateSample(accum);
+    }
+    CheckVoiceIrq();
+    int16_t l = clamp16(accum[0]);
+    int16_t r = clamp16(accum[1]);
+    return ((uint32_t)(uint16_t)l) | ((uint32_t)(uint16_t)r << 16);
+}
+
 // Generate logarithmic to linear volume conversion tables
 static void MakeTables(void) {
     int i;
@@ -1785,8 +1818,8 @@ void GUS_SetDMAInterval(const uint16_t newInterval) {
     myGUS.dmaIntervalOverride = newInterval;
 }
 void GUS_SetFixed44k(const bool new_force44k) {
-    // PICOGUS special port to set audio buffer size
     myGUS.fixed_44k_output = new_force44k;
+    myGUS.basefreq = new_force44k ? 44100 : sample_rates[myGUS.ActiveChannels - 1];
     printf("fixed 44k output: %u\n", myGUS.fixed_44k_output);
 }
 
@@ -1888,6 +1921,11 @@ void GUS_Setup() {
         interp_config_set_signed(&cfg, true);
         interp_set_config(interp0, 1, &cfg);
 #endif
-        clamp_setup();
+        clamp_setup(14, 17);
+        // Register callback so prescaled channel volumes update when gus vol changes
+        volctrl_gus_callback = [] {
+            for (int c = 0; c < 32; c++)
+                if (guschan[c]) guschan[c]->UpdateVolumes();
+        };
         set_volume(CMD_GUSVOL);
 }

@@ -55,7 +55,7 @@ static OPL *emu8950_opl;
 static opl_timer_t timer1 = { 12500, 0, 0, 0 };
 static opl_timer_t timer2 = { 3125, 0, 0, 0 };
 
-void OPL_Pico_simple(int16_t *buffer, uint32_t nsamples) {
+void OPL_Pico_simple(int32_t *buffer, uint32_t nsamples) {
     OPL_calc_buffer(emu8950_opl, buffer, nsamples);
 }
 
@@ -142,7 +142,7 @@ void OPL_Pico_WriteRegister(unsigned int reg_num, unsigned int value)
 
                 if ((value & 0x20) == 0)
                 {
-                    timer1.enabled = (value & 0x02) != 0;
+                    timer2.enabled = (value & 0x02) != 0;
                     OPLTimer_CalculateEndTime(&timer2);
                 }
             }

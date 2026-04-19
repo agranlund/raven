@@ -16,8 +16,9 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#include <stdio.h>
 #include <math.h>
+
+#include "include/pg_debug.h"
 
 #if PICO_ON_DEVICE
 
@@ -37,7 +38,11 @@
 
 #include "audio/audio_fifo.h"
 #if SOUND_SB
+#ifdef SOUND_WSS
+#include "ad1848/ad1848.h"
+#else
 #include "sbdsp/sbdsp.h"
+#endif
 #endif // SOUND_SB
 #if defined(SOUND_SB) || defined(USB_MOUSE) || defined(SOUND_MPU)
 #include "system/pico_pic.h"
@@ -62,7 +67,7 @@ extern cms_buffer_t opl_cmd_buffer;
 #include "mouse/sermouse.h"
 #endif
 
-#ifdef SOUND_MPU
+#if (defined(SOUND_MPU) || defined(SOUND_SB))
 #include "system/flash_settings.h"
 extern Settings settings;
 #include "mpu401/export.h"
@@ -87,35 +92,83 @@ static void init_audio(void) {
     audio_i2s_minimal_setup(&config, 44100);
 }
 
-/* Fixed-point format: Q16.16 (16 bits integer, 16 bits fractional) */
+// OPL FIFO — smaller than CD audio FIFO since producer and consumer are on
+// the same core. 256 stereo pairs ~= 5.8ms at 44100Hz.
+#define OPL_FIFO_SIZE 256
+#define OPL_FIFO_BITS (OPL_FIFO_SIZE - 1)
+static struct {
+    sample_pair buffer[OPL_FIFO_SIZE];
+    volatile uint32_t write_idx;
+    volatile uint32_t read_idx;
+} opl_out_fifo;
+
+static inline uint32_t opl_fifo_free_space() {
+    return OPL_FIFO_SIZE - (opl_out_fifo.write_idx - opl_out_fifo.read_idx);
+}
+
+static inline void opl_fifo_add_sample(sample_pair sample) {
+    opl_out_fifo.buffer[opl_out_fifo.write_idx & OPL_FIFO_BITS] = sample;
+    opl_out_fifo.write_idx++;
+}
+
+// OPL stereo sample callback — returns a clamped stereo pair.
+// Volume is applied in the ISR after FIFO read, not here.
+static sample_pair get_opl_stereo_sample()
+{
+#if defined(USE_YMFM_OPL) || defined(USE_DBOPL_OPL) || defined(USE_YMF3812)
+    int32_t l, r;
+    OPL_Pico_stereo(&l, &r, 1);
+    return (sample_pair){.data16 = {clamp16(l), clamp16(r)}};
+#else
+    int32_t mono;
+    OPL_Pico_simple(&mono, 1);
+    int16_t s = clamp16(mono);
+    return (sample_pair){.data16 = {s, s}};
+#endif
+}
+
+#ifdef USE_LINEAR_RESAMPLER
 static constexpr uint32_t FRAC_BITS = 16;
-static constexpr uint32_t FRAC_MASK = (1u << FRAC_BITS) - 1;
 static constexpr uint32_t fixed_ratio(uint16_t a, uint16_t b) {
     return ((uint32_t)a << FRAC_BITS) / b;
 }
-
 static constexpr uint32_t opl_ratio = fixed_ratio(49716, 44100);
-static audio_fifo_t opl_out_fifo;
 
-static int16_t get_opl_sample()
+static int32_t opl_resamp_buf_l[2] = {0}, opl_resamp_buf_r[2] = {0};
+static uint32_t opl_resamp_phase = 0;
+
+static sample_pair opl_resample_tick()
 {
-    int16_t opl_current_sample;
-    OPL_Pico_simple(&opl_current_sample, 1);
-    opl_current_sample = scale_sample(opl_current_sample << 1, opl_volume, 1);
-    return opl_current_sample;
+    opl_resamp_phase += opl_ratio;
+    while (opl_resamp_phase >= (1u << 16))
+    {
+        opl_resamp_buf_l[1] = opl_resamp_buf_l[0];
+        opl_resamp_buf_r[1] = opl_resamp_buf_r[0];
+        sample_pair in = get_opl_stereo_sample();
+        opl_resamp_buf_l[0] = in.data16[0];
+        opl_resamp_buf_r[0] = in.data16[1];
+        opl_resamp_phase -= (1u << 16);
+    }
+    int32_t phase_frac = opl_resamp_phase & ((1u << 16) - 1);
+    sample_pair out;
+    out.data16[0] = ((opl_resamp_buf_l[0] * phase_frac) + (opl_resamp_buf_l[1] * ((1 << 16) - phase_frac))) >> 16;
+    out.data16[1] = ((opl_resamp_buf_r[0] * phase_frac) + (opl_resamp_buf_r[1] * ((1 << 16) - phase_frac))) >> 16;
+    return out;
 }
-
-static Resampler<get_opl_sample> resampler;
+#else
+static StereoResampler<get_opl_stereo_sample> opl_resampler;
+#endif
 
 // Setup values for audio sample clock
 // 8390 clock cycles per sample (370MHz / 8390 ~= 44100Hz)
-static constexpr uint32_t clocks_per_sample_minus_one = (SYS_CLK_HZ / 44100) - 1;
+static constexpr uint32_t clocks_per_sample_minus_one = (RP2_CLOCK_SPEED * 1000u / 44100) - 1;
 static constexpr uint pwm_slice_num = 4; // slices 0-3 are taken by USB joystick support
 
-typedef union {
-    uint32_t data32;
-    int16_t data16[2];
-} sample_pair;
+// Max OPL samples to generate per main-loop iteration.
+// Keeps cdrom_tasks() running frequently so the USB drive is never starved.
+// 256 samples ~= 5.8 ms at 44100 Hz — matches one USB audio buffer period.
+static constexpr uint32_t OPL_FILL_PER_ITER = 256;
+
 
 #ifdef CDROM
 static audio_fifo_t* cd_fifo;
@@ -127,39 +180,51 @@ void audio_sample_handler(void) {
     int32_t sample_l = 0, sample_r = 0;
 
 #ifdef SOUND_SB
-    sample_l = sample_r = sbdsp_sample();
+    {
+#ifdef SOUND_WSS
+        uint32_t card_stereo = ad1848_sample_stereo();
+#else
+        uint32_t card_stereo = sbdsp_sample_stereo();
+#endif
+        sample_l = scale_sample((int16_t)(card_stereo & 0xFFFF), volume.sb_pcm[0], 0);
+        sample_r = scale_sample((int16_t)(card_stereo >> 16),    volume.sb_pcm[1], 0);
+    }
 #endif
 
 #ifdef CDROM
-    static uint32_t cd_index = 0;
-    const uint32_t has_cd_samples = fifo_take_samples_inline(cd_fifo, 2);
-    if (has_cd_samples) {
-        sample_l += scale_sample(cd_fifo->buffer[cd_index++], cd_audio_volume, 0);
-        sample_r += scale_sample(cd_fifo->buffer[cd_index++], cd_audio_volume, 0);
-        // sample_l += cd_fifo->buffer[cd_index++];
-        // sample_r += cd_fifo->buffer[cd_index++];
-        cd_index &= AUDIO_FIFO_BITS;
+    if (cd_fifo->state != FIFO_STATE_STOPPED && cd_fifo->write_idx - cd_fifo->read_idx >= 1) {
+        sample_pair cd = cd_fifo->buffer[cd_fifo->read_idx & AUDIO_FIFO_BITS];
+        cd_fifo->read_idx++;
+        if (cd_fifo->write_idx == cd_fifo->read_idx) cd_fifo->state = FIFO_STATE_STOPPED;
+        sample_l += scale_sample(cd.data16[0], volume.cd_audio[0], 0);
+        sample_r += scale_sample(cd.data16[1], volume.cd_audio[1], 0);
     }
 #endif
 
-    static uint32_t opl_out_index = 0;
-    const uint32_t has_opl_samples = fifo_take_samples_inline(&opl_out_fifo, 1);
-    if (has_opl_samples) {
-        int16_t opl_sample = opl_out_fifo.buffer[opl_out_index++];
-        sample_l += opl_sample;
-        sample_r += opl_sample;
-        opl_out_index &= AUDIO_FIFO_BITS;
+    // OPL FIFO: no start-threshold needed (same-core, filled continuously).
+    // Just check level directly.
+    if (opl_out_fifo.write_idx != opl_out_fifo.read_idx) {
+        sample_pair opl = opl_out_fifo.buffer[opl_out_fifo.read_idx & OPL_FIFO_BITS];
+        opl_out_fifo.read_idx++;
+        // 1.5x boost to match DSP levels (DOSBox-X uses SetScale(1.5f) for FM)
+        sample_l += scale_sample((int32_t)opl.data16[0] * 3 >> 1, volume.opl[0], 0);
+        sample_r += scale_sample((int32_t)opl.data16[1] * 3 >> 1, volume.opl[1], 0);
     }
 
-    const sample_pair clamped = {.data16 = {
-        clamp16(sample_l),
-        clamp16(sample_r)
-    }};
-    audio_pio->txf[PICO_AUDIO_I2S_SM] = clamped.data32;
+#ifdef SOUND_SB
+    // apply SB master volume and clamp the output
+    sample_l = scale_sample(sample_l, volume.sb_master[0], 1);
+    sample_r = scale_sample(sample_r, volume.sb_master[1], 1);
+#else
+    sample_l = clamp16(sample_l);
+    sample_r = clamp16(sample_r);
+#endif
+
+    audio_pio->txf[PICO_AUDIO_I2S_SM] = ((sample_l & 0xFFFF) | (sample_r << 16));
 }
 
 void play_adlib() {
-    puts("starting core 1");
+    DBG_PUTS("starting core 1");
     // flash_safe_execute_core_init();
     uint32_t start, end;
     set_volume(CMD_OPLVOL);
@@ -174,25 +239,43 @@ void play_adlib() {
     tuh_init(BOARD_TUH_RHPORT);
 #endif
 
-    clamp_setup();
+    // Configure interp1 clamp for the ISR audio path.
+    // INTERP_VOLCTRL: shift=12 folds >>VOLCTRL_FRACT_BITS into the clamp.
+    // INTERP_CLAMP:   shift=0 for plain clamp (no volume scaling folded in).
+#ifdef INTERP_VOLCTRL
+    clamp_setup(VOLCTRL_FRACT_BITS, 31 - VOLCTRL_FRACT_BITS);
+#else
+    clamp_setup(0, 31);
+#endif
 
 #ifdef SOUND_MPU
     MPU401_Init(settings.MPU.delaySysex, settings.MPU.fakeAllNotesOff);
 #endif
 
 #if SOUND_SB
+#ifdef SOUND_WSS
+    ad1848_init();
+#else
     sbdsp_init();
+    sbdsp_set_type(settings.SB16.sbType);
+    sbdsp_set_irq(settings.SB16.irq);
+    sbdsp_set_dma(settings.SB16.dma);
+    sbdsp_set_options(settings.SB16.options);
+#endif
 #endif
     init_audio();
 
-	resampler.set_ratio(49716,44100);
+#ifdef USE_LINEAR_RESAMPLER
+	// opl_resamp_phase starts at 0; no explicit init needed.
+#else
+	opl_resampler.set_ratio(49716, 44100);
+#endif
 
 #ifdef SOUND_SB
     set_volume(CMD_SBVOL);
 #endif
 
-    printf("opl_ratio: %x ", opl_ratio);
-    uint32_t opl_pos = 0;
+    DBG_PRINTF("OPL stereo pipeline started\n");
 
 #ifdef CDROM
     cd_fifo = cdrom_audio_fifo_peek(&cdrom);
@@ -212,11 +295,12 @@ void play_adlib() {
 
     for (;;) {
 #if CDROM
-        cdrom_audio_callback(&cdrom, 1024);
+        cdrom_audio_callback(&cdrom, AUDIO_FIFO_SIZE - STEREO_SAMPLES_PER_SECTOR);
 #endif
 
-#if OPL_CMD_BUFFER
-        // Process any pending OPL commands
+#if OPL_CMD_BUFFER && USE_EMU8950_OPL
+        // emu8950 doesn't drain the command buffer internally (unlike dbopl/ymfm
+        // which do it in their refill_prebuf()), so drain it here.
         while (opl_cmd_buffer.tail != opl_cmd_buffer.head) {
             auto cmd = opl_cmd_buffer.cmds[opl_cmd_buffer.tail];
             OPL_Pico_WriteRegister(cmd.addr, cmd.data);
@@ -224,11 +308,21 @@ void play_adlib() {
         }
 #endif
 
-        // Generate OPL samples and add to output FIFO
-        while (fifo_free_space(&opl_out_fifo) > 0) {
-            // Interpolate at current position
-            fifo_add_sample(&opl_out_fifo, resampler.get_sample());
-		}
+#if SOUND_SB
+        // Process DSP commands
+        sbdsp_process();
+#endif
+
+        // Generate OPL stereo pairs and add to output FIFO.
+        for (uint32_t opl_i = 0;
+             opl_i < OPL_FILL_PER_ITER && opl_fifo_free_space() >= 1;
+             opl_i++) {
+#ifdef USE_LINEAR_RESAMPLER
+            opl_fifo_add_sample(opl_resample_tick());
+#else
+            opl_fifo_add_sample(opl_resampler.get_sample());
+#endif
+        }
 #ifdef USB_STACK
         // Service TinyUSB events
         tuh_task();
