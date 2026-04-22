@@ -6,10 +6,10 @@
 	(paper "A1")
 	(title_block
 		(title "Raven 68060")
-		(date "2025")
+		(date "2026")
 		(rev "A2")
 		(company "Licensed under CERN-OHL-W v2")
-		(comment 1 "(c)2025 Anders Granlund")
+		(comment 1 "(c)2026 Anders Granlund")
 	)
 	(lib_symbols
 		(symbol "68k:74AHC157D,118"
@@ -11760,6 +11760,28 @@
 			(justify left top)
 		)
 		(uuid "552ae3c1-e165-4d5b-aece-2e7c23261592")
+	)
+	(text_box "todo:\nremove header and clean up routing"
+		(exclude_from_sim no)
+		(at 180.34 119.38 0)
+		(size 48.895 13.335)
+		(margins 0.9525 0.9525 0.9525 0.9525)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(fill
+			(type color)
+			(color 255 230 63 0.53)
+		)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 0 0 0 1)
+			)
+			(justify left top)
+		)
+		(uuid "55baee0d-3c8e-4288-8584-669b6ed343a8")
 	)
 	(text_box "todo:\nMake this a JTAG-reset header\n(12V to /OE1 resets locked jtag pins)\n12V, resistor, jumper.\n"
 		(exclude_from_sim no)
