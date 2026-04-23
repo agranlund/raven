@@ -6908,6 +6908,17 @@
 		)
 		(uuid "618470a8-6ce6-4bb0-84ed-ce7347939642")
 	)
+	(text "rev1. IOA7 reads high.\nrev2. IOA7 reads low.\n\nfor detect presence\nof volume and\nspeaker controls."
+		(exclude_from_sim no)
+		(at 348.234 213.36 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "61fe4cf1-eb0a-47d4-90b3-6fd711fa7bd3")
+	)
 	(text "st:drvbsel"
 		(exclude_from_sim no)
 		(at 303.53 190.5 0)
@@ -7052,6 +7063,16 @@
 			(justify left bottom)
 		)
 		(uuid "9c68996f-6c4a-4fd4-b637-bca91ee4c5d5")
+	)
+	(text "rev_detect"
+		(exclude_from_sim no)
+		(at 350.012 204.978 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "a8b03249-8a0f-4554-8048-5b1ba16bd050")
 	)
 	(text "capable of ste dma freq"
 		(exclude_from_sim no)
@@ -7595,10 +7616,6 @@
 	(no_connect
 		(at 306.07 87.63)
 		(uuid "a1288c94-aa89-4ff9-9278-c24cbfe3c770")
-	)
-	(no_connect
-		(at 352.425 203.2)
-		(uuid "c19d1a30-1ea0-49f9-a290-d93e44f97a68")
 	)
 	(no_connect
 		(at 406.4 198.12)
@@ -9743,6 +9760,16 @@
 	)
 	(wire
 		(pts
+			(xy 344.17 203.2) (xy 344.17 207.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "734c378c-5bda-4c38-bcda-e65e0dbd9b1a")
+	)
+	(wire
+		(pts
 			(xy 412.75 99.06) (xy 426.085 99.06)
 		)
 		(stroke
@@ -10483,7 +10510,7 @@
 	)
 	(wire
 		(pts
-			(xy 300.99 203.2) (xy 352.425 203.2)
+			(xy 300.99 203.2) (xy 344.17 203.2)
 		)
 		(stroke
 			(width 0)
@@ -12320,16 +12347,6 @@
 			(justify left bottom)
 		)
 		(uuid "7a96aa0d-84df-44c3-bac5-6e3f981be104")
-	)
-	(label "YM:IOA7"
-		(at 351.155 203.2 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "7b6754dd-0217-473a-8e96-37b35c8d7f27")
 	)
 	(label "A4"
 		(at 412.75 83.82 0)
@@ -19113,6 +19130,156 @@
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/dacbbff1-3783-4e73-aa71-dbe41700eceb"
 					(reference "#PWR0419")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 344.17 210.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "c28add08-5d7b-470f-9dd0-077fc91816ec")
+		(property "Reference" "R344"
+			(at 344.17 213.36 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10K"
+			(at 342.011 212.725 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
+			(at 342.392 210.82 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 344.17 210.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 344.17 210.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer_Name" "Yageo"
+			(at 344.17 210.82 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" "RT1206FRE0710KL"
+			(at 344.17 210.82 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "9bb89d55-14ab-404e-923f-205e372cbd6b")
+		)
+		(pin "2"
+			(uuid "21a61738-0b38-428b-bb85-4144eca77cac")
+		)
+		(instances
+			(project "raven"
+				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/dacbbff1-3783-4e73-aa71-dbe41700eceb"
+					(reference "R344")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 344.17 214.63 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "c43a707e-38a0-43f6-8961-875be4f472a1")
+		(property "Reference" "#PWR0638"
+			(at 344.17 220.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 344.297 218.821 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 344.17 214.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 344.17 214.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 344.17 214.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "04e48976-e9ad-44fa-abe3-45b059146b04")
+		)
+		(instances
+			(project "raven"
+				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/dacbbff1-3783-4e73-aa71-dbe41700eceb"
+					(reference "#PWR0638")
 					(unit 1)
 				)
 			)
