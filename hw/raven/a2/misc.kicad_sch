@@ -7202,6 +7202,8 @@
 		(effects
 			(font
 				(size 2.54 2.54)
+				(thickness 0.508)
+				(bold yes)
 			)
 			(justify left bottom)
 		)
@@ -7213,6 +7215,8 @@
 		(effects
 			(font
 				(size 2.54 2.54)
+				(thickness 0.508)
+				(bold yes)
 			)
 			(justify left bottom)
 		)
@@ -7224,6 +7228,8 @@
 		(effects
 			(font
 				(size 1.27 1.27)
+				(thickness 0.254)
+				(bold yes)
 			)
 		)
 		(uuid "2149dcf1-a186-4321-b1e5-e9a8ef31730f")
@@ -7266,6 +7272,8 @@
 		(effects
 			(font
 				(size 2.54 2.54)
+				(thickness 0.508)
+				(bold yes)
 			)
 			(justify left bottom)
 		)
@@ -7277,6 +7285,8 @@
 		(effects
 			(font
 				(size 2.54 2.54)
+				(thickness 0.508)
+				(bold yes)
 			)
 			(justify left bottom)
 		)
@@ -7299,6 +7309,8 @@
 		(effects
 			(font
 				(size 2.54 2.54)
+				(thickness 0.508)
+				(bold yes)
 			)
 			(justify left bottom)
 		)
@@ -7386,6 +7398,8 @@
 		(effects
 			(font
 				(size 2.54 2.54)
+				(thickness 0.508)
+				(bold yes)
 			)
 			(justify left bottom)
 		)
@@ -7397,6 +7411,8 @@
 		(effects
 			(font
 				(size 2.54 2.54)
+				(thickness 0.508)
+				(bold yes)
 			)
 			(justify left bottom)
 		)
@@ -7442,6 +7458,8 @@
 		(effects
 			(font
 				(size 2.54 2.54)
+				(thickness 0.508)
+				(bold yes)
 			)
 			(justify left bottom)
 		)
@@ -7464,6 +7482,8 @@
 		(effects
 			(font
 				(size 2.54 2.54)
+				(thickness 0.508)
+				(bold yes)
 			)
 			(justify left bottom)
 		)
