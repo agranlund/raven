@@ -16,7 +16,7 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#include <stdio.h>
+#include "include/pg_debug.h"
 
 #include "tusb.h"
 #include "mouse/8250uart.h"
@@ -77,17 +77,23 @@ struct audio_buffer_pool *init_audio() {
 #endif // CDROM
 
 void play_usb() {
-    puts("starting core 1 USB");
+    DBG_PUTS("starting core 1 USB");
     // flash_safe_execute_core_init();
 
     // board_init();
 
     // Init PIC on this core so it handles timers
     PIC_Init();
-    puts("pic inited on core 1");
+    DBG_PUTS("pic inited on core 1");
 
     // init host stack on configured roothub port
     tuh_init(BOARD_TUH_RHPORT);
+    // Pump USB events for ~500 ms so any device already connected at boot
+    // is fully enumerated before the audio loop starts.
+    {
+        uint32_t deadline = time_us_32() + 500000u;
+        while (time_us_32() < deadline) tuh_task();
+    }
 
 #ifdef SOUND_MPU
     MPU401_Init(settings.MPU.delaySysex, settings.MPU.fakeAllNotesOff);
@@ -99,7 +105,13 @@ void play_usb() {
     for (;;) {
 #ifdef CDROM
         if (cdrom.cd_status == CD_STATUS_PLAYING) {
-            struct audio_buffer *buffer = take_audio_buffer(ap, true);
+            // Non-blocking poll: keep servicing USB while waiting for a free
+            // audio buffer so TinyUSB transactions don't time out during the
+            // ~5.8 ms buffer period (256 samples @ 44100 Hz).
+            struct audio_buffer *buffer;
+            while (!(buffer = take_audio_buffer(ap, false))) {
+                tuh_task();
+            }
             int16_t *samples = (int16_t *) buffer->buffer->bytes;
             buffer->sample_count = cdrom_audio_callback_simple(&cdrom, samples, SAMPLES_PER_BUFFER << 1, false) >> 1;
             if (buffer->sample_count == 0) {

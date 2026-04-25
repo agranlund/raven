@@ -16,17 +16,19 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#include <stdio.h>
+#include "include/pg_debug.h"
 // #include "stdio_async_uart.h"
 #include <math.h>
 
 #if PICO_ON_DEVICE
 #include "hardware/clocks.h"
 #include "hardware/structs/clocks.h"
+#include "hardware/pwm.h"
+#include "hardware/pio.h"
 #endif
 
 #include "pico/stdlib.h"
-#include "pico/audio_i2s.h"
+#include "audio/audio_i2s_minimal.h"
 
 #include "system/pico_pic.h"
 
@@ -55,49 +57,58 @@ extern irq_handler_t GUS_DMA_isr_pt;
 extern dma_inst_t dma_config;
 
 #include "gus/gus-x.h"
-#define SAMPLES_PER_BUFFER 1024
 
 #define DMA_PIO_SM 2
 
-struct audio_buffer_pool *init_audio() {
+#define audio_pio __CONCAT(pio, PICO_AUDIO_I2S_PIO)
 
-    static audio_format_t audio_format = {
-            .sample_freq = 44100,
-            .format = AUDIO_BUFFER_FORMAT_PCM_S16,
-            .channel_count = 2,
-    };
-
-    static struct audio_buffer_format producer_format = {
-            .format = &audio_format,
-            .sample_stride = 4
-    };
-
-    struct audio_buffer_pool *producer_pool = audio_new_producer_pool(&producer_format, 2,
-                                                                      SAMPLES_PER_BUFFER); // todo correct size
-    bool __unused ok;
-    const struct audio_format *output_format;
-    struct audio_i2s_config config = {
+static void init_audio(void) {
+    const struct audio_i2s_config config = {
             .data_pin = PICO_AUDIO_I2S_DATA_PIN,
             .clock_pin_base = PICO_AUDIO_I2S_CLOCK_PIN_BASE,
             .dma_channel = 6,
-            .pio_sm = 3,
+            .pio_sm = PICO_AUDIO_I2S_SM,
     };
+    audio_i2s_minimal_setup(&config, 44100);
+}
 
-    output_format = audio_i2s_setup(&audio_format, &config);
-    if (!output_format) {
-        panic("PicoAudio: Unable to open audio device.\n");
-    }
+static constexpr uint pwm_slice_num = 4; // slices 0-3 are taken by USB joystick support
+// SYS_CLK / GUS_CLOCK (19.7568MHz) reduced by GCD of 3200: 115625 / 6174
+static constexpr uint32_t CLK_RATIO_NUM = RP2_CLOCK_SPEED * 1000u / 3200; // 115625
+static constexpr uint32_t CLK_RATIO_DEN = 19756800u / 3200;               // 6174
+static uint8_t current_gus_channels = 14;
 
-    //ok = audio_i2s_connect(producer_pool);
-    ok = audio_i2s_connect_extra(producer_pool, false, 1, SAMPLES_PER_BUFFER, NULL);
-    assert(ok);
-    audio_i2s_set_enabled(true);
-    return producer_pool;
+void audio_sample_handler(void) {
+    pwm_clear_irq(pwm_slice_num);
+
+    uint32_t sample = GUS_sample_stereo();
+    audio_pio->txf[PICO_AUDIO_I2S_SM] = sample;
+}
+
+// Clocks per GUS sample = round(SYS_CLK * 32 * channels / GUS_CLOCK)
+static inline uint32_t gus_clocks_per_sample(uint8_t channels) {
+    return (CLK_RATIO_NUM * 32u * channels + CLK_RATIO_DEN / 2) / CLK_RATIO_DEN;
+}
+
+// Update PWM IRQ rate and I2S PIO clock divider for new GUS channel count
+// GUS sample rate = GUS_CLOCK / (32 * channels)
+static void update_gus_timing(uint8_t channels) {
+    current_gus_channels = channels;
+
+    uint32_t cps = gus_clocks_per_sample(channels);
+    pwm_set_wrap(pwm_slice_num, cps - 1);
+    pwm_hw->slice[pwm_slice_num].ctr = 0; // Reset counter to take effect immediately
+
+    // I2S PIO divider (16.8 fixed point) = 4x clocks per sample
+    uint32_t divider = cps * 4;
+    pio_sm_set_clkdiv_int_frac(audio_pio, PICO_AUDIO_I2S_SM, divider >> 8u, divider & 0xffu);
+
+    DBG_PRINTF("GUS channels: %u\n", channels);
 }
 
 // void __xip_cache("my_sub_section") (play_gus)(void) {
 void play_gus() {
-    puts("starting core 1");
+    DBG_PUTS("starting core 1");
     // flash_safe_execute_core_init();
     uint32_t start, end;
 
@@ -105,35 +116,36 @@ void play_gus() {
     PIC_Init();
 
     // Init ISA DMA on this core so it handles the ISR
-    puts("Initing ISA DMA PIO...");
+    DBG_PUTS("Initing ISA DMA PIO...");
     dma_config = DMA_init(pio0, DMA_PIO_SM, GUS_DMA_isr_pt);
 
 #ifdef PSRAM_CORE1
 #ifdef PSRAM
-    puts("Initing PSRAM...");
+    DBG_PUTS("Initing PSRAM...");
     psram_spi = psram_spi_init_clkdiv(pio1, -1, 1.6);
 #if TEST_PSRAM
-    puts("Writing PSRAM...");
+    DBG_PUTS("Writing PSRAM...");
     uint8_t deadbeef[8] = {0xd, 0xe, 0xa, 0xd, 0xb, 0xe, 0xe, 0xf};
     for (uint32_t addr = 0; addr < (1024 * 1024); ++addr) {
         psram_write8_async(&psram_spi, addr, (addr & 0xFF));
     }
-    puts("Reading PSRAM...");
+    DBG_PUTS("Reading PSRAM...");
     uint32_t psram_begin = time_us_32();
     for (uint32_t addr = 0; addr < (1024 * 1024); ++addr) {
         uint8_t result = psram_read8(&psram_spi, addr);
         if (static_cast<uint8_t>((addr & 0xFF)) != result) {
-            printf("\nPSRAM failure at address %x (%x != %x)\n", addr, addr & 0xFF, result);
+            DBG_PRINTF("\nPSRAM failure at address %x (%x != %x)\n", addr, addr & 0xFF, result);
             return;
         }
     }
     uint32_t psram_elapsed = time_us_32() - psram_begin;
     float psram_speed = 1000000.0 * 1024.0 * 1024 / psram_elapsed;
-    printf("8 bit: PSRAM read 1MB in %d us, %d B/s (target 705600 B/s)\n", psram_elapsed, (uint32_t)psram_speed);
+    DBG_PRINTF("8 bit: PSRAM read 1MB in %d us, %d B/s (target 705600 B/s)\n", psram_elapsed, (uint32_t)psram_speed);
 #endif
 #endif
 #endif
     GUS_Setup();
+
 #ifdef USB_STACK
     // Init TinyUSB for joystick support
     tuh_init(BOARD_TUH_RHPORT);
@@ -143,42 +155,32 @@ void play_gus() {
     MPU401_Init(settings.MPU.delaySysex, settings.MPU.fakeAllNotesOff);
 #endif
 
-    struct audio_buffer_pool *ap = init_audio();
-    for (;;) {
-        // uint8_t active_voices = GUS_activeChannels();
-        uint32_t playback_rate = GUS_basefreq();
-        // if GUS sample rate changed
-        if (ap->format->sample_freq != playback_rate) {
-            // printf("changing sample rate to %d", playback_rate);
-            // todo hack overwriting const
-            ((struct audio_format *) ap->format)->sample_freq = playback_rate;
-        }
-        struct audio_buffer *buffer = take_audio_buffer(ap, true);
-        int16_t *samples = (int16_t *) buffer->buffer->bytes;
+    init_audio();
 
-        // uint32_t gus_audio_begin = time_us_32();
-        uint32_t sample_count = GUS_CallBack(buffer->max_sample_count, samples);
-        buffer->sample_count = sample_count;
-        /*
-        uint32_t gus_audio_elapsed = time_us_32() - gus_audio_begin;
-        if (active_voices) {
-            // printf("%d\n", gus->active_voices);
-            // printf("%d us %d samples (tgt 23220)\n", gus_audio_elapsed, buffer->max_sample_count);
-            // uart_print_hex_u32(gus_audio_elapsed);
-            if (gus_audio_elapsed > 23220) {
-                gpio_xor_mask(1u << PICO_DEFAULT_LED_PIN);
-            }
+    DBG_PRINTF("GUS IRQ-driven audio started\n");
+
+    // Use the PWM peripheral to trigger an IRQ at the GUS sample rate
+    pwm_config pwm_c = pwm_get_default_config();
+    pwm_config_set_wrap(&pwm_c, gus_clocks_per_sample(current_gus_channels) - 1);
+    pwm_init(pwm_slice_num, &pwm_c, false);
+    pwm_set_irq_enabled(pwm_slice_num, true);
+    irq_set_exclusive_handler(PWM_IRQ_WRAP, audio_sample_handler);
+    irq_set_priority(PWM_IRQ_WRAP, PICO_LOWEST_IRQ_PRIORITY);
+    irq_set_enabled(PWM_IRQ_WRAP, true);
+    pwm_set_enabled(pwm_slice_num, true);
+
+    for (;;) {
+        // Check if GUS channel count changed
+        uint8_t channels = GUS_timingChannels();
+        if (channels != current_gus_channels) {
+            update_gus_timing(channels);
         }
-        */
-        // gpio_xor_mask(1u << PICO_DEFAULT_LED_PIN);
-        give_audio_buffer(ap, buffer);
 #ifdef USB_STACK
         // Service TinyUSB events
         tuh_task();
 #endif
 #ifdef SOUND_MPU
-        // Calculate number of midi bytes to send at current sample rate and number of samples generated
-        send_midi_bytes(MAX(31250 * sample_count / playback_rate + 1, 8));
+        send_midi_bytes(8);
 #endif
     }
 }

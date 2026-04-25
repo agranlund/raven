@@ -16,8 +16,9 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#include <stdio.h>
 #include <math.h>
+
+#include "include/pg_debug.h"
 
 #if PICO_ON_DEVICE
 
@@ -107,17 +108,23 @@ struct audio_buffer_pool *init_audio() {
 }
 
 void play_psg() {
-    puts("starting core 1 psg");
+    DBG_PUTS("starting core 1 psg");
     // flash_safe_execute_core_init();
 
 #if defined(USB_MOUSE) || defined(SOUND_MPU)
     // Init PIC on this core so it handles timers
     PIC_Init();
-    puts("pic inited on core 1");
+    DBG_PUTS("pic inited on core 1");
 #endif
 #ifdef USB_STACK
     // Init TinyUSB for joystick support
     tuh_init(BOARD_TUH_RHPORT);
+    // Pump USB events for ~500 ms so any device already connected at boot
+    // is fully enumerated before the audio loop starts.
+    {
+        uint32_t deadline = time_us_32() + 500000u;
+        while (time_us_32() < deadline) tuh_task();
+    }
 #endif
 
 #ifdef SOUND_MPU
@@ -162,7 +169,14 @@ void play_psg() {
 #endif
 
         memset(buf, 0, sizeof(buf));
-        struct audio_buffer *buffer = take_audio_buffer(ap, true);
+        // Non-blocking poll: keep servicing USB while waiting for a free
+        // audio buffer so TinyUSB transactions don't time out.
+        struct audio_buffer *buffer;
+        while (!(buffer = take_audio_buffer(ap, false))) {
+#ifdef USB_STACK
+            tuh_task();
+#endif
+        }
         int16_t *samples = (int16_t *) buffer->buffer->bytes;
       
 #if SOUND_TANDY
@@ -173,8 +187,8 @@ void play_psg() {
         cms.generator(1).generate_frames(buf, SAMPLES_PER_BUFFER);
 #endif
         for (int i = 0; i < SAMPLES_PER_BUFFER; ++i) {          
-            samples[i << 1] = scale_sample(buf[i << 1], psg_volume, 0);
-            samples[(i << 1) + 1] = scale_sample(buf[(i << 1) + 1], psg_volume, 0);
+            samples[i << 1]       = scale_sample(buf[i << 1],       volume.psg, 0);
+            samples[(i << 1) + 1] = scale_sample(buf[(i << 1) + 1], volume.psg, 0);
         }
         buffer->sample_count = SAMPLES_PER_BUFFER;
 

@@ -17,9 +17,10 @@
  */
 
 #include <string.h>
-#include <stdio.h>
 
 #include "flash_settings.h"
+#include "../include/pg_debug.h"
+#include "overclock.h"
 #include "hardware/flash.h"
 #include "hardware/sync.h"
 #include "hardware/clocks.h"
@@ -85,6 +86,13 @@ static const Settings defaultSettings = {
         .cdVol = 100,
         .gusVol = 100,
         .psgVol = 80
+    },
+    .SB16 = {
+        .irq = 5,
+        .dma = 1,
+        .sbType = 6,
+        .fixTC = 0,
+        .lockMixer = 0
     }
 };
 
@@ -126,6 +134,11 @@ static const VersionFields versionFieldsTable[] = {
     {(const FieldInfo[]){
         FIELD(Volume),
     }, 1},
+
+    // version 5 - added SB16 settings
+    {(const FieldInfo[]){
+        FIELD(SB16),
+    }, 1},
 };
 
 // Apply default values only to fields introduced after the given version
@@ -160,13 +173,13 @@ static void migrateSettings(Settings* settings, uint8_t oldVersion) {
 
 void loadSettings(Settings* settings, bool migrate)
 {
-    printf("copying settings to %u from %u with size %u\n", settings, XIP_BASE + SETTINGS_SECTOR, sizeof(Settings));
+    DBG_PRINTF("copying settings to %u from %u with size %u\n", settings, XIP_BASE + SETTINGS_SECTOR, sizeof(Settings));
     memcpy(settings, (void *)(XIP_BASE + SETTINGS_SECTOR), sizeof(Settings));
     /* stdio_flush(); */
 
     if (settings->magic != SETTINGS_MAGIC || settings->version > SETTINGS_VERSION) {
         // No valid settings found, use defaults
-        puts("No valid settings found, using defaults");
+        DBG_PUTS("No valid settings found, using defaults");
         stdio_flush();
         memcpy(settings, &defaultSettings, sizeof(Settings));
         return;
@@ -174,7 +187,7 @@ void loadSettings(Settings* settings, bool migrate)
 
     if (migrate && settings->version < SETTINGS_VERSION) {
         // Older version found - preserve existing fields, apply defaults to new ones
-        printf("Migrating settings from version %d to %d\n", settings->version, SETTINGS_VERSION);
+        DBG_PRINTF("Migrating settings from version %d to %d\n", settings->version, SETTINGS_VERSION);
         stdio_flush();
         migrateSettings(settings, settings->version);
     }
@@ -188,20 +201,20 @@ void saveSettings(const Settings* settings)
     uint8_t data[FLASH_PAGE_SIZE] = {0};
     static_assert(sizeof(Settings) < FLASH_PAGE_SIZE, "Settings struct doesn't fit inside one flash page");
     memcpy(data, settings, sizeof(Settings));
-    printf("doing settings save: ");
+    DBG_PRINTF("doing settings save: ");
     // No need for flash_safe_execute or stop second core, since it will not touch flash
     // If the 2nd core will ever touch flash, reconsider this approach!
     // Clock down the RP2040 so the flash at its default 1/2 clock divider is within spec (<=133MHz)
     set_sys_clock_khz(240000, true);
 
-    putchar('/');
+    DBG_PUTCHAR('/');
     uint32_t ints = save_and_disable_interrupts();
     flash_range_erase(SETTINGS_SECTOR, FLASH_SECTOR_SIZE);    // last sector
-    putchar('/');
+    DBG_PUTCHAR('/');
     flash_range_program(SETTINGS_SECTOR, data, FLASH_PAGE_SIZE);
-    set_sys_clock_khz(RP2_CLOCK_SPEED, true);
     restore_interrupts(ints);
-    printf("settings saved");
+    overclock_370mhz();
+    DBG_PRINTF("settings saved");
 }
 
 void getDefaultSettings(Settings* settings)
