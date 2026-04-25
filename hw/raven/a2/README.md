@@ -32,18 +32,18 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - Added pulldown on IDE:IRQ
 - Added i2c eprom with preprogrammed MAC address
 - Added i2c expansion header
-- Added internal USB header (two ports)
-- Added W5100s ethernet controller
 - Replaced Eiffel with CKBD
-- Replaced 2xPS2 connector with 2xUSB + Ethernet
+- Replaced 2xPS2 connector with 2xUSB
 - CPU temperature sensor to CKBD
 - PowerOff control from CKBD
 - PowerSwitch status can be read through XR68M752 (detect powerbutton held down during boot)
 - Replaced one 12V fan header with PWM + ARGB
 - Changed IDE interface to big endian as standard on Atari machines
+- Added volume controller for YM
+- Added internal speaker amp + header
+- WIP: adding DSP56303
 
 ## Planned:
-- get rid of old ym pins expansion header
 
 ## Optional / non-critical:
 - Pushbuttons:     SW101, SW201, SW202

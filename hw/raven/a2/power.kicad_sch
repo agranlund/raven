@@ -6,10 +6,10 @@
 	(paper "A4")
 	(title_block
 		(title "Raven 68060")
-		(date "2025")
+		(date "2026")
 		(rev "A2")
 		(company "Licensed under CERN-OHL-W v2")
-		(comment 1 "(c)2025 Anders Granlund")
+		(comment 1 "(c)2026 Anders Granlund")
 	)
 	(lib_symbols
 		(symbol "68k:171856-1003"
@@ -4343,6 +4343,8 @@
 		(effects
 			(font
 				(size 1.27 1.27)
+				(thickness 0.254)
+				(bold yes)
 			)
 			(justify left top)
 		)
@@ -4363,6 +4365,8 @@
 		(effects
 			(font
 				(size 1.27 1.27)
+				(thickness 0.254)
+				(bold yes)
 			)
 			(justify left top)
 		)
@@ -4383,6 +4387,8 @@
 		(effects
 			(font
 				(size 1.27 1.27)
+				(thickness 0.254)
+				(bold yes)
 			)
 			(justify left top)
 		)
@@ -4403,6 +4409,8 @@
 		(effects
 			(font
 				(size 1.27 1.27)
+				(thickness 0.254)
+				(bold yes)
 			)
 			(justify left top)
 		)
@@ -4423,6 +4431,8 @@
 		(effects
 			(font
 				(size 1.27 1.27)
+				(thickness 0.254)
+				(bold yes)
 			)
 			(justify left top)
 		)
@@ -4443,6 +4453,8 @@
 		(effects
 			(font
 				(size 1.27 1.27)
+				(thickness 0.254)
+				(bold yes)
 			)
 			(justify left top)
 		)
@@ -4463,6 +4475,8 @@
 		(effects
 			(font
 				(size 1.27 1.27)
+				(thickness 0.254)
+				(bold yes)
 			)
 			(justify left top)
 		)
@@ -4483,6 +4497,8 @@
 		(effects
 			(font
 				(size 1.27 1.27)
+				(thickness 0.254)
+				(bold yes)
 			)
 			(justify left top)
 		)
@@ -4503,6 +4519,8 @@
 		(effects
 			(font
 				(size 1.27 1.27)
+				(thickness 0.254)
+				(bold yes)
 			)
 			(justify left top)
 		)
