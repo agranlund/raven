@@ -11070,7 +11070,7 @@
 			)
 		)
 	)
-	(global_label "USB2:D-"
+	(global_label "USB1:D-"
 		(shape bidirectional)
 		(at 34.29 205.74 180)
 		(fields_autoplaced yes)
@@ -12434,7 +12434,7 @@
 			)
 		)
 	)
-	(global_label "USB2:D+"
+	(global_label "USB1:D+"
 		(shape bidirectional)
 		(at 34.29 208.28 180)
 		(fields_autoplaced yes)
