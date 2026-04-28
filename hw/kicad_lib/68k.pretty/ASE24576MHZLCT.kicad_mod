@@ -1,0 +1,234 @@
+(footprint "ASE24576MHZLCT"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(descr "ASE")
+	(tags "Crystal or Oscillator")
+	(property "Reference" "Y**"
+		(at 0 0.138 0)
+		(layer "F.SilkS")
+		(uuid "0814ee64-c0a4-4c9c-90db-f7fe9268a35e")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.254)
+			)
+		)
+	)
+	(property "Value" "ASE24576MHZLCT"
+		(at 0 0.138 0)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "5f228f94-0ea0-40f5-bc8f-b3064880c97d")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.254)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "094ed92b-6af4-4dc0-97e7-3df4bc24c2e4")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "868a8b56-c285-42a6-a349-12a844bc057e")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_line
+		(start -1.6 -0.1)
+		(end -1.6 0.1)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "9519c4b2-88ff-488e-aa62-cb690b8620a4")
+	)
+	(fp_line
+		(start -0.2 -1.25)
+		(end 0.2 -1.25)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "40855ad7-cb6e-4436-8207-fe42df7965a1")
+	)
+	(fp_line
+		(start -0.2 1.25)
+		(end 0.2 1.25)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "d2a744f4-abab-422d-b07b-cae8e9e228ef")
+	)
+	(fp_line
+		(start 1.6 -0.1)
+		(end 1.6 0.1)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "50ac5807-49ac-4523-a9ef-0f84dff83cc8")
+	)
+	(fp_rect
+		(start -1.4 1.65)
+		(end -0.8 2.1)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill yes)
+		(layer "F.SilkS")
+		(uuid "83de7c20-0118-45e0-85a7-4bec196b8186")
+	)
+	(fp_line
+		(start -2.7 -2.375)
+		(end 2.7 -2.375)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "891dcebf-3474-41bb-b0bc-770326b1bced")
+	)
+	(fp_line
+		(start -2.7 2.65)
+		(end -2.7 -2.375)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "acfdae1b-a0ff-423b-a19b-5808b86cf706")
+	)
+	(fp_line
+		(start 2.7 -2.375)
+		(end 2.7 2.65)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "42bf436f-da76-4bd5-bc14-e37fd120ce19")
+	)
+	(fp_line
+		(start 2.7 2.65)
+		(end -2.7 2.65)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "b24ebce5-c375-47b0-beac-8914e8d36a2d")
+	)
+	(fp_line
+		(start -1.6 -1.25)
+		(end 1.6 -1.25)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "3d9c36c9-d079-47cb-a9fe-dc40d47cc16e")
+	)
+	(fp_line
+		(start -1.6 1.25)
+		(end -1.6 -1.25)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "2b8b10f8-2f7b-4a66-8b0b-2c824d0fc2f3")
+	)
+	(fp_line
+		(start 1.6 -1.25)
+		(end 1.6 1.25)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "62f93ed8-bedf-43c6-9d33-633da8b32aed")
+	)
+	(fp_line
+		(start 1.6 1.25)
+		(end -1.6 1.25)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "741162fd-32cf-401e-bb00-d7ce42a9f42c")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 0.138 0)
+		(layer "F.Fab")
+		(uuid "906ebca8-cbda-433a-98f2-ec0f8f228431")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.254)
+			)
+		)
+	)
+	(pad "1" smd rect
+		(at -1.15 0.8875 90)
+		(size 1.225 1.5)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "d4216c67-4ff3-4df5-9ae7-8db5c8e2794f")
+	)
+	(pad "2" smd rect
+		(at 1.15 0.8875 90)
+		(size 1.225 1.5)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "4db29fd3-91ff-4777-9671-00942f3d847a")
+	)
+	(pad "3" smd rect
+		(at 1.15 -0.8875 90)
+		(size 1.225 1.5)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "6ab30037-6200-4838-9216-5cb465f6db4a")
+	)
+	(pad "4" smd rect
+		(at -1.15 -0.8875 90)
+		(size 1.225 1.5)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "b22b232b-80d6-4fb7-a53b-cd9a2f3fbb38")
+	)
+	(embedded_fonts no)
+	(model "ASE-24.000MHZ-L-C-T.stp"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)
