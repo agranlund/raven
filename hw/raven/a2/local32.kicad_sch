@@ -16172,7 +16172,7 @@
 		)
 		(uuid "2b3340ec-50a4-4e87-9501-3b7c4e972fd8")
 	)
-	(text "\n  logical     physical\nP 00000-0FFFF 00000-0FFFF\nY 00000-0FFFF 00000-0FFFF\nX 00000-0FFFF 10000-1FFFF\n\nDSP_AA0 P,Y   SRAM_CE1  active low\nDSP_AA1 X     SRAM_A16  active high\n"
+	(text "\n  logical       physical\nP 00000-0FFFF   00000-0FFFF\nY 00000-0FFFF   00000-0FFFF\nX 00000-0FFFF   10000-1FFFF\n\nDSP_AA0 P,Y,X   SRAM_CE1  active low\nDSP_AA1 X       SRAM_A16  active high\n"
 		(exclude_from_sim no)
 		(at 34.036 421.513 0)
 		(effects
