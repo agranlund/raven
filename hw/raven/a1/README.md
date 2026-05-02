@@ -18,7 +18,11 @@ Tested with 48mhz oscillator for 96mhz CPU, 48mhz BUS speed.
 - [Interactive BOM](https://htmlpreview.github.io/?https://github.com/agranlund/raven/blob/main/hw/raven/a1/production/raven-a1_ibom.html)
 
 
+## Errors to consider when building:
+- C601-C604 capacitor orientation is wrong. Solder reverse of what silkscreen says.
+- J305 silkscreen mislabeled; Pinout is same as J206 above.
 
+  
 ## Changelog:
 - Changed locations of H607, H609
 - Changed IDE ADR: A1:A3 -> A2:A4
