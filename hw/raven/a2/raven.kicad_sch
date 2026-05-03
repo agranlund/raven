@@ -12034,6 +12034,12 @@
 		(uuid "0347f941-e8ee-4eb8-9105-dc5d6cb8428c")
 	)
 	(junction
+		(at 762 41.91)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "040c8f97-4190-4351-8bf2-1092daf606db")
+	)
+	(junction
 		(at 702.945 385.445)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -12056,6 +12062,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "091453fb-cc31-43ce-8587-766881030f17")
+	)
+	(junction
+		(at 762 35.56)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "0af97d7e-8635-40cc-87b8-6d5921479ad4")
 	)
 	(junction
 		(at 580.39 124.46)
@@ -12428,6 +12440,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "42f531c2-b94f-411b-9835-34649039caaa")
+	)
+	(junction
+		(at 751.84 41.91)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "43166393-3ca3-4a9d-bcc5-37b9de512278")
 	)
 	(junction
 		(at 674.37 448.945)
@@ -13430,6 +13448,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "e26f87e7-7625-4dac-a3ae-ce875fa2f9b5")
+	)
+	(junction
+		(at 751.84 35.56)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "e406f092-c656-44f6-b0a4-7057ae9c9e34")
 	)
 	(junction
 		(at 92.71 494.665)
@@ -18525,6 +18549,16 @@
 	)
 	(wire
 		(pts
+			(xy 762 41.91) (xy 768.35 41.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2fa2eedf-a96a-41f0-a163-81c2ff8414be")
+	)
+	(wire
+		(pts
 			(xy 718.185 180.34) (xy 718.185 179.07)
 		)
 		(stroke
@@ -21585,6 +21619,16 @@
 	)
 	(wire
 		(pts
+			(xy 768.35 41.91) (xy 768.35 41.275)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6750ab13-7ece-4040-8a3d-d4650a1b3ad8")
+	)
+	(wire
+		(pts
 			(xy 286.385 410.845) (xy 288.925 410.845)
 		)
 		(stroke
@@ -21652,6 +21696,16 @@
 			(type default)
 		)
 		(uuid "6818143d-91de-4010-9c58-ef589673acf3")
+	)
+	(wire
+		(pts
+			(xy 751.84 41.91) (xy 762 41.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "68275dfa-1c95-49f0-8bf8-fd97e338c4ef")
 	)
 	(bus
 		(pts
@@ -25735,6 +25789,16 @@
 	)
 	(wire
 		(pts
+			(xy 751.84 35.56) (xy 762 35.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "af71f2cd-90a3-41b5-aec7-a473ada50461")
+	)
+	(wire
+		(pts
 			(xy 203.835 216.535) (xy 201.295 216.535)
 		)
 		(stroke
@@ -26295,6 +26359,16 @@
 	)
 	(wire
 		(pts
+			(xy 762 35.56) (xy 762 36.195)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b94b5105-41da-4a20-b5b4-58addc8f7e38")
+	)
+	(wire
+		(pts
 			(xy 92.71 548.005) (xy 101.6 548.005)
 		)
 		(stroke
@@ -26822,6 +26896,16 @@
 			(type default)
 		)
 		(uuid "c3c2f930-5447-40c4-9305-deff158171a1")
+	)
+	(wire
+		(pts
+			(xy 768.35 35.56) (xy 768.35 36.195)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c4098619-7bb1-4237-a76e-d8cd3d4ee38f")
 	)
 	(wire
 		(pts
@@ -28815,6 +28899,16 @@
 	)
 	(wire
 		(pts
+			(xy 762 41.275) (xy 762 41.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ecdc229d-8bbc-4526-944b-46cac9dcef52")
+	)
+	(wire
+		(pts
 			(xy 283.845 216.535) (xy 281.305 216.535)
 		)
 		(stroke
@@ -29862,6 +29956,16 @@
 			(type default)
 		)
 		(uuid "fd6a9ace-5208-4cf6-b106-1030846d7b18")
+	)
+	(wire
+		(pts
+			(xy 762 35.56) (xy 768.35 35.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fd8ea67e-a5a4-4067-9b61-35efc4a62bf4")
 	)
 	(wire
 		(pts
@@ -36998,7 +37102,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "0a63623c-f0f3-417c-8f17-5f5cc65fc711")
-		(property "Reference" "C105"
+		(property "Reference" "C107"
 			(at 591.185 48.26 90)
 			(effects
 				(font
@@ -37093,7 +37197,7 @@
 			)
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C105")
+					(reference "C107")
 					(unit 1)
 				)
 			)
@@ -37108,7 +37212,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "0aaa6256-e97b-4685-8812-e468b48c7876")
-		(property "Reference" "C106"
+		(property "Reference" "C108"
 			(at 591.185 52.705 90)
 			(effects
 				(font
@@ -37203,7 +37307,7 @@
 			)
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C106")
+					(reference "C108")
 					(unit 1)
 				)
 			)
@@ -37940,6 +38044,91 @@
 		)
 	)
 	(symbol
+		(lib_name "c_100nf_smd1206_1")
+		(lib_id "68k:c_100nf_smd1206")
+		(at 768.35 38.735 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "117da9f9-2436-41a8-85e3-d87e3a9238c8")
+		(property "Reference" "C106"
+			(at 771.525 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "1u"
+			(at 770.89 40.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder"
+			(at 774.7 13.335 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.mouser.se/datasheet/2/447/KEM_C1002_X7R_SMD-3316098.pdf"
+			(at 768.35 15.875 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 768.35 38.735 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer_Name" "Kemet"
+			(at 802.64 20.955 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" "C1206C105K4RACTU"
+			(at 796.29 18.415 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "79871e08-b318-43da-b0a0-34b14ead1619")
+		)
+		(pin "1"
+			(uuid "95c6572e-a22f-4bbf-81de-49ea3a37a5d6")
+		)
+		(instances
+			(project "raven"
+				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
+					(reference "C106")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R_Network08_Split")
 		(at 725.805 190.5 90)
 		(unit 3)
@@ -38249,7 +38438,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "16da364c-1492-45ec-9439-5b5d0f89ef3c")
-		(property "Reference" "C108"
+		(property "Reference" "C110"
 			(at 18.415 121.285 0)
 			(effects
 				(font
@@ -38320,7 +38509,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C108")
+					(reference "C110")
 					(unit 1)
 				)
 			)
@@ -38751,7 +38940,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "1ca5bcec-c3ef-4fcc-8bf3-7aa45c4be19e")
-		(property "Reference" "C109"
+		(property "Reference" "C111"
 			(at 588.01 123.19 90)
 			(effects
 				(font
@@ -38846,7 +39035,7 @@
 			)
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C109")
+					(reference "C111")
 					(unit 1)
 				)
 			)
@@ -39207,7 +39396,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "2566e58c-8438-404b-b1c5-96f69986728c")
-		(property "Reference" "C110"
+		(property "Reference" "C112"
 			(at 25.4 163.195 0)
 			(effects
 				(font
@@ -39276,7 +39465,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C110")
+					(reference "C112")
 					(unit 1)
 				)
 			)
@@ -40232,7 +40421,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "2f296338-edbc-44c6-88e3-609294d77259")
-		(property "Reference" "C117"
+		(property "Reference" "C119"
 			(at 660.4 450.215 0)
 			(effects
 				(font
@@ -40301,7 +40490,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C117")
+					(reference "C119")
 					(unit 1)
 				)
 			)
@@ -41254,7 +41443,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "3a2c5345-e37e-436a-863d-7bbf9b25ed14")
-		(property "Reference" "C115"
+		(property "Reference" "C117"
 			(at 632.46 450.215 0)
 			(effects
 				(font
@@ -41323,7 +41512,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C115")
+					(reference "C117")
 					(unit 1)
 				)
 			)
@@ -41953,7 +42142,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "43322365-c091-4566-ac91-3db9507fb70b")
-		(property "Reference" "C120"
+		(property "Reference" "C122"
 			(at 253.365 478.155 0)
 			(effects
 				(font
@@ -42022,7 +42211,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C120")
+					(reference "C122")
 					(unit 1)
 				)
 			)
@@ -42423,7 +42612,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "495a4221-a9a2-4a85-acf0-580f258984fa")
-		(property "Reference" "C112"
+		(property "Reference" "C114"
 			(at 613.41 450.215 0)
 			(effects
 				(font
@@ -42492,7 +42681,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C112")
+					(reference "C114")
 					(unit 1)
 				)
 			)
@@ -44146,7 +44335,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "623c13c4-7ba2-4076-9d75-dd07080a07be")
-		(property "Reference" "C111"
+		(property "Reference" "C113"
 			(at 31.75 163.195 0)
 			(effects
 				(font
@@ -44215,7 +44404,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C111")
+					(reference "C113")
 					(unit 1)
 				)
 			)
@@ -44317,7 +44506,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "688aed0a-4335-4802-8269-39af1fbd86d3")
-		(property "Reference" "C119"
+		(property "Reference" "C121"
 			(at 683.895 450.215 0)
 			(effects
 				(font
@@ -44386,7 +44575,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C119")
+					(reference "C121")
 					(unit 1)
 				)
 			)
@@ -44401,7 +44590,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "68d6912e-29e2-4950-918b-0a94dbff30dc")
-		(property "Reference" "C107"
+		(property "Reference" "C109"
 			(at 588.01 119.38 90)
 			(effects
 				(font
@@ -44496,7 +44685,7 @@
 			)
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C107")
+					(reference "C109")
 					(unit 1)
 				)
 			)
@@ -44891,7 +45080,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6d5a4f43-1149-43e3-b23c-c12989f23c16")
-		(property "Reference" "C122"
+		(property "Reference" "C124"
 			(at 266.065 478.155 0)
 			(effects
 				(font
@@ -44960,7 +45149,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C122")
+					(reference "C124")
 					(unit 1)
 				)
 			)
@@ -45621,7 +45810,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "79c5cbaf-a09b-4cc5-b12a-6068c26db754")
-		(property "Reference" "C128"
+		(property "Reference" "C130"
 			(at 315.595 478.155 0)
 			(effects
 				(font
@@ -45690,7 +45879,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C128")
+					(reference "C130")
 					(unit 1)
 				)
 			)
@@ -46534,7 +46723,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "83f2f45f-1fc0-4705-bcd9-19d484cc9b29")
-		(property "Reference" "C126"
+		(property "Reference" "C128"
 			(at 291.465 478.155 0)
 			(effects
 				(font
@@ -46603,7 +46792,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C126")
+					(reference "C128")
 					(unit 1)
 				)
 			)
@@ -47790,7 +47979,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "91168396-740f-4028-82d2-7cf82dc17289")
-		(property "Reference" "C124"
+		(property "Reference" "C126"
 			(at 278.765 478.155 0)
 			(effects
 				(font
@@ -47859,7 +48048,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C124")
+					(reference "C126")
 					(unit 1)
 				)
 			)
@@ -48002,6 +48191,91 @@
 		)
 	)
 	(symbol
+		(lib_name "c_100nf_smd1206_1")
+		(lib_id "68k:c_100nf_smd1206")
+		(at 762 38.735 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "95c33a32-3c36-42f8-87b0-36af46cb452d")
+		(property "Reference" "C105"
+			(at 765.175 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "1u"
+			(at 764.54 40.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder"
+			(at 768.35 13.335 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.mouser.se/datasheet/2/447/KEM_C1002_X7R_SMD-3316098.pdf"
+			(at 762 15.875 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 762 38.735 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer_Name" "Kemet"
+			(at 796.29 20.955 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" "C1206C105K4RACTU"
+			(at 789.94 18.415 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "072e93bd-7063-4cea-b0ad-8c7b62cdc941")
+		)
+		(pin "1"
+			(uuid "c4c260eb-046a-4496-b0e5-31fcde7f3146")
+		)
+		(instances
+			(project "raven"
+				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
+					(reference "C105")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R_Network08_Split")
 		(at 60.325 487.045 90)
 		(unit 3)
@@ -48116,7 +48390,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "966bc13d-0f46-4019-aa9c-fb514fff4f60")
-		(property "Reference" "C127"
+		(property "Reference" "C129"
 			(at 309.245 478.155 0)
 			(effects
 				(font
@@ -48185,7 +48459,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C127")
+					(reference "C129")
 					(unit 1)
 				)
 			)
@@ -49187,7 +49461,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "a53ebc27-df56-418c-ba11-f314e8b20b57")
-		(property "Reference" "C123"
+		(property "Reference" "C125"
 			(at 272.415 478.155 0)
 			(effects
 				(font
@@ -49256,7 +49530,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C123")
+					(reference "C125")
 					(unit 1)
 				)
 			)
@@ -49576,7 +49850,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "a8385668-6318-4511-bf7c-1c164e58dec1")
-		(property "Reference" "C121"
+		(property "Reference" "C123"
 			(at 259.715 478.155 0)
 			(effects
 				(font
@@ -49645,7 +49919,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C121")
+					(reference "C123")
 					(unit 1)
 				)
 			)
@@ -50615,7 +50889,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "b5815431-26c2-4b28-a60d-f2f18ad7cd0d")
-		(property "Reference" "C116"
+		(property "Reference" "C118"
 			(at 654.05 450.215 0)
 			(effects
 				(font
@@ -50684,7 +50958,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C116")
+					(reference "C118")
 					(unit 1)
 				)
 			)
@@ -51548,7 +51822,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "bea7e740-d964-4539-aa11-40b0c00579f3")
-		(property "Reference" "C113"
+		(property "Reference" "C115"
 			(at 619.76 450.215 0)
 			(effects
 				(font
@@ -51617,7 +51891,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C113")
+					(reference "C115")
 					(unit 1)
 				)
 			)
@@ -57203,7 +57477,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f4347570-fecf-416a-8e00-a85d585507bf")
-		(property "Reference" "C114"
+		(property "Reference" "C116"
 			(at 626.11 450.215 0)
 			(effects
 				(font
@@ -57272,7 +57546,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C114")
+					(reference "C116")
 					(unit 1)
 				)
 			)
@@ -57667,7 +57941,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f85067e6-66b2-4f12-865e-d3b8980d06e1")
-		(property "Reference" "C118"
+		(property "Reference" "C120"
 			(at 677.545 450.215 0)
 			(effects
 				(font
@@ -57736,7 +58010,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C118")
+					(reference "C120")
 					(unit 1)
 				)
 			)
@@ -57857,7 +58131,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "fabe3b6c-bc4a-40d5-97e7-c9697b4afa43")
-		(property "Reference" "C125"
+		(property "Reference" "C127"
 			(at 285.115 478.155 0)
 			(effects
 				(font
@@ -57926,7 +58200,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7"
-					(reference "C125")
+					(reference "C127")
 					(unit 1)
 				)
 			)
