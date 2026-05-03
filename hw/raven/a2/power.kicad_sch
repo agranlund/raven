@@ -3396,6 +3396,164 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "c_100nf_smd1206_1"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0.254)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "C"
+				(at 0.635 1.905 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "0.1u"
+				(at 0.635 -1.905 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder"
+				(at -6.35 -25.4 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "https://www.mouser.se/datasheet/2/447/KEM_C1002_X7R_SMD-3316098.pdf"
+				(at 0 -22.86 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "cap 100nf SMD"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Manufacturer_Name" "KEMET"
+				(at -34.29 -17.78 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Manufacturer_Part_Number" "C1206C104K5RACTU"
+				(at -27.94 -20.32 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "capacitor cap"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "C_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "c_100nf_smd1206_1_0_1"
+				(polyline
+					(pts
+						(xy -1.524 0.508) (xy 1.524 0.508)
+					)
+					(stroke
+						(width 0.3048)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.524 -0.508) (xy 1.524 -0.508)
+					)
+					(stroke
+						(width 0.3302)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "c_100nf_smd1206_1_1_1"
+				(pin passive line
+					(at 0 2.54 270)
+					(length 2.032)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -2.54 90)
+					(length 2.032)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "power:+12V"
 			(power)
 			(pin_names
@@ -4295,6 +4453,17 @@
 		)
 		(uuid "bd929c94-0a61-4713-bb90-5682dbb9511c")
 	)
+	(text "shares cap with second\nheader on page Local32"
+		(exclude_from_sim no)
+		(at 117.094 183.896 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "c55e2b71-66e4-41c2-84f2-9a7f7cf2d43e")
+	)
 	(text "#PS_ON is internally pulled\nup by PSU to +5V standby"
 		(exclude_from_sim no)
 		(at 109.855 36.83 0)
@@ -4575,6 +4744,12 @@
 		(uuid "7f75276f-8f7a-474d-a9c4-c23401a76f14")
 	)
 	(junction
+		(at 34.29 162.56)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "80d944c2-849d-4454-abb6-11dc3304961a")
+	)
+	(junction
 		(at 55.245 44.45)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4639,6 +4814,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f828b10d-a0f7-4813-8aef-6b1429406028")
+	)
+	(junction
+		(at 75.565 162.56)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "fca8525f-3b11-4bd5-8974-c799d2439fd1")
 	)
 	(no_connect
 		(at 78.74 164.465)
@@ -4732,6 +4913,16 @@
 	)
 	(wire
 		(pts
+			(xy 34.29 162.56) (xy 34.29 167.005)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "12d76883-c756-49f2-8489-b1ef19305233")
+	)
+	(wire
+		(pts
 			(xy 34.29 167.005) (xy 37.465 167.005)
 		)
 		(stroke
@@ -4782,7 +4973,7 @@
 	)
 	(wire
 		(pts
-			(xy 114.935 169.545) (xy 114.935 172.085)
+			(xy 114.935 169.545) (xy 114.935 173.99)
 		)
 		(stroke
 			(width 0)
@@ -4882,7 +5073,7 @@
 	)
 	(wire
 		(pts
-			(xy 75.565 160.655) (xy 75.565 167.005)
+			(xy 75.565 160.655) (xy 75.565 162.56)
 		)
 		(stroke
 			(width 0)
@@ -5062,6 +5253,16 @@
 	)
 	(wire
 		(pts
+			(xy 28.575 170.815) (xy 28.575 172.085)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4b181c3a-66d9-4c48-87c6-9623b0ba7e43")
+	)
+	(wire
+		(pts
 			(xy 37.465 169.545) (xy 34.29 169.545)
 		)
 		(stroke
@@ -5222,6 +5423,16 @@
 	)
 	(wire
 		(pts
+			(xy 28.575 165.735) (xy 28.575 162.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "63810a36-b823-46cd-b1d1-70fec0161cf0")
+	)
+	(wire
+		(pts
 			(xy 114.935 167.005) (xy 118.11 167.005)
 		)
 		(stroke
@@ -5239,6 +5450,16 @@
 			(type default)
 		)
 		(uuid "69f9609a-2423-42ef-adf0-4c1405906329")
+	)
+	(wire
+		(pts
+			(xy 69.85 162.56) (xy 75.565 162.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6a44054c-4d4d-4435-a289-eb67e9ee4042")
 	)
 	(wire
 		(pts
@@ -5279,6 +5500,16 @@
 			(type default)
 		)
 		(uuid "7dd2305b-7165-460e-887d-2861d5b21b3f")
+	)
+	(wire
+		(pts
+			(xy 28.575 162.56) (xy 34.29 162.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "80d52b5a-2c4c-4040-bfb2-738b8c39900f")
 	)
 	(wire
 		(pts
@@ -5392,6 +5623,16 @@
 	)
 	(wire
 		(pts
+			(xy 69.85 165.735) (xy 69.85 162.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "961efdd4-ac71-4424-b172-d3a49bf75dbc")
+	)
+	(wire
+		(pts
 			(xy 203.2 69.215) (xy 201.93 69.215)
 		)
 		(stroke
@@ -5442,13 +5683,23 @@
 	)
 	(wire
 		(pts
-			(xy 34.29 160.655) (xy 34.29 167.005)
+			(xy 34.29 160.655) (xy 34.29 162.56)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "a55c8b6e-01e9-43bc-b841-2acf9425c88f")
+	)
+	(wire
+		(pts
+			(xy 69.85 170.815) (xy 69.85 172.085)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a661f39f-b566-4040-b849-c1a41b383b1c")
 	)
 	(wire
 		(pts
@@ -5619,6 +5870,16 @@
 			(type default)
 		)
 		(uuid "dc23aaf6-13f2-4377-9e3e-de2f630e2e31")
+	)
+	(wire
+		(pts
+			(xy 75.565 162.56) (xy 75.565 167.005)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dd5f9aae-1a97-4f1a-8666-baee1091c358")
 	)
 	(wire
 		(pts
@@ -6202,6 +6463,71 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 69.85 172.085 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "16154d2b-db3b-477b-bd94-e1d2993f29fc")
+		(property "Reference" "#PWR0237"
+			(at 69.85 178.435 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 69.85 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 69.85 172.085 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 69.85 172.085 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 69.85 172.085 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "f94aea7e-0e0b-4326-a9c4-30bf572f0cf2")
+		)
+		(instances
+			(project "raven"
+				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
+					(reference "#PWR0237")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+5V")
 		(at 205.105 92.075 90)
 		(unit 1)
@@ -6538,7 +6864,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 114.935 172.085 0)
+		(at 114.935 173.99 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6546,8 +6872,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "1f7717d6-9342-4949-9c31-858d19bfb7bb")
-		(property "Reference" "#PWR0237"
-			(at 114.935 178.435 0)
+		(property "Reference" "#PWR0239"
+			(at 114.935 180.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6556,7 +6882,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 114.935 176.53 0)
+			(at 114.935 178.435 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6564,7 +6890,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 114.935 172.085 0)
+			(at 114.935 173.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6573,7 +6899,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 114.935 172.085 0)
+			(at 114.935 173.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6582,7 +6908,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 114.935 172.085 0)
+			(at 114.935 173.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6595,7 +6921,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "#PWR0237")
+					(reference "#PWR0239")
 					(unit 1)
 				)
 			)
@@ -7813,6 +8139,71 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 28.575 172.085 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "5d5e0d3d-c17e-48d7-a26c-ff3582fa7240")
+		(property "Reference" "#PWR0235"
+			(at 28.575 178.435 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 28.575 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 28.575 172.085 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 28.575 172.085 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 28.575 172.085 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "39272dbd-b303-4821-94a2-f71d493d8327")
+		)
+		(instances
+			(project "raven"
+				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
+					(reference "#PWR0235")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Connector_Generic:Conn_02x04_Odd_Even")
 		(at 244.475 113.03 90)
 		(unit 1)
@@ -8663,7 +9054,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "901a3714-710b-44d3-b75f-0167c314ecfe")
-		(property "Reference" "#PWR0235"
+		(property "Reference" "#PWR0236"
 			(at 34.29 178.435 0)
 			(effects
 				(font
@@ -8712,7 +9103,92 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "#PWR0235")
+					(reference "#PWR0236")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_name "c_100nf_smd1206_1")
+		(lib_id "68k:c_100nf_smd1206")
+		(at 28.575 168.275 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "9519be21-7225-4a74-9adf-08ed8412a1a5")
+		(property "Reference" "C206"
+			(at 25.781 168.148 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10u"
+			(at 32.385 168.148 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder"
+			(at 22.225 193.675 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.mouser.se/datasheet/2/447/KEM_C1002_X7R_SMD-3316098.pdf"
+			(at 28.575 191.135 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 28.575 168.275 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer_Name" "Kemet"
+			(at -5.715 186.055 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" " C1206C106K4RAC"
+			(at 0.635 188.595 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "5735fb02-fdd6-4fc5-8d55-056719599239")
+		)
+		(pin "1"
+			(uuid "2642cd97-eb7b-4bb9-bbdd-fc159e60550d")
+		)
+		(instances
+			(project "raven"
+				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
+					(reference "C206")
 					(unit 1)
 				)
 			)
@@ -10346,7 +10822,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "bb05cb52-0562-4483-8567-6133e5d5a27b")
-		(property "Reference" "#PWR0236"
+		(property "Reference" "#PWR0238"
 			(at 75.565 178.435 0)
 			(effects
 				(font
@@ -10395,7 +10871,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
-					(reference "#PWR0236")
+					(reference "#PWR0238")
 					(unit 1)
 				)
 			)
@@ -10461,6 +10937,91 @@
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
 					(reference "#PWR0229")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_name "c_100nf_smd1206_1")
+		(lib_id "68k:c_100nf_smd1206")
+		(at 69.85 168.275 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "bf2fd979-a987-4e3a-940e-082da1cc98b7")
+		(property "Reference" "C207"
+			(at 67.056 168.148 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10u"
+			(at 73.66 168.148 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder"
+			(at 63.5 193.675 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.mouser.se/datasheet/2/447/KEM_C1002_X7R_SMD-3316098.pdf"
+			(at 69.85 191.135 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 69.85 168.275 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer_Name" "Kemet"
+			(at 35.56 186.055 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" " C1206C106K4RAC"
+			(at 41.91 188.595 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "2893e26f-32f1-446d-8001-2366b25d8c04")
+		)
+		(pin "1"
+			(uuid "6f170ac8-deab-4ddd-8bf7-f0a941acb281")
+		)
+		(instances
+			(project "raven"
+				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/3edf683f-0a35-4a7c-880a-e714e6e1adf2"
+					(reference "C207")
 					(unit 1)
 				)
 			)
