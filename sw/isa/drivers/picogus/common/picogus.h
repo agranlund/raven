@@ -25,9 +25,28 @@ typedef enum {
 
 typedef enum { PICO_BASED = 0, PICOGUS_2 = 1 } board_type_t;
 
-// typedef enum { INVALID_MODE = 0, GUS_MODE = 1, ADLIB_MODE = 2, MPU_MODE = 3, PSG_MODE = 4, SB_MODE = 5} card_mode_t;
+/* typedef enum {
+    INVALID_MODE = 0,
+    GUS_MODE     = 1,
+    ADLIB_MODE   = 2,
+    MPU_MODE     = 3,
+    PSG_MODE     = 4,
+    SB_MODE      = 5,
+    USB_MODE     = 6,
+    NE2000_MODE  = 7
+} card_mode_t;
 
-// static const char *modenames[8] = { "INVALID", "GUS", "ADLIB", "MPU", "PSG", "SB"};
+static const char *modenames[8] = {
+    "INVALID",
+    "GUS",
+    "ADLIB",
+    "MPU",
+    "PSG",
+    "SB",
+    "USB",
+    "NE2000"
+};
+*/
 
 #define CMD_MAGIC      0x00 // Magic string
 #define CMD_PROTOCOL   0x01 // Protocol version
@@ -50,6 +69,10 @@ typedef enum { PICO_BASED = 0, PICOGUS_2 = 1 } board_type_t;
 #define CMD_MPUFAKE    0x22 // MPU fake all notes off
 
 #define CMD_OPLWAIT    0x30 // Adlib speed sensitive fix
+#define CMD_SBTYPE     0x31 // SB type
+#define CMD_SBIRQ      0x32 // SB IRQ
+#define CMD_SBDMA      0x33 // SB DMA
+#define CMD_SBOPTS     0x34 // SB options (mixer lock, time constant fix, etc.)
 
 #define CMD_MOUSEPORT  0x40 // Mouse Base port
 #define CMD_MOUSEPROTO 0x41 // Mouse protocol
