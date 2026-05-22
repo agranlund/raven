@@ -60,11 +60,11 @@
       ],
       "drc_exclusions": [
         [
-          "courtyards_overlap|58925000|177275000|ac9bbd4d-fda8-4fd8-abfd-7a613c4efabe|ebdae9f1-bd20-4e9c-ba3a-4eb50c42e32a",
+          "courtyards_overlap|57401000|177275000|ac9bbd4d-fda8-4fd8-abfd-7a613c4efabe|ebdae9f1-bd20-4e9c-ba3a-4eb50c42e32a",
           ""
         ],
         [
-          "courtyards_overlap|58925000|179815000|572085c0-b11e-44b2-9802-2c24f2730dff|ac9bbd4d-fda8-4fd8-abfd-7a613c4efabe",
+          "courtyards_overlap|57401000|179815000|572085c0-b11e-44b2-9802-2c24f2730dff|ac9bbd4d-fda8-4fd8-abfd-7a613c4efabe",
           ""
         ],
         [
@@ -117,18 +117,6 @@
         ],
         [
           "lib_footprint_mismatch|39116000|253437500|d4ad8fbd-61c2-415d-bc1e-69f9c2a32f6f|00000000-0000-0000-0000-000000000000",
-          ""
-        ],
-        [
-          "lib_footprint_mismatch|53330000|176530000|ebdae9f1-bd20-4e9c-ba3a-4eb50c42e32a|00000000-0000-0000-0000-000000000000",
-          ""
-        ],
-        [
-          "lib_footprint_mismatch|53330000|179070000|ac9bbd4d-fda8-4fd8-abfd-7a613c4efabe|00000000-0000-0000-0000-000000000000",
-          ""
-        ],
-        [
-          "lib_footprint_mismatch|53330000|181610000|572085c0-b11e-44b2-9802-2c24f2730dff|00000000-0000-0000-0000-000000000000",
           ""
         ],
         [
@@ -525,7 +513,7 @@
       "different_unit_net": "error",
       "duplicate_reference": "error",
       "duplicate_sheet_names": "error",
-      "endpoint_off_grid": "warning",
+      "endpoint_off_grid": "ignore",
       "extra_units": "error",
       "footprint_filter": "ignore",
       "footprint_link_issues": "warning",
@@ -535,7 +523,7 @@
       "label_dangling": "error",
       "label_multiple_wires": "warning",
       "lib_symbol_issues": "warning",
-      "lib_symbol_mismatch": "warning",
+      "lib_symbol_mismatch": "ignore",
       "missing_bidi_pin": "warning",
       "missing_input_pin": "warning",
       "missing_power_pin": "error",

@@ -3556,8 +3556,12 @@
 		)
 		(symbol "power:+12V"
 			(power)
+			(pin_numbers
+				(hide yes)
+			)
 			(pin_names
 				(offset 0)
+				(hide yes)
 			)
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -3657,8 +3661,7 @@
 				(pin power_in line
 					(at 0 0 90)
 					(length 0)
-					(hide yes)
-					(name "+12V"
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -3678,8 +3681,12 @@
 		)
 		(symbol "power:+3.3V"
 			(power)
+			(pin_numbers
+				(hide yes)
+			)
 			(pin_names
 				(offset 0)
+				(hide yes)
 			)
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -3779,8 +3786,7 @@
 				(pin power_in line
 					(at 0 0 90)
 					(length 0)
-					(hide yes)
-					(name "+3.3V"
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -3800,8 +3806,12 @@
 		)
 		(symbol "power:+5V"
 			(power)
+			(pin_numbers
+				(hide yes)
+			)
 			(pin_names
 				(offset 0)
+				(hide yes)
 			)
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -3901,8 +3911,7 @@
 				(pin power_in line
 					(at 0 0 90)
 					(length 0)
-					(hide yes)
-					(name "+5V"
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -3922,8 +3931,12 @@
 		)
 		(symbol "power:+5VL"
 			(power)
+			(pin_numbers
+				(hide yes)
+			)
 			(pin_names
 				(offset 0)
+				(hide yes)
 			)
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -4023,8 +4036,7 @@
 				(pin power_in line
 					(at 0 0 90)
 					(length 0)
-					(hide yes)
-					(name "+5VL"
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -4044,14 +4056,18 @@
 		)
 		(symbol "power:-12V"
 			(power)
+			(pin_numbers
+				(hide yes)
+			)
 			(pin_names
 				(offset 0)
+				(hide yes)
 			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "#PWR"
-				(at 0 2.54 0)
+				(at 0 -3.81 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -4060,7 +4076,7 @@
 				)
 			)
 			(property "Value" "-12V"
-				(at 0 3.81 0)
+				(at 0 3.556 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -4107,8 +4123,7 @@
 				(pin power_in line
 					(at 0 0 90)
 					(length 0)
-					(hide yes)
-					(name "-12V"
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -4142,14 +4157,18 @@
 		)
 		(symbol "power:-5V"
 			(power)
+			(pin_numbers
+				(hide yes)
+			)
 			(pin_names
 				(offset 0)
+				(hide yes)
 			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "#PWR"
-				(at 0 2.54 0)
+				(at 0 -3.81 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -4158,7 +4177,7 @@
 				)
 			)
 			(property "Value" "-5V"
-				(at 0 3.81 0)
+				(at 0 3.556 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -4205,8 +4224,7 @@
 				(pin power_in line
 					(at 0 0 90)
 					(length 0)
-					(hide yes)
-					(name "-5V"
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -4240,8 +4258,12 @@
 		)
 		(symbol "power:GND"
 			(power)
+			(pin_numbers
+				(hide yes)
+			)
 			(pin_names
 				(offset 0)
+				(hide yes)
 			)
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -4317,8 +4339,7 @@
 				(pin power_in line
 					(at 0 0 270)
 					(length 0)
-					(hide yes)
-					(name "GND"
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -8884,7 +8905,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "HDRV3W99P0X254_1X3_747X635X843P"
+		(property "Footprint" "68k:HDRV3W99P0X254_1X3_747X635X843P"
 			(at 53.975 259.385 0)
 			(effects
 				(font
@@ -9436,7 +9457,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "HDRV3W99P0X254_1X3_747X635X843P"
+		(property "Footprint" "68k:HDRV3W99P0X254_1X3_747X635X843P"
 			(at 95.25 259.385 0)
 			(effects
 				(font
@@ -10000,7 +10021,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "HDRV3W99P0X254_1X3_747X635X843P"
+		(property "Footprint" "68k:HDRV3W99P0X254_1X3_747X635X843P"
 			(at 134.62 259.385 0)
 			(effects
 				(font
