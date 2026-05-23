@@ -7264,7 +7264,7 @@
 		)
 		(uuid "1986d8bd-91b1-4c49-93ec-356b6c2c8257")
 	)
-	(text_box "TODO:\nmaybe remove IRQ_UART\nmaybe move I2C_DTA and claim I3 for DSP"
+	(text_box "TODO:\n* maybe remove IRQ_UART\n- maybe move I2C_DTA and claim I3 for DSP"
 		(exclude_from_sim no)
 		(at 320.04 110.49 0)
 		(size 48.26 10.16)
@@ -7563,6 +7563,10 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f2d7b2ed-d151-453a-961a-fa4c5ca9bedd")
+	)
+	(no_connect
+		(at 346.075 64.77)
+		(uuid "05476a1a-f090-46ca-8fe9-cbf79de958f9")
 	)
 	(no_connect
 		(at 441.96 203.2)
@@ -13214,28 +13218,6 @@
 		(uuid "2d402f69-4a4c-45e9-a005-60dd203a3f5a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 357.1036 67.31 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "~{IRQ_UART}"
-		(shape input)
-		(at 346.075 64.77 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "344fa4f3-86fd-4906-bc86-5cd198db9e4d")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 357.8898 64.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
