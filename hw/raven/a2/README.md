@@ -3,6 +3,8 @@
 (c)2025-2026 Anders Granlund
 This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
+![Alt text](images/render.jpg?raw=true "")
+
 ## Status:
 - Design and routing complete
 
@@ -47,6 +49,5 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
 ## Errata:
 
-![Alt text](hw/raven/a2/images/render.jpg?raw=true "")
 
 
