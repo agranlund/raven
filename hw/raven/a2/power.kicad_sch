@@ -6336,7 +6336,7 @@
 		(dnp no)
 		(uuid "0235687d-67bd-41af-ae0b-2c739343c52f")
 		(property "Reference" "SW202"
-			(at 84.455 122.555 90)
+			(at 78.486 123.952 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6349,6 +6349,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "Footprint" "Button_Switch_THT:SW_PUSH_6mm_H4.3mm"
@@ -6438,7 +6439,7 @@
 			)
 		)
 		(property "Value" "+3.3V"
-			(at 64.135 88.9 90)
+			(at 64.262 91.186 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6629,8 +6630,8 @@
 				)
 			)
 		)
-		(property "Value" "LM7905CT_NOPB"
-			(at 224.79 29.21 0)
+		(property "Value" "LM7905CT"
+			(at 224.028 42.672 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6959,7 +6960,7 @@
 		(dnp no)
 		(uuid "1fb843b0-9af2-4782-bc71-bf2db297cd9c")
 		(property "Reference" "SW201"
-			(at 59.69 47.625 90)
+			(at 52.832 48.768 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6974,6 +6975,7 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
 			)
 		)
 		(property "Footprint" "Button_Switch_THT:SW_PUSH_6mm_H4.3mm"
@@ -7204,7 +7206,7 @@
 		(dnp no)
 		(uuid "3082aaba-c126-4f02-bdbd-bf4eac436d38")
 		(property "Reference" "U202"
-			(at 63.5 34.925 0)
+			(at 62.992 34.798 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7336,7 +7338,7 @@
 		(dnp no)
 		(uuid "34b22606-ed76-44be-9d76-bf28bcf5c3e9")
 		(property "Reference" "C201"
-			(at 78.74 29.21 90)
+			(at 82.55 27.686 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7345,7 +7347,7 @@
 			)
 		)
 		(property "Value" "0.1u"
-			(at 85.09 29.21 90)
+			(at 82.296 33.274 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7728,7 +7730,7 @@
 		(dnp no)
 		(uuid "47d4be55-f20c-479b-8c60-6801b3790887")
 		(property "Reference" "C204"
-			(at 127 95.25 90)
+			(at 130.556 93.726 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7737,7 +7739,7 @@
 			)
 		)
 		(property "Value" "0.1u"
-			(at 133.35 95.25 90)
+			(at 130.556 99.314 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7823,7 +7825,7 @@
 			)
 		)
 		(property "Value" "1A 50V"
-			(at 215.9 71.12 0)
+			(at 215.9 71.882 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9141,7 +9143,7 @@
 		(dnp no)
 		(uuid "9519be21-7225-4a74-9adf-08ed8412a1a5")
 		(property "Reference" "C206"
-			(at 25.781 168.148 90)
+			(at 31.242 166.116 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9149,7 +9151,7 @@
 			)
 		)
 		(property "Value" "10u"
-			(at 32.385 168.148 0)
+			(at 30.734 170.434 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9778,7 +9780,7 @@
 		(dnp no)
 		(uuid "a35ad6e0-c346-4adb-82de-6056dbece516")
 		(property "Reference" "J201"
-			(at 114.3 40.64 0)
+			(at 115.316 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9786,7 +9788,7 @@
 			)
 		)
 		(property "Value" "ATX Power"
-			(at 127 40.64 0)
+			(at 130.302 68.834 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10136,7 +10138,7 @@
 			)
 		)
 		(property "Value" "DS1818"
-			(at 57.15 102.235 0)
+			(at 57.15 123.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10336,7 +10338,7 @@
 		(dnp no)
 		(uuid "ad5f6dda-0fa7-4600-9593-f17f2e0a4467")
 		(property "Reference" "U204"
-			(at 118.11 102.235 0)
+			(at 112.522 114.046 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10345,7 +10347,7 @@
 			)
 		)
 		(property "Value" "74HCT10"
-			(at 112.395 111.125 0)
+			(at 119.888 115.316 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10467,7 +10469,7 @@
 			)
 		)
 		(property "Value" "1A 50V"
-			(at 224.79 71.12 0)
+			(at 224.79 71.882 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10767,7 +10769,7 @@
 			)
 		)
 		(property "Value" "1A 50V"
-			(at 207.01 71.12 0)
+			(at 207.264 71.882 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10974,7 +10976,7 @@
 		(dnp no)
 		(uuid "bf2fd979-a987-4e3a-940e-082da1cc98b7")
 		(property "Reference" "C207"
-			(at 67.056 168.148 90)
+			(at 72.644 166.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10982,7 +10984,7 @@
 			)
 		)
 		(property "Value" "10u"
-			(at 73.66 168.148 0)
+			(at 72.136 170.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)

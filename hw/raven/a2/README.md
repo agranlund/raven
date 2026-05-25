@@ -1,12 +1,10 @@
 # Raven060 Rev.A2
 
-(c)2025 Anders Granlund
-
+(c)2025-2026 Anders Granlund
 This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
-
 ## Status:
-- Work in progress, untested.
+- Design and routing complete
 
 ## Info:
 - Designed for JLCPCB Standard Service 6 layers
@@ -22,45 +20,33 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - BOM: Replaced buttons SW101,SW201,SW202 with black parts
 - BOM: Replaced J401 IDE header
 - BOM: Changed C310 to 0.1uF (was 0.01uF)
-- Replaced through-hole DS1818 with DS1818R (SMD version)
 - Fixed RTC power delivery, now using ATX standby power
 - Fixed unused but floating inputs on U102
-- Added small solderpad for securing Y402 to board
-- Added 68150:BUSCS signal separate from 68150:CS
-- Added A6 signal instead of A5 to ATF1508 (for BERR on SFP004 access)
-- Added pullups on 68150 data bus
-- Added pulldown on IDE:IRQ
-- Added i2c eprom with preprogrammed MAC address
-- Added i2c expansion header
-- Replaced Eiffel with CKBD
-- Replaced 2xPS2 connector with 2xUSB
-- CPU temperature sensor to CKBD
-- PowerOff control from CKBD
-- PowerSwitch status can be read through XR68M752 (detect powerbutton held down during boot)
-- Replaced one 12V fan header with PWM + ARGB
-- Changed IDE interface to big endian as standard on Atari machines
-- Added volume controller for YM
-- Added internal speaker amp + header
-- WIP: adding DSP56303
-
-## Planned:
+- Changed: through-hole DS1818 with DS1818R (SMD version)
+- Changed: IDE interface is now big-endian
+- Changed: CKBD instead of Eiffel
+- Changed: 2xUSB instead of 2xPS2
+- Changed: Replaced one 12V fan header with PWM + ARGB
+- Added: small solderpad for securing Y402 to board
+- Added: 68150:BUSCS signal separate from 68150:CS
+- Added: A6 signal instead of A5 to ATF1508 (for BERR on SFP004 access)
+- Added: pullups on 68150 data bus
+- Added: pulldown on IDE:IRQ
+- Added: i2c eprom with preprogrammed MAC address
+- Added: i2c expansion header
+- Added: CPU temperature readout from CKBD
+- Added: PowerOff control from CKBD
+- Added: PowerSwitch status readable from XR68M752
+- Added: YM2149 sw controlled volume
+- Added: internal speaker amp + header
+- Added: DSP56303 with DAC+ADC and ESSI1 expansion header
 
 ## Optional / non-critical:
-- Pushbuttons:     SW101, SW201, SW202
-- 3.3V backup:     D201, D202, D203
-- Constant fans:   J204, J205, J206
-- Eiffel fan:      TH301, R311, U302, J305
-- Midi-In:         U601, J604, D601, R609
-- Midi-Out:        U602, C605, R611
-- ISA -5V:         U201, C202, C203
-- ISA OSC:         X501, C514
-- Expansion:       J402
-- Spare CPLD-In:   J105, R117
-- Spare CPLD-Out:  J106
-- RTC:             Y402, R402, U406, C413
-- CPU-Temp:        R123, R124, C129, U109
+
+## Untested:
 
 ## Errata:
 
-## Untested:
+![Alt text](hw/raven/a2/images/render.jpg?raw=true "")
+
 

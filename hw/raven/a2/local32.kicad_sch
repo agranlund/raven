@@ -13194,7 +13194,7 @@
 	)
 	(text_box "todo:\n? i2c on P1.2, P1.3\n - for ikbd rtc without need for software driver\n - for eiffel-lcd support\n - generic uart<->i2c interface\n\n? spi on p1.4, p1.5, p.16\n - plus suitable CS pins (2 or so)\n - routed to spi header(s) on motherboard\n - generic uart<->spi interface\n"
 		(exclude_from_sim no)
-		(at 318.77 100.965 0)
+		(at 331.47 99.06 0)
 		(size 46.99 26.035)
 		(margins 0.9525 0.9525 0.9525 0.9525)
 		(stroke
@@ -13654,7 +13654,7 @@
 		(uuid "485bb551-bd71-4589-bcd4-93206f679457")
 	)
 	(junction
-		(at 790.575 491.49)
+		(at 790.575 488.95)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "48f2c09c-9503-40b9-b8e2-27964ff47486")
@@ -13870,7 +13870,7 @@
 		(uuid "7a4e879d-f61e-47a4-9ddd-c3bf918113d9")
 	)
 	(junction
-		(at 798.195 491.49)
+		(at 798.195 488.95)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7cd21a0b-0916-4c5c-a63f-99de4560e81c")
@@ -14432,6 +14432,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f335eef0-3f64-4aed-82be-a2aa2f881174")
+	)
+	(junction
+		(at 806.45 488.95)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f6d2b39b-159a-4299-b596-f13ea57ecb04")
 	)
 	(junction
 		(at 537.21 484.505)
@@ -18342,7 +18348,7 @@
 	)
 	(wire
 		(pts
-			(xy 806.45 491.49) (xy 798.195 491.49)
+			(xy 806.45 488.95) (xy 798.195 488.95)
 		)
 		(stroke
 			(width 0)
@@ -19822,7 +19828,7 @@
 	)
 	(wire
 		(pts
-			(xy 782.955 486.41) (xy 782.955 491.49)
+			(xy 782.955 486.41) (xy 782.955 488.95)
 		)
 		(stroke
 			(width 0)
@@ -20582,7 +20588,7 @@
 	)
 	(wire
 		(pts
-			(xy 798.195 486.41) (xy 798.195 491.49)
+			(xy 798.195 486.41) (xy 798.195 488.95)
 		)
 		(stroke
 			(width 0)
@@ -22222,7 +22228,7 @@
 	)
 	(wire
 		(pts
-			(xy 782.955 491.49) (xy 790.575 491.49)
+			(xy 782.955 488.95) (xy 790.575 488.95)
 		)
 		(stroke
 			(width 0)
@@ -24772,7 +24778,7 @@
 	)
 	(wire
 		(pts
-			(xy 790.575 486.41) (xy 790.575 491.49)
+			(xy 790.575 486.41) (xy 790.575 488.95)
 		)
 		(stroke
 			(width 0)
@@ -27522,7 +27528,7 @@
 	)
 	(wire
 		(pts
-			(xy 806.45 486.41) (xy 806.45 491.49)
+			(xy 806.45 486.41) (xy 806.45 488.95)
 		)
 		(stroke
 			(width 0)
@@ -28652,7 +28658,7 @@
 	)
 	(wire
 		(pts
-			(xy 798.195 491.49) (xy 798.195 493.395)
+			(xy 806.45 488.95) (xy 806.45 490.855)
 		)
 		(stroke
 			(width 0)
@@ -31062,7 +31068,7 @@
 	)
 	(wire
 		(pts
-			(xy 790.575 491.49) (xy 798.195 491.49)
+			(xy 790.575 488.95) (xy 798.195 488.95)
 		)
 		(stroke
 			(width 0)
@@ -39426,7 +39432,7 @@
 		(dnp no)
 		(uuid "03347377-f291-4e4c-9f02-1a13cef166cd")
 		(property "Reference" "C334"
-			(at 368.3 440.69 90)
+			(at 369.062 440.69 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40904,7 +40910,7 @@
 		(dnp no)
 		(uuid "1c623a26-2373-4ffe-91d5-6dd51d8656cd")
 		(property "Reference" "C341"
-			(at 796.544 487.68 90)
+			(at 801.116 482.092 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40912,7 +40918,7 @@
 			)
 		)
 		(property "Value" "0.1u"
-			(at 799.846 487.426 90)
+			(at 800.862 485.902 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -42864,7 +42870,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 798.195 493.395 0)
+		(at 806.45 490.855 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -42872,8 +42878,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "33c1963d-dd87-4189-9b7c-98140704772a")
-		(property "Reference" "#PWR0400"
-			(at 798.195 499.745 0)
+		(property "Reference" "#PWR0398"
+			(at 806.45 497.205 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -42882,7 +42888,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 798.195 498.475 0)
+			(at 806.45 495.935 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -42890,7 +42896,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 798.195 493.395 0)
+			(at 806.45 490.855 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -42899,7 +42905,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 798.195 493.395 0)
+			(at 806.45 490.855 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -42908,7 +42914,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 798.195 493.395 0)
+			(at 806.45 490.855 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -42921,7 +42927,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/d5022d96-0fa0-4474-b160-b3a99bf8c2e1"
-					(reference "#PWR0400")
+					(reference "#PWR0398")
 					(unit 1)
 				)
 			)
@@ -45723,7 +45729,7 @@
 		(dnp no)
 		(uuid "5baf6698-0809-4a77-82b9-2fd5e543ab97")
 		(property "Reference" "C333"
-			(at 770.763 395.732 90)
+			(at 770.636 393.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45731,7 +45737,7 @@
 			)
 		)
 		(property "Value" "1u"
-			(at 764.921 395.732 90)
+			(at 769.366 397.764 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -48334,7 +48340,7 @@
 		(dnp no)
 		(uuid "817f3405-fa59-400f-b2b7-029466ae0d7e")
 		(property "Reference" "C332"
-			(at 759.714 395.351 90)
+			(at 759.714 393.954 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -48342,7 +48348,7 @@
 			)
 		)
 		(property "Value" "0.1u"
-			(at 754.126 395.351 90)
+			(at 759.46 397.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -48738,7 +48744,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "8c110390-f332-4bc5-baf1-fbd6831e4218")
-		(property "Reference" "#PWR0398"
+		(property "Reference" "#PWR0399"
 			(at 528.32 499.745 0)
 			(effects
 				(font
@@ -48787,7 +48793,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/d5022d96-0fa0-4474-b160-b3a99bf8c2e1"
-					(reference "#PWR0398")
+					(reference "#PWR0399")
 					(unit 1)
 				)
 			)
@@ -48954,7 +48960,7 @@
 		(dnp no)
 		(uuid "901b2f2b-0636-45c4-9edc-38365d1e1fdd")
 		(property "Reference" "C303"
-			(at 690.245 222.631 90)
+			(at 690.372 216.916 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -48962,7 +48968,7 @@
 			)
 		)
 		(property "Value" "10u"
-			(at 690.245 217.17 90)
+			(at 690.118 222.758 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -50804,7 +50810,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "a1ea06d7-e812-4bff-81e9-efb066809052")
-		(property "Reference" "#PWR0399"
+		(property "Reference" "#PWR0400"
 			(at 530.86 499.745 0)
 			(effects
 				(font
@@ -50853,7 +50859,7 @@
 		(instances
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/d5022d96-0fa0-4474-b160-b3a99bf8c2e1"
-					(reference "#PWR0399")
+					(reference "#PWR0400")
 					(unit 1)
 				)
 			)
@@ -51025,7 +51031,7 @@
 		(dnp no)
 		(uuid "a93fdf68-71bc-439b-99ff-371c95ec1c23")
 		(property "Reference" "C342"
-			(at 805.18 487.426 90)
+			(at 809.498 482.092 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -51033,7 +51039,7 @@
 			)
 		)
 		(property "Value" "1u"
-			(at 808.228 486.664 90)
+			(at 808.228 485.902 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -51118,7 +51124,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 564.515 241.935 0)
+			(at 563.372 242.062 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52552,7 +52558,7 @@
 		(dnp no)
 		(uuid "c006f7c9-08be-4740-b056-e9c89e18ed77")
 		(property "Reference" "C339"
-			(at 781.304 487.68 90)
+			(at 785.876 482.092 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52560,7 +52566,7 @@
 			)
 		)
 		(property "Value" "0.1u"
-			(at 784.352 487.172 90)
+			(at 785.368 485.902 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -53930,7 +53936,7 @@
 		(dnp no)
 		(uuid "ceb852c7-1da9-4226-8b3a-c5eb62797d93")
 		(property "Reference" "C331"
-			(at 723.392 395.478 90)
+			(at 723.138 389.636 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -53938,7 +53944,7 @@
 			)
 		)
 		(property "Value" "0.1u"
-			(at 723.138 389.89 90)
+			(at 723.138 395.478 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -54425,7 +54431,7 @@
 		(dnp no)
 		(uuid "d6a5ecf7-74b6-4668-8871-794ba20ed753")
 		(property "Reference" "C340"
-			(at 788.924 487.426 90)
+			(at 793.496 482.092 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -54433,7 +54439,7 @@
 			)
 		)
 		(property "Value" "0.1u"
-			(at 792.226 486.918 90)
+			(at 793.242 485.902 0)
 			(effects
 				(font
 					(size 1.27 1.27)
