@@ -4,6 +4,7 @@
 
 This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
+![Alt text](images/raven_rev_a0.jpg?raw=true "")
 
 
 ## Status:

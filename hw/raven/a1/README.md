@@ -4,6 +4,7 @@
 
 This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
+![Alt text](images/a1_cased.jpg?raw=true "")
 
 
 ## Status:
