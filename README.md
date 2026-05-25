@@ -12,7 +12,7 @@ Other resources:
 
 ![Alt text](hw/raven/a1/images/desktop.jpg?raw=true "")
 
-![Alt text](hw/raven/a0/images/raven_a0.jpg?raw=true "")
+![Alt text](hw/raven/a1/images/a1_cased.jpg?raw=true "")
 
 
 ## This is not a consumer product.
