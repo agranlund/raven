@@ -17518,6 +17518,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 20.955 332.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "0aff14d4-6ed3-4068-ba15-f08382a434ec")
 		)
@@ -17858,6 +17866,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 164.465 310.515 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "ab8191be-d1b5-482a-b74e-b073907a57ae")
 		)
@@ -18027,6 +18043,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 164.465 307.975 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "e4dc7b71-3c7d-41a7-91c9-49a8addfe192")
 		)
@@ -18131,6 +18155,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 185.42 269.875 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -18308,6 +18340,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 164.465 333.375 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "dc9673fd-f3a6-42fd-8693-73d862654c1a")
 		)
@@ -18411,6 +18451,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 164.465 320.675 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -18518,6 +18566,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 367.03 278.765 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -19020,6 +19076,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 164.465 297.815 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "6d350657-3a71-4222-ba0e-1b1669740e8f")
 		)
@@ -19211,7 +19275,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
 			(at 202.8952 81.28 0)
 			(effects
 				(font
@@ -19246,13 +19310,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1H100SH"
+		(property "Manufacturer_Part_Number" "ECE-A1HKS100I"
 			(at 201.93 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 201.93 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -19531,6 +19603,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 38.1 254.635 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "c3e676d9-a539-42dc-8562-a813733accd2")
 		)
@@ -19763,6 +19843,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 38.735 241.935 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -20060,6 +20148,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 80.01 125.095 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -20424,6 +20520,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 80.645 318.135 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "88e4c3cd-7274-4c63-a05a-f6cd1e580af0")
 		)
@@ -20487,7 +20591,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
 			(at 245.4402 81.28 0)
 			(effects
 				(font
@@ -20522,13 +20626,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1H100SH"
+		(property "Manufacturer_Part_Number" "ECE-A1HKS100I"
 			(at 244.475 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 244.475 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -20615,6 +20727,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 257.81 278.765 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -21053,6 +21173,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 38.735 239.395 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "e106cb8e-dc41-41f4-a850-cb13cbab53af")
 		)
@@ -21372,7 +21500,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
 			(at 191.4652 81.28 0)
 			(effects
 				(font
@@ -21407,13 +21535,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1H100SH"
+		(property "Manufacturer_Part_Number" "ECE-A1HKS100I"
 			(at 190.5 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 190.5 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -21449,7 +21585,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "ATF22V10C-10PU"
+		(property "Value" "ATF22V10"
 			(at 83.82 99.06 0)
 			(effects
 				(font
@@ -21502,6 +21638,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 63.5 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "10"
@@ -21655,6 +21799,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 80.645 315.595 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "eb1290ef-6523-41ae-bf27-b8284dd33397")
 		)
@@ -21759,6 +21911,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 80.645 327.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -21866,6 +22026,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 164.465 325.755 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "e39db37c-a55d-4f96-afe9-6f906c5d8540")
 		)
@@ -21969,6 +22137,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 164.465 330.835 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -22138,6 +22314,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 38.735 244.475 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -22521,6 +22705,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 88.265 55.245 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "0f2e4a23-4338-40db-b1cf-8535dd2ac5bd")
 		)
@@ -22633,7 +22825,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
 			(at 257.5052 81.28 0)
 			(effects
 				(font
@@ -22668,13 +22860,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1H100SH"
+		(property "Manufacturer_Part_Number" "ECE-A1HKS100I"
 			(at 256.54 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 256.54 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -22759,6 +22959,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 38.1 252.095 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -22869,6 +23077,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 33.02 332.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "4"
 			(uuid "45bba05e-a2ff-40ed-b6c5-8bd1f89334de")
 		)
@@ -22957,6 +23173,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 164.465 335.915 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -23128,6 +23352,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 164.465 318.135 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "51920a8e-f4c5-45a3-a64c-2e138baf08f0")
 		)
@@ -23232,6 +23464,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 164.465 302.895 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -23596,6 +23836,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 164.465 305.435 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "e106cb8e-dc41-41f4-a850-cb13cbab53b2")
 		)
@@ -23659,7 +23907,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
 			(at 211.1502 81.28 0)
 			(effects
 				(font
@@ -23694,13 +23942,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1H100SH"
+		(property "Manufacturer_Part_Number" "ECE-A1HKS100I"
 			(at 210.185 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 210.185 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -23977,6 +24233,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 164.465 323.215 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -24346,6 +24610,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 185.42 262.255 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "e106cb8e-dc41-41f4-a850-cb13cbab53b3")
 		)
@@ -24451,6 +24723,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 164.465 338.455 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "bb211e2e-4a86-4b27-9f1e-88698913d0e2")
 		)
@@ -24515,7 +24795,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
 			(at 281.0002 73.66 0)
 			(effects
 				(font
@@ -24550,13 +24830,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1H100SH"
+		(property "Manufacturer_Part_Number" "ECE-A1HKS100I"
 			(at 280.035 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 280.035 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -24665,7 +24953,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
 			(at 183.2102 81.28 0)
 			(effects
 				(font
@@ -24700,13 +24988,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1H100SH"
+		(property "Manufacturer_Part_Number" "ECE-A1HKS100I"
 			(at 182.245 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 182.245 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -24791,6 +25087,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 38.1 257.175 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -25286,6 +25590,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 475.615 278.765 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "21010a46-3d3e-4a59-9211-7a70e66957f9")
 		)
@@ -25680,7 +25992,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
 			(at 229.5652 81.28 0)
 			(effects
 				(font
@@ -25715,13 +26027,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1H100SH"
+		(property "Manufacturer_Part_Number" "ECE-A1HKS100I"
 			(at 228.6 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 228.6 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -25806,6 +26126,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 120.65 278.765 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -26181,6 +26509,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 164.465 313.055 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "6d350657-3a71-4222-ba0e-1b1669740e92")
 		)
@@ -26437,7 +26773,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
 			(at 269.5702 73.66 0)
 			(effects
 				(font
@@ -26472,13 +26808,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1H100SH"
+		(property "Manufacturer_Part_Number" "ECE-A1HKS100I"
 			(at 268.605 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 268.605 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -26565,6 +26909,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 164.465 300.355 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "e106cb8e-dc41-41f4-a850-cb13cbab53b4")
 		)
@@ -26628,7 +26980,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
 			(at 175.5902 81.28 0)
 			(effects
 				(font
@@ -26663,13 +27015,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1H100SH"
+		(property "Manufacturer_Part_Number" "ECE-A1HKS100I"
 			(at 174.625 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 174.625 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -26818,6 +27178,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 164.465 328.295 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -27181,6 +27549,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 185.42 267.335 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "e106cb8e-dc41-41f4-a850-cb13cbab53b5")
 		)
@@ -27490,6 +27866,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 80.645 338.455 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "6d350657-3a71-4222-ba0e-1b1669740e93")
 		)
@@ -27659,6 +28043,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 164.465 340.995 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "6ab5d037-da4d-4f18-85ba-d612c65824cb")
 		)
@@ -27786,7 +28178,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
 			(at 218.7702 81.28 0)
 			(effects
 				(font
@@ -27821,13 +28213,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1H100SH"
+		(property "Manufacturer_Part_Number" "ECE-A1HKS100I"
 			(at 217.805 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 217.805 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -27872,7 +28272,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
 			(at 237.8202 81.28 0)
 			(effects
 				(font
@@ -27907,13 +28307,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1H100SH"
+		(property "Manufacturer_Part_Number" "ECE-A1HKS100I"
 			(at 236.855 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 236.855 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -27998,6 +28406,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 164.465 343.535 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"

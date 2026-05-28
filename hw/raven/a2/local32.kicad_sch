@@ -93,7 +93,7 @@
 					(hide yes)
 				)
 			)
-			(property "Manufacturer_Name" "ABRACON"
+			(property "Manufacturer_Name" "Abracon"
 				(at 44.45 -694.92 0)
 				(effects
 					(font
@@ -281,7 +281,7 @@
 					(hide yes)
 				)
 			)
-			(property "Manufacturer_Name" "ABRACON"
+			(property "Manufacturer_Name" "Abracon"
 				(at 26.67 -694.92 0)
 				(effects
 					(font
@@ -13192,23 +13192,22 @@
 		)
 		(uuid "51443a09-2d0f-494f-82f2-182034767e67")
 	)
-	(text_box "todo:\n? i2c on P1.2, P1.3\n - for ikbd rtc without need for software driver\n - for eiffel-lcd support\n - generic uart<->i2c interface\n\n? spi on p1.4, p1.5, p.16\n - plus suitable CS pins (2 or so)\n - routed to spi header(s) on motherboard\n - generic uart<->spi interface\n"
+	(text_box "note:\nthere are many unused pins here and we could:\n\n? i2c on P1.2, P1.3\n - instead of i2c through MFP\n - for ikbd rtc without need for software driver\n - for eiffel-lcd support\n - generic uart<->i2c interface\n\n? spi on p1.4, p1.5, p.16\n - plus suitable CS pins (2 or so)\n - routed to spi header(s) on motherboard\n - generic uart<->spi interface\n"
 		(exclude_from_sim no)
 		(at 331.47 99.06 0)
-		(size 46.99 26.035)
+		(size 46.99 34.29)
 		(margins 0.9525 0.9525 0.9525 0.9525)
 		(stroke
 			(width 0)
 			(type solid)
 		)
 		(fill
-			(type color)
-			(color 255 230 63 0.53)
+			(type none)
 		)
 		(effects
 			(font
 				(size 1.27 1.27)
-				(color 0 0 0 1)
+				(color 194 194 194 1)
 			)
 			(justify left top)
 		)
@@ -39407,6 +39406,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 509.27 312.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "559e51aa-224c-49dd-8d0c-e07a3894339b")
 		)
@@ -39511,6 +39518,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 366.395 443.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "46a4f2b6-a57a-4f31-b9b6-82bf6fe1c013")
 		)
@@ -39594,6 +39609,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 214.63 278.765 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -39681,6 +39704,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 264.16 286.385 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "91c0b58e-24f4-4d2a-9dd1-596e27bd7398")
 		)
@@ -39765,6 +39796,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 545.465 85.725 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -39915,6 +39954,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 761.365 502.285 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -40068,6 +40115,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 583.565 97.155 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -40286,6 +40341,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 573.405 97.155 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "49cbc97e-af54-4ad3-b37d-8a7527cf507d")
 		)
@@ -40369,6 +40432,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 64.135 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -40732,6 +40803,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 554.355 217.805 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "f801bc24-b02c-4d4b-a7b6-814aaea6b189")
 		)
@@ -40816,6 +40895,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 578.485 97.155 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -40967,6 +41054,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 798.195 483.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -41181,6 +41276,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 127.635 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -41674,6 +41777,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 187.96 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "91fe6888-e172-4ab6-a95f-266d8f66f0ac")
 		)
@@ -42105,6 +42216,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 581.025 97.155 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "5f41f883-eb6e-4d33-85f6-9d19e36ac85d")
 		)
@@ -42207,6 +42326,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 102.235 224.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -42494,6 +42621,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 608.33 303.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "26231a98-80fb-475f-b759-dba30489ce57")
 		)
@@ -42643,6 +42778,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 264.16 266.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "a3b33ff7-ef4f-4ef2-bb75-6cebaecd81e3")
 		)
@@ -42676,7 +42819,7 @@
 				)
 			)
 		)
-		(property "Value" "ESSI1"
+		(property "Value" "PinHdr_02x05"
 			(at 739.775 348.615 0)
 			(effects
 				(font
@@ -42720,7 +42863,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Numer" "61201021621"
+		(property "Manufacturer_Part_Number" "61201021621"
 			(at 738.505 357.505 0)
 			(effects
 				(font
@@ -42745,6 +42888,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 738.505 357.505 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "10"
@@ -42851,6 +43002,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 576.58 303.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -43138,6 +43297,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 647.065 303.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "b59740c4-e3f8-4499-a7df-6ee290fb2c93")
 		)
@@ -43290,6 +43457,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 614.68 303.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "d9345488-1ed8-43ce-9011-f3b54d5dcf03")
 		)
@@ -43376,6 +43551,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 412.115 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "a91e6094-17f8-4d5b-b9b1-6d4d89b19f84")
 		)
@@ -43460,6 +43643,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 414.655 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -43612,6 +43803,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 198.755 287.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -43891,6 +44090,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 421.005 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -44373,6 +44580,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 60.96 267.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "ef9c4853-395d-44ba-9dc8-bd759a0282c1")
 		)
@@ -44406,7 +44621,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "AS7C31024B-xxTJ"
+		(property "Value" "AS7C31024B"
 			(at 162.687 433.197 90)
 			(effects
 				(font
@@ -44458,6 +44673,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 165.1 426.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "32"
@@ -44706,6 +44929,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 487.68 370.205 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "37bd962a-5663-4116-b3d7-b3a5ced1fb0e")
 		)
@@ -44924,6 +45155,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 28.575 301.625 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "b4a03478-0521-4bd8-a4b6-7be274cc590b")
 		)
@@ -45013,6 +45252,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 234.315 383.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -45230,6 +45477,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 214.63 286.385 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "a3e5066e-bfd4-4344-81e8-0b95c8b02446")
 		)
@@ -45379,6 +45634,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 572.135 212.725 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "82c47545-0ee6-4b1b-b1ac-f9844ea44f01")
 		)
@@ -45478,7 +45741,7 @@
 				)
 			)
 		)
-		(property "Value" "USB2Header"
+		(property "Value" "PinHdr_02x05"
 			(at 689.356 250.698 0)
 			(effects
 				(font
@@ -45529,6 +45792,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 684.53 240.665 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -45636,6 +45907,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 407.035 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -45788,6 +46067,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 767.715 395.605 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "c5749863-7076-451c-af2c-4f8914cdcf58")
 		)
@@ -45873,6 +46160,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 579.12 241.935 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "3c6aa333-da38-4e78-9d6a-0e16a3707e70")
 		)
@@ -45956,6 +46251,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 653.415 303.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -46391,6 +46694,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 455.93 474.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "4b94842e-dde3-45fb-a62e-5e3b8f347fc6")
 		)
@@ -46477,6 +46788,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 343.535 448.945 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "7e54497b-4ecb-41a6-b99f-1e24e9638735")
 		)
@@ -46561,6 +46880,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 455.93 426.085 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -46843,6 +47170,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 711.835 445.135 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "79529396-cf90-4deb-bfba-ace287c73423")
 		)
@@ -46926,6 +47261,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 248.92 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -47415,6 +47758,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 363.855 240.665 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "742eeb68-6b76-48f7-92f9-1541abe865a8")
 		)
@@ -47499,6 +47850,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 134.62 226.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -47650,6 +48009,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 554.99 398.145 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "31"
@@ -48163,6 +48530,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 595.63 303.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "7d1966c8-eef6-4a13-bee7-cddb66e72332")
 		)
@@ -48205,7 +48580,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
 			(at 437.8452 229.87 0)
 			(effects
 				(font
@@ -48240,13 +48615,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1H100SH"
+		(property "Manufacturer_Part_Number" "ECE-A1HKS100I"
 			(at 436.88 226.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 436.88 226.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -48399,6 +48782,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 756.92 395.605 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "ae152110-5713-4789-a01f-8cdc0c9451b6")
 		)
@@ -48482,6 +48873,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 769.62 518.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -48634,6 +49033,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 171.45 383.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "4b94dc5b-c542-4ecf-b410-4aa31a96de42")
 		)
@@ -48718,6 +49125,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 408.94 400.685 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -48826,7 +49241,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
 			(at 437.8452 252.095 0)
 			(effects
 				(font
@@ -48861,13 +49276,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1A101SH"
+		(property "Manufacturer_Part_Number" "ECE-A1AKS101"
 			(at 436.88 248.285 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 436.88 248.285 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -49019,6 +49442,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 690.245 219.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "b809d830-8167-4c6a-bbab-205a3392b781")
 		)
@@ -49105,6 +49536,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 575.945 97.155 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "8a6bfad3-7c95-4146-b8e4-42f0e196f4ba")
 		)
@@ -49138,8 +49577,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "MAX3245CAI+T"
-			(at 241.3 336.55 0)
+		(property "Value" "MAX3245"
+			(at 242.824 336.804 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49223,6 +49662,14 @@
 				)
 				(justify left top)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 220.98 279.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "18"
@@ -49408,6 +49855,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 372.745 507.365 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "eb06cf9b-3741-4dc3-ad05-8141d6558627")
 		)
@@ -49559,6 +50014,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 556.895 132.715 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -49787,8 +50250,8 @@
 				)
 			)
 		)
-		(property "Value" "ASE-24.000MHZ-L-C-T"
-			(at 58.674 325.374 0)
+		(property "Value" "24Mhz (3.3V)"
+			(at 64.008 325.882 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49854,7 +50317,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Name" "ABRACON"
+		(property "Manufacturer_Name" "Abracon"
 			(at 71.755 1013.69 0)
 			(effects
 				(font
@@ -49872,6 +50335,14 @@
 				)
 				(justify left top)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 27.305 318.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "4"
@@ -50097,6 +50568,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 742.315 501.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "14"
 			(uuid "f8bfbee6-b3b1-48a3-86a1-592bedc3751f")
 		)
@@ -50183,7 +50662,7 @@
 				)
 			)
 		)
-		(property "Value" "SN74LVC1G14DBV"
+		(property "Value" "SN74LVC1G14"
 			(at 376.301 457.962 0)
 			(effects
 				(font
@@ -50237,6 +50716,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 365.76 454.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -50786,6 +51273,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 264.16 278.765 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "e17dfa13-3ce8-4996-b2f1-4e54c8cfc217")
 		)
@@ -50933,6 +51428,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 501.65 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -51088,6 +51591,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 806.45 483.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -51436,6 +51947,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 64.77 456.565 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "a23e2c5f-8d27-477d-9da0-be9df79197f2")
 		)
@@ -51716,6 +52235,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 409.575 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "e186b933-56ba-48c9-a11e-df5a77aaaf3c")
 		)
@@ -51869,6 +52396,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 404.495 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "44efe7e9-0c0f-4d3b-8dca-5dc75f6805ad")
 		)
@@ -51952,6 +52487,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 633.73 303.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -52166,6 +52709,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 640.08 303.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -52446,6 +52997,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 589.28 303.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "19c12852-1954-4ead-9897-da9e4fe5adfb")
 		)
@@ -52530,6 +53089,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 406.4 400.685 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -52617,6 +53184,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 782.955 483.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "897e4a18-0ebf-4f42-b84c-15fcba8369be")
 		)
@@ -52650,7 +53225,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "AS7C31024B-xxTJ"
+		(property "Value" "AS7C31024B"
 			(at 225.552 433.197 90)
 			(effects
 				(font
@@ -52702,6 +53277,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 227.965 426.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "32"
@@ -53009,6 +53592,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 84.455 229.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "15"
 			(uuid "864fec68-fff7-47a0-bec0-a096b3877767")
 		)
@@ -53304,6 +53895,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 433.705 507.365 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "89a7aae5-b3e2-48fd-8b18-d602dadb8f85")
 		)
@@ -53519,6 +54118,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 629.92 466.725 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "b2b63d90-0e3b-4c46-8800-6f6e056c2d5d")
 		)
@@ -53603,6 +54210,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 412.75 423.545 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -53824,6 +54439,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 563.88 303.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "15d8c02d-68ef-43de-bc80-7e9aa48a4b80")
 		)
@@ -53910,6 +54533,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 363.855 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "9b14a82c-04f4-4313-b9e7-3d11845d4399")
 		)
@@ -53993,6 +54624,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 723.265 392.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -54142,6 +54781,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 570.23 303.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -54490,6 +55137,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 790.575 483.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "281b39a7-f7f2-482c-8def-2fe09e0ec177")
 		)
@@ -54574,6 +55229,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 196.215 287.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -54726,6 +55389,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 758.825 518.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "6f3ebb07-e348-4a6e-9480-5289f61b96ab")
 		)
@@ -54758,8 +55429,8 @@
 				)
 			)
 		)
-		(property "Value" "ASELJ-E-22.5792MHz"
-			(at 395.986 514.096 0)
+		(property "Value" "22.5792MHz (3.3V)"
+			(at 397.002 514.096 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -54825,7 +55496,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Name" "ABRACON"
+		(property "Manufacturer_Name" "Abracon"
 			(at 407.67 1202.285 0)
 			(effects
 				(font
@@ -54843,6 +55514,14 @@
 				)
 				(justify left top)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 381 507.365 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "4"
@@ -55194,6 +55873,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 109.855 382.905 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "1646814d-8b93-4bfb-9643-b278f6a03327")
 		)
@@ -55420,8 +56107,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "ARGB"
-			(at 474.98 251.46 0)
+		(property "Value" "FanHeader"
+			(at 473.71 251.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -55491,6 +56178,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 468.63 243.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "4ee3edc8-1380-49ad-9a14-46e600ad5801")
 		)
@@ -55527,7 +56222,7 @@
 				)
 			)
 		)
-		(property "Value" "PCM180PW"
+		(property "Value" "PCM1808"
 			(at 755.015 407.5998 0)
 			(effects
 				(font
@@ -55612,6 +56307,14 @@
 				)
 				(justify left top)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 725.17 407.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "7"
@@ -55800,6 +56503,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 582.93 303.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "900f2b83-805d-4efd-9ce1-27bd4994e872")
 		)
@@ -55885,6 +56596,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 452.12 100.965 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "21"
@@ -56058,8 +56777,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "PWM"
-			(at 470.535 224.79 0)
+		(property "Value" "FanHeader"
+			(at 467.106 224.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56110,6 +56829,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 468.63 217.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -56467,6 +57194,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 462.28 358.775 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "17ced220-74df-4828-b1a9-49aab1c3b873")
 		)
@@ -56569,6 +57304,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 455.93 466.725 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -56721,6 +57464,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 621.03 303.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "2dfafcc5-8de8-4d6e-a827-49fd339c9c27")
 		)
@@ -56754,7 +57505,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "AS7C31024B-xxTJ"
+		(property "Value" "AS7C31024B"
 			(at 101.219 432.689 90)
 			(effects
 				(font
@@ -56806,6 +57557,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 103.505 426.085 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "32"
@@ -57048,6 +57807,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 720.725 445.135 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "eb6e0b68-8af6-4aea-8495-1d91a45f800e")
 		)
@@ -57198,6 +57965,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 423.545 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "61f4ea23-3a9c-418e-8dbb-9276c91fca6d")
 		)
@@ -57281,6 +58056,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 627.38 303.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"

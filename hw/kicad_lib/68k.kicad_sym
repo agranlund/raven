@@ -7602,7 +7602,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Name" "ABRACON"
+		(property "Manufacturer_Name" "Abracon"
 			(at 44.45 -694.92 0)
 			(effects
 				(font
@@ -7790,7 +7790,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Name" "ABRACON"
+		(property "Manufacturer_Name" "Abracon"
 			(at 26.67 -694.92 0)
 			(effects
 				(font

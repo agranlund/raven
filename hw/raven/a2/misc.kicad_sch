@@ -10847,6 +10847,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 162.56 277.495 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "cf567cdb-29b5-44ec-9e35-a5a2e9e900a9")
 		)
@@ -10931,6 +10939,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 163.195 310.515 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -11031,6 +11047,14 @@
 				)
 				(justify left top)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 327.66 263.525 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "5A"
@@ -11137,6 +11161,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 184.785 85.725 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -11262,6 +11294,14 @@
 			)
 		)
 		(property "Description" ""
+			(at 59.055 59.055 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer_Part" ""
 			(at 59.055 59.055 0)
 			(effects
 				(font
@@ -11424,6 +11464,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 128.905 85.725 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "a817d758-32c6-4ab5-91bb-59f1b1a08365")
 		)
@@ -11513,6 +11561,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 128.905 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -11614,6 +11670,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 362.585 173.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -11748,6 +11812,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 34.29 81.915 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "5f2774d5-0169-410c-9f15-102954b2b5ae")
 		)
@@ -11834,6 +11906,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 128.905 122.555 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "d99199b2-14ab-4ed8-8892-f43a7578eaa3")
 		)
@@ -11892,6 +11972,14 @@
 			)
 		)
 		(property "Description" ""
+			(at 32.385 59.055 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer_Part" ""
 			(at 32.385 59.055 0)
 			(effects
 				(font
@@ -12046,6 +12134,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 144.78 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "553dcb10-a37e-4dc6-9d2c-7bf7f3a7a2b4")
 		)
@@ -12127,6 +12223,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 162.56 271.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -12215,6 +12319,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 296.545 276.225 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "8683bab7-932d-45c9-b43e-082cdca4d010")
 		)
@@ -12288,7 +12400,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "TI"
+		(property "Manufacturer_Name" "Texas Instruments"
 			(at 382.27 212.09 90)
 			(effects
 				(font
@@ -12304,6 +12416,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 382.27 212.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -12410,6 +12530,14 @@
 				)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 36.195 59.055 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "0272f260-d30a-4b5c-aaf9-bba0419489c2")
 		)
@@ -12490,6 +12618,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 454.025 171.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -12582,6 +12718,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 52.07 334.645 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -12798,6 +12942,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 283.845 339.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "b842c73e-29d2-460d-96a3-e87fd362415a")
 		)
@@ -12914,6 +13066,14 @@
 				)
 				(justify left top)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 144.145 177.165 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "B1"
@@ -13135,6 +13295,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 149.225 48.895 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "50ce0f63-e37d-457e-9d4f-f477608596e1")
 		)
@@ -13193,6 +13361,14 @@
 			)
 		)
 		(property "Description" ""
+			(at 40.005 59.055 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer_Part" ""
 			(at 40.005 59.055 0)
 			(effects
 				(font
@@ -13281,6 +13457,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 55.88 299.085 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "65042f64-8c34-4f35-b529-8944de5ea3c7")
 		)
@@ -13364,6 +13548,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 283.21 269.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -13584,6 +13776,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 368.935 169.545 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "372e7852-603e-4179-a0b9-0beaa0934e04")
 		)
@@ -13670,6 +13870,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 128.905 116.205 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "b01a34c2-b220-458c-a4d3-415d6ebdac6a")
 		)
@@ -13751,6 +13959,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 57.785 334.645 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -13845,6 +14061,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 149.225 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -14066,6 +14290,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 167.005 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -14314,6 +14546,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 360.68 173.355 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "3"
 			(uuid "461bafb2-16d0-4b16-8407-225b5b40b5e2")
 		)
@@ -14411,6 +14651,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 267.97 334.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "fac2fc1b-a792-48c6-b51d-b479ad140e69")
 		)
@@ -14496,6 +14744,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 66.04 174.625 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "ecbe0512-7de8-4c7c-9326-218832f18c50")
 		)
@@ -14578,6 +14834,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 80.645 280.035 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -14793,6 +15057,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 325.755 221.615 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "12136dbe-ab97-4c0e-b346-7e90f3077286")
 		)
@@ -14974,6 +15246,14 @@
 				)
 				(justify left top)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 248.285 163.195 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "A2"
@@ -15244,6 +15524,14 @@
 				)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 47.625 59.055 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "4365065c-1f01-41ee-b07a-6c26b70e48a0")
 		)
@@ -15393,6 +15681,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 246.38 336.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "4a7ff54b-1975-45ec-b5a9-3a2cd0d2c454")
 		)
@@ -15477,6 +15773,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 128.905 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -15623,6 +15927,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 80.645 274.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -15773,6 +16085,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 44.45 299.085 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "7c06f6af-b1e0-4daa-b699-5bb1961f4676")
 		)
@@ -15840,7 +16160,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "TI"
+		(property "Manufacturer_Name" "Texas Instruments"
 			(at 382.27 203.835 90)
 			(effects
 				(font
@@ -15856,6 +16176,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 382.27 203.835 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -16107,6 +16435,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 358.14 196.215 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "bb92cb86-c340-437c-b3fc-7c226421706d")
 		)
@@ -16237,7 +16573,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "TI"
+		(property "Manufacturer_Name" "Texas Instruments"
 			(at 342.9 196.215 90)
 			(effects
 				(font
@@ -16253,6 +16589,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 342.9 196.215 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "11"
@@ -16333,7 +16677,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
 			(at 326.39 314.6298 0)
 			(effects
 				(font
@@ -16368,7 +16712,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1H100SH"
+		(property "Manufacturer_Part_Number" "ECE-A1HKS100I"
 			(at 322.58 315.595 0)
 			(effects
 				(font
@@ -16463,6 +16807,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 144.78 128.905 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "e04eff88-7982-4787-8d00-aa7d47cf5c7f")
 		)
@@ -16529,7 +16881,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Name" "Microchip Technology"
+		(property "Manufacturer_Name" "Microchip"
 			(at 75.565 349.885 0)
 			(effects
 				(font
@@ -16677,6 +17029,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 128.905 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "2e8aaf59-a17d-4a50-bda7-34a2db4ac0f1")
 		)
@@ -16706,7 +17066,7 @@
 				)
 			)
 		)
-		(property "Value" "Pinhdr_01x02"
+		(property "Value" "PinHdr_01x02"
 			(at 337.185 340.995 0)
 			(effects
 				(font
@@ -16765,6 +17125,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 337.185 335.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -16916,6 +17284,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 322.58 321.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "5f52c23c-c90c-41be-891d-c63128bd21ad")
 		)
@@ -17000,6 +17376,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 163.195 305.435 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -17088,6 +17472,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 46.355 334.645 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "96518cab-7bba-4027-b1dc-5abc54c42e9e")
 		)
@@ -17173,6 +17565,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 68.58 330.835 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "51530263-f8e3-4f0f-9b04-198cb140dd77")
 		)
@@ -17213,7 +17613,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.00mm"
 			(at 72.39 284.7848 0)
 			(effects
 				(font
@@ -17248,13 +17648,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1H4R7SH"
+		(property "Manufacturer_Part_Number" "ECE-A1HKS4R7"
 			(at 68.58 285.75 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 68.58 285.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -17416,6 +17824,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 128.905 48.895 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "420bf1b3-5498-4d72-a457-0b19503c810b")
 		)
@@ -17446,7 +17862,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "PAM8302AAD"
+		(property "Value" "PAM8302"
 			(at 300.101 348.361 0)
 			(effects
 				(font
@@ -17498,6 +17914,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 299.085 339.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "8"
@@ -17600,6 +18024,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 80.645 285.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -17826,7 +18258,7 @@
 				)
 			)
 		)
-		(property "Value" "USB1035-GF-P-0-B-B"
+		(property "Value" "USBx2"
 			(at 67.31 195.072 0)
 			(effects
 				(font
@@ -17911,6 +18343,14 @@
 				)
 				(justify left top)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 54.61 198.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "B4"
@@ -18047,7 +18487,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.00mm"
 			(at 72.39 273.3548 0)
 			(effects
 				(font
@@ -18082,13 +18522,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1H4R7SH"
+		(property "Manufacturer_Part_Number" "ECE-A1HKS4R7"
 			(at 68.58 274.32 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 68.58 274.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -18131,7 +18579,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.00mm"
 			(at 72.39 290.4998 0)
 			(effects
 				(font
@@ -18166,13 +18614,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1H4R7SH"
+		(property "Manufacturer_Part_Number" "ECE-A1HKS4R7"
 			(at 68.58 291.465 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 68.58 291.465 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -18242,7 +18698,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "TI"
+		(property "Manufacturer_Name" "Texas Instruments"
 			(at 382.27 220.345 90)
 			(effects
 				(font
@@ -18258,6 +18714,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 382.27 220.345 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -18357,6 +18821,14 @@
 			)
 		)
 		(property "Description" ""
+			(at 43.815 59.055 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer_Part" ""
 			(at 43.815 59.055 0)
 			(effects
 				(font
@@ -18510,6 +18982,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 358.14 186.055 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "83ed66c1-938a-402f-adac-2429cdbf5ffd")
 		)
@@ -18592,6 +19072,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 80.645 291.465 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -18677,6 +19165,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 249.555 269.875 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -18779,6 +19275,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 149.225 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "c1d63203-e717-4f64-90c2-c4a68c2b1fd9")
 		)
@@ -18858,6 +19362,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 331.47 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -18990,7 +19502,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "TI"
+		(property "Manufacturer_Name" "Texas Instruments"
 			(at 344.805 217.17 90)
 			(effects
 				(font
@@ -19006,6 +19518,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 344.805 217.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "11"
@@ -19130,6 +19650,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 144.78 116.205 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "8bbda848-a82a-477e-bf3d-b85ba4c19c5e")
 		)
@@ -19195,6 +19723,14 @@
 				)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 55.245 59.055 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "79d699c8-cdb9-486d-9aaa-18be38aedc0f")
 		)
@@ -19253,6 +19789,14 @@
 			)
 		)
 		(property "Description" ""
+			(at 62.865 59.055 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer_Part" ""
 			(at 62.865 59.055 0)
 			(effects
 				(font
@@ -19406,6 +19950,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 50.165 299.085 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "52900088-3948-44c1-b49b-ae4aa4503b83")
 		)
@@ -19539,6 +20091,14 @@
 				)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 51.435 59.055 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "a3d7ff18-6e44-4429-95aa-c23fd53cf49f")
 		)
@@ -19576,7 +20136,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.00mm"
 			(at 72.39 279.0698 0)
 			(effects
 				(font
@@ -19611,13 +20171,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "EEU-EB1H4R7SH"
+		(property "Manufacturer_Part_Number" "ECE-A1HKS4R7"
 			(at 68.58 280.035 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 68.58 280.035 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -19751,7 +20319,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "TI"
+		(property "Manufacturer_Name" "Texas Instruments"
 			(at 382.27 236.855 90)
 			(effects
 				(font
@@ -19767,6 +20335,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 382.27 236.855 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -19891,6 +20467,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 128.905 128.905 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "ce0f8717-5f7e-4603-a55d-2fba79a8cee3")
 		)
@@ -19972,6 +20556,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 257.175 350.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -20066,6 +20658,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 184.785 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -20215,6 +20815,14 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part" ""
+			(at 144.78 122.555 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "5c451834-0688-46e0-b8ba-1bb9f9c58dc8")
 		)
@@ -20343,7 +20951,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "TI"
+		(property "Manufacturer_Name" "Texas Instruments"
 			(at 382.27 228.6 90)
 			(effects
 				(font
@@ -20359,6 +20967,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 382.27 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
@@ -20481,6 +21097,14 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part" ""
+			(at 246.38 331.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "1"
