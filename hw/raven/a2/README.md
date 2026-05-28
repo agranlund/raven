@@ -20,10 +20,11 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - BOM: Replaced PLCC64 socket for U104 with black part
 - BOM: Replaced PLCC84 socket for U108 with black part
 - BOM: Replaced buttons SW101,SW201,SW202 with black parts
+- BOM: Replaced jumpers with standard closed-top ones
 - BOM: Replaced J401 IDE header
 - BOM: Changed C310 to 0.1uF (was 0.01uF)
-- Fixed RTC power delivery, now using ATX standby power
-- Fixed unused but floating inputs on U102
+- Fixed: RTC power delivery, now using ATX standby power
+- Fixed: unused but floating inputs on U102
 - Changed: through-hole DS1818 with DS1818R (SMD version)
 - Changed: IDE interface is now big-endian
 - Changed: CKBD instead of Eiffel
