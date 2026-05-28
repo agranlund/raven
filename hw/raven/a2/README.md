@@ -10,6 +10,8 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
 ## Info:
 - Designed for JLCPCB Standard Service 6 layers
+- [Complete BOM](production/raven-a2_bom.md)
+- [Interactive BOM](https://htmlpreview.github.io/?https://github.com/agranlund/raven/blob/main/hw/raven/a2/production/raven-a2_ibom.html)
 
 ## Changelog:
 - Silkscreen: Fixed wrong pinout info for J305
