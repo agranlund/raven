@@ -33,6 +33,8 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - Changed: CKBD instead of Eiffel
 - Changed: 2xUSB instead of 2xPS2
 - Changed: Replaced one 12V fan header with PWM + ARGB
+- Removed: UART IRQ6 (MFP1:I4)
+- Removed: CPU clock multiplier jumpers
 - Added: small solderpad for securing Y402 to board
 - Added: 68150:BUSCS signal separate from 68150:CS
 - Added: A6 signal instead of A5 to ATF1508 (for BERR on SFP004 access)
