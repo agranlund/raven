@@ -11888,7 +11888,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "TE Connectivity"
+		(property "Manufacturer_Name" "Adam Tech"
 			(at 128.905 122.555 0)
 			(effects
 				(font
@@ -11897,7 +11897,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "1-881545-4"
+		(property "Manufacturer_Part_Number" "MSA-G"
 			(at 128.905 122.555 0)
 			(effects
 				(font
@@ -12116,7 +12116,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "TE Connectivity"
+		(property "Manufacturer_Name" "Adam Tech"
 			(at 144.78 110.49 0)
 			(effects
 				(font
@@ -12125,7 +12125,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "1-881545-4"
+		(property "Manufacturer_Part_Number" "MSA-G"
 			(at 144.78 110.49 0)
 			(effects
 				(font
@@ -13852,7 +13852,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "TE Connectivity"
+		(property "Manufacturer_Name" "Adam Tech"
 			(at 128.905 116.205 0)
 			(effects
 				(font
@@ -13861,7 +13861,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "1-881545-4"
+		(property "Manufacturer_Part_Number" "MSA-G"
 			(at 128.905 116.205 0)
 			(effects
 				(font
@@ -14735,7 +14735,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" " C1206C106K4RAC"
+		(property "Manufacturer_Part_Number" " C1206C106K4RACTU"
 			(at 86.36 202.565 0)
 			(effects
 				(font
@@ -15757,7 +15757,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "TE Connectivity"
+		(property "Manufacturer_Name" "Adam Tech"
 			(at 128.905 110.49 0)
 			(effects
 				(font
@@ -15766,7 +15766,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "1-881545-4"
+		(property "Manufacturer_Part_Number" "MSA-G"
 			(at 128.905 110.49 0)
 			(effects
 				(font
@@ -16789,7 +16789,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "TE Connectivity"
+		(property "Manufacturer_Name" "Adam Tech"
 			(at 144.78 128.905 0)
 			(effects
 				(font
@@ -16798,7 +16798,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "1-881545-4"
+		(property "Manufacturer_Part_Number" "MSA-G"
 			(at 144.78 128.905 0)
 			(effects
 				(font
@@ -19632,7 +19632,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "TE Connectivity"
+		(property "Manufacturer_Name" "Adam Tech"
 			(at 144.78 116.205 0)
 			(effects
 				(font
@@ -19641,7 +19641,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "1-881545-4"
+		(property "Manufacturer_Part_Number" "MSA-G"
 			(at 144.78 116.205 0)
 			(effects
 				(font
@@ -20449,7 +20449,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "TE Connectivity"
+		(property "Manufacturer_Name" "Adam Tech"
 			(at 128.905 128.905 0)
 			(effects
 				(font
@@ -20458,7 +20458,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "1-881545-4"
+		(property "Manufacturer_Part_Number" "MSA-G"
 			(at 128.905 128.905 0)
 			(effects
 				(font
@@ -20797,7 +20797,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "TE Connectivity"
+		(property "Manufacturer_Name" "Adam Tech"
 			(at 144.78 122.555 0)
 			(effects
 				(font
@@ -20806,7 +20806,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "1-881545-4"
+		(property "Manufacturer_Part_Number" "MSA-G"
 			(at 144.78 122.555 0)
 			(effects
 				(font

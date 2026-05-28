@@ -46142,7 +46142,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Name" "NXP"
+		(property "Manufacturer_Name" "Nexperia"
 			(at 579.12 241.935 0)
 			(effects
 				(font
@@ -48002,7 +48002,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "DSP56303"
+		(property "Manufacturer_Part_Number" "DSP56303AG100"
 			(at 554.99 398.145 0)
 			(effects
 				(font
@@ -49433,7 +49433,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" " C1206C106K4RAC"
+		(property "Manufacturer_Part_Number" " C1206C106K4RACTU"
 			(at 710.565 247.65 0)
 			(effects
 				(font

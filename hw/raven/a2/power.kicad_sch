@@ -7713,7 +7713,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Pinhdr_01x03"
+		(property "Value" "PinHdr_01x03"
 			(at 194.945 123.19 0)
 			(effects
 				(font
@@ -9321,7 +9321,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" " C1206C106K4RAC"
+		(property "Manufacturer_Part_Number" " C1206C106K4RACTU"
 			(at 0.635 188.595 0)
 			(effects
 				(font
@@ -11250,7 +11250,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" " C1206C106K4RAC"
+		(property "Manufacturer_Part_Number" " C1206C106K4RACTU"
 			(at 41.91 188.595 0)
 			(effects
 				(font

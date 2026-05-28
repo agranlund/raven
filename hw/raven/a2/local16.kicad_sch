@@ -17681,7 +17681,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Name" "Wurth"
+		(property "Manufacturer_Name" "Wurth Elektronik"
 			(at 90.17 191.135 0)
 			(effects
 				(font
@@ -18122,7 +18122,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "NXP"
+		(property "Manufacturer_Name" "Motorola"
 			(at 264.795 90.17 0)
 			(effects
 				(font
@@ -19842,7 +19842,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "NXP"
+		(property "Manufacturer_Name" "Motorola"
 			(at 448.945 78.74 0)
 			(effects
 				(font

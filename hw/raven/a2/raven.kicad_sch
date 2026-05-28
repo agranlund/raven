@@ -36866,7 +36866,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "NXP"
+		(property "Manufacturer_Name" "Nexperia"
 			(at 585.47 156.845 0)
 			(effects
 				(font
@@ -39394,7 +39394,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Pinhdr_01x03"
+		(property "Value" "PinHdr_01x03"
 			(at 786.003 291.465 0)
 			(effects
 				(font
@@ -48471,7 +48471,7 @@
 				)
 			)
 		)
-		(property "Manufacturer_Name" "NXP"
+		(property "Manufacturer_Name" "Nexperia"
 			(at 585.47 86.36 0)
 			(effects
 				(font
@@ -48911,7 +48911,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "MC68150"
+		(property "Manufacturer_Part_Number" "MC68150FN40"
 			(at 732.155 92.075 0)
 			(effects
 				(font
@@ -55242,7 +55242,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "MC68060"
+		(property "Manufacturer_Part_Number" "MC68060RC50"
 			(at 240.665 309.88 0)
 			(effects
 				(font
