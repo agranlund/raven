@@ -36809,7 +36809,7 @@
 			)
 		)
 	)
-	(global_label "~{DSP_IRQ}"
+	(global_label "~{DSP_IRQD}"
 		(shape output)
 		(at 122.555 269.24 0)
 		(fields_autoplaced yes)
@@ -36821,7 +36821,7 @@
 		)
 		(uuid "431e32b7-5e82-4d12-a333-3350e6e3f8b6")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 133.4626 269.24 0)
+			(at 134.7326 269.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -38041,7 +38041,7 @@
 			)
 		)
 	)
-	(global_label "~{DSP_IRQ}"
+	(global_label "~{DSP_IRQD}"
 		(shape input)
 		(at 443.23 441.325 180)
 		(fields_autoplaced yes)
@@ -38053,7 +38053,7 @@
 		)
 		(uuid "a62b1a82-5365-43c7-abd2-d8b35f216a8c")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 432.3224 441.325 0)
+			(at 431.0524 441.325 0)
 			(effects
 				(font
 					(size 1.27 1.27)

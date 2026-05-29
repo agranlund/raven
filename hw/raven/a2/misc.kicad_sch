@@ -5323,6 +5323,16 @@
 		)
 		(uuid "3dc58c9b-ffff-49e5-a379-adf802f05501")
 	)
+	(text "unused"
+		(exclude_from_sim no)
+		(at 188.722 197.612 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "43dca415-febb-4bca-b9e6-c8401269ed27")
+	)
 	(text "Line out"
 		(exclude_from_sim no)
 		(at 214.884 256.286 0)

@@ -33541,7 +33541,7 @@
 			)
 		)
 	)
-	(global_label "PA[0..31]"
+	(global_label "PA[0..1]"
 		(shape bidirectional)
 		(at 755.015 73.025 0)
 		(fields_autoplaced yes)
@@ -33553,7 +33553,7 @@
 		)
 		(uuid "53ffaee7-e376-45e3-9c69-003e981e4a91")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 768.0016 73.025 0)
+			(at 766.7921 73.025 0)
 			(effects
 				(font
 					(size 1.27 1.27)
