@@ -341,7 +341,52 @@
     "equivalence_files": []
   },
   "erc": {
-    "erc_exclusions": [],
+    "erc_exclusions": [
+      [
+        "global_label_dangling|1720850|1974850|d7c674af-5cd7-493d-813e-b7b1f7cc4680|00000000-0000-0000-0000-000000000000|/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/04574d6c-b2e0-46ee-bd6f-2fb6c17da828||",
+        ""
+      ],
+      [
+        "global_label_dangling|2305050|1905000|f8f829fd-fc38-43b6-848f-10feada9d120|00000000-0000-0000-0000-000000000000|/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/04574d6c-b2e0-46ee-bd6f-2fb6c17da828||",
+        ""
+      ],
+      [
+        "global_label_dangling|2305050|1955800|60e18df1-a93d-4925-b2cd-66a44c16e551|00000000-0000-0000-0000-000000000000|/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/04574d6c-b2e0-46ee-bd6f-2fb6c17da828||",
+        ""
+      ],
+      [
+        "global_label_dangling|2305050|1981200|2e8d3b04-0c1c-4218-a0dd-62ecdb8c75cf|00000000-0000-0000-0000-000000000000|/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/04574d6c-b2e0-46ee-bd6f-2fb6c17da828||",
+        ""
+      ],
+      [
+        "global_label_dangling|2305050|2006600|f67dc25c-0237-44a0-a848-193633e5514c|00000000-0000-0000-0000-000000000000|/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/04574d6c-b2e0-46ee-bd6f-2fb6c17da828||",
+        ""
+      ],
+      [
+        "global_label_dangling|2305050|2032000|b995a47e-786b-40d2-8b28-77949bb38818|00000000-0000-0000-0000-000000000000|/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/04574d6c-b2e0-46ee-bd6f-2fb6c17da828||",
+        ""
+      ],
+      [
+        "global_label_dangling|2305050|2057400|83d69fe2-bef8-481a-9e22-92cab0b8d7f2|00000000-0000-0000-0000-000000000000|/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/04574d6c-b2e0-46ee-bd6f-2fb6c17da828||",
+        ""
+      ],
+      [
+        "global_label_dangling|2305050|2082800|d0e72bdd-567a-4639-9d4c-f209cf3ed28e|00000000-0000-0000-0000-000000000000|/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/04574d6c-b2e0-46ee-bd6f-2fb6c17da828||",
+        ""
+      ],
+      [
+        "global_label_dangling|2762250|2209800|55b2def2-1306-4c9e-a5ff-6949302fe6dc|00000000-0000-0000-0000-000000000000|/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/04574d6c-b2e0-46ee-bd6f-2fb6c17da828||",
+        ""
+      ],
+      [
+        "global_label_dangling|4686300|3752850|54f3609b-2f61-4788-9c47-6c3cfae29a6a|00000000-0000-0000-0000-000000000000|/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/d5022d96-0fa0-4474-b160-b3a99bf8c2e1||",
+        ""
+      ],
+      [
+        "global_label_dangling|5429250|1047750|2dd49aef-3376-4460-85a0-f0daf4dea75a|00000000-0000-0000-0000-000000000000|/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/d5022d96-0fa0-4474-b160-b3a99bf8c2e1||",
+        ""
+      ]
+    ],
     "meta": {
       "version": 0
     },
@@ -723,7 +768,7 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "production/raven-a2_gerber/",
       "pos_files": "",
       "specctra_dsn": "",
       "step": "",

@@ -12182,6 +12182,16 @@
 		)
 		(uuid "0514003c-56b6-4c45-b9f0-26c54e7ddee5")
 	)
+	(text "unused"
+		(exclude_from_sim no)
+		(at 452.374 375.412 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "05c1e39d-f6df-4463-95e4-529a91e2339a")
+	)
 	(text "~{CE1}"
 		(exclude_from_sim no)
 		(at 57.912 472.567 0)
@@ -12990,17 +13000,6 @@
 			(justify left bottom)
 		)
 		(uuid "cee667fc-d12a-432a-8389-2ffc2fd6841f")
-	)
-	(text "can remove resistor.\nbut in theory, can be made an ouput\nfrom dsp code. safest to keep."
-		(exclude_from_sim no)
-		(at 410.718 372.11 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "d2d6a007-e2ab-446b-b2d7-030c24c16310")
 	)
 	(text "A16"
 		(exclude_from_sim no)
@@ -22425,16 +22424,6 @@
 		)
 		(uuid "5077783d-4ddc-45cd-8f63-3a47c4d128d0")
 	)
-	(polyline
-		(pts
-			(xy 450.85 370.84) (xy 450.85 373.38)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "50a046d4-e1e7-4509-90cf-4d2278db0fd9")
-	)
 	(wire
 		(pts
 			(xy 755.015 491.49) (xy 758.825 491.49)
@@ -24204,16 +24193,6 @@
 			(type default)
 		)
 		(uuid "743c6ee4-907d-4a7a-8fb8-4655abe1a0f0")
-	)
-	(polyline
-		(pts
-			(xy 447.04 373.38) (xy 450.85 373.38)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7448e42e-56ec-4b7e-a1e8-976e05f90e8e")
 	)
 	(bus
 		(pts
@@ -27534,16 +27513,6 @@
 			(type default)
 		)
 		(uuid "ac78ed55-9085-4959-bd51-636b4dfef87d")
-	)
-	(polyline
-		(pts
-			(xy 471.17 370.84) (xy 450.85 370.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "acf3c71f-d96e-4d26-aa83-4a9f234dba58")
 	)
 	(bus
 		(pts
