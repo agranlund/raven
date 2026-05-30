@@ -15,7 +15,8 @@
 | Kemet                 | C1206C272K5RACTU         | 2.7n              |     1 |      |
 | Kemet                 | C1206C330J1GACTU         | 33p               |     2 |      |
 |                       |                          |                   |       |      |
-| Yageo                 | RT1206FRE0710KL          | 10K               |    46 |      |
+| Yageo                 | RT1206FRE0747KL          | 47K               |    12 |      |
+| Yageo                 | RT1206FRE0710KL          | 10K               |    49 |      |
 | Yageo                 | RT1206FRE074K7L          | 4K7               |     8 |      |
 | Yageo                 | RT1206FRE072K2L          | 2K2               |     5 |      |
 | Yageo                 | RT1206FRE071KL           | 1K                |    15 |      |
