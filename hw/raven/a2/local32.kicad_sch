@@ -40125,22 +40125,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 509.27 312.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 509.27 312.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "559e51aa-224c-49dd-8d0c-e07a3894339b")
 		)
@@ -40226,22 +40210,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 760.095 360.045 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 760.095 360.045 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -40348,22 +40316,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 366.395 443.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 366.395 443.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "46a4f2b6-a57a-4f31-b9b6-82bf6fe1c013")
 		)
@@ -40447,22 +40399,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 214.63 278.765 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 214.63 278.765 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -40550,22 +40486,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 264.16 286.385 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 264.16 286.385 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "91c0b58e-24f4-4d2a-9dd1-596e27bd7398")
 		)
@@ -40650,22 +40570,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 545.465 85.725 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 545.465 85.725 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -40816,22 +40720,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 761.365 502.285 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 761.365 502.285 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -40985,22 +40873,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 583.565 97.155 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 583.565 97.155 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -41219,22 +41091,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 573.405 97.155 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 573.405 97.155 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "49cbc97e-af54-4ad3-b37d-8a7527cf507d")
 		)
@@ -41318,22 +41174,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 64.135 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 64.135 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -41699,22 +41539,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 436.245 394.335 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 436.245 394.335 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "280074c2-1445-459e-99a1-7a67ba8e8452")
 		)
@@ -41798,22 +41622,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 554.355 217.805 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 554.355 217.805 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -41902,22 +41710,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 578.485 97.155 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 578.485 97.155 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "065e6437-0709-4bd2-b0db-5ff5ebf0141a")
 		)
@@ -42003,22 +41795,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 438.785 394.335 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 438.785 394.335 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -42174,22 +41950,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 433.705 394.335 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 433.705 394.335 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "7fb463b7-e085-4ac3-b6a8-01aff1b9ec4f")
 		)
@@ -42273,22 +42033,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 798.195 483.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 798.195 483.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -42503,22 +42247,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 127.635 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 127.635 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -43014,22 +42742,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 443.865 394.335 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 443.865 394.335 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "7279b591-304e-41c9-a7d4-9fadc50aeb99")
 		)
@@ -43113,22 +42825,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 187.96 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 187.96 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -43562,22 +43258,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 581.025 97.155 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 581.025 97.155 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "5f41f883-eb6e-4d33-85f6-9d19e36ac85d")
 		)
@@ -43680,22 +43360,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 102.235 224.79 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 102.235 224.79 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -43983,22 +43647,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 608.33 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 608.33 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "26231a98-80fb-475f-b759-dba30489ce57")
 		)
@@ -44148,22 +43796,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 264.16 266.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 264.16 266.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "a3b33ff7-ef4f-4ef2-bb75-6cebaecd81e3")
 		)
@@ -44266,22 +43898,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 734.06 351.79 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 734.06 351.79 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "10"
@@ -44388,22 +44004,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 576.58 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 576.58 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -44691,22 +44291,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 647.065 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 647.065 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "b59740c4-e3f8-4499-a7df-6ee290fb2c93")
 		)
@@ -44859,22 +44443,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 614.68 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 614.68 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "d9345488-1ed8-43ce-9011-f3b54d5dcf03")
 		)
@@ -44959,22 +44527,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 412.115 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 412.115 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -45128,22 +44680,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 414.655 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 414.655 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "bb95a53e-2da7-4b43-bf57-ec743601b0e1")
 		)
@@ -45294,22 +44830,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 198.755 287.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 198.755 287.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -45589,22 +45109,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 421.005 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 421.005 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -46151,22 +45655,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 60.96 267.97 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 60.96 267.97 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "ef9c4853-395d-44ba-9dc8-bd759a0282c1")
 		)
@@ -46252,22 +45740,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 165.1 426.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 165.1 426.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "32"
@@ -46516,22 +45988,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 487.68 370.205 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 487.68 370.205 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "37bd962a-5663-4116-b3d7-b3a5ced1fb0e")
 		)
@@ -46750,22 +46206,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 28.575 301.625 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 28.575 301.625 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "b4a03478-0521-4bd8-a4b6-7be274cc590b")
 		)
@@ -46855,22 +46295,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 234.315 383.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 234.315 383.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -47090,22 +46514,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 713.74 360.045 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 713.74 360.045 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "797f044e-260a-47c1-9790-a4b7f75e86fc")
 		)
@@ -47256,22 +46664,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 214.63 286.385 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 214.63 286.385 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "a3e5066e-bfd4-4344-81e8-0b95c8b02446")
 		)
@@ -47419,22 +46811,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 572.135 212.725 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 572.135 212.725 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -47589,22 +46965,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 684.53 240.665 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 684.53 240.665 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "6aac7697-7168-4404-a13f-ad457076f899")
 		)
@@ -47710,22 +47070,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 407.035 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 407.035 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -47878,22 +47222,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 767.715 395.605 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 767.715 395.605 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "c5749863-7076-451c-af2c-4f8914cdcf58")
 		)
@@ -47979,22 +47307,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 579.12 241.935 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 579.12 241.935 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "3c6aa333-da38-4e78-9d6a-0e16a3707e70")
 		)
@@ -48078,22 +47390,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 653.415 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 653.415 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -48377,22 +47673,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 711.2 360.045 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 711.2 360.045 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "676c99d3-a89b-4e6b-8760-4afdb2bb4a87")
 		)
@@ -48632,22 +47912,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 455.93 474.98 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 455.93 474.98 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "4b94842e-dde3-45fb-a62e-5e3b8f347fc6")
 		)
@@ -48733,22 +47997,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 757.555 360.045 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 757.555 360.045 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -48837,22 +48085,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 343.535 448.945 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 343.535 448.945 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "7e54497b-4ecb-41a6-b99f-1e24e9638735")
 		)
@@ -48937,22 +48169,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 455.93 426.085 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 455.93 426.085 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -49235,22 +48451,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 711.835 445.135 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 711.835 445.135 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "79529396-cf90-4deb-bfba-ace287c73423")
 		)
@@ -49334,22 +48534,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 248.92 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 248.92 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -49839,22 +49023,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 363.855 240.665 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 363.855 240.665 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "742eeb68-6b76-48f7-92f9-1541abe865a8")
 		)
@@ -49939,22 +49107,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 134.62 226.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 134.62 226.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -50106,22 +49258,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 554.99 398.145 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 554.99 398.145 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "31"
@@ -50635,22 +49771,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 595.63 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 595.63 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "7d1966c8-eef6-4a13-bee7-cddb66e72332")
 		)
@@ -50737,22 +49857,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 436.88 226.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 436.88 226.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "feba356c-8bbf-48dd-96ef-118551bf4fa4")
 		)
@@ -50837,22 +49941,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 73.66 456.565 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 73.66 456.565 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -51005,22 +50093,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 756.92 395.605 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 756.92 395.605 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "ae152110-5713-4789-a01f-8cdc0c9451b6")
 		)
@@ -51104,22 +50176,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 769.62 518.16 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 769.62 518.16 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -51272,22 +50328,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 171.45 383.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 171.45 383.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "4b94dc5b-c542-4ecf-b410-4aa31a96de42")
 		)
@@ -51374,22 +50414,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 78.74 456.565 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 78.74 456.565 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "f9f4f8dc-ea95-49cd-9a77-d3aacb149a2c")
 		)
@@ -51474,22 +50498,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 408.94 400.685 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 408.94 400.685 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -51642,22 +50650,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 436.88 248.285 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 436.88 248.285 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "1df1a9b7-f115-4340-9a12-e6573f6f20f4")
 		)
@@ -51807,22 +50799,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 690.245 219.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 690.245 219.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "b809d830-8167-4c6a-bbab-205a3392b781")
 		)
@@ -51907,22 +50883,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 575.945 97.155 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 575.945 97.155 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -52043,22 +51003,6 @@
 				)
 				(justify left top)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 220.98 279.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 220.98 279.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "18"
@@ -52244,22 +51188,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 372.745 507.365 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 372.745 507.365 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "eb06cf9b-3741-4dc3-ad05-8141d6558627")
 		)
@@ -52411,22 +51339,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 556.895 132.715 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 556.895 132.715 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -52646,22 +51558,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 762.635 360.045 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 762.635 360.045 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "f0dd9a6c-cb78-4457-b04c-a8f80bc3dfa5")
 		)
@@ -52843,22 +51739,6 @@
 				)
 				(justify left top)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 27.305 318.77 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 27.305 318.77 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "4"
@@ -53084,22 +51964,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 742.315 501.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 742.315 501.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "14"
 			(uuid "f8bfbee6-b3b1-48a3-86a1-592bedc3751f")
 		)
@@ -53240,22 +52104,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 365.76 454.66 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 365.76 454.66 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -53548,22 +52396,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 441.325 394.335 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 441.325 394.335 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -53910,22 +52742,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 431.165 394.335 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 431.165 394.335 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "a6fdd8bf-4439-410e-940a-64590b88ce47")
 		)
@@ -54076,22 +52892,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 264.16 278.765 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 264.16 278.765 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "e17dfa13-3ce8-4996-b2f1-4e54c8cfc217")
 		)
@@ -54239,22 +53039,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 501.65 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 501.65 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -54410,22 +53194,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 806.45 483.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 806.45 483.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -54774,22 +53542,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 64.77 456.565 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 64.77 456.565 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "a23e2c5f-8d27-477d-9da0-be9df79197f2")
 		)
@@ -55070,22 +53822,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 409.575 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 409.575 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "e186b933-56ba-48c9-a11e-df5a77aaaf3c")
 		)
@@ -55239,22 +53975,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 404.495 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 404.495 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "44efe7e9-0c0f-4d3b-8dca-5dc75f6805ad")
 		)
@@ -55338,22 +54058,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 633.73 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 633.73 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -55570,22 +54274,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 640.08 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 640.08 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "b3da02de-3785-4b9d-993c-bb353537e148")
 		)
@@ -55736,22 +54424,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 716.28 360.045 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 716.28 360.045 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -55967,22 +54639,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 589.28 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 589.28 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "19c12852-1954-4ead-9897-da9e4fe5adfb")
 		)
@@ -56067,22 +54723,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 406.4 400.685 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 406.4 400.685 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -56170,22 +54810,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 782.955 483.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 782.955 483.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "897e4a18-0ebf-4f42-b84c-15fcba8369be")
 		)
@@ -56271,22 +54895,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 227.965 426.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 227.965 426.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "32"
@@ -56594,22 +55202,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 84.455 229.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 84.455 229.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "15"
 			(uuid "864fec68-fff7-47a0-bec0-a096b3877767")
 		)
@@ -56905,22 +55497,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 433.705 507.365 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 433.705 507.365 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "89a7aae5-b3e2-48fd-8b18-d602dadb8f85")
 		)
@@ -57136,22 +55712,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 629.92 466.725 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 629.92 466.725 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "b2b63d90-0e3b-4c46-8800-6f6e056c2d5d")
 		)
@@ -57236,22 +55796,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 412.75 423.545 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 412.75 423.545 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -57473,22 +56017,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 563.88 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 563.88 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "15d8c02d-68ef-43de-bc80-7e9aa48a4b80")
 		)
@@ -57575,22 +56103,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 363.855 228.6 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 363.855 228.6 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "9b14a82c-04f4-4313-b9e7-3d11845d4399")
 		)
@@ -57674,22 +56186,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 723.265 392.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 723.265 392.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -57839,22 +56335,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 570.23 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 570.23 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -58203,22 +56683,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 790.575 483.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 790.575 483.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "281b39a7-f7f2-482c-8def-2fe09e0ec177")
 		)
@@ -58303,22 +56767,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 196.215 287.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 196.215 287.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -58471,22 +56919,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 758.825 518.16 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 758.825 518.16 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "6f3ebb07-e348-4a6e-9480-5289f61b96ab")
 		)
@@ -58604,22 +57036,6 @@
 				)
 				(justify left top)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 381 507.365 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 381 507.365 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "4"
@@ -58908,22 +57324,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 69.85 486.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 69.85 486.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "8702bd76-6678-46b5-94c5-50cb266c00a9")
 		)
@@ -59071,22 +57471,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 109.855 382.905 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 109.855 382.905 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -59386,22 +57770,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 468.63 243.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 468.63 243.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "4ee3edc8-1380-49ad-9a14-46e600ad5801")
 		)
@@ -59523,22 +57891,6 @@
 				)
 				(justify left top)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 725.17 407.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 725.17 407.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "7"
@@ -59727,22 +58079,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 582.93 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 582.93 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "900f2b83-805d-4efd-9ce1-27bd4994e872")
 		)
@@ -59828,22 +58164,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 452.12 100.965 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 452.12 100.965 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "21"
@@ -60069,22 +58389,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 468.63 217.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 468.63 217.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
@@ -60507,22 +58811,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 476.25 358.775 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 476.25 358.775 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "17ced220-74df-4828-b1a9-49aab1c3b873")
 		)
@@ -60625,22 +58913,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 455.93 466.725 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 455.93 466.725 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "1"
@@ -60793,22 +59065,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 621.03 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 621.03 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "2dfafcc5-8de8-4d6e-a827-49fd339c9c27")
 		)
@@ -60894,22 +59150,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 103.505 426.085 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 103.505 426.085 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "32"
@@ -61152,22 +59392,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 720.725 445.135 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 720.725 445.135 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "2"
 			(uuid "eb6e0b68-8af6-4aea-8495-1d91a45f800e")
 		)
@@ -61318,22 +59542,6 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part" ""
-			(at 423.545 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 423.545 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
 		(pin "1"
 			(uuid "61f4ea23-3a9c-418e-8dbb-9276c91fca6d")
 		)
@@ -61417,22 +59625,6 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part" ""
-			(at 627.38 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Numer" ""
-			(at 627.38 303.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 			)
 		)
 		(pin "2"
