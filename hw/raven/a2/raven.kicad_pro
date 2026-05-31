@@ -861,12 +861,6 @@
           "show": false
         },
         {
-          "group_by": false,
-          "label": "Manufacturer_Part",
-          "name": "Manufacturer_Part",
-          "show": false
-        },
-        {
           "group_by": true,
           "label": "Manufacturer_Part_Number",
           "name": "Manufacturer_Part_Number",
@@ -936,12 +930,6 @@
           "group_by": false,
           "label": "Manufacturer_Part_Number2",
           "name": "Manufacturer_Part_Number2",
-          "show": false
-        },
-        {
-          "group_by": false,
-          "label": "Manufacturer_Part_Numer",
-          "name": "Manufacturer_Part_Numer",
           "show": false
         },
         {
