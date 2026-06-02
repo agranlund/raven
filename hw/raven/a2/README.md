@@ -55,5 +55,9 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
 ## Errata:
 
-
-
+## Future:
+- Remove all components from Analog Devices as they can be hard to purchase for individuals.
+  - MAX3245  : ICL3245ECAZ  (drop in replacement)
+  - DS1307   : MCP79411     (software changes only, also makes U407+C415 redundant)
+  - DS1818R  : MIC6315      (small schematic and board change needed)
+  - MAX16054 : tbd          (small schematic and board change needed)

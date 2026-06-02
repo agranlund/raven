@@ -1,0 +1,54 @@
+----------------------------------------------
+MAX3245:  no board change
+DS1307:   no board change
+DS1818R:  board change
+MAX16054: board change
+----------------------------------------------
+
+
+----------------------------------------------
+MAX3245 replacement.
+----------------------------------------------
+ICL3245ECAZ is drop-in replacement
+
+
+----------------------------------------------
+MAX16054 replacement.
+----------------------------------------------
+There is none, but the same functionality
+can be made with 74 logic and passives.
+Or better, like this:
+https://github.com/wiretap-retro/Simple-Soft-Power-Switch/tree/main
+
+
+----------------------------------------------
+DS1818R replacement.
+----------------------------------------------
+No drop in available.
+Redesign for a more common 4pin stuff that
+does the same thing. For example; MIC6315
+
+
+----------------------------------------------
+DS1307 replacement.
+----------------------------------------------
+
+MCP79410, MCP79411 is almost drop in replacement.
+MCP79411 comes with pre-programmed mac-address.
+MCP79410M does not have any eeprom, only sram.
+
+only SW diff. SDA/SCK swap pins.
+programming and registers etc of course.
+
+(79411 variant removes the need for U407)
+
+** bom alternative.
+
+can be removed: U407, C415
+U406: change to MPC79411
+
+** todo: detect these in bios. SW should work with either.
+
+
+
+
