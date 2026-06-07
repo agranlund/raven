@@ -160,15 +160,11 @@ void sys_icache_restore(uint32_t cacr) {
 
 /* ------------------------------------------------------------------- */
 
-/* todo: don't rely on _isa_delayus_fallback for this */
 void sys_delayus_calibrate(void) {
-    uint32_t cacr = sys_icache_enable();
-    _isa_delayus_fallback_calibrate();
-    sys_icache_restore(cacr);
 }
 
 void sys_delayus(uint32_t us) {
-    _isa_delayus_fallback(us);
+	sys.isa->delayus(us);
 }
 
 /* ------------------------------------------------------------------- */
@@ -190,11 +186,12 @@ static bool sys_Init(void) {
         ini_Load(&sys.ini, "c:\\rvsnd.inf");
     }
 
+    /* initialize isabus */
+    sys_InitIsa();
+
     /* calibrate delay counter */
     sys_delayus_calibrate();
 
-    /* initialize isabus */
-    sys_InitIsa();
     return true;
 }
 

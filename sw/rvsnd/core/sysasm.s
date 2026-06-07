@@ -183,6 +183,7 @@ sys_icache_restore40:
 ; int32_t bconstat3()
 ; return -1 = character waiting, 0 = nothing available
 ;----------------------------------------------------------
+	.align 4
 tos_bconstat3:
     dc.l 0x00000000
 new_bconstat3:
@@ -191,23 +192,27 @@ new_bconstat3:
     jsr     (a0)
     movem.l (sp)+,d2/a2
     rts
+	.align 4
 cur_bconstat3:
     dc.l 0x00000000
 
 ;----------------------------------------------------------
 ; int32_t bconin3()
 ;----------------------------------------------------------
+	.align 4
 tos_bconin3:
     dc.l    0x00000000
 new_bconin3:
     movem.l d2/a2,-(sp)
-    move.l  cur_bconstat3,a0
-.1: jsr     (a0)
+.1: move.l  cur_bconstat3,a0
+	jsr     (a0)
+	tst.b	d0
     beq.b   .1
     move.l  cur_bconin3,a0
     jsr     (a0)
     movem.l (sp)+,d2/a2
     rts
+	.align 4
 cur_bconin3:
     dc.l    0x00000000
 
@@ -215,6 +220,7 @@ cur_bconin3:
 ; int32_t bcostat3()
 ; return -1 = ok to send, 0 = not ready
 ;----------------------------------------------------------
+	.align 4
 tos_bcostat3:
     dc.l 0x00000000
 new_bcostat3:
@@ -223,6 +229,7 @@ new_bcostat3:
     jsr     (a0)
     movem.l (sp)+,d2/a2
     rts
+	.align 4
 cur_bcostat3:
     dc.l 0x00000000
 
@@ -232,18 +239,22 @@ cur_bcostat3:
 ; dev = 4(a7)
 ; chr = 6(a7)
 ;----------------------------------------------------------
+	.align 4
 tos_bconout3:
     dc.l 0x00000000
 new_bconout3:
-    move.l  4(sp),d0
-    movem.l d0/d2/a2,-(sp)
-    move.l  cur_bcostat3,a0
-.1: jsr     (a0)
+	movem.l	d2/a2,-(sp)
+.1: move.l  cur_bcostat3,a0
+	jsr     (a0)
+	tst.b	d0
     beq.b   .1
+	move.l	12(sp),-(sp)
     move.l  cur_bconout3,a0
     jsr     (a0)
-    movem.l (sp)+,d0/d2/a2
+	addq.l	#4,sp
+    movem.l (sp)+,d2/a2
     rts
+	.align 4
 cur_bconout3:
     dc.l 0x00000000
 
