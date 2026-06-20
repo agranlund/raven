@@ -44,7 +44,7 @@
 | TE Connectivity       | 5822030-3                | SIMM72            |     4 |      |
 | Molex                 | 171856-1003              | FanHeader         |     3 |      |
 | Molex                 | 47053-1000               | FanHeader         |     1 |      |
-| Mill-Max              | 800-10-004-10-001000     | FanHeader         |     1 |      |
+| Mill-Max              | 800-10-004-10-001000     | FanHeader         |     1 | 1    |
 | Harwin                | S8401-46                 | BatteryHolder     |     1 |      |
 | Amphenol              | L17H26R0121              | DB25/9/9          |     1 |      |
 | Kycon                 | K42X-E9P/P-A4NJ          | DB9M/9M           |     1 |      |
@@ -102,3 +102,6 @@
 | Archi-TECH            | 1870-5222B               | PGA-206           |     1 |      |
 
 
+1. Solder with thiner, shorter, pin facing up.
+   Alternative part number 350-10-104-00-001000 might be better for a bit longer pins.
+  
