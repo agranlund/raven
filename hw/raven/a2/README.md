@@ -54,7 +54,7 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 ## Untested:
 
 ## Notes and Errata:
-- Part number for ARGB header isn't perfect, might want to use a part with slightly longer pins.
+- Part number for ARGB header isn't perfect, might want to use a variant with slightly longer pins.
 
 ## Future:
 - Remove all components from Analog Devices as they can be hard to purchase for individuals.
