@@ -691,7 +691,7 @@
         "microvia_diameter": 0.5,
         "microvia_drill": 0.3,
         "name": "GND",
-        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "pcb_color": "rgb(255, 255, 0)",
         "priority": 4,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.2032,
@@ -708,7 +708,7 @@
         "microvia_diameter": 0.5,
         "microvia_drill": 0.3,
         "name": "PWR",
-        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "pcb_color": "rgb(0, 255, 0)",
         "priority": 5,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.2032,
@@ -760,6 +760,10 @@
       {
         "netclass": "ETH_DPAIR",
         "pattern": "RJ:TRD??"
+      },
+      {
+        "netclass": "PWR",
+        "pattern": "VUSB"
       }
     ]
   },
