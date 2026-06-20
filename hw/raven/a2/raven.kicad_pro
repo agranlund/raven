@@ -764,6 +764,10 @@
       {
         "netclass": "PWR",
         "pattern": "VUSB"
+      },
+      {
+        "netclass": "PWR",
+        "pattern": "+5VL"
       }
     ]
   },
