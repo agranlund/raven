@@ -37399,7 +37399,7 @@
 				)
 			)
 		)
-		(property "Value" "1u"
+		(property "Value" "10u"
 			(at 770.89 40.64 0)
 			(effects
 				(font
@@ -37442,7 +37442,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "C1206C105K4RACTU"
+		(property "Manufacturer_Part_Number" " C1206C106K4RACTU"
 			(at 796.29 18.415 0)
 			(effects
 				(font
@@ -43577,7 +43577,7 @@
 				)
 			)
 		)
-		(property "Value" "1u"
+		(property "Value" "10u"
 			(at 683.26 454.025 0)
 			(effects
 				(font
@@ -43620,7 +43620,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "C1206C105K4RACTU"
+		(property "Manufacturer_Part_Number" " C1206C106K4RACTU"
 			(at 708.66 431.8 0)
 			(effects
 				(font
@@ -47525,7 +47525,7 @@
 				)
 			)
 		)
-		(property "Value" "1u"
+		(property "Value" "10u"
 			(at 308.61 481.965 0)
 			(effects
 				(font
@@ -47568,7 +47568,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "C1206C105K4RACTU"
+		(property "Manufacturer_Part_Number" " C1206C106K4RACTU"
 			(at 334.01 459.74 0)
 			(effects
 				(font

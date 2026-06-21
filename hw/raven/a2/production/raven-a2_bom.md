@@ -6,9 +6,9 @@
 | Panasonic             | ECE-A1HKS100I            | 10u               |    14 |      |
 | Panasonic             | ECE-A1HKS4R7             | 4u7               |     4 |      |
 |                       |                          |                   |       |      |
-| Kemet                 | C1206C106K4RACTU         | 10u               |     4 |      |
+| Kemet                 | C1206C106K4RACTU         | 10u               |     8 |      |
 | Kemet                 | C1206C225K4RACTU         | 2.2u              |     2 |      |
-| Kemet                 | C1206C105K4RACTU         | 1u                |    11 |      |
+| Kemet                 | C1206C105K4RACTU         | 1u                |     7 |      |
 | Kemet                 | C1206C474K5RACTU         | 0.47u             |     1 |      |
 | Kemet                 | C1206C104K5RACTU         | 0.1u              |    78 |      |
 | Kemet                 | C1206C103K5RACTU         | 0.01u             |     2 |      |

@@ -47350,7 +47350,7 @@
 				)
 			)
 		)
-		(property "Value" "1u"
+		(property "Value" "10u"
 			(at 655.955 305.435 0)
 			(effects
 				(font
@@ -47393,7 +47393,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "C1206C105K4RACTU"
+		(property "Manufacturer_Part_Number" " C1206C106K4RACTU"
 			(at 681.355 283.21 0)
 			(effects
 				(font
