@@ -16,6 +16,9 @@ void ProcessTemps(void) { }
 
 #else
 
+// todo Raven.A2
+//	- pwm instead of binary on/off
+
 #define tempsensor_avgcount 8
 #define tempsensor_avgmask  (tempsensor_avgcount - 1)
 #define tempsensor_delay    5
