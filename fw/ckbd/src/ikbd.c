@@ -46,6 +46,12 @@
 #define MOUSE_ACTION_ON_PRESS       (1 << 1)
 #define MOUSE_ACTION_AS_KEYCODE     (1 << 2)
 
+#if defined(BOARD_RAVEN_A2)
+#define POWERSW_BIT					0
+#else
+#define POWERSW_BIT					2
+#endif
+
 const uint32_t ikbd_baudrates[8] = { 7812, 15625, 31250, 62500, 125000, 250000, 500000, 1000000 };
 
 //---------------------------------------------------------------------
@@ -1070,7 +1076,7 @@ bool cmd_0x03(uint8_t* data, uint8_t size) {        // IKBD_CMD_EIFFEL_GET_TEMP
 #else
     ikbd_Send(0x00);
 #endif
-    ikbd_Send(0x00 | ((P0 << 5) & 0x80));
+    ikbd_Send(0x00 | ((P0 << (7 - POWERSW_BIT)) & 0x80));
     ikbd_Send((BUILD_VERSION & 0xff000000) >> 24);
     ikbd_Send((BUILD_VERSION & 0x00ff0000) >> 16);
     ikbd_Send((BUILD_VERSION & 0x0000ff00) >>  8);
@@ -1209,11 +1215,11 @@ bool cmd_0x2F(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_POWER
     uint8_t val = data[1];
     if (val == 0x5A) {
         TRACE("poweroff");
-        P0 &= ~(1 << 2);
-        P0_DIR |= (1 << 2);
+        P0 &= ~(1 << POWERSW_BIT);
+        P0_DIR |= (1 << POWERSW_BIT);
         delayms(1000);
-        P0_DIR &= ~(1 << 2);
-        P0 |= (1 << 2);
+        P0_DIR &= ~(1 << POWERSW_BIT);
+        P0 |= (1 << POWERSW_BIT);
     } else {
         // todo: system reset
     }
