@@ -838,11 +838,10 @@ PT_THREAD(ftpd_control_connection(struct ftpd_control_state *s))
       }
     }
 
-    bool method_found = false;
+    s->handle_command_func = 0;
     for (size_t i = 0; i < sizeof(commands) / sizeof(commands[0]); ++i) {
       if (0 == memcmp(s->inputbuf, commands[i].entry, commands[i].entry_len - 1)) {
         LOG_TRACE("method: %s\r\n", s->inputbuf);
-        method_found = true;
         s->handle_command_func = commands[i].handle_command_func;
         PT_INIT(&s->worker[0]);
         PSOCK_WAIT_THREAD(&s->sin, s->handle_command_func(&s->worker[0], s));
@@ -850,7 +849,7 @@ PT_THREAD(ftpd_control_connection(struct ftpd_control_state *s))
       }
     }
 
-    if (!method_found) {
+    if (!s->handle_command_func) {
       LOG_TRACE("unimplemented request: %s\r\n", s->inputbuf);
       PT_INIT(&s->worker[0]);
       PSOCK_WAIT_THREAD(&s->sin, handle_command_reject(&s->worker[0], s));
