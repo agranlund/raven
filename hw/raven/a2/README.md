@@ -28,6 +28,7 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - BOM: Changed C310 to 0.1uF (was 0.01uF)
 - Fixed: RTC power delivery, now using ATX standby power
 - Fixed: unused but floating inputs on U102
+- Fixed: polarity of YM2149 DC blocking caps
 - Changed: through-hole DS1818 with DS1818R (SMD version)
 - Changed: IDE interface is now big-endian
 - Changed: CKBD instead of Eiffel
@@ -44,7 +45,6 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - Added: i2c expansion header
 - Added: CPU temperature readout from CKBD
 - Added: PowerOff control from CKBD
-- Added: PowerSwitch status readable from XR68M752
 - Added: YM2149 sw controlled volume
 - Added: internal speaker amp + header
 - Added: DSP56303 with DAC+ADC and ESSI1 expansion header
@@ -55,6 +55,7 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
 ## Notes and Errata:
 - Part number for ARGB header isn't perfect, might want to use a variant with slightly longer pins.
+- PWR_SW to UART:RI trace cut, pin is not 5V tolerant (todo: update github schematic)
 
 ## Future:
 - Remove all components from Analog Devices as they can be hard to purchase for individuals.
