@@ -187,10 +187,10 @@ uint32_t ikbd_ConnectEx(uint8_t default_baud, uint8_t ideal_baud)
 {
     // connect with default or warmboot baudrate
     ikbd_Connect(default_baud);
-    if ((ikbd_version == 0) && (default_baud != IKBD_BAUD_7812)) {
+    if ((ikbd_version == 0) && (default_baud != ikbd_DefaultBaud())) {
         // retry with standard rate if default failed
         sys_Delay(100);
-        default_baud = IKBD_BAUD_7812;
+        default_baud = ikbd_DefaultBaud();
         ikbd_Connect(default_baud);
     }
 
@@ -298,6 +298,11 @@ uint8_t ikbd_Baud(void)
     return ikbd_baud;
 }
 
+uint8_t ikbd_DefaultBaud() {
+	extern uint32_t krev;
+	return (krev >= 0xA2) ? IKBD_BAUD_125000 : IKBD_BAUD_7812;
+}
+
 void ikbd_Reset(void)
 {
     ikbd_send(0x80);
@@ -316,6 +321,7 @@ void ikbd_SystemPoweroff(void)
 //-----------------------------------------------------------------------
 void ikbd_HardReset(bool bootloader)
 {
+	uint8_t default_baud = ikbd_DefaultBaud();
     if (!ckbd_version()) {
         printf("requires ckbd controller\n");
     } else if (bootloader) {
@@ -325,9 +331,9 @@ void ikbd_HardReset(bool bootloader)
         ikbd_send(0x5A);
         sys_Delay(1000);
         uint32_t prevbaud = ikbd_baud;
-        ikbd_SetBaud(IKBD_BAUD_7812);
+        ikbd_SetBaud(default_baud);
         ikbd_recv();
-        ikbd_ConnectEx(IKBD_BAUD_7812, prevbaud);
+        ikbd_ConnectEx(default_baud, prevbaud);
         ikbd_Info();
     } else {
         ikbd_send(0x13);
@@ -335,9 +341,9 @@ void ikbd_HardReset(bool bootloader)
         ikbd_send(0x00);
         sys_Delay(100);
         uint32_t prevbaud = ikbd_baud;
-        ikbd_SetBaud(IKBD_BAUD_7812);
+        ikbd_SetBaud(default_baud);
         sys_Delay(1000);
-        ikbd_ConnectEx(IKBD_BAUD_7812, prevbaud);
+        ikbd_ConnectEx(default_baud, prevbaud);
         ikbd_Info();
     }
 }

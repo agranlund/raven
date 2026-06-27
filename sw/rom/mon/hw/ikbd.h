@@ -32,6 +32,7 @@ uint32_t    ikbd_Version();
 uint32_t    ikbd_Info();
 void        ikbd_Reset();
 uint8_t     ikbd_Baud();
+uint8_t		ikbd_DefaultBaud();
 
 // --- ckbd only ---
 void        ikbd_HardReset(bool bootloader);

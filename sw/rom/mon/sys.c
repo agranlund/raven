@@ -104,7 +104,6 @@ bool sys_Init()
         magics[2] = resmagic2;
         magics[3] = resmagic3;
     }
-    uint8_t ikbdbaud = coldboot ? IKBD_BAUD_7812 : ikbd_Baud();
 
     // clear bios bss area & copy data
     memset(&__bss_start, 0, &__bss_end - &__bss_start);
@@ -181,7 +180,12 @@ bool sys_Init()
     if (!safemode)
     {
         initprint("IkbdConnect");
-        ikbd_ConnectEx(ikbdbaud, (uint8_t) cfg_GetValue(cfg_Find("ikbd_speed")));
+		if (krev >= 0xA2) {
+			ikbd_ConnectEx(IKBD_BAUD_125000, IKBD_BAUD_125000);
+		} else {
+		    uint8_t ikbdbaud = coldboot ? ikbd_DefaultBaud() : ikbd_Baud();
+        	ikbd_ConnectEx(ikbdbaud, (uint8_t) cfg_GetValue(cfg_Find("ikbd_speed")));
+		}
         ikbd_Info();
 
         initprint("InitAtari");
