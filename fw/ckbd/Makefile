@@ -50,6 +50,7 @@ CONF_FLAGS =
 else ifeq ($(target),a2)
 BOARD_TYPE = BOARD_RAVEN_A2
 CONF_FLAGS = -DDISABLE_PS2
+BAUD_IKBD  = 125000
 
 # default : raven.a1 board used in non-raven situations
 else
