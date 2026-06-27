@@ -1,7 +1,6 @@
 #
 # Raven ROM Monitor
 #
-BOARD_REV	 	= 0xA1
 BIOS_ROM	 	= 0x40000000
 
 # Tools
@@ -32,7 +31,6 @@ BUILD_DATE_DEC	:= $(shell printf %d 0x$(BUILD_DATE_HEX))
 
 DEFS		 = -DRAVEN_ROM \
 			-DVERSION=$(BUILD_DATE_DEC) \
-		   	-DREV=$(BOARD_REV) \
 		   	-DBIOS_ROM=$(BIOS_ROM) \
 			#
 		   

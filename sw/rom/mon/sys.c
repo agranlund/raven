@@ -35,6 +35,7 @@ bool mem_Init();
 static uint32_t kheapPtrA __attribute__((aligned(4))); // top area
 static uint32_t kheapPtrB __attribute__((aligned(4))); // btm area
 uint32_t ksimm[4] __attribute__((aligned(4)));
+uint32_t krev __attribute__((aligned(4)));
 
 static const char * const cpuNames[] = {
     "M68XC060",
@@ -57,6 +58,9 @@ bool sys_Init()
     cpu_Init();
     uint32_t cpuRev = 0;
     uint32_t cpuSku = cpu_Detect(&cpuRev, 0);
+
+	// identify board revision.
+	uint8_t rev = (IOB(RV_PADDR_UART1, UART_MSR) & (1 << 5)) ? 0xA1 : 0xA2;
 
     // identify rom size
     uint32_t siz_simm[4];
@@ -111,12 +115,14 @@ bool sys_Init()
     ksimm[1] = siz_simm[1];
     ksimm[2] = siz_simm[2];
     ksimm[3] = siz_simm[3];
+	krev = rev;
 
     // init systems
     lib_Init();
 
     // can use printf and other lib functions from this point onward
     putchar('\n');
+	printf("REV:   %02x\n", rev);
     printf("CPU:   %sR%d\n", cpuNames[cpuSku], cpuRev);
     printf("SIMM0: %08x\n", siz_simm[0]);
     printf("SIMM1: %08x\n", siz_simm[1]);
@@ -191,7 +197,7 @@ bool sys_Init()
 
 //-----------------------------------------------------------------------
 uint32_t sys_Chipset(void) {
-    return (uint32_t)REV;
+    return krev;
 }
 
 //-----------------------------------------------------------------------

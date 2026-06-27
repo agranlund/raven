@@ -131,10 +131,10 @@ const raven_t ravenBios __attribute__((section(".export"))) =
 //0x0000
     C_RAVN,                     // magic
     VERSION,                    // rom version
-    REV,
+    0xA1,						// todo: remove, use sys_Chipset instead
     {0,0,0},
     (rvtoc_t*)&__toc_start,
-    sys_Chipset,                  // chipset info
+    sys_Chipset,                // chipset info
 //0x0020
     b_dbg_GPI,
     b_dbg_GPO,
