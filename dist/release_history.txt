@@ -1,4 +1,4 @@
-Raven.A1
+Raven 68060
 Hardware and software binary release
 
 260406:
