@@ -42168,16 +42168,16 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+3.3V")
-		(at 144.145 250.825 270)
+		(lib_id "power:GND")
+		(at 144.145 250.825 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "204a258d-242e-4032-be2d-26a9ec55bc65")
+		(uuid "20ccbe66-6a2b-468b-a83b-3dad711c76cd")
 		(property "Reference" "#PWR0465"
-			(at 140.335 250.825 0)
+			(at 150.495 250.825 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -42185,12 +42185,13 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "+3.3V"
-			(at 149.987 250.825 90)
+		(property "Value" "GND"
+			(at 147.193 250.698 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Footprint" ""
@@ -42220,7 +42221,7 @@
 			)
 		)
 		(pin "1"
-			(uuid "35aa0758-da7c-4283-a51d-b23db1cc2aa0")
+			(uuid "95e7df2d-4d66-438d-ba5e-02376e31d329")
 		)
 		(instances
 			(project "raven"
