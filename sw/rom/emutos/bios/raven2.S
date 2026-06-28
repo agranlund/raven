@@ -63,10 +63,6 @@ raven_memconf:
 _raven_int_ikbd:
     move.w  #0x2700,sr
     movem.l d0-d2/a0-a1,-(sp)
-    move.w  20(sp),d0
-    and.w   #0x0F00,d0                      /* get current ipl          */
-    cmp.w   #0x0500,d0                      /* skip if >= 6             */
-    bhi.b   1f
     move.w  #0x2600,sr                      /* set level 6              */
     moveq.l #7,d2
 0:  btst.b  #0,RAVEN_UART1_BASE+0x14

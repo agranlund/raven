@@ -120,21 +120,32 @@ void raven_screen_init(void) {
  * Keyboard
  *---------------------------------------------------------------------------------------*/
 
+#if 1
 LONG raven_ikbd_bcostat(void)       { return (REGB(RAVEN_UART1_BASE, 0x14) & (1 << 5)) ? -1 : 0; }
 void raven_ikbd_writeb(UBYTE b)     { REGB(RAVEN_UART1_BASE, 0x00) = b; }
 LONG raven_ikbd_bconstat(void)      { return (REGB(RAVEN_UART1_BASE, 0x14) & (1 << 0)) ? -1 : 0; }
 UBYTE raven_ikbd_readb(void)        { return REGB(RAVEN_UART1_BASE, 0x00); }
 
 void raven_init_keyboard_interrupt(void) {
-    REGL(0, 0x74) = (ULONG) raven_int_ikbd;
     REGB(RAVEN_UART1_BASE, 0x04)  = 0x00;   /* disable interrupts */
     REGB(RAVEN_UART1_BASE, 0x08)  = 0x01;   /* RX fifo enabled */
     REGB(RAVEN_UART1_BASE, 0x08)  = 0x07;   /* empty fifos */
+    REGL(0, 0x74) = (ULONG) raven_int_ikbd;
     REGB(RAVEN_UART1_BASE, 0x04)  = 0x01;   /* enable RX interrupts */
 }
 
 void raven_kbd_init(void) {
 }
+
+#else
+LONG raven_ikbd_bcostat(void)       { return -1; }
+void raven_ikbd_writeb(UBYTE b)     {  }
+LONG raven_ikbd_bconstat(void)      { return 0; }
+UBYTE raven_ikbd_readb(void)        { return 0; }
+
+void raven_init_keyboard_interrupt(void) { }
+void raven_kbd_init(void) { }
+#endif
 
 
 /*-----------------------------------------------------------------------------------------
