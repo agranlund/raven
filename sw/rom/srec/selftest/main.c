@@ -51,12 +51,16 @@ int test_mfp_rw(int verbose, int mfpnum) {
         uint8_t rold = IOB(mfp, reg);
         IOB(mfp, reg) = 0x55; uint8_t rb0 = IOB(mfp, reg);
         IOB(mfp, reg) = 0xAA; uint8_t rb1 = IOB(mfp, reg);
-        IOB(mfp, reg) = rold;
+        IOB(mfp, reg) = 0xFF; uint8_t rb2 = IOB(mfp, reg);
+        IOB(mfp, reg) = 0x00; uint8_t rb3 = IOB(mfp, reg);
+		IOB(mfp, reg) = rold;
 
-        if ((rb0 != 0x55) || (rb1 != 0xaa)) {
+        if ((rb0 != 0x55) || (rb1 != 0xaa) || (rb2 != 0xff) || (rb3 != 0x00)) {
             fmt("  R/W Error on $%l\n", mfp+reg);
             puts_bitresult(8, 0x55, rb0);
             puts_bitresult(8, 0xaa, rb1);
+            puts_bitresult(8, 0xff, rb2);
+            puts_bitresult(8, 0x00, rb3);
             putsn("  Hint: ");
             if (mfpnum == 0) {
                 if (i==0) { puts("U403[PD23:16], U103[D7:0]"); }
@@ -87,13 +91,17 @@ int test_ym(int verbose) {
     // write + readback test
     ym2149b[0] = 0;         // cha freq low
     volatile uint8_t rold = ym2149b[0];
-    ym2149b[2] = 0x55; volatile uint8_t rb0 = ym2149b[0];
+	ym2149b[2] = 0x55; volatile uint8_t rb0 = ym2149b[0];
     ym2149b[2] = 0xaa; volatile uint8_t rb1 = ym2149b[0];
+    ym2149b[2] = 0xff; volatile uint8_t rb2 = ym2149b[0];
+    ym2149b[2] = 0x00; volatile uint8_t rb3 = ym2149b[0];
     ym2149b[2] = rold;
-    if (rb0 != 0x55 || rb1 != 0xaa) {
+    if (rb0 != 0x55 || rb1 != 0xaa || rb2 != 0xff || rb3 != 0x00) {
         fmt("  R/W Error on $%l/2\n", RV_PADDR_YM);
         puts_bitresult(8, 0x55, rb0);
         puts_bitresult(8, 0xaa, rb1);
+        puts_bitresult(8, 0xff, rb2);
+        puts_bitresult(8, 0x00, rb3);
         puts("  Hint: U405[31:24], U402, U106[D31:24], U103[D15:8]");
     }
 
@@ -132,4 +140,3 @@ void main(void)
         puts("\n** Result: OK\n");
     }
 }
-
