@@ -68,7 +68,7 @@ bool ikbd_Init()
     uart1[UART_SPR] = 0x00;         // clear scratch register
     uart1[UART_MCR] = 0x00;         // modem control)
                                         // bit0 = #dtr -> powerled on/off
-                                        // bit1 = #rts -> spare output TP301
+                                        // bit1 = #rts -> dsp reset
     uart1[UART_LCR] = 0xBF;         // access efr
     uart1[UART_EFR] = 0x10;         // enable access
     uart1[UART_LCR] = 0x80;         // access baud regs
@@ -212,7 +212,7 @@ uint32_t ikbd_ConnectEx(uint8_t default_baud, uint8_t ideal_baud)
 void ikbd_GPO(uint8_t bit, bool enable)
 {
     // 0 : powerled
-    // 1 : TP301
+    // 1 : dsp_reset
     uint8_t mask = (1 << bit);
     if (enable) {
         IOB(RV_PADDR_UART1, UART_MCR) &= ~mask;

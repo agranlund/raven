@@ -4,7 +4,7 @@
 #include "sys.h"
 
 #define IKBD_GPO_PWRLED     0
-#define IKBD_GPO_TP307      1
+#define IKBD_GPO_DSP_RESET  1
 
 #define IKBD_BAUD_AUTO      0
 #define IKBD_BAUD_7812      1
