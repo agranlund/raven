@@ -127,8 +127,10 @@ UBYTE raven_ikbd_readb(void)        { return REGB(RAVEN_UART1_BASE, 0x00); }
 
 void raven_init_keyboard_interrupt(void) {
     REGL(0, 0x74) = (ULONG) raven_int_ikbd;
-    REGB(RAVEN_UART1_BASE, 0x08) |= 0x01;   /* RX fifo enabled */
-    REGB(RAVEN_UART1_BASE, 0x04)  = 0x01;   /* RHR interrupts enabled */
+    REGB(RAVEN_UART1_BASE, 0x04)  = 0x00;   /* disable interrupts */
+    REGB(RAVEN_UART1_BASE, 0x08)  = 0x01;   /* RX fifo enabled */
+    REGB(RAVEN_UART1_BASE, 0x08)  = 0x07;   /* empty fifos */
+    REGB(RAVEN_UART1_BASE, 0x04)  = 0x01;   /* enable RX interrupts */
 }
 
 void raven_kbd_init(void) {
