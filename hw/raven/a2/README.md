@@ -7,7 +7,7 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 ![Alt text](images/render.jpg?raw=true "")
 
 ## Status:
-- Design and routing complete
+- Bringup and testing
 
 ## Info:
 - Designed for JLCPCB standard six layer stackup (JLC06161H-3313)
@@ -56,7 +56,7 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 ## Notes and Errata:
 - Part number for ARGB header isn't perfect, might want to use a variant with slightly longer pins.
 - PWR_SW to UART:RI trace cut on personal board as pin is not 5V tolerant.
-  Schematic, PCB and Gerbers on Github has been updated with same fix.
+  Schematic, PCB and Gerbers here on Github has been updated with same type of fix.
 
 ## Future:
 - Remove all components from Analog Devices as they can be hard to purchase for individuals.
