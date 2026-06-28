@@ -182,7 +182,7 @@ static bool GetCoreTemperature(uint16_t* adc_out, uint8_t* res_out, uint8_t* deg
     // todo: use user defined calibration settings here,
     // same as we do for board temperature.
 
-    const float rn = 870; //780.0f;
+    const float rn = 780.0f;
     const float at = 2.8f;
 
     // convert to voltage
