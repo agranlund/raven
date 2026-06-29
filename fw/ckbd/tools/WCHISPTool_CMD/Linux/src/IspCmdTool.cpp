@@ -76,7 +76,7 @@ int GetDevIndex()
 		iRet = 5;
 		goto _END;
 	}
-	sprintf(szStr, "%s", cmdPara.PortName);
+	snprintf(szStr, sizeof(szStr), "%s", cmdPara.PortName);
 	/* enumerate the devices automatically */
 	iDevCnt = WCH55x_EnumDevices(AfxDnDev, DEV_MAX_NUMBER, &BtChipSeries, &BtChipType, &IsPreBTV230);
 	if (iDevCnt == 0) {
@@ -119,7 +119,7 @@ int DoOption(bool bFlashOpt)
 	/* print boot version */
 	if (cmdPara.bPrtVer) {
 		memset(szStr, 0, sizeof(szStr));
-		sprintf(szStr, "BOOT VERSION:     v%X.%X%X\r\n", AfxDnDev[uDevIndex].IspVer[1],
+		snprintf(szStr, sizeof(szStr), "BOOT VERSION:     v%X.%X%X\r\n", AfxDnDev[uDevIndex].IspVer[1],
 			AfxDnDev[uDevIndex].IspVer[2], AfxDnDev[uDevIndex].IspVer[3]);
 		std::cout << szStr << std::endl;
 		iRet = 0;
@@ -127,7 +127,7 @@ int DoOption(bool bFlashOpt)
 
 	if (bFlashOpt) {
 		memset(szStr, 0, sizeof(szStr));
-		sprintf(szStr, "{\"Device\":\"%s\",\"Status\":\"Ready\"}", cmdPara.PortName);
+		snprintf(szStr, sizeof(szStr), "{\"Device\":\"%s\",\"Status\":\"Ready\"}", cmdPara.PortName);
 		std::cout << szStr << std::endl;
 
 		/* read target file */
@@ -193,7 +193,7 @@ int DoOption(bool bFlashOpt)
 			} else {
 				usleep(10 * 1000);
 				memset(szStr, 0, sizeof(szStr));
-				sprintf(szStr, "{\"Device\":\"%s\", \"Status\":\"Programming\", \"Progress\":100%%} ",
+				snprintf(szStr, sizeof(szStr), "{\"Device\":\"%s\", \"Status\":\"Programming\", \"Progress\":100%%} ",
 					cmdPara.PortName);
 				std::cout << szStr << std::endl;
 				iRet = 0;
@@ -280,7 +280,7 @@ static void parse_opts(int argc, char *argv[])
 		switch (c) {
 		case 'p':
 			if (optarg)
-				strcpy(cmdPara.PortName, optarg);
+				strncpy(cmdPara.PortName, optarg, sizeof(cmdPara.PortName) - 1);
 			break;
 		case 'b':
 			if (optarg)
