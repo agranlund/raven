@@ -22,7 +22,6 @@ Important:
 #define RV_PADDR_UART1      0x20000000UL
 #define RV_PADDR_UART2      0x20000020UL
 #define RV_PADDR_DSP      	0x20000400UL		/* Rev.A2 */
-#define RV_PADDR_DSP_SLOW	0x20000440UL		/* Rev.A2 */
 #define RV_PADDR_IDE        0xA0000000UL
 #define RV_PADDR_YM         0xA1000800UL
 #define RV_PADDR_SFP       	0xA1000A40UL		/* Rev.A2 */
