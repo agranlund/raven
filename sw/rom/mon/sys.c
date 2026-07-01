@@ -4,6 +4,7 @@
 #include "hw/uart.h"
 #include "hw/mfp.h"
 #include "hw/ikbd.h"
+#include "hw/ym.h"
 #include "hw/midi.h"
 #include "hw/i2c.h"
 #include "hw/rtc.h"
@@ -154,6 +155,9 @@ bool sys_Init()
     {
         initprint("InitMfp");
         mfp_Init();
+
+		initprint("InitYm");
+        ym_Init();
 
         initprint("InitMidi");
         midi_Init();

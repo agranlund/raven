@@ -299,7 +299,6 @@ uint8_t ikbd_Baud(void)
 }
 
 uint8_t ikbd_DefaultBaud() {
-	extern uint32_t krev;
 	return (krev >= 0xA2) ? IKBD_BAUD_125000 : IKBD_BAUD_7812;
 }
 

@@ -31,5 +31,7 @@ uint32_t strtoi(char* s);
 void vecNMI();
 void vecRTE();
 
+extern uint32_t krev;
+
 #endif // !__ASM_
 #endif // _SYS_H_
