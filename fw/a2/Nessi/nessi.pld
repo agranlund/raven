@@ -188,7 +188,6 @@ DECODE_SIMM2        = [A31..0]:'b'000XXX10XXXXXXXXXXXXXXXXXXXXXXXX;    // $02000
 DECODE_SIMM3        = [A31..0]:'b'010XXX00XXXXXXXXXXXXXXXXXXXXXXXX;    // $40000000
 DECODE_UART         = [A31..0]:'b'001XXX00XXXXXXXXXXXXX0XXXXXXXXXX;    // $20000000
 DECODE_DSP          = [A31..0]:'b'001XXX00XXXXXXXXXXXXX1XXX0XXXXXX;    // $20000400
-DECODE_DSP_SLOW     = [A31..0]:'b'001XXX00XXXXXXXXXXXXX1XXX1XXXXXX;    // $20000440
 
 
 //------------------------------------------------------------------------------
@@ -321,12 +320,22 @@ UARTS4.ar = RSTI;
 UARTS4.ck = BCLK;  // hold cs for one more bclk (4-5)
 UARTS4.d  = UARTCS & !UARTS4;
 
+
 //------------------------------------------------------------------------------
 // DSP
+// todo: can probably handle less ws, this is a quick copy/paste.
 //------------------------------------------------------------------------------
+node DSPS1;
+node DSPS4;
+DSPS1.ar = RSTI;
+DSPS1.ck = !BCLK; // sample TS on falling bclk (1)
+DSPS1.d  = TS & BUSCYCLE & DECODE_DSP;
 DSPCS.ar = RSTI;
-DSPCS.ck = BCLK;
-DSPCS.d  = 'b'0;
+DSPCS.ck = BCLK;   // cs enable on rising bclk (2-3)
+DSPCS.d  = (DSPCS # DSPS1) & !DSPS4;
+DSPS4.ar = RSTI;
+DSPS4.ck = BCLK;  // hold cs for one more bclk (4-5)
+DSPS4.d  = DSPCS & !DSPS4;
 
 
 //------------------------------------------------------------------------------
