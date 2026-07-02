@@ -5,6 +5,7 @@
 #include "hw/cpu.h"
 #include "hw/uart.h"
 #include "hw/ikbd.h"
+#include "hw/ym.h"
 #include "hw/midi.h"
 #include "hw/i2c.h"
 #include "hw/rtc.h"
@@ -14,11 +15,15 @@
 
 extern struct X86EMU* x86emu;
 
+
+//---------------------------------------------------------------
+// dbg gpio
+//---------------------------------------------------------------
 void b_dbg_GPO(uint32_t num, uint32_t enable) {
     switch (num)
     {
         case 0:     // uart1:powerled
-        case 1:     // uart1:TP301
+        case 1:     // uart1:dsp_reset
             ikbd_GPO(num, (enable == 0) ? false : true);
             break;
     }
@@ -28,12 +33,30 @@ uint32_t b_dbg_GPI(uint32_t num) {
     return ikbd_GPI((uint8_t)num) ? 1UL : 0UL;
 }
 
-static void b_rtc_Read(uint32_t addr, uint8_t* buf, uint32_t siz) { rtc_Read((uint8_t)addr, buf, (uint8_t)siz); }
-static void b_rtc_Write(uint32_t addr, uint8_t* buf, uint32_t siz) { rtc_Write((uint8_t)addr, buf, (uint8_t)siz); }
+//---------------------------------------------------------------
+// rtc
+//---------------------------------------------------------------
+static void b_rtc_Read(uint32_t addr, uint8_t* buf, uint32_t siz) {
+	rtc_Read((uint8_t)addr, buf, (uint8_t)siz);
+}
+static void b_rtc_Write(uint32_t addr, uint8_t* buf, uint32_t siz) {
+	rtc_Write((uint8_t)addr, buf, (uint8_t)siz);
+}
 
-static uint32_t b_cfg_Read(const char* cfg) { return (uint32_t) cfg_GetValue(cfg_Find(cfg)); }
-static void b_cfg_Write(const char* cfg, uint32_t val) { cfg_SetValue(cfg_Find(cfg), val); }
+//---------------------------------------------------------------
+// cfg
+//---------------------------------------------------------------
+static uint32_t b_cfg_Read(const char* cfg) {
+	return (uint32_t) cfg_GetValue(cfg_Find(cfg));
+}
 
+static void b_cfg_Write(const char* cfg, uint32_t val) {
+	cfg_SetValue(cfg_Find(cfg), val);
+}
+
+//---------------------------------------------------------------
+// i2c
+//---------------------------------------------------------------
 static int32_t b_i2c_Aquire() { return (int32_t) i2c_Aquire(); }
 static void b_i2c_Release() { i2c_Release(); }
 static void b_i2c_Start() { i2c_Start(); }
@@ -41,11 +64,20 @@ static void b_i2c_Stop() { i2c_Stop(); }
 static uint32_t b_i2c_Read(uint32_t ack) { return (uint32_t) i2c_Read((uint8_t)ack); }
 static uint32_t b_i2c_Write(uint32_t val) { return (uint32_t) i2c_Write((uint8_t)val); }
 
+//---------------------------------------------------------------
+// flash
+//---------------------------------------------------------------
 static uint32_t b_flash_Identify(void) { return flash_Id(); }
 static uint32_t b_flash_Program(void* data, uint32_t size) { return flash_Program(data, size) ? 1 : 0; }
 
+//---------------------------------------------------------------
+// vga
+//---------------------------------------------------------------
 static void b_vga_SetMode(uint32_t mode) { vga_SetMode((uint16_t)mode); }
 
+//---------------------------------------------------------------
+// x86
+//---------------------------------------------------------------
 static uint32_t b_int86x(uint32_t no, x86_regs_t* regs_in, x86_regs_t* regs_out, x86_sregs_t* sregs) {
 
     /* set sregs */
@@ -95,6 +127,9 @@ static uint32_t b_int86x(uint32_t no, x86_regs_t* regs_in, x86_regs_t* regs_out,
     return (uint32_t)x86emu->x86.R_AX;
 }
 
+//---------------------------------------------------------------
+// sys
+//---------------------------------------------------------------
 static uint32_t b_sys_reset(uint32_t arg) {
     /* todo: hard reset on boards that supports it */
     uint32_t r = (1 << 0);
@@ -123,6 +158,24 @@ static uint32_t b_sys_poweroff(uint32_t arg) {
     return r;
 }
 
+//---------------------------------------------------------------
+// snd
+//---------------------------------------------------------------
+static void b_snd_speaker(uint32_t enable) {
+	ym_Speaker(enable ? true : false);
+}
+
+static void b_snd_volume(uint32_t volume) {
+	ym_Volume((uint8_t)volume);
+}
+
+
+//---------------------------------------------------------------
+//
+// exports
+//
+//---------------------------------------------------------------
+
 extern uint8_t __toc_start;
 extern uint8_t __pram_start;
 
@@ -138,7 +191,9 @@ const raven_t ravenBios __attribute__((section(".export"))) =
 //0x0020
     b_dbg_GPI,
     b_dbg_GPO,
-    {0,0,0,0,0,0},
+    {0,0,0,0},
+	b_snd_speaker,
+	b_snd_volume,
 //0x0040
     b_rtc_Read,
     b_rtc_Write,
@@ -186,5 +241,19 @@ const raven_t ravenBios __attribute__((section(".export"))) =
     b_sys_reset,
     b_sys_poweroff,
     msp_Install,
-    {0,0,0,0,0}
+    {0,0,0,0,0},
+// 0x0120
+	{0,0,0,0,0,0,0,0},
+// 0x0140
+	{0,0,0,0,0,0,0,0},
+// 0x0160
+	{0,0,0,0,0,0,0,0},
+// 0x0180
+	{0,0,0,0,0,0,0,0},
+// 0x01A0
+	{0,0,0,0,0,0,0,0},
+// 0x01C0
+	{0,0,0,0,0,0,0,0},
+// 0x01E0
+	{0,0,0,0,0,0,0,0}
 };

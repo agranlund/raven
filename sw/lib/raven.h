@@ -8,7 +8,7 @@ Important:
 #define _RAVEN_H_
 
 /*--------------------------------------------------------------------------------*/
-#define C_RAVN_VER          0x20260412UL
+#define C_RAVN_VER          0x20260702UL
 #define C_RAVN_PTR          0x40000000UL
 #ifndef C_RAVN
 #define C_RAVN              0x5241564EUL
@@ -91,7 +91,9 @@ typedef struct
 /* 0x0020 */
     uint32_t    _RVAPI (*dbg_GPI)(uint32_t num);
     void        _RVAPI (*dbg_GPO)(uint32_t num, uint32_t val);
-    uint32_t    reserved0020[6];
+    uint32_t    reserved0020[4];
+	void		_RVAPI (*snd_speaker)(uint32_t enable);	/* 0 = off, 1 = on */
+	void		_RVAPI (*snd_volume)(uint32_t volume);	/* 0 - 255 */
 
 /* 0x0040 */
     void        _RVAPI (*rtc_Read)(uint32_t addr, uint8_t* buf, uint32_t siz);
@@ -99,7 +101,7 @@ typedef struct
     uint32_t    reserved0040[2];
     uint32_t    _RVAPI (*cfg_Read)(const char* name);
     void        _RVAPI (*cfg_Write)(const char* name, uint32_t value);
-    uint32_t    reserved0050[2];
+    uint32_t    reserved0058[2];
 
 /* 0x0060 */
     int32_t     _RVAPI (*i2c_Aquire)(void);
@@ -140,13 +142,34 @@ typedef struct
 
 /* 0x00E0 */
     uint32_t    _RVAPI (*int86x)(uint32_t no, x86_regs_t* regs_in, x86_regs_t* regs_out, x86_sregs_t* sregs);
-    uint32_t    reserved00D0[7]; /* reserved for future x86 related things */
+    uint32_t    reserved00E0[7]; /* reserved for future x86 related things */
 
 /* 0x0100 */
     uint32_t    _RVAPI (*sys_reset)(uint32_t arg);      /* 0 = available, 1 = soft, 2 = hard */
     uint32_t    _RVAPI (*sys_poweroff)(uint32_t arg);   /* 0 = available, 1 = poweroff */
     void        _RVAPI (*sys_installsp)(uint32_t vbr);
-    uint32_t    reserved00E0[5];
+    uint32_t    reserved0100[5];
+
+/* 0x0120 */
+	uint32_t	reserved0120[8];
+
+/* 0x0140 */
+	uint32_t	reserved0140[8];
+
+/* 0x0160 */
+	uint32_t	reserved0160[8];
+
+/* 0x0180 */
+	uint32_t	reserved0180[8];
+
+/* 0x01A0 */
+	uint32_t	reserved01A0[8];
+
+/* 0x01C0 */
+	uint32_t	reserved01C0[8];
+
+/* 0x01E0 */
+	uint32_t	reserved01E0[8];
 
 } raven_t;
 
