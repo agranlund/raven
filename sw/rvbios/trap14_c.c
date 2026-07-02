@@ -74,31 +74,25 @@ int16_t xbc_nvmaccess(
 {
 	int32_t addr = (int32_t)start + 0x08;
 	int32_t len  = (int32_t)count;
+
 	if (addr >= RTC_NVRAM_END)
 		return 0;
+
 	if ((addr+len) > RTC_NVRAM_END)
 		len = (RTC_NVRAM_END - addr);
 		
-
-	switch (op)
-	{
+	switch (op) {
 		case 0:	/* get */
-		{
 			raven()->rtc_Read(addr, buffer, len);
-		}
-		break;
+			break;
 		
 		case 1:	/* set */
-		{
 			raven()->rtc_Write(addr, buffer, len);
-		}
-		break;
+			break;
 		
 		case 2:	/* clear */
-		{
 			raven()->rtc_Write(RTC_NVRAM_START, default_nvram, RTC_NVRAM_LEN);
-		}
-		break;
+			break;
 	}
 
 	return 0;

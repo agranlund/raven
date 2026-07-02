@@ -27,8 +27,7 @@
 ;	TOS1
 ;		0x0016	void SetTime(u32 time)
 ;		0x0017	u32  GetTime(void)
-;
-;		0x001C	u8 Giaccess(u16 data, u16 regno)
+;		0x001C	u8 	 Giaccess(u16 data, u16 regno)
 ;		0x001D	void Offgibit(u16 bitno)
 ;		0x001E	void Ongibit(u16 bitno)
 ;
@@ -54,9 +53,8 @@
     .XREF   xbc_puntaes
     .XREF   xbc_read_temp
 
-	.XREF	xbtable
-
 	.EXPORT InstallTrap14
+	.EXPORT trap14_table
 
 	.TEXT
 
@@ -72,6 +70,27 @@ InstallTrap14:
 	move.w	#0x2700,sr
 	move.l	0x0b8.w,xbios_old	; xbios trap handler
 	move.l	#xbios_new,0x0b8.w
+
+	; clear jumptable
+	move.l	#trap14_table,a0
+	move.w	#255,d0
+.1:	move.l	#xbios_org,(a0)+
+	dbra.w	d0,.1
+
+	; init jumptable
+IFNE XBTIME
+	move.l	#xb_settime,	trap14_table + ( 22*4)
+	move.l	#xb_gettime,	trap14_table + ( 23*4)
+ENDIF
+	move.l	#xb_giaccess,	trap14_table + ( 28*4)
+	move.l	#xb_offgibit,	trap14_table + ( 29*4)
+	move.l	#xb_ongibit,	trap14_table + ( 30*4)
+	move.l	#xb_puntaes,	trap14_table + ( 39*4)
+IFNE XBNVM
+	move.l	#xb_nvmaccess,	trap14_table + ( 46*4)
+ELSE
+	move.l	#xb_cache_ctrl,	trap14_table + (160*4)
+
 	move.w	(sp)+,sr			; restore interrupts
 	movem.l	(sp)+,d0/a0			; restore registers
 	rts
@@ -94,10 +113,7 @@ xbios_new:
 	;------------------------------------
 	cmp.w	#256,d0
 	bcc.b	.2
-	move.l	(xbtable, d0.w*4),d0
-	beq.b	.3
-	move.l	d0,a1
-	jmp		(a1)
+	jmp		([trap14_table, d0.w*4])
 
 	;------------------------------------
 	; CT60
@@ -108,7 +124,8 @@ xbios_new:
 	;------------------------------------
 	; Original
 	;------------------------------------
-.3:	movea.l	xbios_old(pc),a0
+xbios_org:
+	movea.l	xbios_old(pc),a0
 	jmp		(a0)
 
 
@@ -310,50 +327,8 @@ xb_ct60_vmalloc:
 
 	
 
-xbtable:
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 0
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 10
-IFNE XBTIME
-	dc.l	0,0					; 20
-	dc.l	xb_settime			; 22
-	dc.l	xb_gettime			; 23
-	dc.l	0,0,0,0				; 24
-ELSE
-	dc.l	0,0,0,0,0,0,0,0
-ENDIF
-	dc.l	xb_giaccess			; 28
-	dc.l	xb_offgibit			; 29
-	dc.l	xb_ongibit			; 30
-
-	dc.l	0,0,0,0,0,0,0,0		; 31
-	dc.l	xb_puntaes			; 39
-IFNE XBNVM
-	dc.l	0,0,0,0,0,0			; 40
-	dc.l	xb_nvmaccess		; 46
-	dc.l	0,0,0				; 47
-ELSE
-	dc.l	0,0,0,0,0,0,0,0,0,0
-ENDIF
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 50
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 60
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 70
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 80
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 90
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 100
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 110
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 120
-	dc.l	0,0,0,0,0,0,0,0,0,0 ; 130
-	dc.l	0,0,0,0,0,0,0,0,0,0 ; 140
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 150
-	dc.l	xb_cache_ctrl		; 160
-	dc.l	0,0,0,0,0,0,0,0,0	; 161
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 170
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 180
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 190
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 200
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 210
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 220
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 230
-	dc.l	0,0,0,0,0,0,0,0,0,0	; 240
-	dc.l	0,0,0,0,0,0			; 250
-	
+;----------------------------------------------------------
+	.bss
+	.align 16
+trap14_table:
+	ds.l	256
