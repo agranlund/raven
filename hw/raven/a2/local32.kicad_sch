@@ -388,172 +388,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "68k:CH213K"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "U"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "CH213K"
-				(at 11.684 -9.398 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "Package_TO_SOT_SMD:SOT-23-3"
-				(at 16.002 -17.018 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "https://www.wch-ic.com/downloads/CH213DS1.PDF.html?type=en"
-				(at 32.258 -19.812 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Ideal diode w. overcurrent, overtemp, short-circuit protection"
-				(at 29.972 -14.478 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "CH213K_0_1"
-				(rectangle
-					(start -1.27 -1.27)
-					(end 15.24 -8.255)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 5.715 -3.81) (xy 3.175 -3.81)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 7.62 -2.54) (xy 7.62 -5.08)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 7.62 -3.81) (xy 10.16 -3.81)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 7.62 -3.81) (xy 5.715 -2.54) (xy 5.715 -5.08) (xy 7.62 -3.81)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "CH213K_1_1"
-				(pin passive line
-					(at -3.81 -3.81 0)
-					(length 2.54)
-					(name "VI+"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -3.81 -6.35 0)
-					(length 2.54)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 17.78 -3.81 180)
-					(length 2.54)
-					(name "VO-"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "68k:CH559L"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -12263,7 +12097,7 @@
 	)
 	(text "1A 0.3V drop"
 		(exclude_from_sim no)
-		(at 593.471 238.506 0)
+		(at 597.916 230.886 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13872,12 +13706,6 @@
 		(uuid "68374c1b-825b-4b3d-a20d-fed3b8399013")
 	)
 	(junction
-		(at 560.705 224.79)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "6ac1d972-1758-4a4b-90a5-300b0f097d2c")
-	)
-	(junction
 		(at 565.15 484.505)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -14572,12 +14400,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "ef7ea34c-37e6-4ffd-b172-edef41e480db")
-	)
-	(junction
-		(at 560.705 211.455)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "f2582a38-e2ea-49d4-80c2-e4394d0881e0")
 	)
 	(junction
 		(at 782.955 480.06)
@@ -18424,16 +18246,6 @@
 		)
 		(uuid "05a059f1-073a-4f35-ad0e-1eab4432d7e6")
 	)
-	(wire
-		(pts
-			(xy 560.705 224.79) (xy 560.705 226.06)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "06155cfe-978c-464b-871e-c15f5031dd31")
-	)
 	(bus
 		(pts
 			(xy 213.36 83.82) (xy 213.36 81.28)
@@ -18613,16 +18425,6 @@
 			(type default)
 		)
 		(uuid "091463e0-3028-4dec-837f-6dd7cd8122e3")
-	)
-	(wire
-		(pts
-			(xy 560.705 211.455) (xy 560.705 216.535)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "09177d8c-de9d-4f29-ade7-3c6f162407ad")
 	)
 	(wire
 		(pts
@@ -20276,16 +20078,6 @@
 	)
 	(wire
 		(pts
-			(xy 554.355 211.455) (xy 560.705 211.455)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2495fe38-0fd1-44e4-b2e5-f791d6982309")
-	)
-	(wire
-		(pts
 			(xy 228.6 71.12) (xy 234.95 71.12)
 		)
 		(stroke
@@ -20453,16 +20245,6 @@
 			(type default)
 		)
 		(uuid "2741b8f3-cc31-49cf-aa8f-0a422e3d3a25")
-	)
-	(wire
-		(pts
-			(xy 560.705 219.075) (xy 560.705 224.79)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "275df33d-b033-4d51-8592-26c8af722e56")
 	)
 	(wire
 		(pts
@@ -20713,16 +20495,6 @@
 			(type default)
 		)
 		(uuid "2d0fa730-2975-4c7e-974a-a59849037061")
-	)
-	(wire
-		(pts
-			(xy 568.325 216.535) (xy 560.705 216.535)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2d8c6977-4596-4bab-a0fb-0f63916d14a8")
 	)
 	(wire
 		(pts
@@ -23393,16 +23165,6 @@
 			(type default)
 		)
 		(uuid "5d5305e7-e7e7-4c72-a02f-1b98f891b5e6")
-	)
-	(wire
-		(pts
-			(xy 554.355 220.345) (xy 554.355 224.79)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5d63ff51-c749-49af-8b92-9b50e4a10848")
 	)
 	(wire
 		(pts
@@ -26566,16 +26328,6 @@
 	)
 	(wire
 		(pts
-			(xy 554.355 224.79) (xy 560.705 224.79)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "93e7cef7-f1ad-4af8-9a91-b791f6cede4d")
-	)
-	(wire
-		(pts
 			(xy 107.315 109.22) (xy 113.665 109.22)
 		)
 		(stroke
@@ -26976,16 +26728,6 @@
 	)
 	(wire
 		(pts
-			(xy 568.325 219.075) (xy 560.705 219.075)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9945fa4f-0349-4685-bdec-8f2406e7e6d2")
-	)
-	(wire
-		(pts
 			(xy 196.215 280.67) (xy 196.215 283.21)
 		)
 		(stroke
@@ -27046,7 +26788,7 @@
 	)
 	(wire
 		(pts
-			(xy 582.93 241.935) (xy 590.55 241.935)
+			(xy 587.375 234.315) (xy 594.995 234.315)
 		)
 		(stroke
 			(width 0)
@@ -30436,16 +30178,6 @@
 	)
 	(wire
 		(pts
-			(xy 589.915 216.535) (xy 600.71 216.535)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d6c77cef-f1c3-4a85-b6a0-a4e699e90b3f")
-	)
-	(wire
-		(pts
 			(xy 548.64 320.675) (xy 546.1 320.675)
 		)
 		(stroke
@@ -30473,16 +30205,6 @@
 			(type default)
 		)
 		(uuid "d72f6bdc-2f15-484b-9460-b73cd5ee5f88")
-	)
-	(wire
-		(pts
-			(xy 560.705 208.915) (xy 560.705 211.455)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d741ce70-6fa1-4b8e-b908-6b448d365a96")
 	)
 	(wire
 		(pts
@@ -30626,7 +30348,7 @@
 	)
 	(wire
 		(pts
-			(xy 575.31 241.935) (xy 568.325 241.935)
+			(xy 579.755 234.315) (xy 572.77 234.315)
 		)
 		(stroke
 			(width 0)
@@ -31673,16 +31395,6 @@
 			(type default)
 		)
 		(uuid "e874a698-b035-40aa-a720-0412fcc12d6c")
-	)
-	(wire
-		(pts
-			(xy 554.355 215.265) (xy 554.355 211.455)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e889e66f-4909-4cf3-8b2c-b8dcf7ba63d6")
 	)
 	(wire
 		(pts
@@ -37164,28 +36876,6 @@
 			)
 		)
 	)
-	(global_label "VUSB"
-		(shape output)
-		(at 600.71 216.535 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "14c2e1a5-028b-4222-b17f-9a5c57778852")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 608.5938 216.535 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "ADC_CLOCK"
 		(shape input)
 		(at 721.36 416.56 180)
@@ -37672,7 +37362,7 @@
 	)
 	(global_label "VUSB"
 		(shape output)
-		(at 590.55 241.935 0)
+		(at 594.995 234.315 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -37682,7 +37372,7 @@
 		)
 		(uuid "499c8032-c955-4b4a-8ee5-0ebf38dc014c")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 598.4338 241.935 0)
+			(at 602.8788 234.315 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41537,91 +41227,6 @@
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/d5022d96-0fa0-4474-b160-b3a99bf8c2e1"
 					(reference "R330")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_name "c_100nf_smd1206_1")
-		(lib_id "68k:c_100nf_smd1206")
-		(at 554.355 217.805 0)
-		(unit 1)
-		(exclude_from_sim yes)
-		(in_bom no)
-		(on_board no)
-		(dnp no)
-		(uuid "18860fc9-21cd-425d-852c-50e306d4bd19")
-		(property "Reference" "C302"
-			(at 551.815 217.805 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "10u"
-			(at 556.895 217.805 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder"
-			(at 548.005 243.205 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://www.mouser.se/datasheet/2/447/KEM_C1002_X7R_SMD-3316098.pdf"
-			(at 554.355 240.665 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 554.355 217.805 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" "Kemet"
-			(at 520.065 235.585 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part_Number" " C1206C106K4RAC"
-			(at 526.415 238.125 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "f801bc24-b02c-4d4b-a7b6-814aaea6b189")
-		)
-		(pin "1"
-			(uuid "7783fa97-69d9-4a7f-9f61-8b2384c5b3b0")
-		)
-		(instances
-			(project "raven"
-				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/d5022d96-0fa0-4474-b160-b3a99bf8c2e1"
-					(reference "C302")
 					(unit 1)
 				)
 			)
@@ -46797,94 +46402,6 @@
 		)
 	)
 	(symbol
-		(lib_id "68k:CH213K")
-		(at 572.135 212.725 0)
-		(unit 1)
-		(exclude_from_sim yes)
-		(in_bom no)
-		(on_board no)
-		(dnp no)
-		(uuid "56586e57-e14c-4f18-bfdd-78f44eae8587")
-		(property "Reference" "U302"
-			(at 573.405 212.725 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "CH213K"
-			(at 584.2 222.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23-3"
-			(at 588.137 229.743 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://www.wch-ic.com/downloads/CH213DS1.PDF.html?type=en"
-			(at 604.393 232.537 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Ideal diode w. overcurrent, overtemp, short-circuit protection"
-			(at 602.107 227.203 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Manufacturer_Name" "WCH"
-			(at 572.135 212.725 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Manufacturer_Part_Number" "CH213K"
-			(at 572.135 212.725 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "82c47545-0ee6-4b1b-b1ac-f9844ea44f01")
-		)
-		(pin "3"
-			(uuid "1e8321cc-af23-4467-91c7-324e679f4a07")
-		)
-		(pin "1"
-			(uuid "9891479e-584f-49ac-af8b-5e70b961582c")
-		)
-		(instances
-			(project ""
-				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/d5022d96-0fa0-4474-b160-b3a99bf8c2e1"
-					(reference "U302")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:+3.3V")
 		(at 134.62 222.25 0)
 		(unit 1)
@@ -47141,71 +46658,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 560.705 226.06 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "5b51cc17-9576-48b4-b926-0de33641f6ea")
-		(property "Reference" "#PWR0325"
-			(at 560.705 232.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 562.61 229.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 560.705 226.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 560.705 226.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 560.705 226.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "30dcebb2-e3bb-433e-94ee-a0698a4f30ae")
-		)
-		(instances
-			(project "raven"
-				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/d5022d96-0fa0-4474-b160-b3a99bf8c2e1"
-					(reference "#PWR0325")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_name "c_100nf_smd1206_1")
 		(lib_id "68k:c_100nf_smd1206")
 		(at 767.715 395.605 180)
@@ -47292,7 +46744,7 @@
 	)
 	(symbol
 		(lib_id "Diode:PMEG2010ER")
-		(at 579.12 241.935 180)
+		(at 583.565 234.315 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -47300,7 +46752,7 @@
 		(dnp no)
 		(uuid "648212a5-2571-4bae-ad53-2fcbf0a2e17a")
 		(property "Reference" "D301"
-			(at 579.501 238.506 0)
+			(at 583.946 230.886 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -47308,7 +46760,7 @@
 			)
 		)
 		(property "Value" "PMEG2010ER"
-			(at 579.247 245.364 0)
+			(at 583.692 237.744 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -47316,7 +46768,7 @@
 			)
 		)
 		(property "Footprint" "68k:SOD-123W-handsolder"
-			(at 579.12 237.49 0)
+			(at 583.565 229.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -47325,7 +46777,7 @@
 			)
 		)
 		(property "Datasheet" "https://assets.nexperia.com/documents/data-sheet/PMEG2010ER.pdf"
-			(at 579.12 241.935 0)
+			(at 583.565 234.315 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -47334,7 +46786,7 @@
 			)
 		)
 		(property "Description" "20V, 1A low Vf MEGA Schottky barrier rectifier, SOD-123W"
-			(at 579.12 241.935 0)
+			(at 583.565 234.315 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -47343,7 +46795,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "Nexperia"
-			(at 579.12 241.935 0)
+			(at 583.565 234.315 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -47352,7 +46804,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "PMEG2010ER"
-			(at 579.12 241.935 0)
+			(at 583.565 234.315 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -53330,7 +52782,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 568.325 241.935 90)
+		(at 572.77 234.315 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -53338,7 +52790,7 @@
 		(dnp no)
 		(uuid "abd4f235-4ac2-43f0-b57e-a1527d5fd241")
 		(property "Reference" "#PWR0329"
-			(at 572.135 241.935 0)
+			(at 576.58 234.315 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -53347,7 +52799,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 563.372 242.062 90)
+			(at 567.817 234.442 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -53355,7 +52807,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 568.325 241.935 0)
+			(at 572.77 234.315 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -53364,7 +52816,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 568.325 241.935 0)
+			(at 572.77 234.315 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -53373,7 +52825,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 568.325 241.935 0)
+			(at 572.77 234.315 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -54252,70 +53704,6 @@
 			(project "raven"
 				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/d5022d96-0fa0-4474-b160-b3a99bf8c2e1"
 					(reference "#PWR0317")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+5V")
-		(at 560.705 208.915 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "b9357974-95e5-4a98-b7bb-d8cfebfb57d7")
-		(property "Reference" "#PWR0318"
-			(at 560.705 212.725 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+5V"
-			(at 560.705 205.105 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 560.705 208.915 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 560.705 208.915 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 560.705 208.915 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "8144face-3410-46de-9d19-4e08d761aa0c")
-		)
-		(instances
-			(project "raven"
-				(path "/af55e73e-5814-45b4-ac5c-0bab62c0b1c7/d5022d96-0fa0-4474-b160-b3a99bf8c2e1"
-					(reference "#PWR0318")
 					(unit 1)
 				)
 			)
