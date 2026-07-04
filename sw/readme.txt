@@ -2,7 +2,7 @@
 ## Subtrees:
 sw/rom/emutos           : https://github.com/emutos/emutos master
 sw/isa/drivers/picogus  : https://github.com/polpo/picogus main
-
+sw/dsp/asm56k           : https://github.com/agranlund/asm56k master
 
 ## Compilers:
 rom/mon                     : m68k-atari-mintelf-gcc
