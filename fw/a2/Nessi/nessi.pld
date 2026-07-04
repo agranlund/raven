@@ -227,7 +227,7 @@ DECODE_68150        = DECODE_IDE # DECODE_YM # DECODE_MFP1 # DECODE_MFP2 # DECOD
 // Localbus
 // rom/ram/uart share same 60ns cycle length at the moment
 //
-//         0   1   2   3   4   5   6   0   1   
+//         0   1   2   3   4   5   0   1   2   
 // BCLK:   |---|   |---|   |---|   |---|   |---
 //         |   |___|   |___|   |___|   |___|
 //
@@ -308,34 +308,14 @@ CLA = 'b'0; // burst address increment
 //  25ns cs->data setup on read, 10ns data hold
 //  10ns data setup on write
 //------------------------------------------------------------------------------
-node UARTS1;
-node UARTS4;
-UARTS1.ar = RSTI;
-UARTS1.ck = !BCLK; // sample TS on falling bclk (1)
-UARTS1.d  = TS & BUSCYCLE & DECODE_UART;
-UARTCS.ar = RSTI;
-UARTCS.ck = BCLK;   // cs enable on rising bclk (2-3)
-UARTCS.d  = (UARTCS # UARTS1) & !UARTS4;
-UARTS4.ar = RSTI;
-UARTS4.ck = BCLK;  // hold cs for one more bclk (4-5)
-UARTS4.d  = UARTCS & !UARTS4;
+UARTCS = DECODE_UART & (BUSRD # BUSWR);
 
 
 //------------------------------------------------------------------------------
 // DSP
-// todo: can probably handle less ws, this is a quick copy/paste.
+//	todo: can probably do less waitstates
 //------------------------------------------------------------------------------
-node DSPS1;
-node DSPS4;
-DSPS1.ar = RSTI;
-DSPS1.ck = !BCLK; // sample TS on falling bclk (1)
-DSPS1.d  = TS & BUSCYCLE & DECODE_DSP;
-DSPCS.ar = RSTI;
-DSPCS.ck = BCLK;   // cs enable on rising bclk (2-3)
-DSPCS.d  = (DSPCS # DSPS1) & !DSPS4;
-DSPS4.ar = RSTI;
-DSPS4.ck = BCLK;  // hold cs for one more bclk (4-5)
-DSPS4.d  = DSPCS & !DSPS4;
+DSPCS = DECODE_DSP & (BUSRD # BUSWR);
 
 
 //------------------------------------------------------------------------------
