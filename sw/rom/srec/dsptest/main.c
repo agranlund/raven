@@ -106,7 +106,7 @@ void main(void)
 	}
 
 	int32_t flips = 0;
-	for (int i=0; i<128; i++) {
+	for (int i=0; i<4096; i++) {
 		uint8_t isr_now = dsp[0x8];
 		if (isr_now != isr) {
 			flips++;
