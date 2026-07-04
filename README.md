@@ -88,5 +88,5 @@ Revision.A1 has seen 10+ builds so can be the safer choice in terms of finding s
 - [ROM module programmer](hw/simm/programmer/)
 - Programmer for ATF1508AS, for example ATDH1150-USB
 - Programmer for ATF22V10C, for example XGecu TL866II-Plus
-- Programmer for PIC16F876A, for example XGecu TL866II-Plus
+- (Rev.A1) Programmer for PIC16F876A, for example XGecu TL866II-Plus
 
