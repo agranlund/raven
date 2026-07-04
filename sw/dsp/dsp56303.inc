@@ -17,7 +17,6 @@
 ;------------------------------------------------------------------------
 
 ; Register Addresses
-;------------------------------------------------------------------------
 M_HDR       EQU $FFFFC9     ; Host port GPIO data Register
 M_HDDR      EQU $FFFFC8     ; Host port GPIO direction Register
 M_PCRC      EQU $FFFFBF     ; Port C Control Register
@@ -38,7 +37,6 @@ M_OGDB      EQU $FFFFFC     ; OnCE GDB Register
 ;------------------------------------------------------------------------
 
 ; Register Addresses
-
 M_HCR       EQU $FFFFC2     ; Host Control Register
 M_HSR       EQU $FFFFC3     ; Host Status Register
 M_HPCR      EQU $FFFFC4     ; Host Polarity Control Register
@@ -47,7 +45,6 @@ M_HRX       EQU $FFFFC6     ; Host Receive Register
 M_HTX       EQU $FFFFC7     ; Host Transmit Register
 
 ; HCR bits definition
-
 M_HRIE      EQU $0          ; Host Receive interrupts Enable
 M_HTIE      EQU $1          ; Host Transmit Interrupt Enable
 M_HCIE      EQU $2          ; Host Command Interrupt Enable
@@ -55,7 +52,6 @@ M_HF2       EQU $3          ; Host Flag 2
 M_HF3       EQU $4          ; Host Flag 3
 
 ; HSR bits definition
-
 M_HRDF      EQU $0          ; Host Receive Data Full
 M_HTDE      EQU $1          ; Host Receive Data Empty
 M_HCP       EQU $2          ; Host Command Pending
@@ -63,7 +59,6 @@ M_HF0       EQU $3          ; Host Flag 0
 M_HF1       EQU $4          ; Host Flag 1
 
 ; HPCR bits definition
-
 M_HGEN      EQU $0          ; Host Port GPIO Enable
 M_HA8EN     EQU $1          ; Host Address 8 Enable
 M_HA9EN     EQU $2          ; Host Address 9 Enable
@@ -75,7 +70,6 @@ M_HOD       EQU $8          ; Host Request Open Drain mode
 M_HDSP      EQU $9          ; Host Data Strobe Polarity
 M_HASP      EQU $A          ; Host Address Strobe Polarity
 M_HMUX      EQU $B          ; Host Multiplexed bus select
-
 M_HD_HS     EQU $C          ; Host Double/Single Strobe select
 M_HCSP      EQU $D          ; Host Chip Select Polarity
 M_HRP       EQU $E          ; Host Request Polarity
@@ -88,7 +82,6 @@ M_HAP       EQU $F          ; Host Acknowledge Polarity
 ;------------------------------------------------------------------------
 
 ; Register Addresses
-
 M_STXH      EQU $FFFF97     ; SCI Transmit Data Register (high)
 M_STXM      EQU $FFFF96     ; SCI Transmit Data Register (middle)
 M_STXL      EQU $FFFF95     ; SCI Transmit Data Register (low)
@@ -101,7 +94,6 @@ M_SSR       EQU $FFFF93     ; SCI Status Register
 M_SCCR      EQU $FFFF9B     ; SCI Clock Control Register
 
 ; SCI Control Register Bit Flags
-
 M_WDS       EQU $7          ; Word Select Mask (WDS0-WDS3)
 M_WDS0      EQU 0           ; Word Select 0
 M_WDS1      EQU 1           ; Word Select 1
@@ -122,19 +114,16 @@ M_SCKP      EQU 15          ; SCI Clock Polarity
 M_REIE      EQU 16          ; SCI Error Interrupt Enable (REIE)
 
 ; SCI Status Register Bit Flags
-
 M_TRNE      EQU 0           ; Transmitter Empty
 M_TDRE      EQU 1           ; Transmit Data Register Empty
 M_RDRF      EQU 2           ; Receive Data Register Full
 M_IDLE      EQU 3           ; Idle Line Flag
-
 M_OR        EQU 4           ; Overrun Error Flag
 M_PE        EQU 5           ; Parity Error
 M_FE        EQU 6           ; Framing Error Flag
 M_R8        EQU 7           ; Received Bit 8 (R8) Address
 
 ; SCI Clock Control Register
-
 M_CD        EQU $FFF        ; Clock Divider Mask (CD0-CD11)
 M_COD       EQU 12          ; Clock Out Divider
 M_SCP       EQU 13          ; Clock Prescaler
@@ -148,7 +137,6 @@ M_TCM       EQU 15          ; Transmit Clock Source Bit
 ;------------------------------------------------------------------------
 
 ; Register Addresses Of SSI0
-
 M_TX00      EQU $FFFFBC     ; SSI0 Transmit Data Register 0
 M_TX01      EQU $FFFFBB     ; SSIO Transmit Data Register 1
 M_TX02      EQU $FFFFBA     ; SSIO Transmit Data Register 2
@@ -163,7 +151,6 @@ M_RSMA0     EQU $FFFFB2     ; SSI0 Receive Slot Mask Register A
 M_RSMB0     EQU $FFFFB1     ; SSI0 Receive Slot Mask Register B
 
 ; Register Addresses Of SSI1
-
 M_TX10      EQU $FFFFAC     ; SSI1 Transmit Data Register 0
 M_TX11      EQU $FFFFAB     ; SSI1 Transmit Data Register 1
 M_TX12      EQU $FFFFAA     ; SSI1 Transmit Data Register 2
@@ -178,7 +165,6 @@ M_RSMA1     EQU $FFFFA2     ; SSI1 Receive Slot Mask Register A
 M_RSMB1     EQU $FFFFA1     ; SSI1 Receive Slot Mask Register B
 
 ; SSI Control Register A Bit Flags
-
 M_PM        EQU $FF         ; Prescale Modulus Select Mask (PM0-PM7)
 M_PSR       EQU 11          ; Prescaler Range 
 M_DC        EQU $1F000      ; Frame Rate Divider Control Mask (DC0-DC7)
@@ -187,7 +173,6 @@ M_WL        EQU $380000     ; Word Length Control Mask (WL0-WL7)
 M_SSC1      EQU 22          ; Select SC1 as TR #0 drive enable (SSC1)
 
 ; SSI Control Register B Bit Flags
-
 M_OF        EQU $3          ; Serial Output Flag Mask
 M_OF0       EQU 0           ; Serial Output Flag 0
 M_OF1       EQU 1           ; Serial Output Flag 1
@@ -218,7 +203,6 @@ M_STEIE     EQU 22          ; SSI Transmit Error Interrupt Enable
 M_SREIE     EQU 23          ; SSI Receive Error Interrupt Enable
 
 ; SSI Status Register Bit Flags
-
 M_IF        EQU $3          ; Serial Input Flag Mask
 M_IF0       EQU 0           ; Serial Input Flag 0
 M_IF1       EQU 1           ; Serial Input Flag 1
@@ -230,19 +214,15 @@ M_TDE       EQU 6           ; Transmit Data Register Empty
 M_RDF       EQU 7           ; Receive Data Register Full
 
 ; SSI Transmit Slot Mask Register A
-
 M_SSTSA     EQU $FFFF       ; SSI Transmit Slot Bits Mask A (TS0-TS15)
 
 ; SSI Transmit Slot Mask Register B
-
 M_SSTSB     EQU $FFFF       ; SSI Transmit Slot Bits Mask B (TS16-TS31)
 
 ; SSI Receive Slot Mask Register A
-
 M_SSRSA     EQU $FFFF       ; SSI Receive Slot Bits Mask A (RS0-RS15)
 
 ; SSI Receive Slot Mask Register B
-
 M_SSRSB     EQU $FFFF       ; SSI Receive Slot Bits Mask B (RS16-RS31)
 
 ;------------------------------------------------------------------------
@@ -292,7 +272,6 @@ M_D5L0      EQU 22          ; DMA5 Interrupt Priority Level (low)
 M_D5L1      EQU 23          ; DMA5 Interrupt Priority Level (high)
 
 ; Interrupt Priority Register Peripheral (IPRP)
-
 M_HPL       EQU $3          ; Host Interrupt Priority Level Mask
 M_HPL0      EQU 0           ; Host Interrupt Priority Level (low)
 M_HPL1      EQU 1           ; Host Interrupt Priority Level (high)
@@ -316,21 +295,18 @@ M_T0L1      EQU 9           ; TIMER Interrupt Priority Level (high)
 ;---------------------------------------------------------------
 
 ; Register Addresses Of TIMER0
-
 M_TCSR0     EQU $FFFF8F     ; TIMER0 Control/Status Register
 M_TLR0      EQU $FFFF8E     ; TIMER0 Load Reg
 M_TCPR0     EQU $FFFF8D     ; TIMER0 Compare Register
 M_TCR0      EQU $FFFF8C     ; TIMER0 Count Register
 
 ; Register Addresses Of TIMER1
-
 M_TCSR1     EQU $FFFF8B     ; TIMER1 Control/Status Register
 M_TLR1      EQU $FFFF8A     ; TIMER1 Load Reg
 M_TCPR1     EQU $FFFF89     ; TIMER1 Compare Register
 M_TCR1      EQU $FFFF88     ; TIMER1 Count Register
 
 ; Register Addresses Of TIMER2
-
 M_TCSR2     EQU $FFFF87     ; TIMER2 Control/Status Register
 M_TLR2      EQU $FFFF86     ; TIMER2 Load Reg
 M_TCPR2     EQU $FFFF85     ; TIMER2 Compare Register
@@ -339,7 +315,6 @@ M_TPLR      EQU $FFFF83     ; TIMER Prescaler Load Register
 M_TPCR      EQU $FFFF82     ; TIMER Prescaler Count Register
 
 ; Timer Control/Status Register Bit Flags
-
 M_TE        EQU 0           ; Timer Enable
 M_TOIE      EQU 1           ; Timer Overflow Interrupt Enable
 M_TCIE      EQU 2           ; Timer Compare Interrupt Enable
@@ -354,18 +329,15 @@ M_TOF       EQU 20          ; Timer Overflow Flag
 M_TCF       EQU 21          ; Timer Compare Flag
 
 ; Timer Prescaler Register Bit Flags
-
 M_PS        EQU $600000     ; Prescaler Source Mask
 M_PS0       EQU 21
 M_PS1       EQU 22
 
 ; Timer Control Bits
-
 M_TC0       EQU 4           ; Timer Control 0
 M_TC1       EQU 5           ; Timer Control 1
 M_TC2       EQU 6           ; Timer Control 2
 M_TC3       EQU 7           ; Timer Control 3
-
 
 ;------------------------------------------------------------------------
 ;
@@ -374,7 +346,6 @@ M_TC3       EQU 7           ; Timer Control 3
 ;------------------------------------------------------------------------
 
 ; Register Addresses Of DMA
-
 M_DSTR      EQU $FFFFF4     ; DMA Status Register
 M_DOR0      EQU $FFFFF3     ; DMA Offset Register 0
 M_DOR1      EQU $FFFFF2     ; DMA Offset Register 1
@@ -382,49 +353,42 @@ M_DOR2      EQU $FFFFF1     ; DMA Offset Register 2
 M_DOR3      EQU $FFFFF0     ; DMA Offset Register 3
 
 ; Register Addresses Of DMA0
-
 M_DSR0      EQU $FFFFEF     ; DMA0 Source Address Register
 M_DDR0      EQU $FFFFEE     ; DMA0 Destination Address Register 
 M_DCO0      EQU $FFFFED     ; DMA0 Counter
 M_DCR0      EQU $FFFFEC     ; DMA0 Control Register
 
 ; Register Addresses Of DMA1
-
 M_DSR1      EQU $FFFFEB     ; DMA1 Source Address Register
 M_DDR1      EQU $FFFFEA     ; DMA1 Destination Address Register
 M_DCO1      EQU $FFFFE9     ; DMA1 Counter
 M_DCR1      EQU $FFFFE8     ; DMA1 Control Register
 
 ; Register Addresses Of DMA2
-
 M_DSR2      EQU $FFFFE7     ; DMA2 Source Address Register
 M_DDR2      EQU $FFFFE6     ; DMA2 Destination Address Register
 M_DCO2      EQU $FFFFE5     ; DMA2 Counter
 M_DCR2      EQU $FFFFE4     ; DMA2 Control Register
 
 ; Register Addresses Of DMA4
-
 M_DSR3      EQU $FFFFE3     ; DMA3 Source Address Register
 M_DDR3      EQU $FFFFE2     ; DMA3 Destination Address Register
 M_DCO3      EQU $FFFFE1     ; DMA3 Counter
 M_DCR3      EQU $FFFFE0     ; DMA3 Control Register
 
 ; Register Addresses Of DMA4
-
 M_DSR4      EQU $FFFFDF     ; DMA4 Source Address Register
 M_DDR4      EQU $FFFFDE     ; DMA4 Destination Address Register
 M_DCO4      EQU $FFFFDD     ; DMA4 Counter
 M_DCR4      EQU $FFFFDC     ; DMA4 Control Register
 
 ; Register Addresses Of DMA5
-
 M_DSR5      EQU $FFFFDB     ; DMA5 Source Address Register
 M_DDR5      EQU $FFFFDA     ; DMA5 Destination Address Register
 M_DCO5      EQU $FFFFD9     ; DMA5 Counter
 M_DCR5      EQU $FFFFD8     ; DMA5 Control Register
 
 ; DMA Control Register
-
 M_DSS       EQU $3          ; DMA Source Space Mask
 M_DSS0      EQU 0           ; DMA Source Memory space 0
 M_DSS1      EQU 1           ; DMA Source Memory space 1
@@ -452,7 +416,6 @@ M_DIE       EQU 22          ; DMA Interrupt Enable bit
 M_DE        EQU 23          ; DMA Channel Enable bit
 
 ; DMA Status Register
-
 M_DTD       EQU $3F         ;Channel Transfer Done Status MASK
 M_DTD0      EQU 0           ; DMA Channel Transfer Done Status 0
 M_DTD1      EQU 1           ; DMA Channel Transfer Done Status 1
@@ -466,7 +429,6 @@ M_DCH0      EQU 9           ; DMA Active Channel 0
 M_DCH1      EQU 10          ; DMA Active Channel 1
 M_DCH2      EQU 11          ; DMA Active Channel 2
 
-
 ;---------------------------------------------------------------
 ;
 ; A.9 Phase Locked Loop (PLL) equates
@@ -474,11 +436,9 @@ M_DCH2      EQU 11          ; DMA Active Channel 2
 ;---------------------------------------------------------------
 
 ; Register Addresses Of PLL
-
 M_PCTL      EQU $FFFFFD     ; PLL Control Register
 
 ; PLL Control Register
-
 M_MF        EQU $FFF        ; Multiplication Factor Bits Mask (MF0-MF11)
 M_DF        EQU $7000       ; Division Factor Bits Mask (DF0-DF2)
 M_XTLR      EQU 15          ; XTAL Range select bit
@@ -488,7 +448,6 @@ M_PEN       EQU 18          ; PLL Enable Bit
 M_PCOD      EQU 19          ; PLL Clock Output Disable Bit
 M_PD        EQU $F00000     ; PreDivider Factor Bits Mask (PD0-PD3)
 
-
 ;---------------------------------------------------------------
 ;
 ; A.10 Bus Interface Unit (BIU) Equates
@@ -496,7 +455,6 @@ M_PD        EQU $F00000     ; PreDivider Factor Bits Mask (PD0-PD3)
 ;---------------------------------------------------------------
 
 ; Register Addresses Of BIU
-
 M_BCR       EQU $FFFFFB     ; Bus Control Register
 M_DCR       EQU $FFFFFA     ; DRAM Control Register
 M_AAR0      EQU $FFFFF9     ; Address Attribute Register 0
@@ -506,20 +464,18 @@ M_AAR3      EQU $FFFFF6     ; Address Attribute Register 3
 M_IDR       EQU $FFFFF5     ; ID Register
 
 ; Bus Control Register
-
 M_BA0W      EQU $1F         ; Area 0 Wait Control Mask (BA0W0-BA0W4)
 M_BA1W      EQU $3E0        ; Area 1 Wait Control Mask (BA1W0-BA14)
 M_BA2W      EQU $1C00       ; Area 2 Wait Control Mask (BA2W0-BA2W2)
 M_BA3W      EQU $E000       ; Area 3 Wait Control Mask (BA3W0-BA3W3)
-M_BDFW EQU $1F0000; Default Area Wait Control Mask (BDFW0-BDFW4)
+M_BDFW      EQU $1F0000     ; Default Area Wait Control Mask (BDFW0-BDFW4)
 M_BBS       EQU 21          ; Bus State
 M_BLH       EQU 22          ; Bus Lock Hold
 M_BRH       EQU 23          ; Bus Request Hold
 
 ; DRAM Control Register
-
 M_BCW       EQU $3          ; In Page Wait States Bits Mask (BCW0-BCW1)
-M_BRW EQU $C; Out Of Page Wait States Bits Mask (BRW0-BRW1)
+M_BRW       EQU $C          ; Out Of Page Wait States Bits Mask (BRW0-BRW1)
 M_BPS       EQU $300        ; DRAM Page Size Bits Mask (BPS0-BPS1)
 M_BPLE      EQU 11          ; Page Logic Enable
 M_BME       EQU 12          ; Mastership Enable
@@ -529,11 +485,9 @@ M_BRF       EQU $7F8000     ; Refresh Rate Bits Mask (BRF0-BRF7)
 M_BRP       EQU 23          ; Refresh prescaler
 
 ; Address Attribute Registers
-
 M_BAT       EQU $3          ; External Access Type and Pin Definition Bits
 
 ;Mask BAT(1:0)
-
 M_BAAP      EQU 2           ; Address Attribute Pin Polarity
 M_BPEN      EQU 3           ; Program Space Enable
 M_BXEN      EQU 4           ; X Data Space Enable
@@ -544,7 +498,6 @@ M_BNC       EQU $F00        ; Number of Address Bits to Compare Mask
 M_BAC       EQU $FFF000     ; Address to Compare Bits Mask BAC(11:0)
 
 ; control and status bits in SR
-
 M_CP        EQU $c00000     ; mask for CORE-DMA priority bits in SR
 M_CA        EQU 0           ; Carry
 M_V         EQU 1           ; Overflow
@@ -570,7 +523,6 @@ M_CP0       EQU 22          ; bit 0 of priority bits in SR
 M_CP1       EQU 23          ; bit 1 of priority bits in SR
 
 ; control and status bits in OMR
-
 M_CDP       EQU $300        ; mask for CORE-DMA priority bits in OMR
 M_MA        EQU 0           ; Operating Mode A
 M_MB        EQU 1           ; Operating Mode B
@@ -606,25 +558,21 @@ M_SEN       EQU 20          ; Stack Extension Enable bit in OMR.
 I_VEC       EQU $0
 ;endif
 
-;---------------------------------------------------------------
 ; Non-Maskable interrupts
-;---------------------------------------------------------------
 I_RESET     EQU I_VEC+$00   ; Hardware RESET
 I_STACK     EQU I_VEC+$02   ; Stack Error
 I_ILL       EQU I_VEC+$04   ; Illegal Instruction
 I_DBG       EQU I_VEC+$06   ; Debug Request
 I_TRAP      EQU I_VEC+$08   ; Trap
 I_NMI       EQU I_VEC+$0A   ; Non Maskable Interrupt
-;---------------------------------------------------------------
+
 ; Interrupt Request Pins
-;---------------------------------------------------------------
 I_IRQA      EQU I_VEC+$10   ; IRQA
 I_IRQB      EQU I_VEC+$12   ; IRQB
 I_IRQC      EQU I_VEC+$14   ; IRQC
 I_IRQD      EQU I_VEC+$16   ; IRQD
-;---------------------------------------------------------------
+
 ; DMA Interrupts
-;---------------------------------------------------------------
 I_DMA0      EQU I_VEC+$18   ; DMA Channel 0
 I_DMA1      EQU I_VEC+$1A   ; DMA Channel 1
 I_DMA2      EQU I_VEC+$1C   ; DMA Channel 2
@@ -632,18 +580,15 @@ I_DMA3      EQU I_VEC+$1E   ; DMA Channel 3
 I_DMA4      EQU I_VEC+$20   ; DMA Channel 4
 I_DMA5      EQU I_VEC+$22   ; DMA Channel 5
 
-;---------------------------------------------------------------
 ; Timer Interrupts
-;---------------------------------------------------------------
 I_TIM0C     EQU I_VEC+$24   ; TIMER 0 compare
 I_TIM0OF    EQU I_VEC+$26   ; TIMER 0 overflow
 I_TIM1C     EQU I_VEC+$28   ; TIMER 1 compare
 I_TIM1OF    EQU I_VEC+$2A   ; TIMER 1 overflow
 I_TIM2C     EQU I_VEC+$2C   ; TIMER 2 compare
 I_TIM2OF    EQU I_VEC+$2E   ; TIMER 2 overflow
-;---------------------------------------------------------------
+
 ; ESSI Interrupts
-;---------------------------------------------------------------
 I_SI0RD     EQU I_VEC+$30   ; ESSI0 Receive Data
 I_SI0RDE    EQU I_VEC+$32   ; ESSI0 Receive Data With Exception Status
 I_SI0RLS    EQU I_VEC+$34   ; ESSI0 Receive last slot
@@ -656,21 +601,18 @@ I_SI1RLS    EQU I_VEC+$44   ; ESSI1 Receive last slot
 I_SI1TD     EQU I_VEC+$46   ; ESSI1 Transmit data
 I_SI1TDE    EQU I_VEC+$48   ; ESSI1 Transmit Data With Exception Status
 I_SI1TLS    EQU I_VEC+$4A   ; ESSI1 Transmit last slot
-;---------------------------------------------------------------
+
 ; SCI Interrupts
-;---------------------------------------------------------------
 I_SCIRD     EQU I_VEC+$50   ; SCI Receive Data
 I_SCIRDE    EQU I_VEC+$52   ; SCI Receive Data With Exception Status
 I_SCITD     EQU I_VEC+$54   ; SCI Transmit Data
 I_SCIIL     EQU I_VEC+$56   ; SCI Idle Line
 I_SCITM     EQU I_VEC+$58   ; SCI Timer
-;---------------------------------------------------------------
+
 ; HOST Interrupts
-;---------------------------------------------------------------
 I_HRDF      EQU I_VEC+$60   ; Host Receive Data Full
 I_HTDE      EQU I_VEC+$62   ; Host Transmit Data Empty
 I_HC        EQU I_VEC+$64   ; Default Host Command
-;---------------------------------------------------------------
-; INTERRUPT ENDING ADDRESS
-;---------------------------------------------------------------
+
+; Interrupt ending address
 I_INTEND    EQU I_VEC+$FF   ; last address of interrupt vector space
