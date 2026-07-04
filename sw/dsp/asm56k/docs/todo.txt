@@ -1,0 +1,56 @@
+
+BETA TODO:
+- add the path of the currently assembled file to the scan path for include directive
+- There's a problem with forward declared variables and IF directive. Detect forward refference and error
+- write docs
+- write tests (OP_MOVEP)
+
+--------------------------------------------------------------------------------------------------
+
+V 1.5 TODO:
+- rs and rs reset for easy structures definition
+- smarter DS handling ?
+- pipeline restrictions!
+- check for overlaping chunks
+- repeat instructions
+- verify falcon dsp memory scheme. for example, if we define a chunk in internal memory warn if we're going past that, etc.
+- move inlcuding of files into parser rather then lexer.
+	* include code is dodgy
+	* refactor file inclusion code, change variables names to be more sane, extract file inclusion code from Include_file function
+
+- write out dependencies (something like gcc does)
+- deduplication in StringBuffer (I doubt it will ever be a memory problem)
+- exit after first error (switch)
+- ??? make "syntax error" display tokens it failed to parse
+
+--------------------------------------------------------------------------------------------------
+
+DONE:
+- export p56 as devpac/vasm source files (?)
+- fixed #> integer mode
+- added new test
+- Fixed a division by 0 problem
+- L: memory addresses are wrong! 
+- IFGT, LT, GE, etc.
+- don't allow code generation in L: memory
+- export P56
+- make sure L: memory works
+- make local labels work in every context
+- short IO adressing (<<) is broken ... review adressing mode code
+- segmentation crash when else is encoutered without matching if
+- implement DS statement
+- implement DSM statement
+- implement casting strings to ints
+- text constants crashes the assembler
+- implement "*" symbol.
+- cleanup lex files too.
+- implement error and msg directive
+- unfold include/macro path in errors
+- c-style comments are broken
+- refactor grammar.y, remove embeded C code to a file(s) [almost done]
+- cleanup TokenStream and MacroProxy
+- add checks for macro stack overflows
+- use optc to parse input args
+- cleanup main.c, split it itto files [almost done]
+- make sure fractional arithmetics works
+- test macros some more 
