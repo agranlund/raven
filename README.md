@@ -18,26 +18,24 @@ Other resources:
 ## This is not a consumer product.
 I have no formal EE training or education and learn as I go.
 
-This computer was designed as a one-off creation for myself, for fun and learning and as a platform for low-level tinkering. 
-Things like cost-reduction or other factors that might be important for a product was never high on the priority.
+This computer is primarily designed as a one-off for myself. For fun and learning and as a platform for low-level tinkering. 
 
-Hardware and software sources are provided as-is and for free but comes with no guarantees or promise of support.
+All hardware and software sources are provided as-is and for free but comes with no guarantees or promise of support.
 
 The computer works for me and runs EmuTOS, FreeMiNT and MagiC but if you decide to build or buy this board I very much recommend coming in with a DIY mindset.
-It's early days still and waiting on drivers or fixes made by others could very well have you waiting indefinitely.
-If you are into hardware tinkering or low-level programming then this board could potentially provide a bunch of fun.
-
 Knowledge and tools to perform hardware-level debugging and/or very low level software debugging is highly recommended.
 
-It is easy to make misstakes during assembly and such skills can be vital for finding those. There is also always the risk that something out-of-the-box isn't quite right for your particular set of components - this board happening to working for me doesn't necessarily guarantee being production ready and working for everyone.
+Revision.A2 is the latest version and the first board is currently being tested.
+
+Revision.A1 has seen 10+ builds so can be the safer choice in terms of finding support. It is also slightly easier to build due to not having the DSP components.
 
 
-## Specifications
+## Specifications Rev.A2
 - Motorola 68060 CPU @ 96Mhz
+- Motorola 56303 DSP @ 90Mhz
 - Max 48MB RAM
 - Max 16MB ROM
-- PS/2 Mouse & Keyboard
-- USB Mouse & Keyboard (with upgrade module)
+- USB Mouse & Keyboard
 - 1Mbps serial port
 - Legacy Atari serial port
 - Legacy Atari parallel port
@@ -54,7 +52,9 @@ It is easy to make misstakes during assembly and such skills can be vital for fi
 
 ## Required or recommended parts
 - Raven motherboard
+	- [Revision.A2](hw/raven/a2/)
     - [Revision.A1](hw/raven/a1/)
+    	- [USB upgrade](hw/raven/a1/upgrades/ckbd/)
     - ~~[Revision.A0](hw/raven/a0/)~~
 - RAM modules
     - [16MB 55ns](hw/simm/ram_16M55/)
@@ -62,10 +62,8 @@ It is easy to make misstakes during assembly and such skills can be vital for fi
 - ROM module
     - [55ns SMD](hw/simm/rom_SMD/)
     - [55ns PLCC](hw/simm/rom_PLCC/)
-- USB upgrade module
-    - [ckbd rev.d](hw/raven/a1/upgrades/ckbd/)
 - ATX power supply
-- PS/2 Keyboard and mouse, or USB if using the USB upgrade module.
+- USB keyboard and mouse (PS/2 for Rev.A1 without USB upgrade)
 - Some kind of suitable 44pin IDE->CF adapter
 - RS232<->USB cable capable of 1Mbps
 - ISA graphics card.
@@ -79,7 +77,13 @@ It is easy to make misstakes during assembly and such skills can be vital for fi
         - (untested) Cirrus GD5424, GD5422
         - (untested) WD90C30
     - Cards not listed above may work but only in standard VGA resolutions.
-    
+- ISA Network card.
+	- RTL8019AS based card
+- ISA soundcard
+	- SoundBlaster compatible
+	- Gravis Ultrasound
+
+
 ## Additional tools
 - [ROM module programmer](hw/simm/programmer/)
 - Programmer for ATF1508AS, for example ATDH1150-USB

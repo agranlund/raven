@@ -24,7 +24,7 @@ Tested with 48mhz oscillator for 96mhz CPU, 48mhz BUS speed.
 - J305 silkscreen mislabeled; Pinout is same as J206 above.
 
   
-## Changelog:
+## Changelog from Rev.A0:
 - Changed locations of H607, H609
 - Changed IDE ADR: A1:A3 -> A2:A4
 - Changed I2C DTA: MFP1_I7 -> MFP1_I3
@@ -50,22 +50,6 @@ Tested with 48mhz oscillator for 96mhz CPU, 48mhz BUS speed.
     - Non selected is exposed on header J602:J604
 - Misc silkscreen & bom fixes
 
-
-## Optional / non-critical:
-- Pushbuttons:     SW101, SW201, SW202
-- 3.3V backup:     D201, D202, D203
-- Constant fans:   J204, J205, J206
-- Eiffel fan:      TH301, R311, U302, J305
-- Midi-In:         U601, J604, D601, R609
-- Midi-Out:        U602, C605, R611
-- ISA -5V:         U201, C202, C203
-- ISA OSC:         X501, C514
-- Expansion:       J402
-- Spare CPLD-In:   J105, R117
-- Spare CPLD-Out:  J106
-- RTC:             Y402, R402, U406, C413
-
-
 ## Errata / Notes for next revision:
 - Silkscreen: J305 pinout mislabeled
 - Silkscreen: U203 orientation is not obvious
@@ -76,7 +60,6 @@ Tested with 48mhz oscillator for 96mhz CPU, 48mhz BUS speed.
 - Footprints: C601-603 hole spacing slightly too wide
 - Footprints: C502-513 hole spacing slightly too wide
 - Footprints: Y402 add a way to secure it (SMD pad at top to solder it in place)
-- Components: C310 could probably be 0.1uF
 - BOM: PLCC socket Preci-Dip 540-88-068-24-008 is brown, find black replacement
 - BOM: PLCC socket Preci-Dip 540-88-084-24-008 is brown, find black replacement
 - BOM: ATX connector TE 1-1775099-3 is white, find black replacement
@@ -89,11 +72,6 @@ Tested with 48mhz oscillator for 96mhz CPU, 48mhz BUS speed.
 - PCB: Add hardware debounce the NMI switch
 - PCB: Add header for one of MFP2 timer-outs (for pc-speaker type applications)
 - PCB: Realtime clock should use +5VSB instead of +5V to reduce battery usage
-
-## Future:
-- PCB: Direct 060 bus expansion slot similar to Macintosh PDS
-- PCB: Expose CPU internal temp pins, perhaps hook them to the Eiffel
-
 
 ## Untested:
 - Midi In
