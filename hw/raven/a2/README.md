@@ -13,7 +13,8 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - Designed for JLCPCB standard six layer stackup (JLC06161H-3313)
 - [Complete BOM](production/raven-a2_bom.md)
 - [Interactive BOM](https://htmlpreview.github.io/?https://github.com/agranlund/raven/blob/main/hw/raven/a2/production/raven-a2_ibom.html)
-- [Interactive PCB](https://kicanvas.org/?repo=https//github.com/agranlund/raven/tree/main/hw/raven/a2)
+- [Interactive PCB](https://kicanvas.org/?repo=https%3A%2F%2Fgithub.com%2Fagranlund%2Fraven%2Ftree%2Fmain%2Fhw%2Fraven%2Fa2)
+
 
 ## Changelog from Rev.A1
 - Silkscreen: Fixed wrong pinout info for J305
