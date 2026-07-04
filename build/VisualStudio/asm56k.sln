@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "asm56k", "asm56k.vcproj", "{21B326A7-22F9-421D-BE58-BC23F5060442}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+		Unix debug|Win32 = Unix debug|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{21B326A7-22F9-421D-BE58-BC23F5060442}.Debug|Win32.ActiveCfg = Debug|Win32
+		{21B326A7-22F9-421D-BE58-BC23F5060442}.Debug|Win32.Build.0 = Debug|Win32
+		{21B326A7-22F9-421D-BE58-BC23F5060442}.Release|Win32.ActiveCfg = Release|Win32
+		{21B326A7-22F9-421D-BE58-BC23F5060442}.Release|Win32.Build.0 = Release|Win32
+		{21B326A7-22F9-421D-BE58-BC23F5060442}.Unix debug|Win32.ActiveCfg = Unix debug|Win32
+		{21B326A7-22F9-421D-BE58-BC23F5060442}.Unix debug|Win32.Build.0 = Unix debug|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
