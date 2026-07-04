@@ -17,6 +17,7 @@ Tested with 48mhz oscillator for 96mhz CPU, 48mhz BUS speed.
 - Designed for JLCPCB Standard Service 6 layers
 - [Complete BOM](production/raven-a1_bom.md)
 - [Interactive BOM](https://htmlpreview.github.io/?https://github.com/agranlund/raven/blob/main/hw/raven/a1/production/raven-a1_ibom.html)
+- [Interactive PCB](https://kicanvas.org/?repo=https%3A%2F%2Fgithub.com%2Fagranlund%2Fraven%2Ftree%2Fmain%2Fhw%2Fraven%2Fa1)
 
 
 ## Errors to consider when building:
