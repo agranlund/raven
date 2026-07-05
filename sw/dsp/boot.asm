@@ -107,7 +107,42 @@ start:
 
 	;--------------------------------------------------------------
 	; essi0
+	;	i2s, 32bit slots (24bit data), 44.1khz, DAC+ADC
 	;--------------------------------------------------------------
+
+	; force all essi pins to gpio as per user manual
+    movep	#%00000000,x:<<M_PCRC
+
+	; prescaler modulus 15
+	; bypass fixed prescaler
+	; divider 2
+	; 32bit word length (24bit valid data)
+    movep   #(15)|(1<<M_PSR)|(1<<12)|(4<<19),x:<<M_CRA0
+
+	; M_MOD:  network mode
+	; M_SYN:  synchronous mode
+	; M_FSP:  frame sync timing for i2s
+	; M_CKP:  clock out on falling edge, latch on rising edge
+	; M_SCKD: dsp internal clock is source
+	; M_SCD2: SC2 is output
+    movep   #(1<<M_MOD)|(1<<M_SYN)|(1<<M_FSR)|(1<<M_CKP)|(1<<M_SCKD)|(1<<M_SCD2),x:<<M_CRB0
+
+	; init portc
+	; PC0 = gpio
+	; PC1 = pgio
+	; PC2 = SC02
+	; PC3 = SCK0
+	; PC4 = SRD0
+	; PC5 = STD0
+	movep	#%00111100,x:<<M_PCRC
+
+	; prime tx
+    movep	#0,x:<<M_TX00
+    movep   #0,x:<<M_TX00
+
+	; enable
+    bset    #M_SSTE0,x:<<M_CRB0  ; enable transmitter
+    bset    #M_SSRE,x:<<M_CRB0   ; enable receiver
 
 	;--------------------------------------------------------------
 	; essi1
@@ -138,14 +173,23 @@ start:
 	nop
 	bset	#M_CE,sr				; enable instruction cache
 
-	bset	#3,x:M_HCR
+
+;--------------------------------------------------------------
+; *** temp test code ***
+;--------------------------------------------------------------
+
+	bset	#3,x:M_HCR				; signal HF2
+    move    #0,a                	; sawtooth counter
+testloop:
+    jclr    #M_TDE,x:<<M_SSISR0,*
+    movep   a1,x:<<M_TX00       	; output left sample 
+    jclr    #M_TDE,x:<<M_SSISR0,*
+    movep   a1,x:<<M_TX00       	; output right sample
+    add     #$008000,a
+	bchg	#4,x:M_HCR				; toggle HF3
+    jmp     testloop
 
 
 ;--------------------------------------------------------------
 ; P56 loader
 ;--------------------------------------------------------------
-loop:
-	bchg	#4,x:M_HCR
-	rep		#$fff
-	nop
-	jmp		loop
