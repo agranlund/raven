@@ -532,6 +532,8 @@ M_CDP1      EQU 9           ; bit 1 of priority bits in OMR
 M_BEN       EQU 10          ; Burst Enable
 M_TAS       EQU 11          ; TA Synchronize Select
 M_BRT       EQU 12          ; Bus Release Timing
+M_ABE		EQU 13			; Asynchronous Bus Arbitration Enable
+M_APD		EQU 14			; Address Attribute Priority Disable
 M_ATE       EQU 15          ; Address Tracing Enable bit in OMR.
 M_XYS       EQU 16          ; Stack Extension space select bit in OMR.
 M_EUN       EQU 17          ; Extended stack UNderflow flag in OMR.
