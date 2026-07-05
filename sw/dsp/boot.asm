@@ -127,16 +127,12 @@ start:
 	; M_SCD2: SC2 is output
     movep   #(1<<M_MOD)|(1<<M_SYN)|(1<<M_FSR)|(1<<M_CKP)|(1<<M_SCKD)|(1<<M_SCD2),x:<<M_CRB0
 
-	; init portc
-	; PC0 = gpio
-	; PC1 = pgio
-	; PC2 = SC02
-	; PC3 = SCK0
-	; PC4 = SRD0
-	; PC5 = STD0
+	; PC0 = gpio, PC1 = pgio
+	; PC2 = SC02, PC3 = SCK0
+	; PC4 = SRD0, PC5 = STD0
 	movep	#%00111100,x:<<M_PCRC
 
-	; prime tx
+	; prime transmitter
     movep	#0,x:<<M_TX00
     movep   #0,x:<<M_TX00
 
@@ -161,7 +157,7 @@ start:
 	bset	#M_APD,omr				; all AAR active
 
 	;--------------------------------------------------------------
-	; internal ram (p:3,x:2,y:2 - cache enabled)
+	; internal ram (c:1, p:3, x:2, y:2)
 	;--------------------------------------------------------------
 	bclr	#M_CE,sr				; disable instruction cache
 	bclr	#M_MS,omr				; p:4, x:2, y:2
@@ -172,7 +168,6 @@ start:
 	nop
 	nop
 	bset	#M_CE,sr				; enable instruction cache
-
 
 ;--------------------------------------------------------------
 ; *** temp test code ***
