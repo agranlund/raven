@@ -55,8 +55,7 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 
 ## Untested:
 - DSP external RAM
-- DSP -> DAC
-- DSP <- ADC
+- ADC -> DSP
 - Fan ARGB
 - Fan PWM
 - i2c eprom
