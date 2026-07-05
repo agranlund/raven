@@ -133,7 +133,7 @@ void main(void)
 			if (isr_now != isr) {
 				flips++;
 				isr = isr_now;
-				printf("HF2=%d HF3=%d\n", (isr_now & (1 << 3)) ? 1 : 0, (isr_now & (1 << 4)) ? 1 : 0);
+				//printf("HF2=%d HF3=%d\n", (isr_now & (1 << 3)) ? 1 : 0, (isr_now & (1 << 4)) ? 1 : 0);
 			}
 		}
 	}
@@ -147,7 +147,7 @@ void main(void)
 		goto done;
 	}
 
-	printf("ok.\n");
+	printf("ok %d.\n", flips);
 
 done:
 	dsp_off();
