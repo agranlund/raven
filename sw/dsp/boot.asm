@@ -148,7 +148,7 @@ start:
 	; external ram
 	;--------------------------------------------------------------
 	movep	#$000039,x:<<M_AAR0		; (sram /CE) X,Y,P
-	movep	#$000015,x:<<M_AAR1		; (sram A15) X
+	movep	#$000015,x:<<M_AAR1		; (sram A16) X
 	movep	#$000001,x:<<M_AAR2		; unused
 	movep	#$000001,x:<<M_AAR3		; unused
 	;movep	#$012421,x:<<M_BCR		; 1 waitstate (12ns sram @ 90mhz)
