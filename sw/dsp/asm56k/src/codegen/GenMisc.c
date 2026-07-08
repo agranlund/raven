@@ -140,11 +140,11 @@ void GenBccRelTarger(uint insn_patt, raddr *rel_target)
 		{
 		case T_LONG:
 			inst_code.sflag = 1;
-			inst_code.w0 = 0xd0104 | insn_patt;
+			inst_code.w0 = 0xd1040 | insn_patt;
 			inst_code.w1 = rel_target->value;
 			break;
 		case T_SHORT:
-			inst_code.w0 = 0x50400 | ((rel_target->value & 0x1e0) << 6) | (rel_target->value & 0x1f) | (insn_patt << 11);
+			inst_code.w0 = 0x50400 | ((rel_target->value & 0x1e0) << 6) | (rel_target->value & 0x1f) | (insn_patt << 12);
 			break;
 		case T_REGISTER:
 			inst_code.w0 = 0xd1840 | (rel_target->value << 8) | insn_patt;
@@ -207,7 +207,7 @@ void GenBraRelTarger(raddr *rel_target)
 		{
 		case T_LONG:
 			inst_code.sflag = 1;
-			inst_code.w0 = 0xb10c0;
+			inst_code.w0 = 0xd10c0;
 			inst_code.w1 = rel_target->value;
 			break;
 		case T_SHORT:
