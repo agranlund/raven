@@ -1,0 +1,25 @@
+
+A56DIR = ../../dsp/asm56k
+A56 = $(A56DIR)/build/asm56k
+AFLAGS = -c 56301
+
+DEPS = asm56k dsp56303.inc
+
+OBJS = test.p56 test3.p56 testram.p56
+
+all: asm56k $(OBJS)
+
+asm56k: $(A56)
+	make -C $(A56DIR)
+
+%.p56: %.asm $(DEPS)
+	$(A56) $(AFLAGS) -p $(basename $@).p56 $<
+	$(A56) $(AFLAGS) -o $(basename $@).lod $<
+
+.PHONY: $(A56) clean
+
+distclean: clean
+	make -C asm56k clean
+
+clean:
+	rm -f $(OBJS) $(OBJS:.p56=.lod)
