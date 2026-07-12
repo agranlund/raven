@@ -144,7 +144,7 @@ void GenBccRelTarger(uint insn_patt, raddr *rel_target)
 			inst_code.w1 = rel_target->value;
 			break;
 		case T_SHORT:
-			inst_code.w0 = 0x50400 | ((rel_target->value & 0x1e0) << 6) | (rel_target->value & 0x1f) | (insn_patt << 12);
+			inst_code.w0 = 0x50400 | ((rel_target->value & 0x1e0) << 1) | (rel_target->value & 0x1f) | (insn_patt << 12);
 			break;
 		case T_REGISTER:
 			inst_code.w0 = 0xd1840 | (rel_target->value << 8) | insn_patt;
@@ -212,7 +212,7 @@ void GenBraRelTarger(raddr *rel_target)
 			break;
 		case T_SHORT:
 			inst_code.sflag = 0;
-			inst_code.w0 = 0x50c00 | ((rel_target->value & 0x1e0) << 6) | (rel_target->value & 0x1f);
+			inst_code.w0 = 0x50c00 | ((rel_target->value & 0x1e0) << 1) | (rel_target->value & 0x1f);
 			break;
 		case T_REGISTER:
 			inst_code.sflag = 0;
@@ -265,12 +265,12 @@ void GenBscc(uint condition, raddr *rel_target)
 		{
 		case T_LONG:
 			inst_code.sflag = 1;
-			inst_code.w0 = 0xb1000 | condition;
+			inst_code.w0 = 0xd1000 | condition;
 			inst_code.w1 = rel_target->value;
 			break;
 		case T_SHORT:
 			inst_code.sflag = 0;
-			inst_code.w0 = 0x50000 | ((rel_target->value & 0x1e0) << 6) | (rel_target->value & 0x1f) | (condition << 12);
+			inst_code.w0 = 0x50000 | ((rel_target->value & 0x1e0) << 1) | (rel_target->value & 0x1f) | (condition << 12);
 			break;
 		case T_REGISTER:
 			inst_code.sflag = 0;
@@ -307,7 +307,7 @@ void GenBsr(raddr *rel_target)
 			break;
 		case T_SHORT:
 			inst_code.sflag = 0;
-			inst_code.w0 = 0x50800 | ((rel_target->value & 0x1e0) << 6) | (rel_target->value & 0x1f);
+			inst_code.w0 = 0x50800 | ((rel_target->value & 0x1e0) << 1) | (rel_target->value & 0x1f);
 			break;
 		case T_REGISTER:
 			inst_code.sflag = 0;
