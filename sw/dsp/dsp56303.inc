@@ -1,3 +1,7 @@
+
+M_START		EQU $00000100	; start for user programs
+
+
 ;*****************************************************************************
 ; EQUATES for 56303 I/O registers and ports
 ; Last update: June 11 1995
@@ -49,7 +53,7 @@ M_HF3       EQU $4          ; Host Flag 3
 
 ; HSR bits definition
 M_HRDF      EQU $0          ; Host Receive Data Full
-M_HTDE      EQU $1          ; Host Receive Data Empty
+M_HTDE      EQU $1          ; Host Transmit Data Empty
 M_HCP       EQU $2          ; Host Command Pending
 M_HF0       EQU $3          ; Host Flag 0
 M_HF1       EQU $4          ; Host Flag 1
