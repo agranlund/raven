@@ -7,7 +7,7 @@
 	(title_block
 		(title "Raven 68060")
 		(date "2026")
-		(rev "A2")
+		(rev "A2b")
 		(company "Licensed under CERN-OHL-W v2")
 		(comment 1 "(c)2026 Anders Granlund")
 	)
