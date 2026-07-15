@@ -1,7 +1,8 @@
 DEST_DIR = /usr/local/bin/
 
 ifeq ($(CROSS),yes)
-CROSSPREFIX=m68k-atari-mint-
+#CROSSPREFIX=m68k-atari-mint-
+CROSSPREFIX=m68k-atari-mintelf-
 CPU=-m68020-60
 EXE_EXT=.ttp
 else
