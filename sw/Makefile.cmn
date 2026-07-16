@@ -52,8 +52,6 @@ LIBCMINI_LIB    := $(GCDIR)/lib
 LIBCMINI_CRT	:= $(LIBCMINI_LIB)/crt0.o
 LIBCMINI_SRC    := $(GCDIR)/src/libcmini
 
-
-
 # -----------------------------------------------------------------------------------
 # GCC compiler flags
 # -----------------------------------------------------------------------------------
@@ -72,7 +70,20 @@ CFLAGS = $(OPTS) $(DEFS) $(INCLUDE) -I$(LIBCMINI_INC) \
 
 LFLAGS = -L$(LIBCMINI_LIB) -nodefaultlibs -nostdlib -nostartfiles -lgcc -lcmini -Wl,-Map,$(MAPFILE)
 
-LINKOBJS = $(LIBCMINI_CRT) $(GCC_OBJS) $(OBJS)
+DSPOBJS = $(filter %.p56,$(OBJS)) $(filter %.i56,$(OBJS)) $(filter %.c56,$(OBJS)) $(filter %.lod,$(OBJS))
+
+CPUOBJS = $(filter %.o,$(OBJS))
+
+LINKOBJS = $(LIBCMINI_CRT) $(GCC_OBJS) $(CPUOBJS)
+
+
+
+# -----------------------------------------------------------------------------------
+# DSP Tools
+# -----------------------------------------------------------------------------------
+DSPDIR = $(ROOTDIR)/dsp
+A56DIR = $(DSPDIR)/asm56k
+A56 = $(A56DIR)/build/asm56k
 
 
 
@@ -82,7 +93,7 @@ LINKOBJS = $(LIBCMINI_CRT) $(GCC_OBJS) $(OBJS)
 
 .PHONY: prj pc gcc gcc_common_clean
 
-all: $(default)
+all: $(DSPOBJS) $(default)
 
 install: all
 ifneq ($(cross),y)
@@ -99,6 +110,7 @@ clean:
 	rm -f $(OBJS)
 	rm -f $(OBJS:.o=.d)
 	rm -f $(OBJS:.o=.O)
+
 ifneq ($(MAPFILE),)
 	rm -f $(MAPFILE)
 endif
@@ -136,3 +148,25 @@ gcc: $(current_makefile) $(LINKOBJS)
 %.o : %.c
 	$(GCC) $(CFLAGS) $(CPUFLAGS) -c $< -o $@
 
+# -----------------------------------------------------------------------------------
+# DSP rules
+# -----------------------------------------------------------------------------------
+
+DSPFLAGS = -c 56301 -I $(DSPDIR)
+DSPDEPS = $(A56) $(DSPDIR)/dsp56303.inc
+DSPSRC = asm
+
+$(A56):
+	make -C $(DSPDIR)
+
+%.p56: %.$(DSPSRC) $(DSPDEPS)
+	$(A56) $(DSPFLAGS) -p $(basename $@).p56 $<
+
+%.lod: %.$(DSPSRC) $(DSPDEPS)
+	$(A56) $(DSPFLAGS) -o $(basename $@).lod $<
+
+%.c56: %.$(DSPSRC) $(DSPDEPS)
+	$(A56) $(DSPFLAGS) -k $(basename $@).c56 $<
+
+%.i56: %.$(DSPSRC) $(DSPDEPS)
+	$(A56) $(DSPFLAGS) -e $(basename $@).i56 $<
