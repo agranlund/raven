@@ -1,17 +1,31 @@
+# ------------------------------------------------------------------- 
+# Raven distribution builder
+# ------------------------------------------------------------------- 
 
-BOARD		= a1
-DATE		= $(shell date +%Y%m%d)
-
-FW_NESSI	= nessi_251029.jed
-FW_NARNIA	= narnia_240422.jed
-FW_IKSI		= iksi_260106.jed
-FW_CKBD		= ckbd_a1.bin
-FW_EIFFEL	= eiffel_1.10.2-raven_A1.hex
-FW_SIMMPROG	= ravenprog.uf2
-
-RELEASE_TAG	= Raven.A1.latest
+DATE			= $(shell date +%Y%m%d)
+RELEASE_TAG		= Raven.A1.latest
 RELEASE_DESC	= Raven.A1.$(DATE)
-RELEASE_ZIP	= raven_a1_$(DATE).zip
+RELEASE_ZIP		= raven_a1_$(DATE).zip
+
+# ------------------------------------------------------------------- 
+
+# Common firmwares
+FW_SIMMPROG		= ravenprog.uf2
+
+# Raven.A1 firmwares
+FW_NESSI_A1		= nessi_251029.jed
+FW_NARNIA_A1	= narnia_240422.jed
+FW_IKSI_A1		= iksi_260106.jed
+FW_CKBD_A1		= ckbd_a1.bin
+FW_EIFFEL_A1	= eiffel_1.10.2-raven_A1.hex
+
+# Raven.A2 firmwares
+FW_NESSI_A2		= nessi.jed
+FW_NARNIA_A2	= narnia_240422.jed
+FW_IKSI_A2		= iksi_260106.jed
+FW_CKBD_A2		= ckbd_a2.bin
+
+# ------------------------------------------------------------------- 
 
 ATARIDIR	= /Volumes/SHARE/asus/raven
 ROOTDIR		= ..
@@ -79,25 +93,35 @@ copyroms:
 
 copyfw:
 	$(MKDIR) $(FWDIR)
-	$(COPY) $(DISTDIR)/readme_fw.txt $(FWDIR)/readme.txt
-	$(COPY) $(ROOTDIR)/fw/$(BOARD)/Nessi/$(FW_NESSI) $(FWDIR)/
-	$(COPY) $(ROOTDIR)/fw/$(BOARD)/Narnia/$(FW_NARNIA) $(FWDIR)/
-	$(COPY) $(ROOTDIR)/fw/$(BOARD)/Iksi/$(FW_IKSI) $(FWDIR)/
-	$(COPY) $(ROOTDIR)/fw/ckbd/$(FW_CKBD) $(FWDIR)/
-	$(COPY) $(ROOTDIR)/fw/ckbd/ckbd_wch.ini $(FWDIR)/
-	$(MAKE) -C $(ROOTDIR)/fw/eiffel
-	$(COPY) $(ROOTDIR)/fw/eiffel/$(FW_EIFFEL) $(FWDIR)/eiffel.hex
 	$(COPY) $(ROOTDIR)/hw/simm/programmer/firmware/build/$(FW_SIMMPROG) $(FWDIR)/
-
+	$(MKDIR) $(FWDIR)/a1
+	$(COPY) $(DISTDIR)/readme_fw.txt $(FWDIR)/readme.txt
+	$(COPY) $(ROOTDIR)/fw/a1/Nessi/$(FW_NESSI_A1) $(FWDIR)/a1/
+	$(COPY) $(ROOTDIR)/fw/a1/Narnia/$(FW_NARNIA_A1) $(FWDIR)/a1/
+	$(COPY) $(ROOTDIR)/fw/a1/Iksi/$(FW_IKSI_A1) $(FWDIR)/a1/
+	$(COPY) $(ROOTDIR)/fw/ckbd/$(FW_CKBD_A1) $(FWDIR)/a1/
+	$(COPY) $(ROOTDIR)/fw/ckbd/ckbd_wch.ini $(FWDIR)/a1/
+	$(MAKE) -C $(ROOTDIR)/fw/eiffel
+	$(COPY) $(ROOTDIR)/fw/eiffel/$(FW_EIFFEL_A1) $(FWDIR)/a1/eiffel.hex
+	$(MKDIR) $(FWDIR)/a2
+	$(COPY) $(ROOTDIR)/fw/a2/Nessi/$(FW_NESSI_A2) $(FWDIR)/a2/
+	$(COPY) $(ROOTDIR)/fw/a2/Narnia/$(FW_NARNIA_A2) $(FWDIR)/a2/
+	$(COPY) $(ROOTDIR)/fw/a2/Iksi/$(FW_IKSI_A2) $(FWDIR)/a2/
+	$(COPY) $(ROOTDIR)/fw/ckbd/$(FW_CKBD_A2) $(FWDIR)/a2/
 
 copyhw:
 	$(MKDIR) $(HWDIR)
-	$(COPY) $(ROOTDIR)/hw/raven/$(BOARD)/production/raven-a1_gerber.zip $(HWDIR)/
-	$(COPY) $(ROOTDIR)/hw/raven/$(BOARD)/production/raven-a1_bom.md $(HWDIR)/
-	$(COPY) $(ROOTDIR)/hw/raven/$(BOARD)/production/raven-a1_ibom.html $(HWDIR)/
-	$(COPY) $(ROOTDIR)/hw/raven/$(BOARD)/production/raven-a1_gerber.zip $(HWDIR)/
-	$(COPY) $(ROOTDIR)/hw/raven/$(BOARD)/production/raven-a1_sch.pdf $(HWDIR)/
-	$(COPY) $(ROOTDIR)/hw/raven/$(BOARD)/production/raven-a1_brd.pdf $(HWDIR)/
+	$(COPY) $(ROOTDIR)/hw/raven/a1/production/raven-a1_gerber.zip $(HWDIR)/
+	$(COPY) $(ROOTDIR)/hw/raven/a1/production/raven-a1_bom.md $(HWDIR)/
+	$(COPY) $(ROOTDIR)/hw/raven/a1/production/raven-a1_ibom.html $(HWDIR)/
+	$(COPY) $(ROOTDIR)/hw/raven/a1/production/raven-a1_sch.pdf $(HWDIR)/
+	$(COPY) $(ROOTDIR)/hw/raven/a1/production/raven-a1_brd.pdf $(HWDIR)/
+	$(COPY) $(ROOTDIR)/hw/raven/a2/production/raven-a2_gerber.zip $(HWDIR)/
+	$(COPY) $(ROOTDIR)/hw/raven/a2/production/raven-a2_bom.md $(HWDIR)/
+	$(COPY) $(ROOTDIR)/hw/raven/a2/production/raven-a2_ibom.html $(HWDIR)/
+#	$(COPY) $(ROOTDIR)/hw/raven/a2/production/raven-a2_sch.pdf $(HWDIR)/
+#	$(COPY) $(ROOTDIR)/hw/raven/a2/production/raven-a2_brd.pdf $(HWDIR)/
+
 
 zipit:
 	find raven -name ".DS_Store" -delete
@@ -195,6 +219,24 @@ copysw:
 	$(COPY) $(ROOTDIR)/sw/tools/fpu_emu/fpemu.txt $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/flash/flash.ttp $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/serial.cpx/serial.cpx $(SWDIR_CPX)/
+
+
+	# --------------------------------------------------
+	# DSP TOOLS
+	# --------------------------------------------------
+	$(MKDIR) $(SWDIR_TOOLS)/dsp
+	$(MKDIR) $(SWDIR_TOOLS)/dsp/asm56k
+	$(MAKE) -C $(ROOTDIR)/sw/dsp/asm56k clean
+	$(MAKE) -C $(ROOTDIR)/sw/dsp/asm56k clean CROSS=yes
+	$(MAKE) -C $(ROOTDIR)/sw/dsp/asm56k CROSS=yes
+	$(COPY) $(ROOTDIR)/sw/dsp/asm56k/build/*.ttp $(SWDIR_TOOLS)/dsp/asm56k/
+	$(COPY) $(ROOTDIR)/sw/dsp/asm56k/tools/*.ttp $(SWDIR_TOOLS)/dsp/asm56k/
+	$(COPY) $(ROOTDIR)/sw/dsp/asm56k/docs/readme.txt $(SWDIR_TOOLS)/dsp/asm56k/
+	$(COPY) $(ROOTDIR)/sw/dsp/asm56k/COPYING $(SWDIR_TOOLS)/dsp/asm56k/
+	$(COPY) $(ROOTDIR)/sw/dsp/dsp56303.inc $(SWDIR_TOOLS)/dsp/asm56k/
+	$(COPY) $(ROOTDIR)/sw/dsp/boot.asm $(SWDIR_TOOLS)/dsp/asm56k/
+	$(MAKE) -C $(ROOTDIR)/sw/dsp/asm56k clean CROSS=yes
+	$(MAKE) -C $(ROOTDIR)/sw/dsp/asm56k clean
 
 
 	# --------------------------------------------------
