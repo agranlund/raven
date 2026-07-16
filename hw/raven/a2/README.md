@@ -9,6 +9,11 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 ## Status:
 - Built and running. Individual new features being tested.
 
+The following changes has been made to the files here on Github since after my personal board was manufactured.
+- PWR_SW to UART:RI connection removed
+- DC blocking capacitors to ADC left/right inputs added
+
+
 ## Info:
 - Designed for JLCPCB standard six layer stackup (JLC06161H-3313)
 - [Complete BOM](production/raven-a2_bom.md)
@@ -59,10 +64,8 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - i2c eprom
 - Midi-in
 
-## Notes and Errata:
+## Notes and Erratas:
 - Part number for ARGB header isn't perfect, might want to use a variant with slightly longer pins.
-- PWR_SW to UART:RI trace cut on personal board as pin is not 5V tolerant.
-  Schematic, PCB and Gerbers here on Github has been updated with this fix.
 
 ## Future:
 - Remove all components from Analog Devices as they can be hard to purchase for individuals?
