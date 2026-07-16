@@ -1,6 +1,7 @@
 
 FOLDERS = \
 	mon \
+	dsp \
 	cacheoff \
 	cacheon \
 	eiffel \
