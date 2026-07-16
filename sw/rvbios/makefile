@@ -13,8 +13,9 @@ OBJS = \
 	main.o \
 	utils.o \
 	trap14.o \
-	trap14_c.o \
+	xbios.o \
 	eiffel.o \
+	dsp.o \
 	sp060.o \
 	logo.o \
 	setup/setup.o \
@@ -26,6 +27,7 @@ OBJS = \
 	setup/f_debug.o \
 	setup/f_exit.o \
 	../rvnova/loader/rvnova.o \
+	../dsp/boot.i56 \
 	#
 
 ROOTDIR = ..

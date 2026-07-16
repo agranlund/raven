@@ -16,7 +16,8 @@ rvbios.prg
 main.c
 utils.s
 trap14.s
-trap14_c.c
+dsp.s
+xbios.c
 eiffel.s
 setup\setup.c
 setup\form_vt.c

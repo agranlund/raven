@@ -29,15 +29,10 @@
 /* main.c */
 extern void		SetCookie(uint32_t id, uint32_t value);
 
-/* xbios.s */
-extern void		InstallTrap14(void);
-
-/* xbios_c.c */
+/* xbios.c */
 extern uint32_t xbc_gettime(void);
 extern int16_t	xbc_nvmaccess(uint16_t op, int16_t start, int16_t count, uint8_t* buffer);
-
-/* eiffel.s */
-extern void		InstallEiffel(void);
+extern void     InstallXbios(void);
 
 /* utils.s */
 extern uint16_t	ipl_set(uint16_t ipl);

@@ -22,7 +22,6 @@
 ;-------------------------------------------------------------------------------
 
 
-
 ;-------------------------------------------------------------------------------
 ;	TOS1
 ;		0x0016	void SetTime(u32 time)
@@ -30,6 +29,7 @@
 ;		0x001C	u8 	 Giaccess(u16 data, u16 regno)
 ;		0x001D	void Offgibit(u16 bitno)
 ;		0x001E	void Ongibit(u16 bitno)
+;		0x0027	void Puntaes(void)
 ;
 ;	TOS3
 ;		0x002E	i16  NVMAccess(i16 op, i16 start, i16 count, i8* buf)
@@ -55,46 +55,49 @@
 
 	.EXPORT InstallTrap14
 	.EXPORT trap14_table
-
 	.TEXT
+
+
+
+;----------------------------------------------------------
+;
+; Trap14 xbios installer
+;
+;----------------------------------------------------------
+InstallTrap14:
+	move.w	sr,-(sp)
+	move.w	#0x2700,sr
+	move.l	0x0b8.w,xbios_old
+	move.l	#xbios_new,0x0b8.w
+
+	; clear jumptable
+	move.l	#trap14_table,a0
+	move.w	#255,d1
+.1:	move.l	#xbios_org,(a0)+
+	dbra.w	d1,.1
+
+	; init jumptable
+IFNE XBTIME
+	move.l	#xb_settime,					trap14_table + ( 22*4)
+	move.l	#xb_gettime,					trap14_table + ( 23*4)
+ENDIF
+	move.l	#xb_giaccess,					trap14_table + ( 28*4)
+	move.l	#xb_offgibit,					trap14_table + ( 29*4)
+	move.l	#xb_ongibit,					trap14_table + ( 30*4)
+	move.l	#xb_puntaes,					trap14_table + ( 39*4)
+IFNE XBNVM
+	move.l	#xb_nvmaccess,					trap14_table + ( 46*4)
+ENDIF
+	move.l	#xb_cache_ctrl,					trap14_table + (160*4)
+
+	move.w	(sp)+,sr
+	rts
 
 
 ;----------------------------------------------------------
 ;
 ; Trap14 xbios handler
 ;
-;----------------------------------------------------------
-InstallTrap14:
-	movem.l	d0/a0,-(sp)			; save registers
-	move.w	sr,-(sp)			; disable interrupts
-	move.w	#0x2700,sr
-	move.l	0x0b8.w,xbios_old	; xbios trap handler
-	move.l	#xbios_new,0x0b8.w
-
-	; clear jumptable
-	move.l	#trap14_table,a0
-	move.w	#255,d0
-.1:	move.l	#xbios_org,(a0)+
-	dbra.w	d0,.1
-
-	; init jumptable
-IFNE XBTIME
-	move.l	#xb_settime,	trap14_table + ( 22*4)
-	move.l	#xb_gettime,	trap14_table + ( 23*4)
-ENDIF
-	move.l	#xb_giaccess,	trap14_table + ( 28*4)
-	move.l	#xb_offgibit,	trap14_table + ( 29*4)
-	move.l	#xb_ongibit,	trap14_table + ( 30*4)
-	move.l	#xb_puntaes,	trap14_table + ( 39*4)
-IFNE XBNVM
-	move.l	#xb_nvmaccess,	trap14_table + ( 46*4)
-ELSE
-	move.l	#xb_cache_ctrl,	trap14_table + (160*4)
-
-	move.w	(sp)+,sr			; restore interrupts
-	movem.l	(sp)+,d0/a0			; restore registers
-	rts
-
 ;----------------------------------------------------------
 	DC.B "XBRA"
 	DC.B "RAVN"
@@ -106,7 +109,7 @@ xbios_new:
 	beq.b	.1
 	lea		8(sp),a0		; assume longframe
 .1:	moveq	#0,d0
-	move.w	(a0),d0			; d0 = opcode
+	move.w	(a0)+,d0		; d0 = opcode, a0 = args
 
 	;------------------------------------
 	; Atari
@@ -130,31 +133,34 @@ xbios_org:
 
 
 ;----------------------------------------------------------
+;		0x0016	void SetTime(u32 time)
 xb_settime:
     move.w  sr,-(sp)
 	or.w	#0x0700,sr          ; disable interrupts
-    move.l  2(a0),d0            ; call our settime
+    move.l  (a0),d0             ; call our settime
     bsr     xbc_settime
 	movea.l	xbios_old(pc),a0    ; call original settime
     move.w  (sp)+,sr
 	jmp		(a0)                ; to update internal tos variables
 
 ;----------------------------------------------------------
+;		0x0017	u32  GetTime(void)
 xb_gettime:
 	or.w	#0x0700,sr		    ; disable interrupts
 	bsr		xbc_gettime
 	rte
 
 ;----------------------------------------------------------
+;		0x001C	u8 	 Giaccess(u16 data, u16 regno)
 xb_giaccess:
 	or.w	#0x0700,sr		    ; disable interrupts
-	move.w	4(a0),d0			; regno
+	move.w	2(a0),d0			; regno
 	move.b	d0,d1
 	and.b	#0xf,d1
 	move.b	d1,0xff8800
 	btst.b	#7,d0				; (regno & 0x80) means write
 	beq.b	.2
-	move.w	2(a0),d0			; data
+	move.w	(a0),d0 			; data
 	cmp.b	#14,d1
 	bne.b	.1
 	eor.b	#0x40,d0			; portA = invert bit6
@@ -167,9 +173,10 @@ xb_giaccess:
 .3: rte
 
 ;----------------------------------------------------------
+;		0x001D	void Offgibit(u16 bitno)
 xb_offgibit:
 	or.w	#0x0700,sr		    ; disable interrupts
-	move.w	2(a0),d1
+	move.w	(a0),d1
 	move.b	d1,d2				; d1 = regular bits
 	eor.b	#0x40,d2			; d2 = bit6
 	and.b	#0x40,d2
@@ -181,9 +188,10 @@ xb_offgibit:
 	rte
 
 ;----------------------------------------------------------
+;		0x001E	void Ongibit(u16 bitno)
 xb_ongibit:
 	or.w	#0x0700,sr		    ; disable interrupts
-	move.w	2(a0),d1
+	move.w	(a0),d1
 	move.b	d1,d2
 	and.b	#0xbf,d1			; d1 = regular bits
 	eor.b	#0x40,d2			; d2 = bit6
@@ -196,27 +204,29 @@ xb_ongibit:
 	rte
 
 ;----------------------------------------------------------
-xb_nvmaccess:
-	or.w	#0x0700,sr		    ; disable interrupts
-	move.w	2(a0),d0		    ; op
-	move.w	4(a0),d1		    ; start
-	move.w	6(a0),d2		    ; count
-	move.l	8(a0),a0		    ; buffer
-	bsr		xbc_nvmaccess
-	rte
-
-;----------------------------------------------------------
+;		0x0027	void Puntaes(void)
 xb_puntaes:
-    addq.l  #2,a0
     bsr     xbc_puntaes
 	movea.l	xbios_old(pc),a0    ; call original
 	jmp		(a0)                ; to update internal tos variables
 
 ;----------------------------------------------------------
+;		0x002E	i16  NVMAccess(i16 op, i16 start, i16 count, i8* buf)
+xb_nvmaccess:
+	or.w	#0x0700,sr		    ; disable interrupts
+	move.w	(a0)+,d0		    ; op
+	move.w	(a0)+,d1		    ; start
+	move.w	(a0)+,d2		    ; count
+	move.l	(a0),a0			    ; buffer
+	bsr		xbc_nvmaccess
+	rte
+
+;----------------------------------------------------------
+;		0x00A0 	i32  CacheCtrl(i16 op, i16 param)
 xb_cache_ctrl:
 	or.w	#0x0700,sr		; disable interrupts
-	move.w	2(a0),d0		; d0 = opcode
-	move.w	4(a0),d1		; d1 = param
+	move.w	(a0)+,d0		; d0 = opcode
+	move.w	(a0),d1 		; d1 = param
 .0:	cmp.w	#0,d0			; query implemented
 	bne.b	.1
 	moveq.l	#0,d0
@@ -265,6 +275,11 @@ xb_cache_ctrl:
 
 
 ;----------------------------------------------------------
+;
+; CT60
+;
+;----------------------------------------------------------
+
 xb_ct60:
 	cmp.w   #0xC600,d0
 	bcc.s   xb_ct60new
@@ -298,7 +313,7 @@ xb_ct60new:
 
 ;----------------------------------------------------------
 xb_ct60_cache:
-	move.w	2(a0),d0
+	move.w	(a0),d0
     bmi.b   .1
     bsr     cache_set
 .1: movec.l cacr,d0
@@ -326,9 +341,15 @@ xb_ct60_vmalloc:
 	rte
 
 	
-
+;----------------------------------------------------------
+;
+; BSS
+;
 ;----------------------------------------------------------
 	.bss
 	.align 16
-trap14_table:
-	ds.l	256
+trap14_table:	ds.l	256
+
+dsp_locked:		ds.w	1
+dsp_ability:	ds.w	1	; uid supplier
+dsp_program:	ds.w	1	; current uid

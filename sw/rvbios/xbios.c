@@ -20,7 +20,21 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <mint/osbind.h>
+#include <mint/sysvars.h>
+#include "rvbios.h"
 #include "raven.h"
+
+extern void InstallTrap14(void);	/* trap14.s	*/
+extern void InstallTrap14Dsp(void);	/* trap14.s */
+extern void InstallEiffel(void);	/* eiffel.s */
+
+
+/*-------------------------------------------------------------------------------
+ *
+ *	general xbios
+ *
+ *-----------------------------------------------------------------------------*/
 
 #define RTC_YEAR_OFFSET	(1968-1980)
 #define RTC_NVRAM_START	0x08
@@ -67,7 +81,7 @@ void xbc_settime(
 }
 
 int16_t xbc_nvmaccess(
-	int16_t op,			/* d0 */
+	uint16_t op,		/* d0 */
 	int16_t start,		/* d1 */
 	int16_t count,		/* d2 */
 	uint8_t* buffer)	/* a0 */
@@ -125,3 +139,62 @@ int32_t xbc_puntaes(uint8_t* a0) {
 
     return 0;
 }
+
+/*-------------------------------------------------------------------------------
+ *
+ *	dsp xbios
+ *
+ *-----------------------------------------------------------------------------*/
+
+int32_t xbc_dsp_lodtobin(char* filename, uint8_t* buffer)
+{
+	/* todo */
+	(void)filename;
+	(void)buffer;
+	return 0;
+}
+
+/*-------------------------------------------------------------------------------
+ *
+ *	install
+ *
+ *-----------------------------------------------------------------------------*/
+
+static void InstallDsp(void) {
+	if (raven()->chipset() < 0xA2)
+		return;
+
+	/* todo: verify dsp exists */
+	InstallTrap14Dsp();
+}
+
+void InstallXbios(void)
+{
+	uint16_t ipl;
+	ipl = ipl_set(0x0700);
+
+    /* init gemdos time from rtc */
+    /*if (Getcookie(C__IDT,(long*)&cookie) != C_FOUND)*/ {
+        uint32_t dt   = xbc_gettime();
+        uint16_t date = (uint16_t) ((dt>>16)&0xffff);
+        uint16_t time = (uint16_t) ((dt>> 0)&0xffff);
+        Tsetdate(date);
+        Tsettime(time);
+    }	
+
+	/* xbios */
+	InstallTrap14();
+
+	/* dsp */
+	InstallDsp();
+
+	/* eiffel */
+	InstallEiffel();
+
+	/* motorola support package */
+    raven()->sys_installsp(0L);
+
+    cache_flush();
+	ipl_set(ipl);
+}
+

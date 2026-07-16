@@ -105,21 +105,6 @@ void Setcookie(uint32_t c, uint32_t d)
 	Locale
 ----------------------------------------*/
 
-void InitTime(void)
-{
-#if XBTIME
-    /* init gemdos time from rtc */
-    /*if (Getcookie(C__IDT,(long*)&cookie) != C_FOUND)*/ {
-        uint32_t dt   = xbc_gettime();
-        uint16_t date = (uint16_t) ((dt>>16)&0xffff);
-        uint16_t time = (uint16_t) ((dt>> 0)&0xffff);
-        Tsetdate(date);
-        Tsettime(time);
-    }
-#endif
-}
-
-
 void InstallCookies(void)
 {
 #if XBNVM
@@ -344,8 +329,8 @@ long supermain()
 		return -1;
 	}
 
-    /* no boot logo or setup for soft-loaded os's */
 #if !SETUP_ONLY
+    /* no boot logo or setup for soft-loaded os's */
     tsr_only = is_tsr_only();
 #endif
 
@@ -357,17 +342,12 @@ long supermain()
         bootscreen();
     }
 
-	/* install xbios extensions */
 #if !SETUP_ONLY    
-	ipl = ipl_set(0x0700);
-	InitTime();
-	InstallTrap14();
-	InstallEiffel();
+	/* install xbios extensions */
+	InstallXbios();
 	InstallCookies();
-    raven()->sys_installsp(0L);
-    cache_flush();
-	ipl_set(ipl);
 #endif    
+
 
     /* setup screen */
     if (!tsr_only) {
