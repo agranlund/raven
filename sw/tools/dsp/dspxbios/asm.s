@@ -1,6 +1,6 @@
 ; ------------------------------------------------------------------------
-; dsp xbios testbed for faster iteration
-; parts of this should normally come with rvbios
+; dsp xbios testbed for faster iteration times
+; normally lives in rvbios
 ; ------------------------------------------------------------------------
 
 DSP_CTRL1		EQU 0x20000010			; uart2:mcr
@@ -27,17 +27,7 @@ DSP_YSIZE		EQU 0x8000
 	.text
 	.align
 
-	.EXPORT readbuf
-
-readbuf:
-	bra.b	.2
-.1:	btst.b	#0,DSP_ISR
-	beq.b	.1
-	move.b	DSP_RXH,(a0)+
-	move.b	DSP_RXM,(a0)+
-	move.b	DSP_RXL,(a0)+
-.2:	dbra.w	d0,.1
-	rts
+	.XREF xbc_dsp_lodtobin
 
 
 ; ------------------------------------------------------------------------
@@ -54,12 +44,7 @@ trap14_table:	ds.l	256
 InstallTrap14:
 	move.w	sr,-(sp)
 	move.w	#0x2700,sr
-	move.l	0x0b8.w,a0
-	move.l	-8(a0),d0
-	cmp.l	#0xABBA,d0
-	bne.b	.1
-	move.l	-4(a0),0x08b8.w
-.1:	move.l	0x0b8.w,xbios_old
+	move.l	0x0b8.w,xbios_old
 	move.l	#xbios_new,0x0b8.w
 	move.l	#trap14_table,a0
 	move.w	#255,d1
@@ -100,9 +85,8 @@ InstallTrap14:
 	move.w	(sp)+,sr
 	rts
 
-	DC.L 0
 	DC.B "XBRA"
-	DC.L 0xABBA
+	DC.B "RAVN"
 xbios_old:
 	DC.L 0x00B8
 xbios_new:
@@ -112,15 +96,12 @@ xbios_new:
 	lea		8(sp),a0		; assume longframe
 .1:	moveq	#0,d0
 	move.w	(a0)+,d0		; d0 = opcode, a0 = args
-
 	cmp.w	#256,d0
 	bcc.b	xbios_org
 	jmp		([trap14_table, d0.w*4])
-
 xbios_org:
 	movea.l	xbios_old(pc),a0
 	jmp		(a0)
-
 
 
 
@@ -209,16 +190,16 @@ xb_dsp_reserve:
 xb_dsp_loadprog:
 	; convert lod to binary
 	move.l	a0,-(sp)
-	move.l	6(a0),a1
-	move.l	(a0),a0
-	;jsr	dsp_lodtobin	; todo
-	; run binary
-	cmp.l	#9,d0	; validate size
-	ble.b	.1
+	move.l	6(a0),a1	; buffer
+	move.l	(a0),a0		; filename
+	bsr.l	xbc_dsp_lodtobin
 	move.l	(sp)+,a0
-	move.w	4(a0),d1
-	move.l	6(a0),a0
-	;bsr.w	dsp_execprog
+	; verify and run binary
+	cmp.l	#9,d0		; codesize
+	ble.b	.1
+	move.w	4(a0),d1	; ability
+	move.l	6(a0),a0	; code
+	bsr.w	dsp_execprog
 .1:	rte
 
 ;----------------------------------------------------------		## todo
@@ -232,7 +213,7 @@ dsp_execprog:
 	moveq.l	#0,d0
 	move.w	dsp_bootloader+7,d0
 	move.l	#dsp_bootloader+9,a0
-	jsr		dsp_execboot
+	bsr.w	dsp_execboot
 
 	; load program
 	move.l	(sp)+,d0
@@ -257,7 +238,7 @@ xb_dsp_execprog:
 	move.w	8(a0),d1
 	move.l	4(a0),d0
 	move.l	(a0),a0
-	jsr		dsp_execprog
+	bsr.w	dsp_execprog
 	rte
 
 ;----------------------------------------------------------
@@ -280,12 +261,6 @@ dsp_execboot:
 	bsr.w	dsp_boot_send		; data
 	rts
 
-	; can't go too fast before bootcode has configured pll
-macro dsp_boot_delay
-	nop
-	nop
-endm
-
 dsp_reset_delay:
 	move.w	#50000,d0
 .1:	nop
@@ -293,16 +268,10 @@ dsp_reset_delay:
 	dbra.w	d0,.1
 	rts
 
-dsp_send_d0:
-.1:	btst.b	#1,DSP_ISR
-	beq.b	.1
-	swap	d0
-	move.b	d0,DSP_TXH
-	rol.l	#8,d0
-	move.b	d0,DSP_TXM
-	rol.l	#8,d0
-	move.b	d0,DSP_TXL
-	rts
+macro dsp_boot_delay
+	nop ; slow until pll has been configured
+	nop
+endm
 
 dsp_boot_send:
 .1:	btst.b	#1,DSP_ISR
@@ -318,6 +287,17 @@ dsp_boot_send:
 .3:	dbra.w	d0,.2
 	rts
 
+dsp_send_d0:
+.1:	btst.b	#1,DSP_ISR
+	beq.b	.1
+	swap	d0
+	move.b	d0,DSP_TXH
+	rol.l	#8,d0
+	move.b	d0,DSP_TXM
+	rol.l	#8,d0
+	move.b	d0,DSP_TXL
+	rts
+
 xb_dsp_execboot:
 	move.l	4(a0),d0
 	move.l	(a0),a0
@@ -327,6 +307,9 @@ xb_dsp_execboot:
 ;----------------------------------------------------------		## todo
 ;		0x006F  i32  Dsp_LodToBinary(i8* file, i8* code)
 xb_dsp_lodtobinary:
+	move.l	4(a0),a1
+	move.l	(a0),a0
+	bsr.l	xbc_dsp_lodtobin
 	rte
 
 ;----------------------------------------------------------
@@ -470,10 +453,9 @@ xb_dsp_multblocks:
 
 
 
-
-
 ;----------------------------------------------------------
 	.align 4
+
 dsp_vectors:
 	dc.b	0x00,0x00,0x00	; P
 	dc.b	0x00,0x00,0x00	; org
@@ -490,20 +472,18 @@ dsp_subvecs:
 	dc.b	0x00,0xf0,0x80, 0x00,0x00,0x00
 	dc.b	0x00,0xf0,0x80, 0x00,0x00,0x00
 	dc.b	0x00,0xf0,0x80, 0x00,0x00,0x00
+
 	.align 4
 
 dsp_locked:		dc.w	0
 dsp_ability:	dc.w	0x8000
 dsp_program:	dc.w	0
-	.align 4
 
 
 ; ------------------------------------------------------------------------
-	.text
-	.even
-	dc.b 	0	; misalign to make header entries aligned
+	.align 4
 dsp_bootloader:
-	.include "../../dsp/boot.i56"
+	.include "../../../dsp/boot.i56"
 dsp_bootloader_end:
 	dc.b	0,0,0,0,0,0,0,0,0
 	.even

@@ -1,0 +1,13 @@
+dsptest.tos
+.C[-E1 -M -P -Z -W2]
+.C[-I..\..\..\purec\include]
+.C[-I..\..\..\lib]
+.S[-2 -S]
+.L[-V]
+=
+..\..\..\purec\lib\cstartn.o
+main.c
+asm.s
+..\..\..\purec\lib\pcsyslib.lib
+..\..\..\purec\lib\pctoslib.lib
+..\..\..\purec\lib\pcstdlib.lib
