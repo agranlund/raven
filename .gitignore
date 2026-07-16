@@ -8,6 +8,10 @@ fp-info-cache
 *.s19
 *.map
 *.elf
+*.i56
+*.c56
+*.p56
+*.lod
 temp.lnk
 mapfile
 bak/*
