@@ -54,8 +54,6 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - todo: describe building Rev.A2 without DSP?
 
 ## Untested:
-- DSP external RAM
-- ADC -> DSP
 - Fan ARGB
 - Fan PWM
 - i2c eprom
