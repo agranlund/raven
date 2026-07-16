@@ -24,6 +24,8 @@
 #include <string.h>
 #include <mint/osbind.h>
 #include <mint/falcon.h>
+#include "raven.h"
+#include "sysutil.h"
 
 uint8_t* loadfile(char* filename, uint32_t* size) {
 	FILE* f = fopen(filename, "rb");
@@ -60,12 +62,16 @@ int loadprog(char* filename) {
 	return 0;
 }
 
-int main(int args, char** argv) {
+long supermain(int args, char** argv) {
 
 	if (args < 2) {
 		printf("dsprun <file.p56>\n");
 		return 0;
 	}
+
+	/* shouldn't be hardcoded here but for now it is */
+	/* in case a test program wants to route YM sound through the DSP */
+	raven()->snd_volume(0);
 
 	if (!loadprog(argv[1])) {
 		printf("fail loading %s\n");
@@ -73,4 +79,8 @@ int main(int args, char** argv) {
 	}
 
 	return 0;
+}
+
+int main(int args, char** argv) {
+    return (int) Supmain(args, argv, supermain);
 }
