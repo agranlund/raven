@@ -95,15 +95,15 @@ void loadprog(char* filename) {
 long supermain(int args, char** argv) {
 	int test;
 
-	raven()->snd_speaker(1);
-	raven()->snd_volume(100);
+	/*raven()->snd_speaker(1);*/
+	raven()->snd_volume(0);
 
 	InstallTrap14();
 
 	test = Dsp_GetWordSize();
 	printf("wordsize = %d\n", test);
 
-#if 1
+#if 0
 	{
 		uint32_t i,j;
 		printf("load\n");
@@ -150,17 +150,34 @@ long supermain(int args, char** argv) {
 			}
 		}
 	}
+#elif 1
+	{
+		raven()->snd_volume(0);
+		raven()->snd_speaker(1);
+		loadboot("test3.p56");
+		#if 0
+		while(1) {
+			int32_t i;
+			uint32_t v = 0;
+			uint8_t* ptr = tempbuf;
+			readbuf(tempbuf, 3);
+			v |= ptr[0]; v <<= 8;
+			v |= ptr[1]; v <<= 8;
+			v |= ptr[2];
+			for (i=23; i>=0; i--) {
+				if (v & (1UL << i)) { Cconout('#'); }
+				else { Cconout('.'); }
+			}
+			Cconout('\r');
+/*			printf("%06lx\n", v);*/
+		}
+		#endif
+	}
 
 #elif 0
 	loadboot("boot.p56");
-#elif 1
-	loadprog("test.p56");
-#elif 0
-	raven()->snd_volume(0);
-	loadprog("test2.p56");
 #else
-	raven()->snd_volume(0);
-	loadboot("test3.p56");
+	loadprog("test.p56");
 #endif	
 	return 0;
 }

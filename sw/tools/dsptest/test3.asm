@@ -37,36 +37,39 @@ start:
 	; force all essi pins to gpio as per user manual
     movep	#0,x:<<M_PCRC
 
-	; prescaler modulus 15
-	; bypass fixed prescaler
-	; divider 2
-	; 32bit word length (24bit valid data)
-    movep   #(15)|(1<<M_PSR)|(1<<12)|(4<<19),x:<<M_CRA0
+	;  0 PM[7-0]    : 15 : divide by 16
+	; 11 PSR   		:  1 : divide by eight disabled
+	; 12 DC[4-0]	:  1 : 2 words per frame
+	; 19 WL[2-0]    :  4 : 32bits, first 24bits valid
+	movep	#$20180f,x:<<M_CRA0
 
-	; M_MOD:  network mode
-	; M_SYN:  synchronous mode
-	; M_FSR:  realtive frame sync timing
-	; M_FSP:  frame sync polarity
-	; M_CKP:  clock out on falling edge, latch on rising edge
-	; M_SCKD: dsp internal clock is source
-	; M_SCD2: SC2 is output
-    movep   #(0<<M_SHFD)|(1<<M_MOD)|(1<<M_SYN)|(1<<M_FSR)|(1<<M_FSP)|(1<<M_CKP)|(1<<M_SCKD)|(1<<M_SCD2),x:<<M_CRB0
-
-	; PC0 = gpio, PC1 = pgio
-	; PC2 = SC02, PC3 = SCK0
-	; PC4 = SRD0, PC5 = STD0
-	movep	#%00111100,x:<<M_PCRC
+	; 13 MOD		:  1 : network mode
+	; 12 SYN		:  1 : synchronous mode
+	; 11 CKP		:  1 : clock polarity, falling edge
+	; 10 FSP		:  1 : frame polarity, falling edge
+	;  9 FSR		:  1 : frame sync one bit early
+	;  7 FSL[1-0]	:  0 : rx=word, tx=word
+	;  6 SHFD		:  0 : MSB shift order
+	;  5 SCKD		:  1 : DSP is clock master
+	;  4 SCD2		:  1 : SC2 is output
+	movep	#$003e30,x:<<M_CRB0
+	;movep	#$003a30,x:<<M_CRB0
+	;movep	#$003e70,x:<<M_CRB0
+	;movep	#$003a70,x:<<M_CRB0
 
 	; prime transmitter
     movep	#0,x:<<M_TX00
     movep	#0,x:<<M_TX00
 
-	; enable
-	clr		a
-	movep	x:<<M_CRB0,a1
-	or		#(1<<M_SSTE0)|(1<<M_SSRE),a
-	movep	a1,x:<<M_CRB0
+	; PC0 = gpio, PC1 = pgio
+	; PC2 = SC02, PC3 = SCK0
+	; PC4 = SRD0, PC5 = STD0
+	movep	#%00111100,x:<<M_PCRC
+	movep	#%00101100,x:<<M_PRRC
 
+	; enable transmitter and receiver
+	bset	#M_SSTE0,x:<<M_CRB0
+	bset	#M_SSRE,x:<<M_CRB0
 
 	;--------------------------------------------------------------
 	; essi1
@@ -107,29 +110,175 @@ start:
 	bset	#M_HF2,x:M_HCR			; set HF2 to indicate ready
 
 test_start:
-;	jmp		loop2
+	jmp		loop2
 
 
 	; sawtooth -> DAC output
 	clr		a
+	clr		b
 loop1:
     jclr    #M_TDE,x:<<M_SSISR0,*
     movep   a1,x:<<M_TX00       		; output left sample 
+	nop
+	nop
     jclr    #M_TDE,x:<<M_SSISR0,*
-    movep   a1,x:<<M_TX00       		; output right sample
+    movep   b1,x:<<M_TX00       		; output right sample
     add     #$004000,a
+	sub		#$004000,b
     jmp     loop1
 
 
 	; ADC input -> DAC output
 loop2:
 
-	do		#2,_revb
-	jclr	#M_RDF,x:<<M_SSISR0,*
 	clr		a
+	jclr	#M_RDF,x:<<M_SSISR0,*
 	movep	x:<<M_RX0,a1
+	move	a1,x0
+
     jclr    #M_TDE,x:<<M_SSISR0,*
-    movep   a1,x:<<M_TX00
-_revb:
+    movep   x0,x:<<M_TX00
+
+	clr		a
+	jclr	#M_RDF,x:<<M_SSISR0,*
+	movep	x:<<M_RX0,a1
+	move	a1,x1
+
+	;movep	x0,x:<<M_HTX
+	;movep	x1,x:<<M_HTX
+
+    jclr    #M_TDE,x:<<M_SSISR0,*
+    movep   x1,x:<<M_TX00
 
     jmp     <loop2
+
+
+
+
+; the setting i think should be the correct one
+; static noise is louder or same level as actual sound
+; when no sound is playing, static noise is somewhat intermittent
+; between nothing and noise.
+
+;  0 PM[7-0]    : 15 : divide by 16
+; 11 PSR   		:  1 : divide by eight disabled
+; 12 DC[4-0]	:  1 : 2 words per frame
+; 19 WL[2-0]    :  4 : 32bits, first 24bits valid
+movep	#$20180f,x:<<M_CRA0
+
+; 13 MOD		:  1 : network mode
+; 12 SYN		:  1 : synchronous mode
+; 11 CKP		:  1 : clock polarity, falling edge
+; 10 FSP		:  1 : frame polarity, falling edge
+;  9 FSR		:  1 : frame sync one bit early
+;  7 FSL[1-0]	:  0 : rx=word, tx=word
+;  6 SHFD		:  0 : MSB shift order
+;  5 SCKD		:  1 : DSP is clock master
+;  4 SCD2		:  1 : SC2 is output
+movep	#$003e30,x:<<M_CRB0
+
+; x0. all bits are moving around, top 4 bits flip together on/off
+; x1. all bits are moving around
+
+; ----------------------------------------------
+
+; actual sound is heard louder than the static noise
+; when no sound is playing then static noise is
+; regular rather than intermittent on/off
+
+;  0 PM[7-0]    : 15 : divide by 16
+; 11 PSR   		:  1 : divide by eight disabled
+; 12 DC[4-0]	:  1 : 2 words per frame
+; 19 WL[2-0]    :  4 : 32bits, first 24bits valid
+movep	#$20180f,x:<<M_CRA0
+
+; 13 MOD		:  1 : network mode
+; 12 SYN		:  1 : synchronous mode
+; 11 CKP		:  1 : clock polarity, falling edge
+; 10 FSP		:  0 : frame polarity, rising edge
+;  9 FSR		:  1 : frame sync one bit early
+;  7 FSL[1-0]	:  0 : rx=word, tx=word
+;  6 SHFD		:  0 : MSB shift order
+;  5 SCKD		:  1 : DSP is clock master
+;  4 SCD2		:  1 : SC2 is output
+movep	#$003a30,x:<<M_CRB0
+
+; x0. all bits are moving around
+; x1. all bits are moving around, top 4 bits flip together on/off
+
+
+; ----------------------------------------------
+
+; changing clock polarity makes similar result, but with top bit always 0
+; everything shifted right one bit, likely.
+; "stuttering" noise
+movep	#$003630,x:<<M_CRB0
+
+; clock polarity and frame polarity inverted
+; silence.
+; play sound (extreme noise covering the sound)
+; volume fades down
+; when at zero, getting many/most bits toggling on/off at same time,
+; producing a very high pitch tone
+; triggering repeats the above
+movep	#$003230,x:<<M_CRB0
+
+
+; ----------------------------------------------
+
+; and always, regardless of settings:
+;  out #0
+;  out x1
+;  produce identical output on left+right
+
+;  out x1
+;  out #0
+;  produce silence on left+right
+
+exampleloop2:
+	jclr	#M_RDF,x:<<M_SSISR0,*
+	movep	x:<<M_RX0,x0
+	jclr	#M_RDF,x:<<M_SSISR0,*
+	movep	x:<<M_RX0,x1
+
+	brclr	#M_HTDE,x:<<M_HSR,*
+	;movep	x0,x:<<M_HTX
+	movep	x1,x:<<M_HTX
+
+    jclr    #M_TDE,x:<<M_SSISR0,*
+    movep   x0,x:<<M_TX00
+    jclr    #M_TDE,x:<<M_SSISR0,*
+    movep   x1,x:<<M_TX00
+
+    jmp     <exampleloop2
+
+; and the output channel issue is identical when doing this test:
+
+	clr		a
+exampleloop3:
+    jclr    #M_TDE,x:<<M_SSISR0,*
+    movep   a1,x:<<M_TX00       		; output left sample 
+    jclr    #M_TDE,x:<<M_SSISR0,*
+    movep   a1,x:<<M_TX00       		; output right sample
+    add     #$004000,a
+    jmp     exampleloop3
+
+
+
+; WL = 101
+;	movep	#$28180f,x:<<M_CRA0
+;	movep	#$003a30,x:<<M_CRB0
+;lowest byte of x0 and x1 always 0
+
+; WL = 101
+;	movep	#$28180f,x:<<M_CRA0
+;	movep	#$003e30,x:<<M_CRB0
+;lowest byte of x0 and x1 always 0
+
+; much lower volume level.
+; first though that was weird, because the upper byte should have given that result,
+; not the lower byte.
+
+; but when testing the sawtooth player. i got the same very low volume.
+; which indicates WL101 has that effect on the volume on the output side.
+

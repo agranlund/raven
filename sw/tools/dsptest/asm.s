@@ -503,7 +503,7 @@ dsp_program:	dc.w	0
 	.even
 	dc.b 	0	; misalign to make header entries aligned
 dsp_bootloader:
-	.include "../../dsp/boot.a56"
+	.include "../../dsp/boot.i56"
 dsp_bootloader_end:
 	dc.b	0,0,0,0,0,0,0,0,0
 	.even
