@@ -4,7 +4,7 @@ AFLAGS = -c 56301
 
 DEPS = asm56k dsp56303.inc
 
-OBJS = boot.p56 test.p56
+#OBJS = boot.p56 test.p56
 
 .PHONY: $(A56) clean
 
@@ -22,5 +22,5 @@ asm56k: $(A56)
 distclean: clean
 	make -C $(A56DIR) clean
 
-clean:
-	rm -f $(OBJS) $(OBJS:.p56=.l56) $(OBJS:.p56=.c56) $(OBJS:.p56=.i56)
+#clean:
+#	rm -f $(OBJS) $(OBJS:.p56=.l56) $(OBJS:.p56=.c56) $(OBJS:.p56=.i56)
