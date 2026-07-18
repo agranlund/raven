@@ -108,6 +108,7 @@ copyfw:
 	$(COPY) $(ROOTDIR)/fw/a2/Narnia/$(FW_NARNIA_A2) $(FWDIR)/a2/
 	$(COPY) $(ROOTDIR)/fw/a2/Iksi/$(FW_IKSI_A2) $(FWDIR)/a2/
 	$(COPY) $(ROOTDIR)/fw/ckbd/$(FW_CKBD_A2) $(FWDIR)/a2/
+	$(COPY) $(ROOTDIR)/fw/ckbd/ckbd_wch.ini $(FWDIR)/a2/
 
 copyhw:
 	$(MKDIR) $(HWDIR)
