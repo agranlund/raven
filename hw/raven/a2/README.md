@@ -15,6 +15,9 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - [Interactive BOM](https://htmlpreview.github.io/?https://github.com/agranlund/raven/blob/main/hw/raven/a2/production/raven-a2_ibom.html)
 - [Interactive PCB](https://kicanvas.org/?repo=https%3A%2F%2Fgithub.com%2Fagranlund%2Fraven%2Ftree%2Fmain%2Fhw%2Fraven%2Fa2)
 
+The following changes has been made to the files here on Github since after my personal board was manufactured.
+- PWR_SW to UART:RI connection removed
+- DC blocking capacitors to ADC left/right inputs added
 
 ## Changelog from Rev.A1
 - Silkscreen: Fixed wrong pinout info for J305
@@ -54,17 +57,13 @@ This source describes Open Hardware and is licensed under the CERN-OHLW v2.
 - todo: describe building Rev.A2 without DSP?
 
 ## Untested:
-- DSP external RAM
-- ADC -> DSP
 - Fan ARGB
 - Fan PWM
 - i2c eprom
 - Midi-in
 
-## Notes and Errata:
+## Notes and Erratas:
 - Part number for ARGB header isn't perfect, might want to use a variant with slightly longer pins.
-- PWR_SW to UART:RI trace cut on personal board as pin is not 5V tolerant.
-  Schematic, PCB and Gerbers here on Github has been updated with this fix.
 
 ## Future:
 - Remove all components from Analog Devices as they can be hard to purchase for individuals?
