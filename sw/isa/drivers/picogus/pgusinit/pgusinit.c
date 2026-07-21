@@ -106,7 +106,7 @@ static void pageprintf(char *format, ...)
 
 static void banner(void)
 {
-    printf("PicoGUSinit v3.9.0a Raven060 (c) 2026 Ian Scott - licensed under the GNU GPL v2\n");
+    printf("PicoGUSinit v3.9.0c Raven060 (c) 2026 Ian Scott - licensed under the GNU GPL v2\n");
 }
 
 
@@ -131,7 +131,8 @@ static void usage(card_mode_t mode, bool print_all)
     if (mode == GUS_MODE || print_all) {
         //         "...............................................................................\n"
         pageprintf("GUS settings:\n");
-        pageprintf("   /gusenv     - set the base port of the GUS from ULTRASND variable\n");
+   #ifdef __ATARI__
+        // Atari build: no ULTRASND variable, no /gusenv
         pageprintf("   /gusport x  - set the base port of the GUS. Default: 240\n");
         pageprintf("   /gusbuf n   - set audio buffer to n samples. Default: 4, Min: 1, Max: 256\n");
         pageprintf("                 (tweaking can help programs that hang or have audio glitches)\n");
@@ -140,22 +141,48 @@ static void usage(card_mode_t mode, bool print_all)
         pageprintf("                 (increase to fix games with streaming audio like Doom)\n");
         pageprintf("   /gus44k 1|0 - Fixed 44.1kHz output for all active voice #s [EXPERIMENTAL]\n");
         pageprintf("   /gusvol x   - set the GUS audio volume: 0 - 100\n");
-    }
+        pageprintf("   (Note: Atari build does not use SET ULTRASND= or /gusenv)\n");
+	#else
+        // DOS build: ULTRASND variable supported
+     	pageprintf("   /gusenv     - set the base port of the GUS from ULTRASND variable\n");
+        pageprintf("   /gusport x  - set the base port of the GUS. Default: 240\n");
+        pageprintf("   /gusbuf n   - set audio buffer to n samples. Default: 4, Min: 1, Max: 256\n");
+        pageprintf("                 (tweaking can help programs that hang or have audio glitches)\n");
+        pageprintf("   /gusdma n   - force DMA interval to n us. Default: 0, Min: 0, Max: 255\n");
+        pageprintf("                 Specifying 0 restores the GUS default behavior.\n");
+        pageprintf("                 (increase to fix games with streaming audio like Doom)\n");
+        pageprintf("   /gus44k 1|0 - Fixed 44.1kHz output for all active voice #s [EXPERIMENTAL]\n");
+        pageprintf("   /gusvol x   - set the GUS audio volume: 0 - 100\n");
+    #endif  
+  }
     if (mode == SB_MODE || print_all) {
-        //         "...............................................................................\n"
         pageprintf("Sound Blaster settings:\n");
-        pageprintf("   /sbenv         - set the SB base port, IRQ, DMA and type from SET BLASTER=\n");
+
+    #ifdef __ATARI__
+        // Atari build: no BLASTER variable, no /sbenv
+        pageprintf("   /sbport x      - set the SB base port. Default: 220\n");
+        pageprintf("   /sbirq x       - set the SB IRQ. Default: 5\n");
+        pageprintf("   /sbdma x       - set the SB DMA. Default: 1\n");
+        pageprintf("   /sbtype x      - set the Sound Blaster type. Default: 6 (SB 16)\n");
+        pageprintf("          1 - SB 1.x,          2 - SB Pro 1 (dual OPL2), 3 - SB 2.0,\n");
+        pageprintf("          4 - SB Pro 2 (OPL3), 6 - SB 16\n");
+        pageprintf("   (Note: Atari build does not use SET BLASTER= or /sbenv)\n");
+    #else
+        // DOS build: BLASTER variable supported
+        pageprintf("   /sbenv         - set SB port/IRQ/DMA/type from SET BLASTER=\n");
         pageprintf("   /sbport x      - set the SB base port. Default: 220\n");
         pageprintf("   /sbirq x       - set the SB IRQ (must match jumper settings!). Default: 5\n");
         pageprintf("   /sbdma x       - set the SB DMA (must match jumper settings!). Default: 1\n");
         pageprintf("   /sbtype x      - set the Sound Blaster type. Default: 6 (SB 16)\n");
         pageprintf("          1 - SB 1.x,          2 - SB Pro 1 (dual OPL2), 3 - SB 2.0,\n");
         pageprintf("          4 - SB Pro 2 (OPL3), 6 - SB 16\n");
-        pageprintf("   /sbvol x       - set the Sound Blaster audio volume: 0 - 100%\n");
-        pageprintf("   /sbfixtc 1|0   - fix SB time constant to match common rates. Default: 0\n");
-        pageprintf("   /sblockmixer n - lock SB mixer settings. Default: 0 (no lock)\n");
-        pageprintf("          0 - no lock, 1 - lock all but Voice Volume, 2 - lock all\n");
-    }
+    #endif
+
+    pageprintf("   /sbvol x       - set the Sound Blaster audio volume: 0 - 100%%\n");
+    pageprintf("   /sbfixtc 1|0   - fix SB time constant to match common rates. Default: 0\n");
+    pageprintf("   /sblockmixer n - lock SB mixer settings. Default: 0 (no lock)\n");
+    pageprintf("          0 - no lock, 1 - lock all but Voice Volume, 2 - lock all\n");
+}
     if (mode == SB_MODE || mode == ADLIB_MODE || print_all) {
         pageprintf("AdLib settings:\n");
         pageprintf("   /oplport x   - set the base port of the OPL2. Default: 388, 0 to disable\n");
@@ -163,13 +190,13 @@ static void usage(card_mode_t mode, bool print_all)
         pageprintf("   /oplvol x    - set the OPL2 audio volume: 0 - 100\n");
     }
     if (mode == SB_MODE || mode == USB_MODE || print_all) {
- //       pageprintf("CD-ROM settings:\n");
- //       pageprintf("   /cdport x     - set base port of CD interface. Default: 250, 0 to disable\n");
- //       pageprintf("   /cdlist       - list CD images on the inserted USB drive\n");
- //       pageprintf("   /cdload n     - load image n in the list given by /cdlist. 0 to unload image\n");
- //       pageprintf("   /cdloadname x - load CD image by name. Names with spaces can be quoted\n");
- //       pageprintf("   /cdvol n      - set the CD audio volume: 0 - 100\n");
- //       pageprintf("   /cdauto 1|0   - auto-advance loaded image when same USB drive is reinserted\n");
+        pageprintf("CD-ROM settings:\n");
+        pageprintf("   /cdport x     - set base port of CD interface. Default: 250, 0 to disable\n");
+        pageprintf("   /cdlist       - list CD images on the inserted USB drive\n");
+        pageprintf("   /cdload n     - load image n in the list given by /cdlist. 0 to unload image\n");
+        pageprintf("   /cdloadname x - load CD image by name. Names with spaces can be quoted\n");
+        pageprintf("   /cdvol n      - set the CD audio volume: 0 - 100\n");
+        pageprintf("   /cdauto 1|0   - auto-advance loaded image when same USB drive is reinserted\n");
     }
     if (mode == PSG_MODE || print_all) {
         //         "...............................................................................\n"
@@ -208,13 +235,18 @@ static const char* mouse_protocol_str[] = {
 
 static void err_ultrasnd(void)
 {
-    //              "................................................................................\n"
+#ifdef __ATARI__
+    fprintf(stderr, "ERROR: Invalid GUS configuration.\n");
+    fprintf(stderr, "Use /gusport to set the GUS base port.\n");
+#else
     fprintf(stderr, "ERROR: In GUS mode but no ULTRASND variable set or is malformed!\n");
     fprintf(stderr, "The ULTRASND environment variable must be set in the following format:\n");
     fprintf(stderr, "\tset ULTRASND=xxx,y,n,z,n\n");
     fprintf(stderr, "Where xxx = port, y = DMA, z = IRQ. n is ignored.\n");
     fprintf(stderr, "Port is set via /gusport xxx option; DMA and IRQ configued via jumper.\n");
+#endif
 }
+
 
 
 typedef enum {
@@ -224,19 +256,24 @@ typedef enum {
     BLASTER_MISMATCH,
 } blaster_err_t;
 
+#ifndef __ATARI__
 static void err_blaster_format_help(void)
 {
-    //              "................................................................................\n"
     fprintf(stderr, "The BLASTER environment variable must be set in the following format:\n");
     fprintf(stderr, "\tset BLASTER=Axxx Iy Dz Hz Tw\n");
     fprintf(stderr, "Where xxx = port, y = IRQ, z = DMA. w = SB type:\n");
     fprintf(stderr, "    1 - SB 1.x,          2 - SB Pro 1 (dual OPL2), 3 - SB 2.0,\n");
     fprintf(stderr, "    4 - SB Pro 2 (OPL3), 6 - SB 16\n");
 }
+#endif
 
 static void err_blaster(blaster_err_t reason)
 {
-    //                      "................................................................................\n"
+#ifdef __ATARI__
+    fprintf(stderr, "ERROR: Invalid SB configuration.\n");
+    fprintf(stderr, "Use /sbport, /sbirq, /sbdma, /sbtype to configure Sound Blaster mode.\n");
+    return;
+#else
     switch (reason) {
         case BLASTER_UNSET:
             fprintf(stderr, "ERROR: In SB mode but BLASTER environment variable is not set!\n");
@@ -259,6 +296,7 @@ static void err_blaster(blaster_err_t reason)
             fprintf(stderr, "Alternatively, use /sbport, /sbirq, /sbdma, /sbtype to set values directly.\n");
             break;
     }
+#endif
 }
 
 static void err_pigus(void)
@@ -277,16 +315,31 @@ static void err_protocol(uint8_t expected, uint8_t got)
 
 static int init_gus(void)
 {
+#ifdef __ATARI__
+    //
+    // ATARI BUILD — NO ULTRASND ENVIRONMENT VARIABLE
+    // Read GUS base port directly from PicoGUS registers
+    //
+    outp(CONTROL_PORT, CMD_GUSPORT);
+    uint16_t port = inpw(DATA_PORT_LOW);
+
+    if (port == 0) {
+        fprintf(stderr, "ERROR: Invalid GUS port (0)\n");
+        return 1;
+    }
+
+#else
+    //
+    // ORIGINAL DOS ULTRASND PARSING
+    //
     char* ultrasnd = getenv("ULTRASND");
     if (ultrasnd == NULL) {
         err_ultrasnd();
         return 1;
     }
 
-    // Parse ULTRASND
     uint16_t port;
-    int e;
-    e = sscanf(ultrasnd, "%hx,%*hhu,%*hhu,%*hhu,%*hhu", &port);
+    int e = sscanf(ultrasnd, "%hx,%*hhu,%*hhu,%*hhu,%*hhu", &port);
     if (e != 1) {
         err_ultrasnd();
         return 2;
@@ -294,41 +347,52 @@ static int init_gus(void)
 
     if (resources_from_env) {
         // init GUS base port from ULTRASND environment variable
-        outp(CONTROL_PORT, CMD_GUSPORT); // Select port register
+        outp(CONTROL_PORT, CMD_GUSPORT);
         outpw(DATA_PORT_LOW, port);
     } else {
         // verify ULTRASND against GUS mode settings
-        outp(CONTROL_PORT, CMD_GUSPORT); // Select port register
+        outp(CONTROL_PORT, CMD_GUSPORT);
         uint16_t tmp_port = inpw(DATA_PORT_LOW);
         if (port != tmp_port) {
             err_ultrasnd();
             return 2;
         }
     }
+#endif
+
+    //
+    // COMMON CODE — applies to both Atari and DOS
+    //
 
     // Detect if there's something GUS-like...
-    // Set memory address to 0
     outp(port + 0x103, 0x43);
     outpw(port + 0x104, 0x0);
     outp(port + 0x103, 0x44);
     outpw(port + 0x104, 0x0);
-    // Write something
+
+    // Write test byte
     outp(port + 0x107, 0xDD);
-    // Read it and see if it's the same
+
+    // Read it back
     if (inp(port + 0x107) != 0xDD) {
         fprintf(stderr, "ERROR: Card not responding to GUS commands on port %x\n", port);
         return 98;
     }
+
     printf("GUS-like card detected on port %x...\n", port);
 
     // Enable IRQ latches
     outp(port, 0x8);
+
     // Select reset register
     outp(port + 0x103, 0x4C);
-    // Master reset to run. DAC enable and IRQ enable will be done by the application.
+
+    // Master reset to run
     outp(port + 0x105, 0x1);
+
     return 0;
 }
+
 
 
 static int init_sb(void)
@@ -336,17 +400,49 @@ static int init_sb(void)
     // SB DSP version table
     const uint16_t dspver[] = {0, 0x105, 0x300, 0x201, 0x301, 0, 0x405};
 
+#ifdef __ATARI__
+    //
+    // ATARI BUILD — NO BLASTER ENVIRONMENT VARIABLE
+    // Read SB settings directly from the PicoGUS registers
+    //
+    outp(CONTROL_PORT, CMD_SBPORT);
+    uint16_t port = inpw(DATA_PORT_LOW);
+
+    outp(CONTROL_PORT, CMD_SBIRQ);
+    uint8_t irq = inp(DATA_PORT_HIGH);
+
+    outp(CONTROL_PORT, CMD_SBDMA);
+    uint8_t dma8 = inp(DATA_PORT_HIGH);
+
+    outp(CONTROL_PORT, CMD_SBTYPE);
+    uint8_t sbtype = inp(DATA_PORT_HIGH);
+
+    // No DMA16 on Atari — SB16 requires dma8 == dma16, so enforce it
+    uint8_t dma16 = dma8;
+
+    // Validate SB type
+    if (sbtype > 6 || dspver[sbtype] == 0) {
+        fprintf(stderr, "ERROR: Invalid SB type %u\n", sbtype);
+        return 2;
+    }
+
+#else
+    //
+    // ORIGINAL DOS BLASTER PARSING
+    //
     char* blaster = getenv("BLASTER");
     if (blaster == NULL) {
         err_blaster(BLASTER_UNSET);
         return 1;
     }
+
     char blasterTemp[256];
     strncpy(blasterTemp, blaster, sizeof(blasterTemp));
 
     // Parse BLASTER
     char* p = strtok(blasterTemp, " ");
-    uint16_t port = -1, irq  = -1, dma8 = -1, dma16 = -1, sbtype = 0;
+    uint16_t port = -1, irq = -1, dma8 = -1, dma16 = -1, sbtype = 0;
+
     while (p != NULL) {
         switch (*p) {
             case 'a': case 'A': port   = strtol(p + 1, NULL, 16); break;
@@ -367,44 +463,48 @@ static int init_sb(void)
         err_blaster(BLASTER_DMA16_MISMATCH);
         return 2;
     }
+#endif
 
+    //
+    // COMMON CODE — applies to both Atari and DOS
+    //
     if (resources_from_env) {
-        // update resources from BLASTER environment variable
-        outp(CONTROL_PORT, CMD_SBPORT); // Select port register
+        // update resources
+        outp(CONTROL_PORT, CMD_SBPORT);
         outpw(DATA_PORT_LOW, port);
 
-        outp(CONTROL_PORT, CMD_SBIRQ); // Select IRQ register
+        outp(CONTROL_PORT, CMD_SBIRQ);
         outp(DATA_PORT_HIGH, irq);
 
-        outp(CONTROL_PORT, CMD_SBDMA); // Select DMA register
+        outp(CONTROL_PORT, CMD_SBDMA);
         outp(DATA_PORT_HIGH, dma8);
 
-        outp(CONTROL_PORT, CMD_SBTYPE); // Select SB type register
+        outp(CONTROL_PORT, CMD_SBTYPE);
         outp(DATA_PORT_HIGH, sbtype);
     } else {
-        // verify BLASTER variable against current SB mode settings
-        outp(CONTROL_PORT, CMD_SBPORT); // Select port register
+        // verify current card settings
+        outp(CONTROL_PORT, CMD_SBPORT);
         uint16_t tmp_port = inpw(DATA_PORT_LOW);
         if (port != tmp_port) {
             err_blaster(BLASTER_MISMATCH);
             return 2;
         }
 
-        outp(CONTROL_PORT, CMD_SBIRQ); // Select IRQ register
+        outp(CONTROL_PORT, CMD_SBIRQ);
         uint8_t tmp_irq = inp(DATA_PORT_HIGH);
         if (irq != tmp_irq) {
             err_blaster(BLASTER_MISMATCH);
             return 2;
         }
 
-        outp(CONTROL_PORT, CMD_SBDMA); // Select DMA register
+        outp(CONTROL_PORT, CMD_SBDMA);
         uint8_t tmp_dma = inp(DATA_PORT_HIGH);
         if (dma8 != tmp_dma) {
             err_blaster(BLASTER_MISMATCH);
             return 2;
         }
 
-        outp(CONTROL_PORT, CMD_SBTYPE); // Select SB type register
+        outp(CONTROL_PORT, CMD_SBTYPE);
         uint8_t tmp_type = inp(DATA_PORT_HIGH);
         if (sbtype != tmp_type) {
             err_blaster(BLASTER_MISMATCH);
@@ -414,7 +514,6 @@ static int init_sb(void)
 
     return 0;
 }
-
 
 static void print_string(uint8_t cmd)
 {
@@ -1274,7 +1373,7 @@ static void printSBMode()
 {
     static char *strMode[] = {"(invalid)", "1.x", "Pro 1", "2.0", "Pro 2", "(invalid)", "16"};
     static char *strLockMixerMode[] = {"unlocked", "locked except Voice Volume", "locked", "(invalid)"};
-    
+ 
     if (init_sb()) {
         return;
     }
