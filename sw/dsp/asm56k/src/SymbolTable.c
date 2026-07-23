@@ -72,7 +72,7 @@ hs *AddSymbol(const char *pString, int len, int forceCopy)
 	}
 	/* if we have no empty hash slots */
 	/* expand... */
-	if (node_len >= MAX_DESC)
+	if (node_len >= (MAX_DESC - 1))
 	{
 		g_pSymbolSlot = (hs *) malloc(MAX_DESC * sizeof(hs));
 		MTEST(g_pSymbolSlot);
