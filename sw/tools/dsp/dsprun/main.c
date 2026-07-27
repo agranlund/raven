@@ -36,11 +36,14 @@ uint8_t* loadfile(char* filename, uint32_t* size) {
 		s = ftell(f);
 		fseek(f, 0, SEEK_SET);
 		if (s > 0) {
-			p = (uint8_t*)Mxalloc(s, 0);
+			p = (uint8_t*)Mxalloc(s+3, 0);
 			if (p) {
 				fread(p, s, 1, f);
 				fclose(f);
 				*size = s;
+				p[s+0] = 0;
+				p[s+1] = 0;
+				p[s+2] = 3;
 				return p;
 			}
 		}
@@ -49,12 +52,35 @@ uint8_t* loadfile(char* filename, uint32_t* size) {
 	return 0;
 }
 
+static uint32_t get32(uint8_t* p) { return ((((uint32_t)p[0]) << 16) | (((uint32_t)p[1])<<8) | (((uint32_t)p[2])<<0)); }
+
+void infoprog(uint8_t* p)
+{
+#if 1	
+	while (1)
+	{
+		char type;
+		uint32_t hdr_space = get32(p+0);
+		uint32_t hdr_offset = get32(p+3);
+		uint32_t hdr_size = get32(p+6);
+		/*printf("%06lx %06lx %06lx\n", hdr_space, hdr_offset, hdr_size);*/
+		if (hdr_space == 0) { type = 'P'; }
+		else if (hdr_space == 1) { type = 'X'; }
+		else if (hdr_space == 2) { type = 'Y'; }
+		else { break; }
+		printf("%c : %06lx : %06lx\n", type, hdr_offset, hdr_size);
+		p += ((hdr_size + 3) * 3);
+	}
+#endif	
+}
+
 int loadprog(char* filename) {
 	uint32_t fsize = 0;
 	uint8_t* p = loadfile(filename, &fsize);
 	if (p) {
 		uint32_t len = fsize / 3;
 		printf("Loaded prog %s : %ld words\n", filename, len);
+		infoprog(p);
 		Dsp_ExecProg(p, len, 0);
 		Mfree(p);
 		return 1;
