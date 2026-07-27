@@ -12,6 +12,8 @@ ROOTDIR = ../../..
 OBJS =	main.o \
 		buzz.p56 \
 		thru.p56 \
+		ym.p56 \
+		ym.lod \
 		#
 
 include $(ROOTDIR)/Makefile.cmn

@@ -84,7 +84,7 @@ LINKOBJS = $(LIBCMINI_CRT) $(GCC_OBJS) $(CPUOBJS)
 DSPDIR = $(ROOTDIR)/dsp
 A56DIR = $(DSPDIR)/asm56k
 A56 = $(A56DIR)/build/asm56k
-
+LOD2P56 = $(A56DIR)/tools/lod2p56
 
 
 # -----------------------------------------------------------------------------------
@@ -161,9 +161,11 @@ $(A56):
 
 %.p56: %.$(DSPSRC) $(DSPDEPS)
 	$(A56) $(DSPFLAGS) -p $(basename $@).p56 $<
+#	$(A56) $(DSPFLAGS) -s -o $(basename $@).lod $<
+#	$(LOD2P56) $(basename $@).lod $(basename $@).p56
 
 %.lod: %.$(DSPSRC) $(DSPDEPS)
-	$(A56) $(DSPFLAGS) -o $(basename $@).lod $<
+	$(A56) $(DSPFLAGS) -s -o $(basename $@).lod $<
 
 %.c56: %.$(DSPSRC) $(DSPDEPS)
 	$(A56) $(DSPFLAGS) -k $(basename $@).c56 $<
