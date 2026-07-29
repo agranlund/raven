@@ -54,16 +54,27 @@
 ;		0x007E	void Dsp_SetVectors(void(*recver)(), i32(*transmitter)())
 ;		0x007F	void Dsp_MultBlocks(i32 numsend, i32 numrecv, DSPBLOCK* sendblocks, DSPBLOCK* recvblocks)
 
+	.XREF	xbios_old
 	.XREF	trap14_table
 	.XREF	xbc_dsp_lodtobin
 	
 	.EXPORT InstallTrap14Dsp
+	.EXPORT InstallAvec5Dsp
 
 	.TEXT
+	.align
 
 
-DSP_CTRL1		EQU 0x20000010			; uart2:mcr
-DSP_CTRL2		EQU	0x20000030			; uart1:mcr
+UART1			EQU 0x20000000	; dsp control
+UART2			EQU 0x20000020	; dsp interrupts
+UART_IER		EQU 0x04		; interrupt enable register
+UART_ISR		EQU 0x08		; interrupt status register
+UART_LCR		EQU 0x0C		; line control register
+UART_MCR		EQU 0x10		; modem control register
+UART_MSR		EQU 0x18		; modem status register
+
+DSP_CTRL1		EQU UART1+UART_MCR
+DSP_CTRL2		EQU	UART2+UART_MCR
 
 DSP_ICR 		EQU 0x20000400
 DSP_CVR 		EQU DSP_ICR+0x04
@@ -81,6 +92,55 @@ DSP_YSIZE		EQU 0xff00
 
 ;DSP_SUBRT_VEC	EQU	15
 ;DSP_SUBRT_NUM	EQU 8
+
+
+;----------------------------------------------------------
+;
+; DSP interrupts (UART2:MSR, autovector5)
+;
+;----------------------------------------------------------
+
+	DC.B "XBRA"
+	DC.B "RAVN"
+ivr_dummy_old:
+	DC.L 0x03FC
+ivr_dummy_new:
+	rte
+
+	DC.B "XBRA"
+	DC.B "RAVN"
+avec5_old:
+	DC.L 0x0074
+avec5_new:
+	move.l	avec5_old,-(sp)			; default jump target
+	move.l	d0,-(sp)				; save d0
+	moveq.l	#0,d0
+	move.b	UART2+UART_ISR,d0		; dsp interrupt?
+	and.b	#0x3f,d0				; ISR bit0-5 = 0 = MSR interrupt
+	bne.b	.1
+	move.b	UART2+UART_MSR,d0		; reading MSR clears interrupt
+	and.b	#0x88,d0				; bit7 = #CD Status, bit3 = #CD delta
+	cmp.b	#0x88,d0				; #CD asserted, #CD changed
+	bne.b	.1
+	move.b	DSP_IVR,d0				; dsp interrupt vector
+	lsl.l	#2,d0					; to zero offset address
+	move.l	d0,4(sp)				; and set as jump target
+.1:	move.l (sp)+,d0					; restore d0
+	rts								; jump interrupt handler
+
+InstallAvec5Dsp:
+	move.w	sr,-(sp)
+	move.w	#0x2700,sr
+	move.l	0x3fc,ivr_dummy_old		; replace ivr handler (dummy)
+	move.l	#ivr_dummy_new,0x3fc
+	move.l	0x74,avec5_old			; replace autovector5 handler
+	move.l	#avec5_new,0x74
+	moveq.l	#0,d0
+	move.b	UART2+UART_IER,d0		; enable MSR interrupts
+	or.b	#0x08,d0
+	move.b	d0,UART2+UART_IER
+	move.w	(sp)+,sr
+	rts
 
 
 ;----------------------------------------------------------
@@ -264,6 +324,8 @@ dsp_execboot:
 	bsr.w	dsp_reset_delay
 	or.b	#0x02,DSP_CTRL1		; dsp on
 	bsr.w	dsp_reset_delay
+	; config
+	move.b	#0xff,DSP_IVR		; host interrupt vector 0xff (0x3fc)
 	; send
 	move.l	d1,d0				; size
 	bsr		dsp_send_d0

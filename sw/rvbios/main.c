@@ -321,7 +321,6 @@ static bool is_tsr_only(void) {
 
 long supermain()
 {
-    uint16_t ipl;
     bool tsr_only = false;
 
     /* fetch pointer rom bios */

@@ -26,7 +26,8 @@
 #include "raven.h"
 
 extern void InstallTrap14(void);	/* trap14.s	*/
-extern void InstallTrap14Dsp(void);	/* trap14.s */
+extern void InstallTrap14Dsp(void);	/* dsp.s */
+extern void InstallAvec5Dsp(void);	/* dsp.s */
 extern void InstallEiffel(void);	/* eiffel.s */
 
 
@@ -164,8 +165,10 @@ static void InstallDsp(void) {
 	if (raven()->chipset() < 0xA2)
 		return;
 
-	/* todo: verify dsp exists */
-	InstallTrap14Dsp();
+	/* todo: verify dsp exists in case board was built without one */
+
+	InstallTrap14Dsp();		/* DSP xbios api  */
+	InstallAvec5Dsp();		/* DSP interrupts */
 }
 
 void InstallXbios(void)
