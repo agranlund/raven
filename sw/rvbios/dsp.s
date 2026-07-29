@@ -114,18 +114,18 @@ avec5_old:
 avec5_new:
 	move.l	avec5_old,-(sp)			; default jump target
 	move.l	d0,-(sp)				; save d0
-	moveq.l	#0,d0
 	move.b	UART2+UART_ISR,d0		; dsp interrupt?
 	and.b	#0x3f,d0				; ISR bit0-5 = 0 = MSR interrupt
 	bne.b	.1
 	move.b	UART2+UART_MSR,d0		; reading MSR clears interrupt
-	and.b	#0x88,d0				; bit7 = #CD Status, bit3 = #CD delta
-	cmp.b	#0x88,d0				; #CD asserted, #CD changed
+	or.b	#0x77,d0				; bit7 = #CD Status, bit3 = #CD delta
+	not.b	d0						; all zeroes = #CD asserted, #CD changed
 	bne.b	.1
+	moveq.l	#0,d0
 	move.b	DSP_IVR,d0				; dsp interrupt vector
 	lsl.l	#2,d0					; to zero offset address
 	move.l	d0,4(sp)				; and set as jump target
-.1:	move.l (sp)+,d0					; restore d0
+.1:	move.l	(sp)+,d0				; restore d0
 	rts								; jump interrupt handler
 
 InstallAvec5Dsp:
