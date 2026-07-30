@@ -40,7 +40,8 @@ SRCS = \
 
 ifeq ($(CROSS),yes)
 
-CROSSPREFIX=m68k-atari-mint-
+#CROSSPREFIX=m68k-atari-mint-
+CROSSPREFIX=m68k-atari-mintelf-
 CPU=-m68020-60
 
 NATIVECC = gcc

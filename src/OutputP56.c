@@ -30,6 +30,7 @@ Author:     M.Buras (sqward)
 static void P56_SaveData(FILE *output_file, int chunkIndex, int memtype, int offset, int skip)
 {
 	int j;
+	int codeSize;
 	unsigned char *pCode;
 	unsigned char *pCodeCopy = NULL;
 	unsigned char *pCodeOrig = NULL;
@@ -38,7 +39,8 @@ static void P56_SaveData(FILE *output_file, int chunkIndex, int memtype, int off
 
 	j = (chunks[chunkIndex].code_len / 3) >> (skip ? 1 : 0);
 
-	pCodeOrig = pCodeCopy = malloc(chunks[chunkIndex].code_len + 9);
+	codeSize = (j * 3);
+	pCodeOrig = pCodeCopy = malloc(codeSize + 9);
 	MTEST(pCodeCopy);
 
 	*pCodeCopy++ = (u8) (memtype >> 16) & 0xff;
@@ -62,7 +64,7 @@ static void P56_SaveData(FILE *output_file, int chunkIndex, int memtype, int off
 		pCode += skip;
 	}
 
-	fwrite(pCodeOrig, chunks[chunkIndex].code_len + 9, 1, output_file);
+	fwrite(pCodeOrig, codeSize + 9, 1, output_file);
 
 	free(pCodeOrig);
 }

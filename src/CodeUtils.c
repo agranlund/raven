@@ -130,8 +130,27 @@ void close_vchunk(void)
 }
 
 
+static uint GetNextFreePcForMemspace(uint memSpace)
+{
+	int i = (g_passNum == 0) ? num_chunks - 1 : num_chunks2 - 1;
+	for (; i>=0; i--)
+	{
+		if (chunks[i].mem_type == memSpace)
+		{
+			uint len = chunks[i].code_len;
+			if (chunks[i].mem_type == L_MEM)
+				len = len / 6;
+			else if (chunks[i].mem_type != P_MEM)
+				len = len / 3;
+			return (chunks[i].pc + len);
+		}
+	}
+	return 0;
+}
+
 void GenOrg(uint memSpace, uint address)
 {
+	/* org <memspace>:<address> */
 	if (g_passNum == 0)
 	{
 		pc = address;
@@ -141,8 +160,27 @@ void GenOrg(uint memSpace, uint address)
 		pc = address;
 		allocate_chunk(memSpace);
 	}
-}
 
+	/* org <memspace> */
+	/* continue from last known pc in memspace */
+	if (address == 0xffffffff)
+	{
+		pc = GetNextFreePcForMemspace(memSpace);
+		if ((memSpace == X_MEM) || (memSpace == Y_MEM))
+		{
+			uint pcl = GetNextFreePcForMemspace(L_MEM);
+			pc = (pcl > pc) ? pcl : pc;
+		}
+		else if (memSpace == L_MEM)
+		{
+			uint pcx = GetNextFreePcForMemspace(X_MEM);
+			uint pcy = GetNextFreePcForMemspace(Y_MEM);
+			pc = (pcx > pc) ? pcx : pc;
+			pc = (pcy > pc) ? pcy : pc;
+		}
+		chunks[GetCurrentChunkIndex()].pc = pc;
+	}
+}
 
 void GenDc(Value data)
 {

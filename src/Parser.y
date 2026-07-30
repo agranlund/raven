@@ -170,6 +170,7 @@ _opcode
 		|	OP_ELSE 												{	GenElse();								}
 		|	OP_ENDC 												{	if_stack_l--;							}
 		|	OP_ORG	mem_space exp_int								{	PipeLineReset(); GenOrg($2, $3);		}
+		|	OP_ORG	mem_space										{	PipeLineReset(); GenOrg($2, 0xffffffff);}
 		|	OP_DC	dc_params										{											}
 		|	code													{	CheckCodeInLMem(); PipeLineNewInst();	}
 		;
