@@ -24,12 +24,14 @@
 	jsr	int_essi_rx
 
 	org l:$0
-saveab2		dc "YYYXXX"	; prevent asm56k from removing section with all zeroes
-saveab1		dc 0
-saveab0		dc 0
-savex		dc 0
-savey		dc 0
-savex_rx	dc 0
+saveab2		ds 1
+saveab1		ds 1
+saveab0		ds 1
+savex		ds 1
+savey		ds 1
+savex_rx	ds 1
+
+	org l:
 adc_in		dc 0
 dac_out		dc 0
 sam			dc 0
