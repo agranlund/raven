@@ -3,6 +3,13 @@ THIS IS WORK IN PROGRESS...
 Why and what ?
 ==============
 
+This is a continuation of work by th-otto and sqward.
+Mainly for improving 56300 series support.
+
+Anders Granlund, 2026
+
+(original statemend from th-otto)
+
 This is a rewritten version of a DSP assembler, based on work from
 sqward, which in turn based on work from Quinn C. Jensen.
 
@@ -55,7 +62,7 @@ Building
 You have 2 options, depending on your platform:
 
 1. Unix:
-Go to build folder and type “make”. This should build you a version as long as you have a gcc installed. 
+Go to build folder and type ï¿½makeï¿½. This should build you a version as long as you have a gcc installed. 
 
 To install type
 sudo make install
@@ -74,7 +81,7 @@ need GNU tools for win32 installed (flex, bison and m4).
 Testing
 =======
 
-Go to “build” folder and type “make check”. It will run some tests and if anything fails you should 
+Go to ï¿½buildï¿½ folder and type ï¿½make checkï¿½. It will run some tests and if anything fails you should 
 debug it and send me a path :)
 
 Known bugs
@@ -123,12 +130,21 @@ These assembler directives are supported:
 
 ---------------------------------------------------------------------------------------------------------------
 
-ORG mem_space - creates new section. It takes memory location as an argument. For instance:
+ORG mem_space - creates new section.
+It takes memory location as an optional argument. For instance:
 		
 		org	x:$0
 		org y:10
 		org	l:$1000
 		org p:$40
+
+(v1.04) without memory location will continue from last valid position in the selected memory space.
+
+		org x:
+		org y:
+		org l:
+		org p:
+
 ---------------------------------------------------------------------------------------------------------------
 
 ALIGN val 		- aligns  offset in current section (akka pc) by the value of "val". 
