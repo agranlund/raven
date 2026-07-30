@@ -14,6 +14,7 @@ Author:     M.Buras (sqward)
 extern int		g_dsp_cpu;
 extern int	    g_passNum;
 extern int      g_write_zero_sections;
+extern int		g_write_empty_sections;
 extern void		asm_abort(void);
 
 extern int 		g_currentLine;

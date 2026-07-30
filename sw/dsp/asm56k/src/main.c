@@ -53,9 +53,10 @@ static char *input_name = NULL;
 int g_dsp_cpu = 56001;
 int g_output_symbols;
 int g_write_zero_sections;
+int g_write_empty_sections;
 
 static char const program[] = "asm56k";
-static char const version[] = "1.02";
+static char const version[] = "1.03";
 
 
 void mtest(void *pMem, const char *File, int Line)
@@ -289,6 +290,7 @@ enum opt {
 	OPT_P56 = 'p',
 	OPT_SYMBOLS = 's',
 	OPT_ZEROES = 'z',
+	OPT_EMPTYS = 'u',
 	OPT_DEFINE = 'D',
 	OPT_INCLUDE = 'I',
 	OPT_CPU = 'c'
@@ -302,6 +304,7 @@ static struct option const long_options[] = {
 	{ "embed-c-file", required_argument, NULL, OPT_EMBED_C },
 	{ "symbols", no_argument, NULL, OPT_SYMBOLS },
 	{ "write-zero", no_argument, NULL, OPT_ZEROES },
+	{ "write-empty", no_argument, NULL, OPT_EMPTYS },
 	{ "zero", no_argument, NULL, OPT_ZEROES },
 	{ "define", required_argument, NULL, OPT_DEFINE },
 	{ "include", required_argument, NULL, OPT_INCLUDE },
@@ -322,9 +325,10 @@ static void usage(FILE *fp, int status)
 	fprintf(fp, "  -k, --embed-c-file <file>    Output C file.\n");
 	fprintf(fp, "  -s, --symbols                Output symbols (in LOD).\n");
 	fprintf(fp, "  -z, --write-zero             Output section even if it contains only zeros.\n");
+	fprintf(fp, "  -u, --write-empty            Output section even if it contains no inited code or data.\n");
 	fprintf(fp, "  -D, --define <name[=value]>  Define a symbol.\n");
 	fprintf(fp, "  -I, --include <dir>          Add include path.\n");
-	fprintf(fp, "  -c, --cpu <type>             Sets CPU type.\n");
+	fprintf(fp, "  -c, --cpu <type>             Sets CPU type\n");
 	
 	exit(status);
 }
@@ -334,11 +338,17 @@ int main(int argc, char *argv[])
 {
 	int ret = EXIT_SUCCESS;
 	int c;
-	
+
 	StringBufferInit(0x8000);
 	InitSymbolTable();
 
-	while ((c = getopt_long(argc, argv, "c:e:k:o:p:szD:I:Vh", long_options, NULL)) != -1)
+
+	if (argc < 2) {
+		fprintf(stdout, "%s version %s\n", program, version);
+		usage(stdout, EXIT_SUCCESS);
+	}
+
+	while ((c = getopt_long(argc, argv, "c:e:k:o:p:szuD:I:Vh", long_options, NULL)) != -1)
 	{
 		switch ((enum opt) c)
 		{
@@ -370,6 +380,10 @@ int main(int argc, char *argv[])
 			g_write_zero_sections = 1;
 			break;
 		
+		case OPT_EMPTYS:
+			g_write_empty_sections = 1;
+			break;
+			
 		case OPT_DEFINE:
 			DefineSymbol(optarg);
 			break;

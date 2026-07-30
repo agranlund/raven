@@ -175,21 +175,24 @@ void SaveFileLod(const char *name, const char *iname)
 
 		if (num_zeros != chunks[i].code_len || g_write_zero_sections)
 		{
-			switch (chunks[i].mem_type)
+			if (chunks[i].hasdata || g_write_empty_sections)
 			{
-			case P_MEM:
-				LOD_SaveData(output_file, i, "P", 0, 0);
-				break;
-			case X_MEM:
-				LOD_SaveData(output_file, i, "X", 0, 0);
-				break;
-			case Y_MEM:
-				LOD_SaveData(output_file, i, "Y", 0, 0);
-				break;
-			case L_MEM:
-				LOD_SaveData(output_file, i, "X", 3, 3);
-				LOD_SaveData(output_file, i, "Y", 0, 3);
-				break;
+				switch (chunks[i].mem_type)
+				{
+				case P_MEM:
+					LOD_SaveData(output_file, i, "P", 0, 0);
+					break;
+				case X_MEM:
+					LOD_SaveData(output_file, i, "X", 0, 0);
+					break;
+				case Y_MEM:
+					LOD_SaveData(output_file, i, "Y", 0, 0);
+					break;
+				case L_MEM:
+					LOD_SaveData(output_file, i, "X", 3, 3);
+					LOD_SaveData(output_file, i, "Y", 0, 3);
+					break;
+				}
 			}
 		}
 	}

@@ -26,7 +26,7 @@ typedef struct {
 	int code_len;		/* code length for pass 1 */
 	int code_len2;		/* code length for pass 2, for verification */
 	int mem_type;
-	bool hasdata;		/* Says that this section was all zeros so far. This is used to merge empty section. */
+	bool hasdata;		/* Says that this section does not have any data */
 } chunk;
 
 typedef struct {

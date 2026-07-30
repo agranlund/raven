@@ -122,21 +122,24 @@ void SaveFileEmbededC(const char *name)
 
 		if (num_zeros != chunks[i].code_len || g_write_zero_sections)
 		{
-			switch (chunks[i].mem_type)
+			if (chunks[i].hasdata || g_write_empty_sections)
 			{
-			case P_MEM:
-				SaveDataEmbededC(output_file, i, chunks[i].mem_type, 0, 0);
-				break;
-			case X_MEM:
-				SaveDataEmbededC(output_file, i, chunks[i].mem_type, 0, 0);
-				break;
-			case Y_MEM:
-				SaveDataEmbededC(output_file, i, chunks[i].mem_type, 0, 0);
-				break;
-			case L_MEM:
-				SaveDataEmbededC(output_file, i, X_MEM, 3, 3);
-				SaveDataEmbededC(output_file, i, Y_MEM, 0, 3);
-				break;
+				switch (chunks[i].mem_type)
+				{
+				case P_MEM:
+					SaveDataEmbededC(output_file, i, chunks[i].mem_type, 0, 0);
+					break;
+				case X_MEM:
+					SaveDataEmbededC(output_file, i, chunks[i].mem_type, 0, 0);
+					break;
+				case Y_MEM:
+					SaveDataEmbededC(output_file, i, chunks[i].mem_type, 0, 0);
+					break;
+				case L_MEM:
+					SaveDataEmbededC(output_file, i, X_MEM, 3, 3);
+					SaveDataEmbededC(output_file, i, Y_MEM, 0, 3);
+					break;
+				}
 			}
 		}
 	}
