@@ -99,7 +99,7 @@ $(EMUTOS_IMG_ST): $(DEPS)
 	$(MAKE) -C $(EMUTOS_DIR) 192 UNIQUE=uk DEF="-DINITINFO_DURATION=0 -DSHOW_STARTUP_MESSAGE=0"
 
 .PHONY: $(ROMDISK_IMG)
-$(ROMDISK_IMG): $(wildcard $(ROMDISK_DIR)/files/*) $(ROMDISK_DIR)/romdisk.sh $(DEPS)
+$(ROMDISK_IMG): $(wildcard $(ROMDISK_DIR)/files/*) $(PRG_EMUCON) $(ROMDISK_DIR)/romdisk.sh $(DEPS)
 	rm -f $@
 	make -C ../tools/mon
 	cp ../tools/mon/mon.tos $(ROMDISK_DIR)/files/
@@ -110,6 +110,7 @@ $(ROMDISK_IMG): $(wildcard $(ROMDISK_DIR)/files/*) $(ROMDISK_DIR)/romdisk.sh $(D
 	make -C ../tools/uiptools
 	cp ../tools/uiptools/uip.tos $(ROMDISK_DIR)/files/
 	cp ../tools/uiptools/uip.txt $(ROMDISK_DIR)/files/docs/uip.txt
+	cp emucon2.tos $(ROMDISK_DIR)/files/
 	$(ROMDISK_DIR)/romdisk.sh --diskfile $@ $(ROMDISK_DIR)/files/*
 
 .PHONY: $(TOSCART_IMG)

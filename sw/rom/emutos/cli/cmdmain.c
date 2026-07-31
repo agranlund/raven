@@ -90,8 +90,10 @@ WORD argc, rc;
 
     clear_screen();
     enable_cursor();
+#if 0
     message(_("Welcome to EmuCON2 version ")); messagenl(version);
     messagenl(_("Type HELP for builtin commands"));
+#endif
     messagenl("");
 
     linewrap = 0;

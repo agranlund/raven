@@ -34,6 +34,7 @@
 
 void funcStartMonitor_screen(void);
 void funcStartMonitor_serial(void);
+void funcStartTerminal(void);
 void funcStartSafeMode(void);
 
 void displayFormDebug(void);
@@ -46,13 +47,15 @@ void refreshFormDebug(void);
 
 
 typedef enum {
-	FORM_MONITOR_SCREEN=0,
+	FORM_TERMINAL = 0,
+	FORM_MONITOR_SCREEN,
 	FORM_MONITOR_SERIAL,
 /*    FORM_SAFEMODE,*/
 	FORM_MAX,
 };
 
 typedef enum {
+	FORM_SETTING_TERMINAL = 0,
 	FORM_SETTING_MONITOR_SCREEN,
 	FORM_SETTING_MONITOR_SERIAL,
 /*	FORM_SETTING_SAFEMODE,*/
@@ -65,16 +68,18 @@ typedef enum {
 #define FORM_TEXTPOS	21
 
 form_t form_debug[]={
-	{FORM_TEXT, "Launch Monitor (screen)", FORM_X0, FORM_Y0+0},
-	{FORM_TEXT, "Launch Monitor (serial)", FORM_X0, FORM_Y0+2},
-/*	{FORM_TEXT, "Boot Safemode",    FORM_X0, FORM_Y0+2},*/
+	{FORM_TEXT, "Terminal", 		FORM_X0, FORM_Y0+0},
+	{FORM_TEXT, "Monitor", 			FORM_X0, FORM_Y0+2},
+	{FORM_TEXT, "Monitor (serial)", FORM_X0, FORM_Y0+4},
+/*	{FORM_TEXT, "Boot Safemode",    FORM_X0, FORM_Y0+6},*/
 	{FORM_END, 0,0,0}
 };
 
 form_setting_t form_setting_debug[]={
-	{FORM_X0, FORM_Y0+0, NULL, SETTING_FUNC, 1, funcStartMonitor_screen},
-	{FORM_X0, FORM_Y0+2, NULL, SETTING_FUNC, 1, funcStartMonitor_serial},
-/*    {FORM_X0, FORM_Y0+2, NULL, SETTING_FUNC, 1, funcStartSafeMode},*/
+	{FORM_X0, FORM_Y0+0, NULL, SETTING_FUNC, 1, funcStartTerminal},
+	{FORM_X0, FORM_Y0+2, NULL, SETTING_FUNC, 1, funcStartMonitor_screen},
+	{FORM_X0, FORM_Y0+4, NULL, SETTING_FUNC, 1, funcStartMonitor_serial},
+/*    {FORM_X0, FORM_Y0+6, NULL, SETTING_FUNC, 1, funcStartSafeMode},*/
 	{0, 0, NULL, SETTING_END}
 };
 
@@ -111,6 +116,7 @@ void updateFormDebug(void)
 void initFormDebug(void)
 {
 	loadSettings();		
+    form_setting_debug[FORM_SETTING_TERMINAL].text = &form_debug[FORM_TERMINAL].text[0];
     form_setting_debug[FORM_SETTING_MONITOR_SCREEN].text = &form_debug[FORM_MONITOR_SCREEN].text[0];
     form_setting_debug[FORM_SETTING_MONITOR_SERIAL].text = &form_debug[FORM_MONITOR_SERIAL].text[0];
 /*	form_setting_debug[FORM_SETTING_SAFEMODE].text = &form_debug[FORM_SAFEMODE].text[0];*/
@@ -145,6 +151,29 @@ static int32_t cdecl mon_getc(void) {
 
 extern void display_restore(void);
 extern void font_setsize(uint16_t idx);
+
+
+void funcStartTerminal(void) {
+	int dnum;
+	char fname[32] = "c:\\emucon2.tos";
+	uint32_t dmap = Drvmap();
+	for (dnum = 25; dnum >= 0; dnum--) {
+		if (dmap & (1L << dnum)) {
+			fname[0] = 'a' + dnum;
+			break;
+		}
+	}
+	if (dnum >= 2) {
+		font_setsize(1);
+		vt_setFgColor(COL_BLACK);
+		vt_setBgColor(COL_WHITE);
+		Cconws(CLEAR_HOME "\r\n");
+		Cconws(C_ON);
+		Pexec(0, fname, "", "");
+		display_restore();
+		displayFormDebug();
+	}
+}
 
 void funcStartMonitor(int16_t screen) {
     Cconws(CLEAR_HOME "\r\n");
