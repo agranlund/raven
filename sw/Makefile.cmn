@@ -152,7 +152,7 @@ gcc: $(current_makefile) $(LINKOBJS)
 # DSP rules
 # -----------------------------------------------------------------------------------
 
-DSPFLAGS = -z -c 56301 -I $(DSPDIR)
+DSPFLAGS = -c 56301 -I $(DSPDIR)
 DSPDEPS = $(A56) $(DSPDIR)/dsp56303.inc
 DSPSRC = asm
 
