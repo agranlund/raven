@@ -169,8 +169,10 @@ _opcode
 		|	OP_IF	exp error exp									{	GenIfError();							}
 		|	OP_ELSE 												{	GenElse();								}
 		|	OP_ENDC 												{	if_stack_l--;							}
-		|	OP_ORG	mem_space exp_int								{	PipeLineReset(); GenOrg($2, $3);		}
-		|	OP_ORG	mem_space										{	PipeLineReset(); GenOrg($2, 0xffffffff);}
+		|	OP_ORG	mem_space exp_int								{	PipeLineReset(); GenOrg(0, $2, $3);		}
+		|	OP_ORG	mem_space										{	PipeLineReset(); GenOrg(0, $2, 0xffffffff);	}
+		|	OP_ORG	SYM ',' mem_space exp_int						{	PipeLineReset(); GenOrg($2.ptr, $4, $5); }
+		|	OP_ORG	SYM ',' mem_space								{	PipeLineReset(); GenOrg($2.ptr, $4, 0xffffffff); }
 		|	OP_DC	dc_params										{											}
 		|	code													{	CheckCodeInLMem(); PipeLineNewInst();	}
 		;

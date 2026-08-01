@@ -13,6 +13,9 @@ Author:     M.Buras (sqward)
 #include <export.h>
 #include "CodeUtils.h"
 
+#define MAX_SECNAMES 256
+char* secnames[MAX_SECNAMES];
+int num_secnames;
 
 chunk chunks[1024];
 int num_chunks;							/* pass 1 */
@@ -24,7 +27,7 @@ int in_section;
 static unsigned char *c_ptr;
 
 
-void allocate_chunk(int type)
+void allocate_chunk(uint sec, int type)
 {
 	unsigned char *pNewChunkMem;
 
@@ -48,6 +51,7 @@ void allocate_chunk(int type)
 	c_ptr = chunks[num_chunks2].code_ptr = pNewChunkMem;
 	chunks[num_chunks2].mem_type = type;
 	chunks[num_chunks2].pc = pc;
+	chunks[num_chunks2].sec = sec;
 	chunks[num_chunks2].hasdata = FALSE;
 	in_section = TRUE;
 }
@@ -101,7 +105,7 @@ void close_chunk(void)
 }
 
 
-void allocate_vchunk(int type)
+void allocate_vchunk(uint sec, int type)
 {
 	mem_space = type;
 
@@ -114,8 +118,8 @@ void allocate_vchunk(int type)
 
 	chunks[num_chunks].mem_type = type;
 	chunks[num_chunks].pc = pc;
+	chunks[num_chunks].sec = sec;
 	chunks[num_chunks].hasdata = FALSE;
-
 	in_section = TRUE;
 }
 
@@ -130,54 +134,87 @@ void close_vchunk(void)
 }
 
 
-static uint GetNextFreePcForMemspace(uint memSpace)
+static bool GetNextFreePcForMemspace(uint secIndex, uint memSpace, uint* pc)
 {
-	int i = (g_passNum == 0) ? num_chunks - 1 : num_chunks2 - 1;
-	for (; i>=0; i--)
+	int ichunk = (g_passNum == 0) ? num_chunks - 1 : num_chunks2 - 1;
+	for (; ichunk>=0; ichunk--)
 	{
-		if (chunks[i].mem_type == memSpace)
+		chunk* chunk = &chunks[ichunk];
+		if ((chunk->mem_type == memSpace) && (chunk->sec == secIndex))
 		{
-			uint len = chunks[i].code_len;
-			if (chunks[i].mem_type == L_MEM)
-				len = len / 6;
-			else if (chunks[i].mem_type != P_MEM)
-				len = len / 3;
-			return (chunks[i].pc + len);
+			uint len = chunk->code_len / 3;
+			if (chunk->mem_type == L_MEM)
+				len >>= 1;
+
+			*pc = (chunk->pc + len);
+			return TRUE;
 		}
 	}
-	return 0;
+	*pc = 0;
+	return FALSE;
 }
 
-void GenOrg(uint memSpace, uint address)
+static uint GenSection(const char* name)
 {
+	int i;
+	for (i = 1; i <= num_secnames; i++)
+		if (strcmp(secnames[i], name) == 0)
+			return i;
+
+	if (num_secnames >= (MAX_SECNAMES - 1))
+	{
+		yyerror("Too many named sections.");
+		return 0;
+	}
+	num_secnames++;
+	secnames[num_secnames] = strdup(name);
+	MTEST(secnames[num_secnames]);
+	return num_secnames;
+}
+
+void GenOrg(const char* name, uint memSpace, uint address)
+{
+	uint secIndex = name ? GenSection(name) : 0;
+
 	/* org <memspace>:<address> */
 	if (g_passNum == 0)
 	{
 		pc = address;
-		allocate_vchunk(memSpace);
+		allocate_vchunk(secIndex, memSpace);
 	} else
 	{
 		pc = address;
-		allocate_chunk(memSpace);
+		allocate_chunk(secIndex, memSpace);
 	}
 
 	/* org <memspace> */
 	/* continue from last known pc in memspace */
 	if (address == 0xffffffff)
 	{
-		pc = GetNextFreePcForMemspace(memSpace);
+		bool found = FALSE;
+		found |= GetNextFreePcForMemspace(secIndex, memSpace, &pc);
 		if ((memSpace == X_MEM) || (memSpace == Y_MEM))
 		{
-			uint pcl = GetNextFreePcForMemspace(L_MEM);
+			uint pcl = 0;
+			found |= GetNextFreePcForMemspace(secIndex, L_MEM, &pcl);
 			pc = (pcl > pc) ? pcl : pc;
 		}
 		else if (memSpace == L_MEM)
 		{
-			uint pcx = GetNextFreePcForMemspace(X_MEM);
-			uint pcy = GetNextFreePcForMemspace(Y_MEM);
+			uint pcx = 0;
+			uint pcy = 0;
+			found |= GetNextFreePcForMemspace(secIndex, X_MEM, &pcx);
+			found |= GetNextFreePcForMemspace(secIndex, Y_MEM, &pcy);
 			pc = (pcx > pc) ? pcx : pc;
 			pc = (pcy > pc) ? pcy : pc;
 		}
+
+		if (name && (found == 0))
+		{
+			yyerror("First use of named section must specify address.");
+			return;
+		}
+
 		chunks[GetCurrentChunkIndex()].pc = pc;
 	}
 }

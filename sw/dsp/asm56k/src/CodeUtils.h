@@ -22,6 +22,7 @@ Author:     M.Buras (sqward)
 
 typedef struct {
 	uint pc;
+	uint sec;			/* section index */
 	uchar *code_ptr;
 	int code_len;		/* code length for pass 1 */
 	int code_len2;		/* code length for pass 2, for verification */
@@ -52,9 +53,9 @@ extern int in_section;
 
 
 void	CreateOutputName(char* input_name, char** output_name);
-void	allocate_chunk(int type);
+void	allocate_chunk(uint sec, int type);
 void	close_chunk(void);
-void	allocate_vchunk(int type);
+void	allocate_vchunk(uint sec, int type);
 void	close_vchunk(void);
 void	verify_code(void);
 int		GetCurrentMemType(void);
@@ -68,7 +69,7 @@ void	GenDc(Value data);
 void	GenDS(Value val1);
 int		GenAlign(Value val1);
 void	GenDSM(hs* pLabel, Value val1);
-void	GenOrg(uint memSpace, uint address);
+void	GenOrg(const char* name, uint memSpace, uint address);
 void	CheckCodeInLMem(void);
 int		GetCurrentChunkBegin(void);
 void	retInit(raddr *ret);
