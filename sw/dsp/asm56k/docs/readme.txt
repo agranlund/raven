@@ -4,7 +4,7 @@ Why and what ?
 ==============
 
 This is a continuation of work by th-otto and sqward.
-Mainly for improving 56300 series support.
+Mainly for improving 56300 series support but also some quality of life stuff.
 
 Anders Granlund, 2026
 
@@ -62,7 +62,7 @@ Building
 You have 2 options, depending on your platform:
 
 1. Unix:
-Go to build folder and type �make�. This should build you a version as long as you have a gcc installed. 
+Go to build folder and type 'make'. This should build you a version as long as you have a gcc installed. 
 
 To install type
 sudo make install
@@ -81,7 +81,7 @@ need GNU tools for win32 installed (flex, bison and m4).
 Testing
 =======
 
-Go to �build� folder and type �make check�. It will run some tests and if anything fails you should 
+Go to 'build' folder and type 'make check'. It will run some tests and if anything fails you should 
 debug it and send me a path :)
 
 Known bugs
@@ -101,12 +101,17 @@ This commandline options are supported:
 
  input-file           <STRING>        File to process
 
- -s                   <BOOL>          Output symbols.
- -o --output-file     <BOOL>          Output in LOD format. (default)
- -p --p56-file        <BOOL>          Output in P56 format.
- -e --embed-file      <BOOL>          Output as P56 in 68k source file.
- -D                   <STRING>        Define a symbol: 		[ -Dsymbolname[=val] ]
- -I                   <STRING>        Add include path: 	[ -Ipath ]
+ -o --output-file     <STRING>        LOD output file.
+ -p --p56-file        <STRING>        P56 output file.
+ -e --embed-asm-file  <STRING>        Output devpac/vasm file.
+ -k --embed-c-file    <STRING>        Output C file.
+ -s --symbols                         Output symbols (in LOD).
+ -z --write-zero                      Output empty/uninitialized sections.
+ -c --cpu             <STRING>        DSP type (56001 / 56301)
+ -D --define          <STRING>        Define a symbol: 		[ -Dsymbolname[=val] ]
+ -I --include         <STRING>        Add include path: 	[ -Ipath ]
+ -V --version                         Show version
+
 
 example:
 
@@ -119,9 +124,6 @@ Supported DSPs
 This assembler was written with 56301 in mind, but whe Deesse project died there was no need for 56301 support
 anymore. Nevertheles, 56301 instructions are still supported. Current focus is to provide a good quality cross
 assembler for Falcon development.
-
-There will be a command line switch to set a cpu type. At the moment 56301 instructions are enabled by default.
-If there's no interest in 56301 I may consider removing corresponding code.
  
 Syntax And Stuff
 ================
@@ -130,20 +132,30 @@ These assembler directives are supported:
 
 ---------------------------------------------------------------------------------------------------------------
 
-ORG mem_space - creates new section.
-It takes memory location as an optional argument. For instance:
-		
+ORG (name),mem_space:(address) - creates new section.
+It takes memory location as argument. For instance:
 		org	x:$0
 		org y:10
 		org	l:$1000
 		org p:$40
 
-(v1.04) without memory location will continue from last valid position in the selected memory space.
-
+(new in v1.03)
+without memory location continues from last valid position in specified memory space.
 		org x:
 		org y:
 		org l:
 		org p:
+
+optional section name confines address generation inside that named section
+		org x:$0
+		dc 0				; at 0
+		org exram,x:$1000
+		dc 0				; at $1000
+		org x:				; continues from last valid pos i (global),x:
+		dc 0				; at $1
+		org exram,x:		; continues from last valid pos in exram,x:
+		dc 0				; at $1001
+
 
 ---------------------------------------------------------------------------------------------------------------
 

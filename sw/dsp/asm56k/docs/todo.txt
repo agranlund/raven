@@ -26,6 +26,9 @@ V 1.5 TODO:
 --------------------------------------------------------------------------------------------------
 
 DONE:
+- named org sections
+- org section without requiring absolute address
+- option to skip uninited sections (ds/dsm only)
 - export p56 as devpac/vasm source files (?)
 - fixed #> integer mode
 - added new test
