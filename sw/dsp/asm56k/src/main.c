@@ -290,7 +290,6 @@ enum opt {
 	OPT_P56 = 'p',
 	OPT_SYMBOLS = 's',
 	OPT_ZEROES = 'z',
-	OPT_EMPTYS = 'u',
 	OPT_DEFINE = 'D',
 	OPT_INCLUDE = 'I',
 	OPT_CPU = 'c'
@@ -304,7 +303,6 @@ static struct option const long_options[] = {
 	{ "embed-c-file", required_argument, NULL, OPT_EMBED_C },
 	{ "symbols", no_argument, NULL, OPT_SYMBOLS },
 	{ "write-zero", no_argument, NULL, OPT_ZEROES },
-	{ "write-empty", no_argument, NULL, OPT_EMPTYS },
 	{ "zero", no_argument, NULL, OPT_ZEROES },
 	{ "define", required_argument, NULL, OPT_DEFINE },
 	{ "include", required_argument, NULL, OPT_INCLUDE },
@@ -324,8 +322,7 @@ static void usage(FILE *fp, int status)
 	fprintf(fp, "  -e, --embed-asm-file <file>  Output devpac/vasm file.\n");
 	fprintf(fp, "  -k, --embed-c-file <file>    Output C file.\n");
 	fprintf(fp, "  -s, --symbols                Output symbols (in LOD).\n");
-	fprintf(fp, "  -z, --write-zero             Output section even if it contains only zeros.\n");
-	fprintf(fp, "  -u, --write-empty            Output section even if it contains no inited code or data.\n");
+	fprintf(fp, "  -z, --write-zero             Output uninitialized sections.\n");
 	fprintf(fp, "  -D, --define <name[=value]>  Define a symbol.\n");
 	fprintf(fp, "  -I, --include <dir>          Add include path.\n");
 	fprintf(fp, "  -c, --cpu <type>             Sets CPU type\n");
@@ -348,7 +345,8 @@ int main(int argc, char *argv[])
 		usage(stdout, EXIT_SUCCESS);
 	}
 
-	while ((c = getopt_long(argc, argv, "c:e:k:o:p:szuD:I:Vh", long_options, NULL)) != -1)
+	g_write_zero_sections = 1;
+	while ((c = getopt_long(argc, argv, "c:e:k:o:p:szD:I:Vh", long_options, NULL)) != -1)
 	{
 		switch ((enum opt) c)
 		{
@@ -377,10 +375,6 @@ int main(int argc, char *argv[])
 			break;
 		
 		case OPT_ZEROES:
-			g_write_zero_sections = 1;
-			break;
-		
-		case OPT_EMPTYS:
 			g_write_empty_sections = 1;
 			break;
 			
