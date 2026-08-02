@@ -123,8 +123,7 @@ avec5_new:
 	bne.b	.1
 	moveq.l	#0,d0
 	move.b	DSP_IVR,d0				; dsp interrupt vector
-	lsl.l	#2,d0					; to zero offset address
-	move.l	d0,4(sp)				; and set as jump target
+	move.l	(d0.w*4),4(sp)			; fetch address from vectors at #0
 .1:	move.l	(sp)+,d0				; restore d0
 	rts								; jump interrupt handler
 
