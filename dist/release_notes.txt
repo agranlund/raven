@@ -1,32 +1,7 @@
 Raven 68060
 Hardware and software binary release
 
-260902:
+xxxxxx:
 
   rom:
-    - rvbios is now in rom.
-      (old c:\auto\rvbios.prg is automatically deleted)
-    - improved flash detection and init
-    - ability to flash ROM from bios setup screen
-    - ability to flash CKBD firmware from bios setup screen
-    - monitor can be launched from bios setup screen
-	- TOS terminal can be launched from bios setup screen
-    - wip pram support in flash
-    - bios confs now in pram instead of rtc-nvram
-	- fix emutos hang on boot if ikbd fifo contain stale data
-	- autodetect board revision A1 or A2
-	- (A2) YM volume control support
-	- (A2) Internal speaker support
-	- (A2) DSP support (wip)
-
-  firmware / hardware
-    - Rom programmer: support rom images with 16kb pram area (was 4kb)
-	- Added Rev.A2 firmwares
-	- Added Rev.A2 gerbers and bom
-
-  software:
-    - pgusinit: v3.9.0c for firmware v4.1.1 and above
-    - rvsnd: fixed midi xbios crash
-    - uiptool: fixed random ftp server bug
-    - (A2) dsp: compilers and some tools
-	
+	- rvbios bootlogo grayscale insted of 1bpp mono
