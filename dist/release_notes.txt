@@ -5,3 +5,6 @@ xxxxxx:
 
   rom:
 	- rvbios bootlogo grayscale insted of 1bpp mono
+
+  software:
+	- castaway: performance increase
