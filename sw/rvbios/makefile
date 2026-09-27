@@ -1,7 +1,7 @@
 
 NAME = rvbios
 
-LOGO_BMP = rvlogo_1bpp.bmp
+LOGO_BMP = rvlogo_2bpp.bmp
 
 BIN = $(NAME).prg
 PRJ = $(NAME).prj

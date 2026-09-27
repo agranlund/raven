@@ -29,7 +29,7 @@
 #include <mint/sysvars.h>
 #include "raven.h"
 #include "rvbios.h"
-
+#include "vga.h"
 #include "setup/setup.h"
 #include "setup/form_vt.h"
 
@@ -138,6 +138,17 @@ void InstallCookies(void)
 ----------------------------------------*/
 #include "logo.c"
 
+void bootscreen_off(void)
+{
+	uint32_t i;
+	uint32_t* vram = (uint32_t*)Physbase();
+    vga_WriteReg(0x3c4, 0x02, 0x0e);
+    for (i = 0; i < ((64UL * 1024) / 4); i++) {
+        *vram++ = 0;
+    }
+	vga_WriteReg(0x3c4, 0x02, 0x02);
+}
+
 void bootscreen(void)
 {
 	int p,i,j,k;
@@ -168,6 +179,7 @@ void bootscreen(void)
     for (p=0; p<logo_p; p++) {
         uint8_t* vram = (uint8_t*)Physbase();
         vram += (logo_x + (logo_y * vram_w));
+		vga_WriteReg(0x3c4, 0x02, (1 << (p+1)));
         for (i=0; i<logo_h-1; i++) {
             for (j=0; j<logo_w; ) {
                 uint8_t ctrl = *logo++;
@@ -186,7 +198,9 @@ void bootscreen(void)
             }
             vram += (vram_w - logo_w);
         }
+		logo = (uint8_t*)(&logo_bin[64]) + logoHdr[8+p];
     }
+	vga_WriteReg(0x3c4, 0x02, 0x02);
 }
 
 extern LINEA *Linea;
@@ -293,7 +307,9 @@ int setup(void)
 			}
 			cur_tick = ticks_get();
 		}
-		
+	
+		bootscreen_off();
+
     	Cconws(DEL_BOL "\r");
    		if (start_setup) {
             Cconws(CLEAR_HOME "\r\n");
@@ -356,7 +372,9 @@ long supermain()
         Cconws(CLEAR_HOME "\r\n");
         font_set(&fnt_data_old);
         vt_setCursorPos(0, 0);
-    }
+    } else {
+		bootscreen_off();
+	}
 
 	return 1;
 }

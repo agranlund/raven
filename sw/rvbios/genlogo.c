@@ -149,13 +149,16 @@ bool fsave(char* fname, void* buf, int bufsize) {
 }
 
 
+static uint8_t colmap[256];
+
 /* ----------------------------------------------------------------- */
 uint8_t readplanebyte(uint8_t* src, int plane) {
     uint8_t data = 0;
     for (int x=0; x<8; x++) {
         uint8_t col = *src++;
-        data <<= 1;
-        data |= (((col & (1<<plane)) >> plane) & 1);
+		col = colmap[col];
+		data <<= 1;
+        data |= ((col >> plane) & 1);
     }
     return data;
 }
@@ -168,7 +171,13 @@ bool img_generate(char* in, char* out, int planes) {
     }
     int numcolors = (1 << planes);
     uint32_t psize[4] = {0,0,0,0};
-    
+
+	for (int i=0; i<numcolors; i++) {
+		colmap[i] = i+1;
+	}
+	colmap[0] = 0;
+	colmap[numcolors-1] = 1;
+	
     memset(tempbuf, 0, 64);
     tempbuf[0] = 'P';
     tempbuf[1] = 'I';
@@ -250,5 +259,5 @@ bool img_generate(char* in, char* out, int planes) {
 }
 
 int main(int args, char* argv[]) {
-    return (img_generate("logo.bmp", "logo.bin", 1) ? 0 : -1);
+    return (img_generate("logo.bmp", "logo.bin", 2) ? 0 : -1);
 }
