@@ -25,10 +25,6 @@ All hardware and software sources are provided as-is and for free but comes with
 The computer works for me and runs EmuTOS, FreeMiNT and MagiC but if you decide to build or buy this board I very much recommend coming in with a DIY mindset.
 Knowledge and tools to perform hardware-level debugging and/or very low level software debugging is highly recommended.
 
-Revision.A2 is the latest version and the first board is currently being tested.
-
-Revision.A1 has seen 10+ builds so can be the safer choice in terms of finding support. It is also slightly easier to build due to not having the DSP components.
-
 
 ## Specifications Rev.A2
 - Motorola 68060 CPU @ 96Mhz
