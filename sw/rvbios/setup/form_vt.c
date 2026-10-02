@@ -98,6 +98,10 @@ const char *vt_readString(void)
 
 	Cconrs((_CCONLINE*)vt_input);
 
+	if (vt_input[1] > length) {
+		vt_input[1] = length;
+	}
+
 	/* Put NULL to terminate string */
 	vt_input[2+vt_input[1]]=0;
 
