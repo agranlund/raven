@@ -8,6 +8,7 @@
 #include "hw/midi.h"
 #include "hw/i2c.h"
 #include "hw/rtc.h"
+#include "hw/mac.h"
 #include "hw/flash.h"
 #include "hw/pram.h"
 #include "monitor.h"
@@ -186,6 +187,16 @@ bool sys_Init()
 
         initprint("InitRtc");
         rtc_Init();
+
+        initprint("InitMac");
+        mac_Init();
+
+		uint8_t macaddr[6];
+		if (mac_Addr(&macaddr)) {
+			printf("%02x:%02x:%02x:%02x:%02x:%02x\n",
+				macaddr[0], macaddr[1], macaddr[2],
+				macaddr[3], macaddr[4], macaddr[5]);
+			}
 
         initprint("InitCfg");
         cfg_Init();
