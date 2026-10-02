@@ -26,6 +26,12 @@
 #include <mint/osbind.h>
 #include <mint/sysvars.h>
 
+void delay(unsigned short ms) {
+    unsigned long ta = *((volatile unsigned long*)0x4ba);
+    unsigned long tb = ta + ((ms / 5) + 1);
+    while ( *((volatile unsigned long*)0x4ba) < tb);
+}
+
 void format_number(char *str, long value, int num_chars, char null_digit)
 {
 	long i, divisor;

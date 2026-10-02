@@ -23,23 +23,14 @@
 #ifndef MISC_H
 #define MISC_H 1
 
-/* Format a number in a string */
+void delay(unsigned short ms);
+
 void format_number(char *str, long value, int num_chars, char null_digit);
-
-/* Format a number in a hexa string */
 void format_number_hex(char *str, long value, int num_chars, int prefix);
-
-/* String length */
 int strLength(const char *str);
-
-/* String copy */
 void strCopy(const char *src, char *dst);
 void strCopyUpper(const char *src, char *dst);
-
-/* String compare */
 int strCompare(const char* src, const char *dst);
-
-/* String to int */
 int strToInt(const char *src);
 
 #endif /* MISC_H */

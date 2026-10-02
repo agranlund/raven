@@ -40,6 +40,7 @@ typedef enum
 	FORM_CHIPSET=0,
 	FORM_CPU,
 	FORM_FPU,
+	FORM_DSP,
 	FORM_RAM,
 
 	FORM_STRAM_SIZE,
@@ -90,29 +91,30 @@ static form_t form_cpu[]={
 	{FORM_TEXT, "CHIPSET ............ RAVEN __",		FORM_X0, FORM_Y0+0},
 	{FORM_TEXT, "CPU ................ -----       ", 	FORM_X0, FORM_Y0+2},
 	{FORM_TEXT, "FPU ................ -----       ", 	FORM_X0, FORM_Y0+3},
-	{FORM_TEXT, "RAM ................ -- MB",			FORM_X0, FORM_Y0+4},
+	{FORM_TEXT, "DSP ................ -----       ", 	FORM_X0, FORM_Y0+4},
+	{FORM_TEXT, "RAM ................ -- MB",			FORM_X0, FORM_Y0+5},
 
-    {FORM_TEXT, "ST-RAM Size ........ -- MB", 			FORM_X0, FORM_Y0+6},
-	{FORM_TEXT, "TT-RAM Size ........ -- MB", 			FORM_X0, FORM_Y0+7},
+    {FORM_TEXT, "ST-RAM Size ........ -- MB", 			FORM_X0, FORM_Y0+7},
+	{FORM_TEXT, "TT-RAM Size ........ -- MB", 			FORM_X0, FORM_Y0+8},
 
-	{FORM_TEXT, "ST-RAM Cache ....... ------------", 	FORM_X0, FORM_Y0+9},
-	{FORM_TEXT, "TT-RAM Cache ....... ------------", 	FORM_X0, FORM_Y0+10},
+	{FORM_TEXT, "ST-RAM Cache ....... ------------", 	FORM_X0, FORM_Y0+10},
+	{FORM_TEXT, "TT-RAM Cache ....... ------------", 	FORM_X0, FORM_Y0+11},
 
-    {FORM_TEXT, "ROM xxxxxx ......... UPDATE",          FORM_X0, FORM_Y0+13},
+    {FORM_TEXT, "ROM xxxxxx ......... UPDATE",          FORM_X0, FORM_Y0+14},
 
-    {FORM_TEXT, "KBD Eiffel ......... UPDATE",		    FORM_X0, FORM_Y0+15},
+    {FORM_TEXT, "KBD Eiffel ......... UPDATE",		    FORM_X0, FORM_Y0+16},
 
 	{FORM_END, 0,0,0}
 };
 
 form_setting_t form_setting_cpu[]={
-	{FORM_X0+FORM_TEXTPOS, FORM_Y0+ 6, NULL, SETTING_UPDOWN,  2, updownSTRAM},
-	{FORM_X0+FORM_TEXTPOS, FORM_Y0+ 9, NULL, SETTING_UPDOWN, 12, updownSTRAMC},
-	{FORM_X0+FORM_TEXTPOS, FORM_Y0+10, NULL, SETTING_UPDOWN, 12, updownTTRAMC},
+	{FORM_X0+FORM_TEXTPOS, FORM_Y0+ 7, NULL, SETTING_UPDOWN,  2, updownSTRAM},
+	{FORM_X0+FORM_TEXTPOS, FORM_Y0+10, NULL, SETTING_UPDOWN, 12, updownSTRAMC},
+	{FORM_X0+FORM_TEXTPOS, FORM_Y0+11, NULL, SETTING_UPDOWN, 12, updownTTRAMC},
 
-	{FORM_X0+FORM_TEXTPOS, FORM_Y0+13, NULL, SETTING_FUNC, 1, funcUpdateRom},
+	{FORM_X0+FORM_TEXTPOS, FORM_Y0+14, NULL, SETTING_FUNC, 1, funcUpdateRom},
 
-    {FORM_X0+FORM_TEXTPOS, FORM_Y0+15, NULL, SETTING_FUNC, 1, funcUpdateKbd},
+    {FORM_X0+FORM_TEXTPOS, FORM_Y0+16, NULL, SETTING_FUNC, 1, funcUpdateKbd},
 	{0, 0, NULL, SETTING_END}
 };
 
@@ -141,16 +143,6 @@ static unsigned char stram_cm = CM_WT;
 static unsigned char ttram_cm = CM_WT;
 static unsigned char nv_flags = 0;
 
-
-/*--- Functions ---*/
-
-/*
-static void readCT60Freq(void);
-static void readCT60Temp(void);
-*/
-
-/*--- Functions prototypes ---*/
-
 void detectCPU(unsigned long* cpu, unsigned long* rev, unsigned long* fpu)
 {
 	unsigned long cookie_fpu;
@@ -178,6 +170,23 @@ void detectCPU(unsigned long* cpu, unsigned long* rev, unsigned long* fpu)
 
 	*cpu = cookie_cpu + 68000L;
 	*rev = (pcr >> 8) & 0xffL;
+}
+
+void detectDSP(unsigned char rev, unsigned long* dsp)
+{
+	static long dsp_detected = -1;
+	if (dsp_detected < 0) {
+		dsp_detected = 0;
+		if (rev >= 0xA2) {
+			*((volatile uint8_t*)(RV_PADDR_UART1+0x10)) |= 0x02;
+			delay(100);
+			if (*((volatile uint8_t*)(RV_PADDR_DSP+0x04)) != 0xff) {
+				dsp_detected = 56303L;
+			}
+			*((volatile uint8_t*)(RV_PADDR_UART1+0x10)) &= 0xfd;
+		}
+	}
+	*dsp = (unsigned long)dsp_detected;
 }
 
 void detectRAM(void)
@@ -254,12 +263,17 @@ void initFormCpu(void)
 	/* todo: load settings */
 
 	unsigned long fpu_type, cpu_type, cpu_rev;
+	unsigned long dsp_type;
 	unsigned long rom;
     unsigned long kbd;
 	unsigned short rev;
 
 	loadSettings();		
 	detectRAM();
+
+	/* chipset */
+	rev = raven()->chipset ? (raven()->chipset() & 0xFF) : 0xA1;
+	format_number_hex(&form_cpu[FORM_CHIPSET].text[FORM_TEXTPOS+6], rev, 2, 0);
 
 	/* cpu, fpu */
 	detectCPU(&cpu_type, &cpu_rev, &fpu_type);
@@ -270,37 +284,37 @@ void initFormCpu(void)
 	}
 	strCopy(fpu_string[fpu_type], &form_cpu[FORM_FPU].text[FORM_TEXTPOS]);
 
-	/* info */
-	rom = *((unsigned long*)0x40000000L);
-	if ((rom & 0xffff0000L) == 0x40000000L) {
-		rom = *((unsigned long*)(rom+4));
-		rev = (unsigned short) (rom >> 24);
-		rom &= 0x00ffffffL;
-	} else {
-		rev = 0;
-		rom = 0;
+	/* dsp */
+	detectDSP(rev, &dsp_type);
+	if (dsp_type > 0) {
+		format_number(&form_cpu[FORM_DSP].text[FORM_TEXTPOS], dsp_type, 5, ' ');
 	}
-    kbd = 0;
-
-    if (Getcookie(0x54656D70UL, (long*)&kbd) == C_FOUND) {
-        kbd = *((uint32_t*)(kbd+14)) & 0x00ffffffUL;
-    }
-
-	/* chipset */
-	rev = raven()->chipset ? (raven()->chipset() & 0xFF) : 0xA1;
-	format_number_hex(&form_cpu[FORM_CHIPSET].text[FORM_TEXTPOS+6], rev, 2, 0);
 
 	/* ram */
 	form_setting_cpu[FORM_SETTING_STRAM_SIZE].text = &form_cpu[FORM_STRAM_SIZE].text[FORM_TEXTPOS];
 	form_setting_cpu[FORM_SETTING_STRAM_CACHE].text = &form_cpu[FORM_STRAM_CACHE].text[FORM_TEXTPOS];
 	form_setting_cpu[FORM_SETTING_TTRAM_CACHE].text = &form_cpu[FORM_TTRAM_CACHE].text[FORM_TEXTPOS];
 
+	/* info */
+	rom = *((unsigned long*)0x40000000L);
+	if ((rom & 0xffff0000L) == 0x40000000L) {
+		rom = *((unsigned long*)(rom+4));
+		rom &= 0x00ffffffL;
+	} else {
+		rom = 0;
+	}
+
 	/* rom version */
     format_number_hex(&form_cpu[FORM_ROM_UPDATE].text[4], rom, 6, 0);
 	form_setting_cpu[FORM_SETTING_ROM_UPDATE].text = &form_cpu[FORM_ROM_UPDATE].text[FORM_TEXTPOS];
 
     /* kbd version */
-    if (kbd > 0) {
+    kbd = 0;
+    if (Getcookie(0x54656D70UL, (long*)&kbd) == C_FOUND) {
+        kbd = *((uint32_t*)(kbd+14)) & 0x00ffffffUL;
+    }
+
+	if (kbd > 0) {
         format_number_hex(&form_cpu[FORM_KBD_UPDATE].text[4], kbd, 6, 0);
     } else {
         form_cpu[FORM_KBD_UPDATE].text[FORM_TEXTPOS] = 0;
@@ -394,12 +408,6 @@ static void cdecl mon_putc(int32_t c) {
 }
 static int32_t cdecl mon_getc(void) {
     return (int32_t)Cconin();
-}
-
-static void delay(uint16_t ms) {
-    uint32_t ta = *((volatile uint32_t*)0x4ba);
-    uint32_t tb = ta + ((ms / 5) + 1);
-    while ( *((volatile uint32_t*)0x4ba) < tb);
 }
 
 extern void display_restore(void);
