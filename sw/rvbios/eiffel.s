@@ -36,6 +36,8 @@ eiffel_data:	ds.b	2
 eiffel_temp:	ds.b	6       ; eiffel temperature (board)
 eiffel_temp2:   ds.b    6       ; ckbd temperature (cpu)
 eiffel_info:    ds.b    6       ; ckbd version
+eiffel_conf:	ds.b	6		; get settings response
+eiffel_pad:		ds.b	2
 
 	.TEXT
 
@@ -87,7 +89,12 @@ statvec_new:
     bne.b   .3
     move.l  1(a0),eiffel_temp+12
     move.w  5(a0),eiffel_temp+12+4
-.3: rts
+	; ckbd setting info
+.3: cmp.b   #0x2C,(a0)
+    bne.b   .4
+    move.l  1(a0),eiffel_temp+18
+    move.w  5(a0),eiffel_temp+18+4
+.4: rts
 
 
 ;----------------------------------------------------------
@@ -113,8 +120,15 @@ IFNE KEYREPEAT_FIX
 	move.l	#kbvec_new,-4(a0)
 ENDIF
 
-	move.l	#0,eiffel_data+0
-	move.l	#0,eiffel_data+4
+	moveq.l	#0,d0
+	move.l	d0,eiffel_data+0
+	move.l	d0,eiffel_data+4
+	move.l	d0,eiffel_data+8
+	move.l	d0,eiffel_data+12
+	move.l	d0,eiffel_data+16
+	move.l	d0,eiffel_data+20
+	move.l	d0,eiffel_data+24
+
 	move.l	12(a0),d0			; replace statvec
 	move.l	d0,statvec_old
 	move.l	#statvec_new,12(a0)
