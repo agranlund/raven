@@ -57,8 +57,6 @@ The following changes has been made to the files here on Github since after my p
 - todo: describe building Rev.A2 without DSP?
 
 ## Untested:
-- Fan ARGB
-- Fan PWM
 - i2c eprom
 - Midi-in
 
