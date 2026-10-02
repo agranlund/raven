@@ -22,6 +22,8 @@ uint32_t    ikbd_ConnectEx(uint8_t default_baud, uint8_t ideal_baud);
 void        ikbd_GPO(uint8_t bit, bool enable);
 bool        ikbd_GPI(uint8_t bit);
 
+void		ikbd_ARGB(uint8_t idx, uint8_t num, uint8_t siz, uint8_t* data);
+
 bool        ikbd_txrdy();
 bool        ikbd_rxrdy();
 uint16_t    ikbd_sendbuf(uint8_t* data, uint16_t count);
@@ -38,7 +40,7 @@ uint8_t		ikbd_DefaultBaud();
 void        ikbd_HardReset(bool bootloader);
 void        ikbd_ClearSettings();
 void        ikbd_SaveSettings();
-void        ikbd_ReadSetting(uint8_t idx);
+int16_t     ikbd_ReadSetting(uint8_t idx, uint8_t* d0, uint8_t* d1, uint8_t* d2, uint8_t* d3);
 void        ikbd_WriteSetting(uint8_t idx, uint8_t val);
 void        ikbd_Flash(uint8_t* data, uint32_t size);
 

@@ -63,6 +63,20 @@ bool sys_Init()
 	// identify board revision.
 	uint8_t rev = (IOB(RV_PADDR_UART1, UART_MSR) & (1 << 5)) ? 0xA1 : 0xA2;
 
+	// identify dsp
+	uint16_t dsp = 0;
+	if (rev >= 0xA2) {
+		// dsp on
+		*((volatile uint8_t*)(RV_PADDR_UART1+UART_MCR)) |= 0x02;
+		sys_Delay(10);
+		// check if cvr valid
+		if (*((volatile uint8_t*)(RV_PADDR_DSP+0x04)) != 0xff) {
+			dsp = 56303;
+		}
+		// dsp off
+		*((volatile uint8_t*)(RV_PADDR_UART1+UART_MCR)) &= 0xfd;
+	}
+
     // identify rom size
     uint32_t siz_simm[4];
     for (int i=0; i<16; i++) {
@@ -124,6 +138,11 @@ bool sys_Init()
     putchar('\n');
 	printf("REV:   %02x\n", rev);
     printf("CPU:   %sR%d\n", cpuNames[cpuSku], cpuRev);
+	if (rev >= 0xA2) {
+		printf("DSP:   ", dsp);
+		if (dsp > 0) { printf("DSP%d\n", dsp); }
+		else { printf("--------\n"); };
+	}
     printf("SIMM0: %08x\n", siz_simm[0]);
     printf("SIMM1: %08x\n", siz_simm[1]);
     printf("SIMM2: %08x\n", siz_simm[2]);
@@ -186,6 +205,13 @@ bool sys_Init()
         initprint("IkbdConnect");
 		if (krev >= 0xA2) {
 			ikbd_ConnectEx(IKBD_BAUD_125000, IKBD_BAUD_125000);
+			uint8_t rgb[4];
+			if (ikbd_ReadSetting(0x2c, &rgb[0], &rgb[1], &rgb[2], &rgb[3]) == 0x2c) {
+				rgb[1] = (uint8_t)(((uint16_t)rgb[0] * rgb[1]) >> 8);
+				rgb[2] = (uint8_t)(((uint16_t)rgb[0] * rgb[2]) >> 8);
+				rgb[3] = (uint8_t)(((uint16_t)rgb[0] * rgb[3]) >> 8);
+				ikbd_ARGB(0, 255, 1, &rgb[1]);
+			}
 		} else {
 		    uint8_t ikbdbaud = coldboot ? ikbd_DefaultBaud() : ikbd_Baud();
         	ikbd_ConnectEx(ikbdbaud, (uint8_t) cfg_GetValue(cfg_Find("ikbd_speed")));

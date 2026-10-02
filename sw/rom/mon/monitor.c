@@ -377,7 +377,13 @@ static void cmdKbd(int args, char* argv[])
                 }
                 cpu_SetIPL(ipl);
             } else if ((strcmp(argv[1], "get") == 0) && (args > 2)) {
-                ikbd_ReadSetting(strtoi(argv[2]));
+				uint8_t d0, d1, d2, d3;
+				uint8_t i = (uint8_t)(strtoi(argv[2]));
+				if (ikbd_ReadSetting(i, &d0, &d1, &d2, &d3) == i) {
+					printf("%02x : %02x %02x %02x %02x\n", i, d0, d1, d2, d3);
+				} else {
+					printf("failed.");
+				}
             } else if ((strcmp(argv[1], "set") == 0) && (args > 3)){
                 ikbd_WriteSetting(strtoi(argv[2]), strtoi(argv[3]));
             } else if (strcmp(argv[1], "save") == 0) {

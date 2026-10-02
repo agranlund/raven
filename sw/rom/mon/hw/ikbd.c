@@ -227,6 +227,18 @@ bool ikbd_GPI(uint8_t bit)
 }
 
 //-----------------------------------------------------------------------
+void ikbd_ARGB(uint8_t idx, uint8_t num, uint8_t siz, uint8_t* data)
+{
+	if (ckbd_version() != 0) {
+		ikbd_send(0x2D);
+		ikbd_send(idx);
+		ikbd_send(num);
+		ikbd_send(siz);
+		ikbd_sendbuf(data, ((uint16_t)siz) * 3);
+	}
+}
+
+//-----------------------------------------------------------------------
 bool ikbd_txrdy()
 {
     return (IOB(RV_PADDR_UART1, UART_LSR) & (1 << 5)) ? true : false;
@@ -320,38 +332,35 @@ void ikbd_SystemPoweroff(void)
 //-----------------------------------------------------------------------
 void ikbd_HardReset(bool bootloader)
 {
-	uint8_t default_baud = ikbd_DefaultBaud();
-    if (!ckbd_version()) {
-        printf("requires ckbd controller\n");
-    } else if (bootloader) {
-        ikbd_send(0x13);
-        while(ikbd_rxrdy()) { ikbd_recv(); }
-        ikbd_send(0x2E);
-        ikbd_send(0x5A);
-        sys_Delay(1000);
-        uint32_t prevbaud = ikbd_baud;
-        ikbd_SetBaud(default_baud);
-        ikbd_recv();
-        ikbd_ConnectEx(default_baud, prevbaud);
-        ikbd_Info();
-    } else {
-        ikbd_send(0x13);
-        ikbd_send(0x2E);
-        ikbd_send(0x00);
-        sys_Delay(100);
-        uint32_t prevbaud = ikbd_baud;
-        ikbd_SetBaud(default_baud);
-        sys_Delay(1000);
-        ikbd_ConnectEx(default_baud, prevbaud);
-        ikbd_Info();
-    }
+	if (ckbd_version()) {
+		uint8_t default_baud = ikbd_DefaultBaud();
+		if (bootloader) {
+			ikbd_send(0x13);
+			while(ikbd_rxrdy()) { ikbd_recv(); }
+			ikbd_send(0x2E);
+			ikbd_send(0x5A);
+			sys_Delay(1000);
+			uint32_t prevbaud = ikbd_baud;
+			ikbd_SetBaud(default_baud);
+			ikbd_recv();
+			ikbd_ConnectEx(default_baud, prevbaud);
+			ikbd_Info();
+		} else {
+			ikbd_send(0x13);
+			ikbd_send(0x2E);
+			ikbd_send(0x00);
+			sys_Delay(100);
+			uint32_t prevbaud = ikbd_baud;
+			ikbd_SetBaud(default_baud);
+			sys_Delay(1000);
+			ikbd_ConnectEx(default_baud, prevbaud);
+			ikbd_Info();
+		}
+	}
 }
 
-void ikbd_WriteSetting(uint8_t idx, uint8_t val)
-{
-    if (!ckbd_version()) {
-        printf("requires ckbd controller\n");
-    } else {
+void ikbd_WriteSetting(uint8_t idx, uint8_t val) {
+	if (ckbd_version()) {
         // baudrate is zero-offset on ckbd controller
         if ((idx == 0xFE) && (val > 0)) {
             val -= 1;
@@ -359,49 +368,49 @@ void ikbd_WriteSetting(uint8_t idx, uint8_t val)
         ikbd_send(0x2B);
         ikbd_send(idx);
         ikbd_send(val);
-    }
+	}
 }
 
-void ikbd_ReadSetting(uint8_t idx)
-{
-    if (!ckbd_version()) {
-        printf("requires ckbd controller\n");
-    } else {
-        // pause ikbd and wait for silence
-        ikbd_send(0x13);
-        sys_Delay(100);
-        while (ikbd_rxrdy()) {
-            ikbd_recv();
-            sys_Delay(100);
-        }
-        // request setting
-        ikbd_send(0x2A);
-        ikbd_send(idx);
-        // retrieve up to 8 bytes with timeout
-        uint32_t silent = 0;
-        uint8_t infosize = 0;
-        uint8_t infodata[8];
-        while ((infosize < 8) && (silent < 100000)) {
-            silent++;
-            if (ikbd_rxrdy()) {
-                silent = 0;
-                infodata[infosize++] = ikbd_recv();
-            }
-        }
-        // resume ikbd and wait for silence
-        ikbd_send(0x11);
-        sys_Delay(100);
-        while (ikbd_rxrdy()) {
-            ikbd_recv();
-            sys_Delay(100);
-        }
-        //printf("%02x %02x %02x %02x %02x %02x %02x %02x\n", infodata[0], infodata[1], infodata[2], infodata[3], infodata[4], infodata[5], infodata[6], infodata[7]);
-        if ((infodata[0] == 0xF6) && (infodata[1] == 0x2C)) {
-            printf("%02x : %02x %02x %02x %02x\n", infodata[3], infodata[4], infodata[5], infodata[6], infodata[7]);
-        } else {
-            printf("fail [%02x%02x%02x%02x%02x%02x%02x%02x]\n", infodata[0], infodata[1], infodata[2], infodata[3], infodata[4], infodata[5], infodata[6], infodata[7]);
-        }
-    }
+int16_t ikbd_ReadSetting(uint8_t idx, uint8_t* d0, uint8_t* d1, uint8_t* d2, uint8_t* d3) {
+	if (ckbd_version()) {
+		// pause ikbd and wait for silence
+		ikbd_send(0x13);
+		sys_Delay(100);
+		while (ikbd_rxrdy()) {
+			ikbd_recv();
+			sys_Delay(100);
+		}
+		// request setting
+		ikbd_send(0x2A);
+		ikbd_send(idx);
+		// retrieve up to 8 bytes with timeout
+		uint32_t silent = 0;
+		uint8_t infosize = 0;
+		uint8_t infodata[8];
+		while ((infosize < 8) && (silent < 100000)) {
+			silent++;
+			if (ikbd_rxrdy()) {
+				silent = 0;
+				infodata[infosize++] = ikbd_recv();
+			}
+		}
+		// resume ikbd and wait for silence
+		ikbd_send(0x11);
+		sys_Delay(100);
+		while (ikbd_rxrdy()) {
+			ikbd_recv();
+			sys_Delay(100);
+		}
+		if (d0) { *d0 = infodata[4]; }
+		if (d1) { *d1 = infodata[5]; }
+		if (d2) { *d2 = infodata[6]; }
+		if (d3) { *d3 = infodata[7]; }
+
+		if ((infodata[0] == 0xF6) && (infodata[1] == 0x2C)) {
+			return infodata[3];
+		}
+	}
+	return -1;
 }
 
 void ikbd_ClearSettings(void)
