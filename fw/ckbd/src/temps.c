@@ -8,6 +8,7 @@
 #include "system.h"
 #include "settings.h"
 #include "temps.h"
+#include "fan.h"
 
 #if defined(DISABLE_TEMPS)
 
@@ -16,9 +17,6 @@ void ProcessTemps(void) { }
 
 #else
 
-// todo Raven.A2
-//	- pwm instead of binary on/off
-
 #define tempsensor_avgcount 8
 #define tempsensor_avgmask  (tempsensor_avgcount - 1)
 #define tempsensor_delay    5
@@ -26,26 +24,51 @@ void ProcessTemps(void) { }
 static __xdata uint8_t pos;
 static __xdata uint8_t status;
 static __xdata uint16_t adc[2][tempsensor_avgcount];
+static __xdata uint8_t fan1speed;
 
+static uint8_t GetFanState(uint8_t idx) {
+	if (idx == 0) {
+		return pwm_GetSpeed();
+	} else if (idx == 1) {
+		return fan1speed;
+	}
+	return 0;
+}
 
-static void SetFanState(uint8_t idx, bool enable) {
+static uint8_t GetFanMax(uint8_t idx) {
+	uint8_t speed = 255;
+#if defined(BOARD_RAVEN_A2)
+	if (idx == 0) { speed = Settings.FanMaxSpeed0; }
+	else if (idx == 1) { speed = Settings.FanMaxSpeed1; }
+	if (speed == 0) { speed = 255; }
+#endif
+	return speed;
+}
+
+static uint8_t GetFanMin(uint8_t idx) {
+#if defined(BOARD_RAVEN_A2)
+	if (idx == 0) { return Settings.FanMinSpeed0; }
+	else if (idx == 1) { return Settings.FanMinSpeed1; }
+#endif
+	return 0;
+}
+
+static void SetFanState(uint8_t idx, uint8_t speed) {
+	bool enable = (speed > 0) ? true : false;
+
     if (idx == 0) {
-        if (enable && !(status & TEMP_STATUS_FAN0)) {
-            status |= TEMP_STATUS_FAN0;
-            P3_DIR &= ~(1 << 5);
-        } else if (!enable && (status & TEMP_STATUS_FAN0)) {
-            status &= ~TEMP_STATUS_FAN0;
-            P3_DIR |= (1 << 5);
-        }
+		if (speed != pwm_GetSpeed()) {
+			pwm_SetSpeed(speed);
+			if (enable) { status |= TEMP_STATUS_FAN0; }
+			else { status &= ~TEMP_STATUS_FAN0; }
+		}
     }
 #if !defined(DISABLE_TEMP2)
-    // todo: drive pins
     else if (idx == 1) {
-        if (enable && !(status & TEMP_STATUS_FAN1)) {
-            status |= TEMP_STATUS_FAN1;
-        } else if (!enable && (status & TEMP_STATUS_FAN1)) {
-            status &= ~TEMP_STATUS_FAN1;
-        }
+	    // todo: drive pins
+		fan1speed = speed;
+        if (enable) { status |= TEMP_STATUS_FAN1; }
+		else { status &= ~TEMP_STATUS_FAN1; }
     }
 #endif
 }
@@ -60,6 +83,7 @@ static uint16_t ReadTempSensorRaw(uint8_t idx) {
     t = ADC_FIFO; t = ADC_FIFO;
     t = ADC_FIFO; t = ADC_FIFO;
     ADC_CHANN = (1 << idx);
+    delayus(tempsensor_delay);
     ADC_CTRL |= bADC_SAMPLE;
     delayus(tempsensor_delay);
     ADC_CTRL &= ~bADC_SAMPLE;
@@ -103,13 +127,11 @@ static bool GetBoardTemperature(uint16_t* adc_out, uint8_t* res_out, uint8_t* de
         return false;
     }
    
-    // convert to voltage
-    float vf = (3.3f * (float)adc) / 2048.0f;
-
     // calculate thermistor resistance
 #if defined(BOARD_RAVEN_A2)
-    float rf = 10.0f / (3.3f - vf);
+ 	float rf = (10.0f * (float)adc) / (2048.0f - (float)adc);	
 #else
+    float vf = (3.3f * (float)adc) / 2048.0f;
     float rf = ((-20.0f * vf) / ((4.0f * vf) - 10.0f));
 #endif
 
@@ -190,9 +212,11 @@ static bool GetCoreTemperature(uint16_t* adc_out, uint8_t* res_out, uint8_t* deg
 
     // calculate THERM01 resistance
     float rt = (vf * 1000) / (3.3f - vf);
+	if (rt < 0) { rt = 0; }
 
     // calculate temperature
     float t = 25.0f + ((rt - rn) / at);
+	if (t < 0) { t = 0; }
 
     TRACE("adc = %d, vf = %d, rt = %d, t = %d", adc, (int16_t)(vf*1000), (int16_t)rt, (int16_t)t);
 
@@ -261,6 +285,39 @@ void InitTemps(void) {
     TRACE("sensor status = $%x", status);
 }
 
+static uint8_t CalcFanSpeed(uint8_t idx, uint8_t deg) {
+	uint8_t temp_lo = Settings.EiffelTemp[idx].Low;
+	uint8_t temp_hi = Settings.EiffelTemp[idx].High;
+	if (temp_lo >= temp_hi) {
+		temp_lo = temp_hi;
+	}
+
+	uint8_t speed_lo = GetFanMin(idx);
+	uint8_t speed_hi = GetFanMax(idx);
+	if (speed_lo > speed_hi) {
+		speed_lo = speed_hi;
+	}
+
+	if (deg >= temp_hi) {
+		return speed_hi;
+	} else if (deg <= temp_lo) {
+		return speed_lo;
+	}
+
+#if defined(BOARD_RAVEN_A2)
+	uint8_t temp_th = 2;	// todo: get from settings
+	if ((GetFanState(idx) <= speed_lo) && ((deg <= (temp_lo + temp_th)))) {
+		return speed_lo;
+	} else {
+		uint16_t temp_range = temp_hi - temp_lo;
+		uint16_t speed_range = speed_hi - speed_lo;
+		return speed_lo + (uint8_t)(((uint32_t)(deg - temp_lo) * speed_range) / temp_range);
+	}
+#else
+	return GetFanState(idx);
+#endif	
+}
+
 void ProcessTemps(void) {
     static __xdata uint32_t last = 0;
     static __xdata uint8_t idx = 0;
@@ -273,18 +330,13 @@ void ProcessTemps(void) {
     if (idx == 0) {
         // board temperature and fan control
         if (Settings.FanControl0 == FANCONTROL_OFF) {
-            SetFanState(0, false);
+            SetFanState(0, 0);
         } else if (Settings.FanControl0 == FANCONTROL_ON) {
-            SetFanState(0, true);
+            SetFanState(0, GetFanMax(0));
         } else if (Settings.FanControl0 == FANCONTROL_AUTO) {
             uint16_t adc; uint8_t res, deg;
             if (GetBoardTemperature(&adc, &res, &deg)) {
-                if (deg <= Settings.EiffelTemp[0].Low) {
-                    SetFanState(0, false);
-                }
-                else if (deg >= Settings.EiffelTemp[0].High) {
-                    SetFanState(0, true);
-                }
+				SetFanState(0, CalcFanSpeed(0, deg));
             }
         }
     } else {
@@ -303,19 +355,14 @@ void ProcessTemps(void) {
 
                 // auto fan control
                 if (Settings.FanControl1 == FANCONTROL_AUTO) {
-                    if (deg <= Settings.EiffelTemp[1].Low) {
-                        SetFanState(1, false);
-                    }
-                    else if (deg >= Settings.EiffelTemp[1].High) {
-                        SetFanState(1, true);
-                    }
+					SetFanState(1, CalcFanSpeed(1, deg));
                 }
             }
         }
         if (Settings.FanControl1 == FANCONTROL_OFF) {
-            SetFanState(1, false);
+            SetFanState(1, 0);
         } else if (Settings.FanControl1 == FANCONTROL_ON) {
-            SetFanState(1, true);
+            SetFanState(1, GetFanMax(1));
         }
         #endif
         pos = (pos + 1) & tempsensor_avgmask;

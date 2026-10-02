@@ -28,6 +28,7 @@
 #include "system.h"
 #include "settings.h"
 #include "temps.h"
+#include "fan.h"
 #include "ikbd.h"
 
 #define JOYSTICK_MODE_OFF           0
@@ -1202,6 +1203,52 @@ bool cmd_0x2C(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_PROG_FIRMWA
     }
     return true;
 }
+bool cmd_0x2D(uint8_t* data, uint8_t size) {		// IKBD_CMD_CKBD_ARGB
+	uint8_t* buf = 0;
+	uint8_t idx = data[1];	// start index
+	uint8_t num = data[2];	// number of leds
+	uint8_t siz = data[3];	// data size
+	if (siz == 0) { return true; }
+
+#if !defined(BOARD_RAVEN_A2)
+	for (int i=0; i<siz; i++) {
+		rbuf_getblocking();
+		rbuf_getblocking();
+		rbuf_getblocking();
+	}
+#else
+	int slots = ((int)ARGB_MAXLEDS - (int)idx);
+	if (slots > siz) { slots = siz; }
+	if (slots > 0) { buf = argb_Lock(idx); }
+
+	uint8_t* write_ptr = buf;
+	uint8_t r = 0, g = 0, b = 0;
+	for (int i=0; i<num; i++) {
+		if (i < siz) {
+			r = rbuf_getblocking();
+			g = rbuf_getblocking();
+			b = rbuf_getblocking();
+		} else if (buf) {
+			uint8_t* read_ptr = &buf[(i % slots) * 3];
+			g = *read_ptr++;
+			r = *read_ptr++;
+			b = *read_ptr++;
+		}
+		if (buf && ((idx + i) < ARGB_MAXLEDS)) {
+			*write_ptr++ = g;
+			*write_ptr++ = r;
+			*write_ptr++ = b;
+		}
+	}
+	for (int i = num; i < siz; i++) {
+        rbuf_getblocking();
+        rbuf_getblocking();
+        rbuf_getblocking();
+    }
+	argb_Unlock(num);
+#endif	
+	return true;
+}
 bool cmd_0x2E(uint8_t* data, uint8_t size) {        // IKBD_CMD_CKBD_RESET
     if (data[1] == 0x5A) {
         reset(true);                // 5A : reset to bootloader
@@ -1300,7 +1347,7 @@ const ikbd_cmd_t hostcommands_0x20[16] = {
     {1, cmd_0x2A},      // 0x2A : IKBD_CMD_CKBD_READ_SETTING
     {2, cmd_0x2B},      // 0x2B : IKBD_CMD_CKBD_PROG_SETTING
     {4, cmd_0x2C},      // 0x2C : IKBD_CMD_CKBD_PROG_FIRMWARE
-    {0, cmd_null},      // 0x2D :
+    {3, cmd_0x2D},      // 0x2D : IKBD_CMD_CKBD_ARGB
     {1, cmd_0x2E},      // 0x2E : IKBD_CMD_CKBD_RESET
     {1, cmd_0x2F},      // 0x2F : IKBD_CMD_CKBD_POWER
 };

@@ -116,6 +116,7 @@ OBJS = \
 	$(OBJDIR)/ps2.rel \
 	$(OBJDIR)/joyport.rel \
 	$(OBJDIR)/temps.rel \
+	$(OBJDIR)/fan.rel \
 	$(OBJDIR)/keyboardled.rel \
 	#end
 

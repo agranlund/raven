@@ -41,7 +41,17 @@ typedef struct
 /* 0x23 */  uint8_t CoreTempShutdown;               // abbbbbbb. a = enable, b = temp (0-127)
 /* 0x24 */  uint8_t FanControl0;
 /* 0x25 */  uint8_t FanControl1;
-            uint8_t pad26[10];
+/* 0x26 */  uint8_t FanThreshold0;
+/* 0x27 */  uint8_t FanThreshold1;
+/* 0x28 */  uint8_t FanMinSpeed0;
+/* 0x29 */  uint8_t FanMaxSpeed0;
+/* 0x2a */  uint8_t FanMinSpeed1;
+/* 0x2b */  uint8_t FanMaxSpeed1;
+/* 0x2c */	uint8_t FanRgbI;
+/* 0x2d */	uint8_t FanRgbR;
+/* 0x2e */	uint8_t FanRgbG;
+/* 0x2f */	uint8_t FanRgbB;
+
 /* 0x30 */  settings_eiffel_mouse_t EiffelMouse;    // eiffel mouse settings
 /* 0x38 */  settings_eiffel_temp_t EiffelTemp[2];   // eiffel temperature tables
 /* 0x6C */  uint8_t EiffelKeymap[0x90];             // eiffel keyboard usertable

@@ -13,6 +13,7 @@
 #include "usbhost.h"
 #include "usbhidkeys.h"
 #include "keyboardled.h"
+#include "fan.h"
 
 int main(void)
 {
@@ -50,6 +51,11 @@ int main(void)
     TRACE("Init settings");
     InitSettings(false);
 
+#if defined(BOARD_RAVEN_A2)
+	TRACE("InitArgb");
+	InitArgb();
+#endif	
+
     TRACE("Init usb");
 	InitUsbData();
 	InitUsbHost();
@@ -63,6 +69,9 @@ int main(void)
 
     TRACE("Init temperature");
     InitTemps();
+
+	TRACE("InitPwm");
+	InitPwm();
 
     TRACE("InitIkbd");
     InitIkbd();
@@ -100,6 +109,10 @@ int main(void)
 		ProcessKeyboardLed();
         ProcessTemps();
         ProcessIkbd();
+		ProcessPwm();
+#if defined(BOARD_RAVEN_A2)
+		ProcessArgb();
+#endif
 
         // sync settings when required
         SyncSettings(false);

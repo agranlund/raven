@@ -299,6 +299,7 @@ static inline int16_t ScaleToIkbd(int16_t v, uint16_t s) {
 #define IKBD_CMD_CKBD_READ_SETTING          0x2A
 #define IKBD_CMD_CKBD_PROG_SETTING          0x2B    /* <settings...> */
 #define IKBD_CMD_CKBD_PROG_FIRMWARE         0x2C
+#define IKBD_CMD_CKBD_ARGB					0x2D	/* <idx> <num> <siz> <data> */
 #define IKBD_CMD_CKBD_RESET                 0x2E
 #define IKBD_CMD_CKBD_POWER                 0x2F
 

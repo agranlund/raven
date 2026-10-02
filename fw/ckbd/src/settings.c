@@ -11,7 +11,7 @@
 #include "settings.h"
 
 #define SETTINGS_MAGIC   0x434B4244      /* CKBD */
-#define SETTINGS_VERSION 0x25060207
+#define SETTINGS_VERSION 0x26100202
 
 __xdata settings_t Settings;
 
@@ -145,11 +145,29 @@ void InitSettings(bool SafeMode)
 
         // default temp sensors
         Settings.FanControl0 = FANCONTROL_AUTO; // board
+		Settings.FanThreshold0 = 2;
+		Settings.FanMinSpeed0 = 51;		//  20%
+		Settings.FanMaxSpeed0 = 255;	// 100%
+
         Settings.FanControl1 = FANCONTROL_ON;   // core
-        Settings.CoreTempShutdown = (0 << 7) | 80;
+		Settings.FanThreshold1 = 2;
+		Settings.FanMinSpeed1 = 51;		//  20%
+		Settings.FanMaxSpeed1 = 255;	// 100%
+
+		// default argb
+		Settings.FanRgbI = 255;
+		Settings.FanRgbR = 255;
+		Settings.FanRgbG = 255;
+		Settings.FanRgbB = 255;
+
+		Settings.CoreTempShutdown = (0 << 7) | 80;
         const settings_eiffel_temp_t defaultEiffelTemp[2] = {
             {   // temp1 (case)
-                40, 35,
+#if defined(BOARD_RAVEN_A2)
+                50, 30,		// linear pwm 0 -> 255
+#else			
+                40, 35,		// binary on -> off
+#endif				
                 { 27,  33,  39,  47,  56,  68,  82, 100, 120, 150, 180, 220},   // rctn
                 { 64,  57,  52,  47,  41,  36,  30,  25,  20,  15,  11,   6}    // temp
             },
