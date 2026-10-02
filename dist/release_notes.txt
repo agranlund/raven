@@ -5,6 +5,9 @@ xxxxxx:
 
   rom:
 	- rvbios bootlogo grayscale insted of 1bpp mono
+	- added dsp info to bios setup screen
+	- added fan controls to bios setup screen
+	- added rgb controls to bios setup screen (Rev.A2)
 
   software:
 	- castaway: performance increase
