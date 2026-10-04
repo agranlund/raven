@@ -502,8 +502,8 @@ xb_dsp_loadprog:
 ;----------------------------------------------------------		## todo
 ;		0x006D  void Dsp_ExecProg(i8* code, i32 codesize, i16 ability)
 dsp_execprog:
-	move.l	a0,-(sp)
 	move.l	d0,-(sp)
+	move.l	a0,-(sp)
 	move.w	d1,dsp_program	; set current ability
 
 	; upload and start bootloader
@@ -517,8 +517,10 @@ dsp_execprog:
 	beq.b	.1
 
 	; load program
-	move.l	(sp)+,d0
 	move.l	(sp)+,a0
+	move.l	(sp)+,d0
+	beq.b	.5
+
 	bra.b	.3
 .2:	btst.b	#1,DSP_ISR
 	beq.b	.2
@@ -533,7 +535,7 @@ dsp_execprog:
 	move.b	#0,DSP_TXH
 	move.b	#0,DSP_TXM
 	move.b	#3,DSP_TXL
-	rts
+.5:	rts
 
 xb_dsp_execprog:
 	move.w	8(a0),d1
