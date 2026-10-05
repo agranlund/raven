@@ -3,6 +3,7 @@
 #----------------------------------------------
 
 dacscale = 256      # digital brightness scale, 256 = 1.0
+fastvram = 1		# use storebuffer for vram pages (cache_imprecise)
 
 [cirrus]
 # mclk = $1c        # slow, usually bios default

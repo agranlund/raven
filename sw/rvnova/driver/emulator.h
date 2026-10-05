@@ -72,6 +72,7 @@
 #define PMMU_WRITEPROTECT       (1 << 2)
 #define PMMU_USED               (1 << 3)
 #define PMMU_CM_PRECISE         (2 << 5)
+#define PMMU_CM_IMPRECISE       (3 << 5)
 
 #define PAGE_INVALID            (PMMU_CM_PRECISE | PMMU_INVALID)
 #define PAGE_READONLY           (PMMU_CM_PRECISE | PMMU_VALID | PMMU_USED | PMMU_WRITEPROTECT)

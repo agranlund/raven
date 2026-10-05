@@ -36,6 +36,8 @@ static card_t nvcard;
 static int nummodes = 0;
 static gfxmode_t modes[MAX_MODES];
 
+uint32_t pageflags_vram = PAGE_READWRITE;
+
 uint32_t nv_dummy_page;
 static uint8_t nv_dummy_page_data[PMMU_PAGESIZE + PMMU_PAGEALIGN];
 
@@ -70,7 +72,7 @@ void nv_init_vram(uint32_t base, uint32_t size, uint16_t count) {
 
     /* map logical framebuffer */
     dprintf(("nv_init_vram %08lx : %08lx x %d\n", cur_phys, size, count));
-    flag = (count > 1) ? PAGE_INVALID : PAGE_READWRITE;
+    flag = (count > 1) ? PAGE_INVALID : pageflags_vram;
     while (count) {
         cpu_map(log, cur_phys, cur_size, flag);
         log += size; count--;
@@ -78,7 +80,7 @@ void nv_init_vram(uint32_t base, uint32_t size, uint16_t count) {
 
     /* unmap remaining logical memory */
     while (log < (VADDR_MEM + VSIZE_MEM)) {
-        cpu_map(log, nv_dummy_page, PMMU_PAGESIZE, PAGE_READWRITE);
+        cpu_map(log, nv_dummy_page, PMMU_PAGESIZE, pageflags_vram);
         log += PMMU_PAGESIZE;
     }
 
@@ -267,6 +269,17 @@ bool nv_init(void) {
     /* initialize default vga */
     dprintf(("vga init\n"));
     drv_vga.init(&nvcard, &settings, nv_addmode);
+
+	/* use storebuffer for vram pages */
+	if (ini_GetInt(&settings, "fastvram", 1) != 0) {
+		uint32_t vgamem = raven()->vga_Addr() & 0xfff00000UL;
+
+		/* vram flags*/
+		pageflags_vram = PAGE_READWRITE | PMMU_CM_IMPRECISE;;
+
+		/* standard vga mem flags, regularly used for mmio */
+		cpu_map(vgamem + 0xA0000UL, vgamem + 0xA0000UL, 0x20000UL, pageflags_vram);
+	}
 
     /* initialize svga driver */
     for (i = 0; i < (sizeof(drivers) / sizeof(driver_t*)) && !card; i++) {
