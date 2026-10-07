@@ -12,6 +12,3 @@ xxxxxx:
 
   rvnova:
     - general ISA ram access performance increase
-
-  software:
-	- castaway: performance increase
