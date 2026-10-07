@@ -39,6 +39,9 @@ extern FONTS *Fonts;
 #define INI_IMPL
 #include "ini.h"
 
+
+#define USE_XMENU 0
+
 bool w32i_EnableInterleaveMode(void);
 
 static const char* path_root     = "c:";
@@ -267,11 +270,13 @@ long supermain()
 	rvnova_freebib(&bib_emu);
 	rvnova_freebib(&bib_vdi);
 
-	/* xmenu.inf */
+#if USE_XMENU	
+	/* save xmenu.inf */
 	sprintf(fname, "%s\\xmenu.inf", path_auto);
 	if (!rvnova_saveinf(&inf, fname)) {
         goto fail;
 	}
+#endif
 
 	/* launch driver */
 	if (inf.drv_enable) {
@@ -290,6 +295,7 @@ long supermain()
 		if (inf.vdi_enable) {
             BASEPAGE* bp;
 
+#if USE_XMENU
             /* start xmenu */
 			sprintf(fname, "%s\\xmenu.prg", path_nova);
 			result = Pexec(PE_LOADGO, fname, "", 0L);
@@ -297,6 +303,39 @@ long supermain()
                 goto fail;
             }
 			screen_restore();
+#else			
+			nova_xcb_t* nova = 0;
+
+			/* assign vdi resolution */
+			if ((Getcookie(C_NOVA, (long*)&nova) == C_FOUND) && nova) {
+				nova->resolution = inf.vdi_res.i;
+				/* xmenu.prg calls instxbios(0) at start,
+				 * then (1) after detecting cookie and loading bib
+				 * then (0) again right before exiting */
+				if (nova->p_instxbios) {
+					nova->p_instxbios(0);
+				}
+			}
+
+			/* rename external gdos program according to enable flag */
+			if (strlen(inf.menuinf.gdosfile) > 0) {
+				char fname_en[64];
+				char fname_di[64];
+				sprintf(fname_en, "%s\\%s.PRG", path_auto, inf.menuinf.gdosfile);
+				strcpy(fname_di, fname_en);
+				fname_di[strlen(fname_di)-1] = 0;
+
+				if (inf.menuinf.gdos) {
+					if (Fattrib(fname_en, 0, 0) == -33) {
+						Frename(0, fname_di, fname_en);
+					}
+				} else {
+					if (Fattrib(fname_en, 0, 0) >= 0) {
+						Frename(0, fname_en, fname_di);
+					}
+				}
+			}
+#endif			
 
             /* start vdi */
 			sprintf(fname, "%s\\%s\\%s", path_nova, inf.drvpath, path_vdi);
