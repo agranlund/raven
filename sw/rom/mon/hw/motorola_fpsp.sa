@@ -31,6 +31,10 @@
 #  patents or trademarks of Motorola, Inc.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+# With fsin fix from CT60-TOS as implemented by mikro
+# Found and fixed by dhedberg, czietz, th-otto, mikro
+# https://www.atari-forum.com/viewtopic.php?t=44105
+
 	.dc.l	0x60ff0000,0x17400000,0x60ff0000,0x15f40000
 	.dc.l	0x60ff0000,0x02b60000,0x60ff0000,0x04700000
 	.dc.l	0x60ff0000,0x1b100000,0x60ff0000,0x19aa0000
@@ -2934,7 +2938,7 @@
 	.dc.l	0x61ff0000,0x10a01d40,0xff4e0c00,0x00046700
 	.dc.l	0x00280c00,0x00056700,0x005ef22e,0x4400ff54
 	.dc.l	0xf22ef080,0xff6c4e75,0x61ffffff,0x4c8c4a81
-	.dc.l	0x66ffffff,0x6da060c4,0x426eff6c,0xe9d00257
+	.dc.l	0x66ffffff,0x6da060b8,0x426eff6c,0xe9d00257
 	.dc.l	0xe1882d40,0xff7042ae,0xff74426e,0xff6c0810
 	.dc.l	0x00076706,0x08ee0007,0xff6c41ee,0xff6c61ff
 	.dc.l	0x00000e78,0x323c3f81,0x9240836e,0xff6c1d7c

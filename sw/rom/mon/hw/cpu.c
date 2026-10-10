@@ -301,49 +301,19 @@ void vbr_Apply()
 //
 //-----------------------------------------------------------------------
 extern void cpu_InstallSP(uint32_t vbr);
-
-bool msp_ins;
-uint32_t msp_vbr;
-uint32_t msp_bak[10];
-
-void msp_Backup(uint32_t vbr) {
-    msp_bak[0] = *((uint32_t*)(vbr + 0xf4));
-    msp_bak[1] = *((uint32_t*)(vbr + 0xd8));
-    msp_bak[2] = *((uint32_t*)(vbr + 0xd0));
-    msp_bak[3] = *((uint32_t*)(vbr + 0xd4));
-    msp_bak[4] = *((uint32_t*)(vbr + 0xcc));
-    msp_bak[5] = *((uint32_t*)(vbr + 0xc8));
-    msp_bak[6] = *((uint32_t*)(vbr + 0xc4));
-    msp_bak[7] = *((uint32_t*)(vbr + 0x2c));
-    msp_bak[8] = *((uint32_t*)(vbr + 0xdc));
-    msp_bak[9] = *((uint32_t*)(vbr + 0xf0));
-}
-
-void msp_Restore(uint32_t vbr) {
-    *((uint32_t*)(vbr + 0xf4)) = msp_bak[0];
-    *((uint32_t*)(vbr + 0xd8)) = msp_bak[1];
-    *((uint32_t*)(vbr + 0xd0)) = msp_bak[2];
-    *((uint32_t*)(vbr + 0xd4)) = msp_bak[3];
-    *((uint32_t*)(vbr + 0xcc)) = msp_bak[4];
-    *((uint32_t*)(vbr + 0xc8)) = msp_bak[5];
-    *((uint32_t*)(vbr + 0xc4)) = msp_bak[6];
-    *((uint32_t*)(vbr + 0x2c)) = msp_bak[7];
-    *((uint32_t*)(vbr + 0xdc)) = msp_bak[8];
-    *((uint32_t*)(vbr + 0xf0)) = msp_bak[9];
-}
+extern void cpu_UninstallSP();
 
 void msp_Install(uint32_t vbr) {
-    uint32_t ipl = cpu_SetIPL(7);
-    if (msp_ins && (msp_vbr != vbr)) {
-        msp_Restore(msp_vbr);
-    }
-    msp_Backup(vbr);
-    cpu_InstallSP(vbr);
+	static bool installed = false;
+	uint32_t ipl = cpu_SetIPL(7);
+	if (installed) {
+		cpu_UninstallSP();
+	}
+	cpu_InstallSP(vbr);
     vbr_Apply();
     cpu_CacheFlush();
-    msp_vbr = vbr;
-    msp_ins = true;
-    cpu_SetIPL(ipl);
+	installed = true;
+	cpu_SetIPL(ipl);
 }
 
 bool msp_Init() {
