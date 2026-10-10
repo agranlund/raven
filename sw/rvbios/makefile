@@ -9,6 +9,8 @@ PRJ = $(NAME).prj
 INSTALL_ROOT = c:/auto
 INSTALL_BINS = $(BIN)
 
+PRGFLAGS = -S --mno-fastram --mno-fastalloc
+
 OBJS = \
 	main.o \
 	utils.o \
