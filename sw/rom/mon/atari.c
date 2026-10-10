@@ -152,7 +152,7 @@ bool atari_InitMMU(uint32_t* simms)
 
                 if (lmem == 0) {
                     // system vectors + variables
-                    mmu_Map24bit(0x00000000, 0x00000000, 0x00002000, PMMU_READWRITE | PMMU_CM_PRECISE);
+                    mmu_Map24bit(0x00000000, 0x00000000, 0x00002000, PMMU_READWRITE | PMMU_CM_WRITETHROUGH);
                     // st-ram
                     mmu_Map24bit(0x00002000, 0x00002000, 0x000FE000, PMMU_READWRITE | stram_cache);
                 }
