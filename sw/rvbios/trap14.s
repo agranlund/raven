@@ -53,11 +53,26 @@
     .XREF   xbc_puntaes
     .XREF   xbc_read_temp
 
+	.EXPORT InstallDefaultFpuExectionVectors
 	.EXPORT InstallTrap14
 	.EXPORT trap14_table
 	.TEXT
 
 
+;----------------------------------------------------------
+; Default do-nothing fpu exception vectors
+;----------------------------------------------------------
+VecFpuException:
+	rte
+
+InstallDefaultFpuExectionVectors:
+    move.l      #VecFpuException,0xd8 	; snan
+    move.l      #VecFpuException,0xd0 	; operr
+    move.l      #VecFpuException,0xd4 	; overflow
+    move.l      #VecFpuException,0xcc 	; underflow
+    move.l      #VecFpuException,0xc8 	; divide by zero
+    move.l      #VecFpuException,0xc4 	; inexact result
+	rts
 
 ;----------------------------------------------------------
 ;
