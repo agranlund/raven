@@ -8,7 +8,8 @@ xxxxxx:
 	- added dsp info to bios setup screen
 	- added fan controls to bios setup screen
 	- added rgb controls to bios setup screen (Rev.A2)
-	- general ISA ram access performance increase
+	- general ISA mem access performance increase
+	- motorola fpsp fixes
 
   rvnova:
-    - general ISA ram access performance increase
+    - general ISA mem access performance increase
