@@ -291,28 +291,19 @@ void vbr_Apply()
 
 //-----------------------------------------------------------------------
 // motorola support package
+// Installed to vbr proxy
 //
-//  Installed to vbr proxy by defaults.
-//  can be reinstalled to different table later by calling msp_Install
-//
-//  eg, rvbios.prg can call msp_Install(0) to put them in TOS vectors
-//  so that some programs (mint1.16) which use unimpl instructions
-//  to identify cpu can do so correctly.
+// some programs (mint1.16) use unimpl instruction to identify
+// cpu, so rvbios.prg will move that vector to table at 0 later
 //
 //-----------------------------------------------------------------------
 extern void cpu_InstallSP(uint32_t vbr);
-extern void cpu_UninstallSP();
 
 void msp_Install(uint32_t vbr) {
-	static bool installed = false;
 	uint32_t ipl = cpu_SetIPL(7);
-	if (installed) {
-		cpu_UninstallSP();
-	}
 	cpu_InstallSP(vbr);
     vbr_Apply();
     cpu_CacheFlush();
-	installed = true;
 	cpu_SetIPL(ipl);
 }
 

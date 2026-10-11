@@ -2,19 +2,6 @@
     .global cpu_InstallSP
     .global cpu_UninstallSP
 
-	.bss
-sp060_old_00: ds.l 1
-sp060_old_f4: ds.l 1
-sp060_old_d8: ds.l 1
-sp060_old_d0: ds.l 1
-sp060_old_d4: ds.l 1
-sp060_old_cc: ds.l 1
-sp060_old_c8: ds.l 1
-sp060_old_c4: ds.l 1
-sp060_old_2c: ds.l 1
-sp060_old_dc: ds.l 1
-sp060_old_f0: ds.l 1
-
     .section .note.GNU-stack,"",%progbits
     .text
 
@@ -22,63 +9,23 @@ cpu_InstallSP:
 	move.w		%sr,-(%sp)
 	or.w		#0x0700,%sr
     move.l      6(%sp),%a0
-	move.l		%a0,sp060_old_00
 
-	move.l		0xf4(%a0),sp060_old_f4
     move.l      #sp060_isp+0x80+0x00,0xf4(%a0) // unsupported integer instruction
 
     movec.l     %pcr,%d0
     btst        #16,%d0
     bne.w       1f
 
-	move.l		0xd8(%a0),sp060_old_d8
     move.l      #sp060_fsp+0x80+0x00,0xd8(%a0) // snan
-
-	move.l		0xd0(%a0),sp060_old_d0
     move.l      #sp060_fsp+0x80+0x08,0xd0(%a0) // operr
-
-	move.l		0xd4(%a0),sp060_old_d4
     move.l      #sp060_fsp+0x80+0x10,0xd4(%a0) // overflow
-
-	move.l		0xcc(%a0),sp060_old_cc
     move.l      #sp060_fsp+0x80+0x18,0xcc(%a0) // underflow
-
-	move.l		0xc8(%a0),sp060_old_c8
     move.l      #sp060_fsp+0x80+0x20,0xc8(%a0) // divide by zero
-
-	move.l		0xc4(%a0),sp060_old_c4
     move.l      #sp060_fsp+0x80+0x28,0xc4(%a0) // inexact result
-
-	move.l		0x2c(%a0),sp060_old_2c
     move.l      #sp060_fsp+0x80+0x30,0x2c(%a0) // line-f
-
-	move.l		0xdc(%a0),sp060_old_dc
     move.l      #sp060_fsp+0x80+0x38,0xdc(%a0) // unsupported fpu instruction
-
-	move.l		0xf0(%a0),sp060_old_f0
     move.l      #sp060_fsp+0x80+0x40,0xf0(%a0) // unsupported effective address
 
-    fmovem.l    #0,%fpcr
-1:	move.w		(%sp)+,%sr
-	rts
-
-cpu_UninstallSP:
-	move.w		%sr,-(%sp)
-	or.w		#0x0700,%sr
-    move.l      sp060_old_00,%a0
-    move.l      sp060_old_f4,0xf4(%a0) // unsupported integer instruction
-    movec.l     %pcr,%d0
-    btst        #16,%d0
-    bne.b       1f
-    move.l      sp060_old_d8,0xd8(%a0) // snan
-    move.l      sp060_old_d0,0xd0(%a0) // operr
-    move.l      sp060_old_d4,0xd4(%a0) // overflow
-    move.l      sp060_old_cc,0xcc(%a0) // underflow
-    move.l      sp060_old_c8,0xc8(%a0) // divide by zero
-    move.l      sp060_old_c4,0xc4(%a0) // inexact result
-    move.l      sp060_old_2c,0x2c(%a0) // line-f
-    move.l      sp060_old_dc,0xdc(%a0) // unsupported fpu instruction
-    move.l      sp060_old_f0,0xf0(%a0) // unsupported effective address
     fmovem.l    #0,%fpcr
 1:	move.w		(%sp)+,%sr
 	rts
@@ -140,8 +87,7 @@ sp060_real_unlock_page:
     rts
 
 sp060_real_fline:
-	move.l		sp060_old_2c,-(%sp)
-	rts
+	jmp			([0x2c.w])
 
 sp060_real_trap:
 sp060_fpsp_done:
