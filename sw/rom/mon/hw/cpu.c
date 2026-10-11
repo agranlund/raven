@@ -309,9 +309,9 @@ void msp_Install(uint32_t vbr) {
 	} else {
 		cpu_InstallSP(vbr);
 		vbr_Apply();
+    	cpu_CacheFlush();
 		installed = true;
 	}
-    cpu_CacheFlush();
 	cpu_SetIPL(ipl);
 }
 
