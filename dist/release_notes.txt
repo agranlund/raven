@@ -7,7 +7,7 @@ xxxxxx:
 	- motorola fpsp related bugfixes
 	- general vector/interrupt performance increase
 	- general ISA-Mem performance increase
-	- rvbios bootlogo grayscale insted of 1bpp mono
+	- grayscale bootlogo insted of 1bpp mono
 	- added dsp info to bios setup screen
 	- added fan controls to bios setup screen
 	- added rgb controls to bios setup screen (Rev.A2)

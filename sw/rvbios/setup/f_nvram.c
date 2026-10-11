@@ -89,6 +89,8 @@
 static const char* lang_tos[NUM_LANG_TOS+1] = { "American", "German  ", "French  ", "British ", "Spanish ", "Italian ",	NULL };
 static const char* lang_kbd[NUM_LANG_KBD+1] = { "US", "DE", "FR", "UK", "ES", "IT", "SE", "SF", "SG", "TR", "FI", "NO", "DK", "SA", "NL", "CZ", "HU", "PL",	NULL };
 static const char* fanmode_list[4] = { "AUTO", "ON  ", "OFF ", NULL };
+static const char* fanmode_list_eiffel[2] = { "AUTO", NULL };
+
 static const uint8_t fanmode_to_ikbd[4] = { 3, 1, 0, 3 };
 static const uint8_t fanmode_from_ikbd[4] = { 2, 1, 0, 0 };
 
@@ -173,6 +175,8 @@ static unsigned char fantemp[2];
 static unsigned char fanspeed[2];
 static unsigned char argb[4];
 
+static int16_t ikbdver;
+
 ckbd_cookie_eiff_t* eiffel;
 
 
@@ -219,14 +223,20 @@ void initFormNvram(void) {
 		delay(100);
 		fantemp[0] = eiffel->temp.temp0_fan_lo;
 		fantemp[1] = eiffel->temp.temp0_fan_hi;
+
+		if (raven()->chipset() >= 0xA2) {
+			ikbdver = 0xA2;
+		} else if (eiffel->temp.board_rev >= 0xA1) {
+			ikbdver = 0xA1;
+		}
 	} else {
 		eiffel = 0;
 	}
 
-	if (raven()->chipset() >= 0xA2)
+	if (eiffel && (ikbdver >= 0xA2))
 	{
+		/* ckbd_a2 */
 		int16_t i;
-
 		ckbd_get(eiffel, CKBD_CFG_FAN0_MODE, &fanmode, 0, 0, 0);
 		fanmode = fanmode_from_ikbd[fanmode & 3];
 
@@ -238,11 +248,25 @@ void initFormNvram(void) {
 
 		ckbd_get(eiffel, CKBD_CFG_RGB_I, &argb[0], &argb[1], &argb[2], &argb[3]);
 	}
-	else
+	else if (eiffel && (ikbdver >= 0xA1))
 	{
-		/* hide options not available on older revs */
+		/* ckbd_a1: temp + mode only */
+		ckbd_get(eiffel, CKBD_CFG_FAN0_MODE, &fanmode, 0, 0, 0);
+		fanmode = fanmode_from_ikbd[fanmode & 3];
+
 		form_nvram[FORM_FAN_SLO].flag = FORM_END;
 		form_setting_nvram[FORM_SETTING_FAN_SLO].input = SETTING_END;
+	}
+	else if (eiffel) {
+		/* eiffel: temp only */
+		form_nvram[FORM_FAN_SLO].flag = FORM_END;
+		form_setting_nvram[FORM_SETTING_FAN_SLO].input = SETTING_END;
+		form_setting_nvram[FORM_SETTING_FAN_MODE].param = (void*)fanmode_list_eiffel;
+	}
+	else {
+		/* missing ikbd */
+		form_nvram[FORM_FAN_MODE].flag = FORM_END;
+		form_setting_nvram[FORM_SETTING_FAN_MODE].input = SETTING_END;
 	}
 
 	NVMaccess(NVM_READ, 0, 17, nvram);
@@ -250,7 +274,9 @@ void initFormNvram(void) {
 
 static void exitFormNvram(void) {
 	saveToNvram();
-	ckbd_save();
+	if (eiffel && (ikbdver >= 0xA1)) {
+		ckbd_save();
+	}
 }
 
 void displayFormNvram(void) {
@@ -365,34 +391,42 @@ static void confirmFormNvram(int num_setting, conf_setting_u* confSetting) {
 
 		case FORM_SETTING_FAN_MODE:
 		{
-			fanmode = confSetting->num_list & 3;
-			ckbd_set(CKBD_CFG_FAN0_MODE, fanmode_to_ikbd[fanmode]);
+			if (eiffel && (ikbdver >= 0xA1)) {
+				fanmode = confSetting->num_list & 3;
+				ckbd_set(CKBD_CFG_FAN0_MODE, fanmode_to_ikbd[fanmode]);
+			}
 		}
 		break;
 
 		case FORM_SETTING_FAN_TLO:
 		case FORM_SETTING_FAN_THI:
 		{
-			uint8_t idx = num_setting - FORM_SETTING_FAN_TLO;
-			i = strToInt(confSetting->input);
-			if (i > 99) { i = 99; }
-			if (i <  0) { i =  0; }
-			fantemp[idx] = i;
-			ckbd_set(CKBD_CFG_EIFFEL_TEMP0_LO + (1 - idx), i);
+			if (eiffel) {
+				uint8_t idx = num_setting - FORM_SETTING_FAN_TLO;
+				i = strToInt(confSetting->input);
+				if (i > 99) { i = 99; }
+				if (i <  0) { i =  0; }
+				fantemp[idx] = i;
+				ckbd_send(CKBD_CMD_EIFFEL_PROG_TEMP);
+				ckbd_send(1 - idx);
+				ckbd_send(i);
+			}
 		}
 		break;
 
 		case FORM_SETTING_FAN_SLO:
 		case FORM_SETTING_FAN_SHI:
 		{
-			uint8_t fs = 0;
-			uint8_t idx = num_setting - FORM_SETTING_FAN_SLO;
-			i = strToInt(confSetting->input);
-			if (i >= 100) { i = 100; fs = 255; }
-			else if (i <= 0) { i = 0; fs = 0; }
-			else { fs = (i * 255) / 100; }
-			fanspeed[idx] = i;
-			ckbd_set(CKBD_CFG_FAN0_MIN_SPEED + idx, fs);
+			if (eiffel && (ikbdver >= 0xA2)) {
+				uint8_t fs = 0;
+				uint8_t idx = num_setting - FORM_SETTING_FAN_SLO;
+				i = strToInt(confSetting->input);
+				if (i >= 100) { i = 100; fs = 255; }
+				else if (i <= 0) { i = 0; fs = 0; }
+				else { fs = (i * 255) / 100; }
+				fanspeed[idx] = i;
+				ckbd_set(CKBD_CFG_FAN0_MIN_SPEED + idx, fs);
+			}
 		}
 		break;
 
@@ -401,18 +435,19 @@ static void confirmFormNvram(int num_setting, conf_setting_u* confSetting) {
 		case FORM_SETTING_RGB_G:
 		case FORM_SETTING_RGB_B:
 		{
-			
-			uint8_t idx = num_setting - FORM_SETTING_RGB_I;
-			i = strToInt(confSetting->input) & 0xff;
-			argb[idx] = i;
-			ckbd_set(CKBD_CFG_RGB_I + idx, i);
-			ckbd_send(CKBD_CMD_CKBD_ARGB);
-			ckbd_send(0);
-			ckbd_send(0xff);
-			ckbd_send(1);
-			ckbd_send(((uint16_t)argb[0] * argb[1]) >> 8);
-			ckbd_send(((uint16_t)argb[0] * argb[2]) >> 8);
-			ckbd_send(((uint16_t)argb[0] * argb[3]) >> 8);
+			if (eiffel && (ikbdver >= 0xA2)) {
+				uint8_t idx = num_setting - FORM_SETTING_RGB_I;
+				i = strToInt(confSetting->input) & 0xff;
+				argb[idx] = i;
+				ckbd_set(CKBD_CFG_RGB_I + idx, i);
+				ckbd_send(CKBD_CMD_CKBD_ARGB);
+				ckbd_send(0);
+				ckbd_send(0xff);
+				ckbd_send(1);
+				ckbd_send(((uint16_t)argb[0] * argb[1]) >> 8);
+				ckbd_send(((uint16_t)argb[0] * argb[2]) >> 8);
+				ckbd_send(((uint16_t)argb[0] * argb[3]) >> 8);
+			}
 		}
 		break;
 	}
