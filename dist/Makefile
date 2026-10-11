@@ -405,6 +405,14 @@ copysw:
 		$(COPY) $(SUPPDIR)/nova/NOVA_COL.INF $(SWDIR)/
 		$(COPY) $(SUPPDIR)/nova/STA_VDI.INF $(SWDIR_AUTO)/sta_vdi.inf
 
+	# --------------------------------------------------
+	# MagiC
+	# --------------------------------------------------
+		find $(SUPPDIR)/magic -name ".DS_Store" -delete
+		$(COPY) -Rv $(SUPPDIR)/magic $(SWDIR_RTOOLS)
+		rm -f $(SWDIR_RTOOLS)/magic/en/README.TXT
+		rm -f $(SWDIR_RTOOLS)/magic/de/README.TXT
+		rm -f $(SWDIR_RTOOLS)/magic/fr/README.TXT
 
 	# --------------------------------------------------
 	# Additional support tools
