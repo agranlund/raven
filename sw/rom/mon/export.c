@@ -240,7 +240,7 @@ const raven_t ravenBios __attribute__((section(".export"))) =
 // 0x0100
     b_sys_reset,
     b_sys_poweroff,
-    0,
+    msp_Install,
     {0,0,0,0,0},
 // 0x0120
 	{0,0,0,0,0,0,0,0},

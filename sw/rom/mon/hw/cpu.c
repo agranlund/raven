@@ -301,8 +301,16 @@ extern void cpu_InstallSP(uint32_t vbr);
 
 void msp_Install(uint32_t vbr) {
 	uint32_t ipl = cpu_SetIPL(7);
-	cpu_InstallSP(vbr);
-    vbr_Apply();
+	static bool installed = false;
+	if (installed && (vbr == 0)) {
+		cpu_InstallSP((uint32_t)vbrTable);
+		*((volatile uint32_t*)0xf4) = vbrTable[0xf4 >> 2];
+		vbrTable[0xf4 >> 2] = (uint32_t)&vbrProxy[0xf4];
+	} else {
+		cpu_InstallSP(vbr);
+		vbr_Apply();
+		installed = true;
+	}
     cpu_CacheFlush();
 	cpu_SetIPL(ipl);
 }

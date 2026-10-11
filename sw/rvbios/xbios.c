@@ -25,11 +25,11 @@
 #include "rvbios.h"
 #include "raven.h"
 
-extern void Install060SP(void);		/* trap14.s */
 extern void InstallTrap14(void);	/* trap14.s	*/
 extern void InstallTrap14Dsp(void);	/* dsp.s */
 extern void InstallAvec5Dsp(void);	/* dsp.s */
 extern void InstallEiffel(void);	/* eiffel.s */
+extern void InstallDefaultFpuVectors(void);		/* trap14.s */
 
 /*-------------------------------------------------------------------------------
  *
@@ -181,7 +181,8 @@ void InstallXbios(void)
 	InstallEiffel();
 
 	/* motorola support package */
-	Install060SP();
+	InstallDefaultFpuVectors();
+	raven()->sys_installsp(0);
 
     cache_flush();
 	ipl_set(ipl);

@@ -53,7 +53,7 @@
     .XREF   xbc_puntaes
     .XREF   xbc_read_temp
 
-	.EXPORT Install060SP
+	.EXPORT InstallDefaultFpuVectors
 	.EXPORT InstallTrap14
 	.EXPORT trap14_table
 	.TEXT
@@ -68,34 +68,15 @@ VecFpuException:
 ;----------------------------------------------------------
 ; Proxy -> TOS vector trampoline
 ;----------------------------------------------------------
-VecProxyTrampolineF4:
-	jmp		([0xf4.w])
 
-Install060SP:
-	; default do-nothing exception handlers
+InstallDefaultFpuVectors:
     move.l      #VecFpuException,0xd8 	; snan
     move.l      #VecFpuException,0xd0 	; operr
     move.l      #VecFpuException,0xd4 	; overflow
     move.l      #VecFpuException,0xcc 	; underflow
     move.l      #VecFpuException,0xc8 	; divide by zero
     move.l      #VecFpuException,0xc4 	; inexact result
-
-	; move unimplemented integer instruction handler away
-	; from the hidden proxy and into TOS vectors.
-	; this lets programs override it, which is commonly
-	; done for detecting cpu type (ex; mint1.16)
-
-	; we leave all other vectors hidden in the proxy
-	; so nothing can override them.
-	; for example Mint again which tries to replace
-	; all fpu vectors on startup.
-	; ct60tos combats this by force-reinstalling its vectors
-	; every vbl but we can just keep ours hidden in the proxy
-
-	movec	vbr,a0
-	move.l	0xf4(a0),d0
-	move.l	d0,0xf4.w
-	move.l	#VecProxyTrampolineF4,0xf4(a0)
+    move.l      #VecFpuException,0x2c 	; linef
 	rts
 
 ;----------------------------------------------------------
@@ -378,7 +359,6 @@ xb_ct60_rwparam:
 xb_ct60_vmalloc:
 	moveq.l	#0,d0
 	rte
-
 	
 ;----------------------------------------------------------
 ;
