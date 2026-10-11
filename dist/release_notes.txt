@@ -14,3 +14,7 @@ xxxxxx:
 
   rvnova:
     - general ISA-Mem performance increase
+
+  software:
+    - includes updated MagiC binaries for snapshots at
+	  https://tho-otto.m68k.eu/snapshots/magicmac/
