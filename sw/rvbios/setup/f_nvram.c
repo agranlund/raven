@@ -208,6 +208,7 @@ void initFormNvram(void) {
 	form_setting_nvram[FORM_SETTING_RGB_G].text = &form_nvram[FORM_RGB_G].text[FORM_TEXTPOS];
 	form_setting_nvram[FORM_SETTING_RGB_B].text = &form_nvram[FORM_RGB_B].text[FORM_TEXTPOS];
 
+	ikbdver = 0;
 	fanmode = 0;
 	fantemp[0] = 0;
 	fantemp[1] = 0;
@@ -218,6 +219,7 @@ void initFormNvram(void) {
 	argb[2] = 0;
 	argb[3] = 0;
 
+	/* detect ikbd variant */
 	if (Getcookie(C_Eiff, (long*)&eiffel) == C_FOUND) {
 		ckbd_send(CKBD_CMD_EIFFEL_GET_TEMP);
 		delay(100);
@@ -233,6 +235,7 @@ void initFormNvram(void) {
 		eiffel = 0;
 	}
 
+	/* populate gui according to ikbd variant */
 	if (eiffel && (ikbdver >= 0xA2))
 	{
 		/* ckbd_a2 */
