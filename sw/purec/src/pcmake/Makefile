@@ -7,12 +7,17 @@ LD = $(CC)
 WARNINGS = -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes
 # Use -DDISABLE_NATFEATS=1 to disable NATFEATS at compile time.
 CFLAGS = -Os -fomit-frame-pointer $(WARNINGS) # -DDISABLE_NATFEATS=1
-LDFLAGS = -s
+LDFLAGS = 
 
 ifeq ($(CROSS_PREFIX),)
 EXE_EXT=
+UNAME_S := $(shell uname -s)
+ifneq ($(UNAME_S), Darwin)
+	LDFLAGS += -s
+endif
 else
 EXE_EXT=.ttp
+LDFLAGS += -s
 endif
 
 all: pcmake$(EXE_EXT)
@@ -22,6 +27,7 @@ OBJS = \
 	pcmake.o \
 	prj.o \
 	exec.o \
+	fixline.o \
 	asopts.o \
 	ccopts.o \
 	ldopts.o \

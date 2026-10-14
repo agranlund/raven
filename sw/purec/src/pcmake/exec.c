@@ -22,6 +22,7 @@
 #define PATH_SEP "/"
 #endif
 #include "pcmake.h"
+#include "fixline.h"
 
 static char *pc_dir;
 static char *pc_bindir;
@@ -545,7 +546,126 @@ int linker(int argc, const char **argv)
 }
 
 
+#if !defined(__TOS__) && !defined(__atarist__)
+/*
+ * Like do_exec, but captures pcc's stdout+stderr through a pipe and
+ * corrects the line numbers in Warning/Error messages before printing them.
+  */
+static int compiler_posix(int argc, const char **argv, const char *src_file)
+{
+	pid_t child;
+	char *path;
+	int errpipe[2];
+	int outpipe[2];
+	int exec_errno;
+	int exec_count;
+	int exit_status;
+	int exec_ok;
+	int result = -1;
+
+	path = findcmd(argv[0]);
+	if (!path) {
+		return -1;
+	}
+
+	if (pipe(errpipe) != 0 || pipe(outpipe) != 0) {
+		g_free(path);
+		return do_exec(argc, argv);
+	}
+	fcntl(errpipe[1], F_SETFD, fcntl(errpipe[1], F_GETFD) | FD_CLOEXEC);
+
+	fflush(stdout);
+	child = fork();
+
+	if (child == -1) {
+		close(errpipe[0]); close(errpipe[1]);
+		close(outpipe[0]); close(outpipe[1]);
+		g_free(path);
+		errout("%s: %s: %s", program_name, argv[0], strerror(errno));
+		return -1;
+	}
+
+	if (child == 0) {
+		close(errpipe[0]);
+		close(outpipe[0]);
+		dup2(outpipe[1], STDOUT_FILENO);
+		dup2(outpipe[1], STDERR_FILENO);
+		close(outpipe[1]);
+		execv(path, (char **)argv);
+		exec_errno = errno;
+		write(errpipe[1], &exec_errno, sizeof(exec_errno));
+		_exit(0);
+	}
+
+	/* parent */
+	close(errpipe[1]);
+	close(outpipe[1]);
+	g_free(path);
+
+	while ((exec_count = read(errpipe[0], &exec_errno, sizeof(exec_errno))) == -1) {
+		if (errno != EAGAIN && errno != EINTR) {
+			break;
+		}
+	}
+	close(errpipe[0]);
+
+	exec_ok = (exec_count == 0);
+
+	if (!exec_ok) {
+		close(outpipe[0]);
+		errno = (exec_count == (int)sizeof(exec_errno)) ? exec_errno : EINTR;
+		errout("%s: %s: %s", program_name, argv[0], strerror(errno));
+	} else {
+		FILE *f = fdopen(outpipe[0], "r");
+		if (f) {
+			static char line[4096];
+			static char remain[4096];
+			static char fname[256];
+			static char prefix[64];
+			int reported_line;
+			const char *src_base = basename(src_file);
+			while (fgets(line, sizeof(line), f)) {
+				if (sscanf(line, "%15s %255s %d:%[^\n]", prefix, fname, &reported_line, remain) == 4
+				    && (strcmp(prefix, "Warning") == 0 || strcmp(prefix, "Error") == 0)
+				    && stricmp(fname, src_base) == 0) {
+					int real_line = fixline(src_file, reported_line);
+					printf("%s %s %d:%s\n", prefix, fname, real_line, remain);
+				} else {
+					fputs(line, stdout);
+				}
+			}
+			fclose(f);
+		} else {
+			close(outpipe[0]);
+		}
+	}
+
+	while (waitpid(child, &exit_status, 0) == -1) {
+		if (errno != EINTR) break;
+	}
+
+	if (exec_ok) {
+		if (WIFEXITED(exit_status)) {
+			result = WEXITSTATUS(exit_status);
+		} else if (WIFSIGNALED(exit_status)) {
+			result = WTERMSIG(exit_status) + 128;
+		}
+	}
+	return result;
+}
+#endif /* !__TOS__ */
+
+
 int compiler(int argc, const char **argv)
 {
+#if !defined(__TOS__) && !defined(__atarist__)
+	int i;
+	for (i = argc - 1; i >= 1; i--) {
+		size_t len = strlen(argv[i]);
+		if (len > 2 && stricmp(argv[i] + len - 2, ".c") == 0) {
+			return compiler_posix(argc, argv, argv[i]);
+		}
+	}
+#endif
 	return do_exec(argc, argv);
 }
