@@ -64,6 +64,7 @@ SFLAGS = $(OPTS) $(INCLUDE) -Wa,--register-prefix-optional
 
 CFLAGS = $(OPTS) $(DEFS) $(INCLUDE) -I$(LIBCMINI_INC) \
 	-std=c99 -fomit-frame-pointer -fno-exceptions -ffast-math \
+	-fno-strict-aliasing \
     -Wa,--register-prefix-optional \
 	-Wall -Wno-multichar -Wno-unused -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unused-function -Wno-format
 	#
@@ -140,6 +141,9 @@ gcc: $(current_makefile) $(LINKOBJS)
 	$(GSTRIP) $(BIN)
 	$(GFLAGS) $(PRGFLAGS) $(BIN)
 	$(POST)
+
+%.o : %.s
+	sed 's/;/\x7c/g' $< | $(GCC) $(SFLAGS) $(CPUFLAGS) -x assembler -c - -o $@
 
 %.o : %.S
 	$(GCC) $(SFLAGS) $(CPUFLAGS) -c $< -o $@
