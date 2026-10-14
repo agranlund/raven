@@ -1578,7 +1578,7 @@ static PRJ *load_prj(MAKEOPTS *opts, const char *f, int level)
 						errout(_("%s: duplicate output file '%s'"), program_name, ps);
 						g_free(ps);
 						g_free(fnm);
-						return FT_UNKNOWN;
+						return 0;
 					}
 					/* TODO: replace "*.PRG" in filename with editor filename, for DEFAULT.PRJ */
 					putflist(&prj->output, ps, filetype(ps));

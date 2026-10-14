@@ -677,7 +677,11 @@ static int _getopt_internal(int argc, const char **argv, const char *optstring,
 	result = _getopt_internal_r(argc, argv, optstring, longopts, longind, long_only, &getopt_data, posixly_correct);
 
 	optind = getopt_data.optind;
+#ifdef __APPLE__
+	optarg = (char*)getopt_data.optarg;
+#else
 	optarg = getopt_data.optarg;
+#endif
 	optopt = getopt_data.optopt;
 
 	return result;
@@ -690,7 +694,7 @@ int getopt(int argc, char * const argv[], const char *optstring)
 int getopt(int argc, const char **argv, const char *optstring)
 #endif
 {
-	return _getopt_internal(argc, argv, optstring, NULL, NULL, 0, 0);
+	return _getopt_internal(argc, (const char**)argv, optstring, NULL, NULL, 0, 0);
 }
 
 
