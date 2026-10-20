@@ -205,21 +205,28 @@ copysw:
 	# --------------------------------------------------
 	$(MAKE) -C $(ROOTDIR)/sw/tools clean
 	$(MAKE) -C $(ROOTDIR)/sw/tools
-	$(COPY) $(ROOTDIR)/sw/tools/thingpal/thingpal.tos $(SWDIR_TOOLS)/
+
+	$(COPY) $(ROOTDIR)/sw/tools/serial.cpx/serial.cpx $(SWDIR_CPX)/
+
 	$(COPY) $(ROOTDIR)/sw/tools/mon/mon.tos $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/mon/readme.txt $(SWDIR_RTOOLS)/mon.txt
-	$(COPY) $(ROOTDIR)/sw/tools/ymodem/ymodem.tos $(SWDIR_RTOOLS)/
-	$(COPY) $(ROOTDIR)/sw/tools/ymodem/readme.txt $(SWDIR_RTOOLS)/ymodem.txt
-#	$(COPY) $(ROOTDIR)/sw/tools/vt52_8x8/vt52_8x8.prg $(SWDIR_RTOOLS)/
-#	$(COPY) $(ROOTDIR)/sw/tools/vt52_8x8/readme.txt $(SWDIR_RTOOLS)/vt52_8x8.txt
 	$(COPY) $(ROOTDIR)/sw/tools/cacheon/cacheon.prg $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/cacheoff/cacheoff.prg $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/resetnvm/resetnvm.prg $(SWDIR_RTOOLS)/
-#	$(COPY) $(ROOTDIR)/sw/tools/patch_xc/patch_xc.prg $(SWDIR_RTOOLS)/
-	$(COPY) $(ROOTDIR)/sw/tools/fpu_emu/fpemu.prg $(SWDIR_RTOOLS)/
-	$(COPY) $(ROOTDIR)/sw/tools/fpu_emu/fpemu.txt $(SWDIR_RTOOLS)/
 	$(COPY) $(ROOTDIR)/sw/tools/flash/flash.ttp $(SWDIR_RTOOLS)/
-	$(COPY) $(ROOTDIR)/sw/tools/serial.cpx/serial.cpx $(SWDIR_CPX)/
+#	$(COPY) $(ROOTDIR)/sw/tools/patch_xc/patch_xc.prg $(SWDIR_RTOOLS)/
+
+	$(MKDIR) $(SWDIR_TOOLS)/fpu_emu
+	$(COPY) $(ROOTDIR)/sw/tools/fpu_emu/fpemu.prg $(SWDIR_TOOLS)/fpu_emu/
+	$(COPY) $(ROOTDIR)/sw/tools/fpu_emu/fpemu.txt $(SWDIR_TOOLS)/fpu_emu/
+	$(MKDIR) $(SWDIR_TOOLS)/fat32
+	$(COPY) $(ROOTDIR)/sw/tools/fat32/fat32.prg $(SWDIR_TOOLS)/fat32/
+	$(COPY) $(ROOTDIR)/sw/tools/fat32/readme.txt $(SWDIR_TOOLS)/fat32/
+	$(MKDIR) $(SWDIR_TOOLS)/ymodem
+	$(COPY) $(ROOTDIR)/sw/tools/ymodem/ymodem.tos $(SWDIR_TOOLS)/ymodem/
+	$(COPY) $(ROOTDIR)/sw/tools/ymodem/readme.txt $(SWDIR_TOOLS)/ymodem/
+
+	$(COPY) $(ROOTDIR)/sw/tools/thingpal/thingpal.tos $(SWDIR_TOOLS)/
 
 
 	# --------------------------------------------------

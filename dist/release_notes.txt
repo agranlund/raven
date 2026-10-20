@@ -1,7 +1,7 @@
 Raven 68060
 Hardware and software binary release
 
-xxxxxx:
+261020:
 
   rom:
 	- motorola fpsp related bugfixes
@@ -18,3 +18,7 @@ xxxxxx:
   software:
     - includes updated MagiC binaries for snapshots at
 	  https://tho-otto.m68k.eu/snapshots/magicmac/
+	- moved software/raven/fpemu -> software/tools/fpu_emu/
+	- moved software/raven/ymodem -> software/tools/ymodem/
+    - added FAT32 filesystem driver for singletasking TOS
+	  (software/tools/fat32)
