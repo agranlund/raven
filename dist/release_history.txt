@@ -2,6 +2,24 @@ Raven 68060
 Hardware and software binary release
 
 
+261020:
+  rom:
+	- motorola fpsp related bugfixes
+	- general vector/interrupt performance increase
+	- general ISA-Mem performance increase
+	- grayscale bootlogo insted of 1bpp mono
+	- added dsp info to bios setup screen
+	- added fan controls to bios setup screen
+	- added rgb controls to bios setup screen (Rev.A2)
+  rvnova:
+    - general ISA-Mem performance increase
+  software:
+    - includes updated MagiC binaries for snapshots at
+	  https://tho-otto.m68k.eu/snapshots/magicmac/
+	- moved software/raven/fpemu -> software/tools/fpu_emu/
+	- moved software/raven/ymodem -> software/tools/ymodem/
+    - added FAT32 filesystem driver for singletasking TOS
+	  (software/tools/fat32)
 260902:
   rom:
     - rvbios is now in rom.
