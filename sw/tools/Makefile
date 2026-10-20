@@ -2,6 +2,7 @@
 FOLDERS = \
 	mon \
 	dsp \
+	fat32 \
 	cacheoff \
 	cacheon \
 	eiffel \
