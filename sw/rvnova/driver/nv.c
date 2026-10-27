@@ -97,24 +97,23 @@ bool nv_setmode(uint16_t width, uint16_t height, uint16_t bpp) {
     int i;
     int modeidx = -1;
     bool result = false;
-    dprintf(("nv_setmode %dx%dx%dx\n", width, height, bpp));
+    dprintf(("nv_setmode %dx%dx%d\n", width, height, bpp));
     /* match against known modes */
     for (i = 0; i < nummodes && !result; i++) {
         gfxmode_t* mode = &modes[i];
         if (mode && mode->code && (mode->width == width) && (mode->height == height) && (mode->bpp == bpp)) {
             /* call device driver */
             result = card->setmode(mode);
+			dprintf(("modecode %04x result = %d\n", mode->code, result));
         }
     }
     if (result) {
         /* reconfigure logical vram as needed */
         nv_init_vram(card->bank_addr, card->bank_size, card->bank_count);
+		/* update bankswitcher */
+		nv_banksw_prepare(width, height, bpp);
     }
-
-    /* update bankswitcher */
-    nv_banksw_prepare(width, height, bpp);
-
-    return result;
+	return result;
 }
 
 
@@ -122,12 +121,21 @@ bool nv_setmode(uint16_t width, uint16_t height, uint16_t bpp) {
  * nv_addmode:
  *  add or modify a graphics mode, called by drivers during initialization
  *-----------------------------------------------------------------------------*/
-void nv_addmode(uint16_t width, uint16_t height, uint8_t bpp, uint8_t flags, uint16_t code) {
+void nv_addmode(uint16_t width, uint16_t height, uint8_t bpp, uint16_t code, uint8_t flags, modeline_t* modeline) {
     int i;
     for (i = 0; i < nummodes; i++) {
         if ((modes[i].width == width) && (modes[i].height == height) && (modes[i].bpp == bpp)) {
             modes[i].flags = flags;
             modes[i].code = code;
+			if (modeline) {
+				modes[i].flags |= GFXMODE_FLAG_MODELINE;
+				memcpy(&(modes[i].modeline), modeline, sizeof(modeline_t));
+			} else {
+				modes[i].flags &= ~GFXMODE_FLAG_MODELINE;
+				memset(&(modes[i].modeline), 0, sizeof(modeline_t));
+			}
+			dprintf(("nv_addmode_chg [%d]: %d %d %d %04x %02x %08lx\n",
+				i, modes[i].width, modes[i].height, modes[i].bpp, modes[i].code, modes[i].flags, (uint32_t)modeline));
             return;
         }
     }
@@ -137,6 +145,15 @@ void nv_addmode(uint16_t width, uint16_t height, uint8_t bpp, uint8_t flags, uin
         modes[nummodes].bpp = bpp;
         modes[nummodes].flags = flags;
         modes[nummodes].code = code;
+		if (modeline) {
+			modes[i].flags |= GFXMODE_FLAG_MODELINE;
+			memcpy(&(modes[nummodes].modeline), modeline, sizeof(modeline_t));
+		} else {
+			modes[i].flags &= ~GFXMODE_FLAG_MODELINE;
+			memset(&(modes[nummodes].modeline), 0, sizeof(modeline_t));
+		}
+		dprintf(("nv_addmode_add [%d]: %d %d %d %04x %02x %08lx\n",
+			nummodes, modes[nummodes].width, modes[nummodes].height, modes[nummodes].bpp, modes[nummodes].code, modes[nummodes].flags, (uint32_t)modeline));
         nummodes++;
     }
 }

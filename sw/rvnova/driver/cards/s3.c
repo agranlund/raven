@@ -169,7 +169,7 @@ static void setaddr(uint32_t addr) {
 }
 
 static bool setmode(gfxmode_t* mode) {
-    if (vga_setmode(mode->code)) {
+    if (vga_setmode(mode)) {
         configure_framebuffer(mode);
         return true;
     }
@@ -192,14 +192,16 @@ static bool init(card_t* card, ini_t* settings, addmode_f addmode) {
     }
 
     /* vesa modes */
-    addmode( 800, 600, 4, 0, 0x102);
-    addmode(1024, 768, 4, 0, 0x104);
-    addmode( 640, 480, 8, 0, 0x101);
-    addmode( 800, 600, 8, 0, 0x103);
+    addmode( 800, 600, 4, 0x102, 0, 0);
+    addmode(1024, 768, 4, 0x104, 0, 0);
+    addmode( 640, 480, 8, 0x101, 0, 0);
+    addmode( 800, 600, 8, 0x103, 0, 0);
 #if 0
     /* todo: no sync, is this choosing interlace?
-    addmode(1024, 768, 8, 0, 0x205);    /* 0x105 or 0x205 ?? */
+	/* 0x105 or 0x205 ?? */
+    addmode(1024, 768, 8, 0x205, 0, 0);
 #endif
+	vga_addmodes_from_settings(addmode, settings, "modes.s3");
 
     /* configure linear or banked operation */
     configure_framebuffer(0);

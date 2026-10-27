@@ -28,16 +28,16 @@
  * custom modelines
  *-----------------------------------------------------------------------------*/
 modeline_t modeline_720p_cvt = { "720p_60hz_CVT",
-    74500UL, 1280, 1344, 1472, 1664, 720, 723, 728, 748, 1, 0 };
+    74500UL, 1280, 1280, 1344, 1472, 1664, 720, 723, 728, 748, 1, 0 };
 
 modeline_t modeline_720p_cvtrb = { "720p_60hz_CVT-RB",
-    64000UL, 1280, 1328, 1360, 1440, 720, 723, 728, 741, 0, 1 };
+    64000UL, 1280, 1280, 1328, 1360, 1440, 720, 723, 728, 741, 0, 1 };
 
 modeline_t modeline_720p_cea = { "720p_60hz_CEA",
-    74250UL, 1280, 1390, 1430, 1650, 720, 725, 730, 750, 0, 0 };
+    74250UL, 1280, 1280, 1390, 1430, 1650, 720, 725, 730, 750, 0, 0 };
 
 modeline_t modeline_720p_75mhz = { "720p_60hz_75Mhz",
-    75000UL, 1280, 1436, 1476, 1664, 720, 723, 728, 750, 0, 0 };
+    75000UL, 1280, 1280, 1436, 1476, 1664, 720, 723, 728, 750, 0, 0 };
 
 
 /*-------------------------------------------------------------------------------
@@ -105,7 +105,7 @@ void vga_clear(void) {
     vga_WriteReg(0x3c4, 0x02, mask);
 }
 
-bool vga_setmode(uint16_t code) {
+static bool vga_modecode(uint16_t code) {
     x86_regs_t r;
     bool result;
     if (code >= 0x100) {
@@ -147,7 +147,7 @@ uint16_t vga_modeline(modeline_t* ml) {
     uint8_t  ofl;
     uint16_t hto = (ml->htotal / 8) - 5;
     uint16_t hde = (ml->hdisp / 8) - 1;
-    uint16_t hbs = (ml->hdisp / 8) - 1;
+    uint16_t hbs = (ml->hdisp / 8);
     uint16_t hbe = (ml->htotal / 8);
     uint16_t hss = (ml->hsyncstart / 8);
     uint16_t hse = (ml->hsyncend / 8);
@@ -156,13 +156,11 @@ uint16_t vga_modeline(modeline_t* ml) {
     uint16_t vss = ml->vsyncstart;
     uint16_t vde = ml->vdisp - 1;
     uint16_t vbs = ml->vdisp;
-    uint16_t vbe = ml->vtotal - 1;
+    uint16_t vbe = 0;               /* fires at frame wrap; vtotal must be <= next 256-multiple after VBS */
 
 #if 1
-    /* wdc is getting stuck blanks. */
-    /* but this appears to work on both wdc and cirrus */
+    /* wdc is getting stuck blanks with non-zero hbe */
     hbe = 0;
-    vbe = 0;
 #endif
 
     /* vga overflow bits */
@@ -198,13 +196,15 @@ uint16_t vga_modeline(modeline_t* ml) {
     /* unlock crtc */
     vga_ModifyReg(0x3d4, 0x11, 0x8f, (ml->vsyncend & 0x0f));        /* vsync end                */
 
-    /* horizontal */
-    vga_WriteReg(0x3d4, 0x00, hto & 0xff);                          /* htotal                   */
-    vga_WriteReg(0x3d4, 0x01, hde & 0xff);                          /* hdisp end                */
-    vga_WriteReg(0x3d4, 0x02, hbs & 0xff);                          /* hblank start             */
-    vga_WriteReg(0x3d4, 0x03, ((hbe & 0x1f) | 0x80));               /* hblank end               */
-    vga_WriteReg(0x3d4, 0x04, hss & 0xff);                          /* hsync start              */
-    vga_WriteReg(0x3d4, 0x05, ((hbe<<2)&0x80) | (hse & 0x1f));      /* hblank end + hsync end   */
+    /* horizontal (skipped if htotal == 0) */
+    if (ml->htotal) {
+        vga_WriteReg(0x3d4, 0x00, hto & 0xff);                      /* htotal                   */
+        vga_WriteReg(0x3d4, 0x01, hde & 0xff);                      /* hdisp end                */
+        vga_WriteReg(0x3d4, 0x02, hbs & 0xff);                      /* hblank start             */
+        vga_WriteReg(0x3d4, 0x03, ((hbe & 0x1f) | 0x80));           /* hblank end               */
+        vga_WriteReg(0x3d4, 0x04, hss & 0xff);                      /* hsync start              */
+        vga_WriteReg(0x3d4, 0x05, ((hbe<<2)&0x80) | (hse & 0x1f)); /* hblank end + hsync end   */
+    }
 
     /* vertical */
     vga_WriteReg(0x3d4, 0x06, vto & 0xff);                          /* vtotal                   */
@@ -212,12 +212,173 @@ uint16_t vga_modeline(modeline_t* ml) {
     vga_ModifyReg(0x3d4, 0x09, 0x20, (vbs >> 4));                   /* vblank start overflow    */
     vga_WriteReg(0x3d4, 0x10, vss & 0xff);                          /* vsync start              */
     vga_WriteReg(0x3d4, 0x12, vde & 0xff);                          /* vdisp end                */
-    vga_WriteReg(0x3d4, 0x13, (ml->hdisp / 8)  & 0xff);             /* pitch                    */
+    vga_WriteReg(0x3d4, 0x13, (ml->pitch / 8)   & 0xff);             /* pitch                    */
     vga_WriteReg(0x3d4, 0x15, vbs & 0xff);                          /* vblank start             */
     vga_WriteReg(0x3d4, 0x16, vbe & 0xff);                          /* vblank end               */
 
     /* return svga overflow */
     return ret;
+}
+
+static void vga_dblscan(void)
+{
+    uint8_t cr00 = vga_ReadReg(0x3d4, 0x00);
+    uint8_t cr01 = vga_ReadReg(0x3d4, 0x01);
+    uint8_t cr02 = vga_ReadReg(0x3d4, 0x02);
+    uint8_t cr03 = vga_ReadReg(0x3d4, 0x03);
+    uint8_t cr04 = vga_ReadReg(0x3d4, 0x04);
+    uint8_t cr05 = vga_ReadReg(0x3d4, 0x05);
+    uint8_t cr13 = vga_ReadReg(0x3d4, 0x13);
+
+    /* absolute positions in char clocks */
+    uint16_t ht    = cr00 + 5;
+    uint16_t hde   = cr01 + 1;
+    uint16_t hbs   = cr02;
+    uint16_t hrs   = cr04;
+    uint16_t hbe_m = (cr03 & 0x1f) | ((cr05 & 0x80) >> 2);
+    uint16_t hre_m = (cr05 & 0x1f);
+    uint16_t hbe   = hbs + ((hbe_m - hbs) & 0x3f);
+    uint16_t hre   = hrs + ((hre_m - hrs) & 0x1f);
+
+    ht  >>= 1;
+    hde >>= 1;
+    hbs >>= 1;
+    hbe >>= 1;
+    hrs >>= 1;
+    hre >>= 1;
+
+    if (hbe >= ht) hbe = ht - 1;
+    if (hre >= ht) hre = ht - 1;
+
+    vga_vsync();
+    vga_ModifyReg(0x3c4, 0x01, 0x20, 0x20);                     /* screen off */
+    vga_WriteReg (0x3c4, 0x00, 0x01);                          /* synchronous reset (wait for char clock boundary) */
+
+    vga_ModifyReg(0x3d4, 0x11, 0x80, 0x00);                     /* unlock */
+    vga_WriteReg (0x3d4, 0x00, ht - 5);
+    vga_WriteReg (0x3d4, 0x01, hde - 1);
+    vga_WriteReg (0x3d4, 0x02, hbs);
+    vga_WriteReg (0x3d4, 0x03, (cr03 & 0xe0) | (hbe & 0x1f));   /* keep skew */
+    vga_WriteReg (0x3d4, 0x04, hrs);
+    vga_WriteReg (0x3d4, 0x05, (cr05 & 0x60) | ((hbe & 0x20) << 2) | (hre & 0x1f));
+    vga_ModifyReg(0x3d4, 0x09, 0x1f, 0x01);                     /* line double */
+    vga_WriteReg (0x3d4, 0x13, cr13 >> 1);                      /* pitch */
+    vga_ModifyReg(0x3d4, 0x11, 0x80, 0x80);                     /* lock */
+
+    vga_ModifyReg(0x3c4, 0x01, 0x08, 0x08);                     /* dot clock / 2 */
+
+    vga_WriteReg (0x3c4, 0x00, 0x03);                           /* sequencer start */
+
+	vga_vsync();
+    vga_ModifyReg(0x3c4, 0x01, 0x20, 0x00);                     /* screen on */
+	vga_delay(500);
+    vga_vsync();
+}
+
+bool vga_setmode(gfxmode_t* mode) {
+	if (mode->code && vga_modecode(mode->code)) {
+		if ((mode->flags & GFXMODE_FLAG_DBLSCAN) && !(mode->flags & GFXMODE_FLAG_MODELINE)) {
+			vga_dblscan();
+		}
+		return true;
+	}
+    return false;
+}
+
+static const char* vga_getsetting_str(const char** v, ini_t* ini, const char* w) {
+	*v = 0;
+	while (w && (w < ini->end)) {
+		if (*w != 0) {
+			if ((*w != '-') && (*w != '[')) {
+				*v = w;
+				while (*w && (w < ini->end)) {
+					w++;
+				}
+			}
+			return w;
+		}
+		w++;
+	}
+	return w;
+}
+
+static const char* vga_getsetting_u32(uint32_t* v, ini_t* ini, const char* w) {
+	bool hex = false;
+	uint32_t total = 0;
+	const char* str = 0;
+	w = vga_getsetting_str(&str, ini, w);
+	if (str && *str) {
+		if (*str == '$') { hex = true; str++; }
+		if (hex) { while (1) {
+			char c = *str++;
+			if (c >= '0' && c <= '9') { total = (total << 4) | (c - '0'); }
+			else if (c >= 'a' && c <= 'f') { total = (total << 4) | (c - 'a' + 10); }
+			else { break; } }
+		} else { while (1) {
+			char c = *str++;
+			if (c >= '0' && c <= '9') { total *= 10; total += (c - '0'); }
+			else { break; } }
+		}
+	}
+	*v = total;
+	return w;
+}
+
+static const char* vga_getsetting_u16(uint16_t* v, ini_t* ini, const char* w) {
+	uint32_t v32; w = vga_getsetting_u32(&v32, ini, w);
+	*v = (uint16_t)(v32); return w;
+}
+
+static const char* vga_getsetting_u8(uint8_t* v, ini_t* ini, const char* w) {
+	uint32_t v32; w = vga_getsetting_u32(&v32, ini, w);
+	*v = (uint8_t)(v32); return w;
+}
+
+void vga_addmodes_from_settings(addmode_f addmode, ini_t* settings, const char* section) {
+	ini_t ini;
+	dprintf(("addmodes_from_settings [%s]\n", section));
+	if (ini_GetSection(&ini, settings, section)) {
+		const char* w = ini.data;
+		while (w && (w < ini.end)) {
+			if (*w == '-') {
+				gfxmode_t mode;
+				const char* s;
+				uint32_t v;
+				w++;
+				w = vga_getsetting_u16(&mode.width, &ini, w);
+				w = vga_getsetting_u16(&mode.height, &ini, w);
+				w = vga_getsetting_u8(&mode.bpp, &ini, w);
+				w = vga_getsetting_u16(&mode.code, &ini, w);
+				w = vga_getsetting_str(&s, &ini, w);
+				mode.flags = 0;
+				while (s) {
+					if (s[0] == 'd') {
+						mode.flags |= GFXMODE_FLAG_DBLSCAN;
+					} else if (s[0] == 'm') {
+						mode.flags |= GFXMODE_FLAG_MODELINE;
+						mode.modeline.name = "";
+						w = vga_getsetting_u32(&mode.modeline.pclk, &ini, w);
+						w = vga_getsetting_u16(&mode.modeline.pitch, &ini, w);
+						w = vga_getsetting_u16(&mode.modeline.hdisp, &ini, w);
+						w = vga_getsetting_u16(&mode.modeline.hsyncstart, &ini, w);
+						w = vga_getsetting_u16(&mode.modeline.hsyncend, &ini, w);
+						w = vga_getsetting_u16(&mode.modeline.htotal, &ini, w);
+						w = vga_getsetting_u16(&mode.modeline.vdisp, &ini, w);
+						w = vga_getsetting_u16(&mode.modeline.vsyncstart, &ini, w);
+						w = vga_getsetting_u16(&mode.modeline.vsyncend, &ini, w);
+						w = vga_getsetting_u16(&mode.modeline.vtotal, &ini, w);
+						w = vga_getsetting_u8((uint8_t*)&mode.modeline.hpolarity, &ini, w);
+						w = vga_getsetting_u8((uint8_t*)&mode.modeline.vpolarity, &ini, w);
+					}
+					s = 0; w = vga_getsetting_str(&s, &ini, w);
+				}
+				addmode(mode.width, mode.height, mode.bpp, mode.code, mode.flags,
+					(mode.flags & GFXMODE_FLAG_MODELINE) ? &mode.modeline : 0);
+			}
+			else if (*w == 0) { w++; }
+			else { break; }
+		}
+	}
 }
 
 
@@ -348,7 +509,13 @@ static void setbank(uint16_t num) {
 }
 
 static bool setmode(gfxmode_t* mode) {
-    return vga_setmode(mode->code);
+	if (vga_setmode(mode)) {
+		if (mode->flags & GFXMODE_FLAG_MODELINE) {
+			vga_modeline(&mode->modeline);
+		}
+		return true;
+	}
+	return false;
 }
 
 static bool init(card_t* card, ini_t* settings, addmode_f addmode) {
@@ -371,11 +538,13 @@ static bool init(card_t* card, ini_t* settings, addmode_f addmode) {
     card->vsync = vga_vsync;
     card->clear = vga_clear;
 
-    addmode(640, 350, 1, 0, 0x10);
-    addmode(640, 480, 1, 0, 0x12);
-    addmode(640, 350, 4, 0, 0x10);
-    addmode(640, 480, 4, 0, 0x12);
-    addmode(320, 200, 8, 0, 0x13);
+    addmode(640, 350, 1, 0x10, 0, 0);
+    addmode(640, 480, 1, 0x12, 0, 0);
+    addmode(640, 350, 4, 0x10, 0, 0);
+    addmode(640, 480, 4, 0x12, 0, 0);
+    addmode(320, 200, 8, 0x13, 0, 0);
+
+	vga_addmodes_from_settings(addmode, settings, "modes.vga");
 
     vga_updatecolorcache(true);
     vga_setcolorscale(ini_GetInt(settings, "dacscale", 256));

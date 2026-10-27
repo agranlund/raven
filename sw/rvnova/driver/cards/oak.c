@@ -103,7 +103,7 @@ static void setbank(uint16_t num) {
 }
 
 static bool setmode(gfxmode_t* mode) {
-    if (vga_setmode(mode->code)) {
+    if (vga_setmode(mode)) {
         configure_framebuffer();
         return true;
     }
@@ -130,15 +130,15 @@ static bool init(card_t* card, ini_t* settings, addmode_f addmode) {
     }
 
     /* register graphics modes */
-    addmode( 800, 600, 4, 0, 0x52);
-    addmode(1024, 768, 4, 0, 0x56);
-    addmode(1280,1024, 4, 0, 0x58);
-    addmode( 640, 400, 8, 0, 0x61);
-    addmode( 640, 480, 8, 0, 0x53);
-    addmode( 800, 600, 8, 0, 0x54);
-    addmode(1024, 768, 8, 0, 0x59);
-    addmode(1280,1024, 8, 0, 0x5E);
-
+    addmode( 800, 600, 4, 0x52, 0, 0);
+    addmode(1024, 768, 4, 0x56, 0, 0);
+    addmode(1280,1024, 4, 0x58, 0, 0);
+    addmode( 640, 400, 8, 0x61, 0, 0);
+    addmode( 640, 480, 8, 0x53, 0, 0);
+    addmode( 800, 600, 8, 0x54, 0, 0);
+    addmode(1024, 768, 8, 0x59, 0, 0);
+    addmode(1280,1024, 8, 0x5E, 0, 0);
+	vga_addmodes_from_settings(addmode, settings, "modes.oak");
     configure_framebuffer();
     return true;
 }

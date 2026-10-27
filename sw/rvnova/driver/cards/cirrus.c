@@ -218,7 +218,7 @@ static void configure_framebuffer(void) {
     vga_WriteReg(0x3ce, 0x0a, 0x00);
     if (cl_support_linear()) {
         /* use 2MB linear aperture */
-        vga_ModifyReg(0x0ce, 0x0b, 0x21, 0x20);
+        vga_ModifyReg(0x3ce, 0x0b, 0x21, 0x20);
         /* enable and map to isa:2MB */
         vga_ModifyReg(0x3c4, 0x07, 0xf0, 0x20);
     } else if (cl_support_banks()) {
@@ -758,25 +758,78 @@ static uint32_t setvclk(uint32_t target) {
     return best_cur;
 }
 
-static void setcustom(modeline_t* ml) {
-    uint16_t ofl = 0;
-    /* unlock extended sequencer registers */
-    vga_WriteReg(0x3c4, 0x06, 0x12);
-    /* set clock */
-    setvclk(ml->pclk);
-    /* apply modeline to standard vga registers */
-    ofl = vga_modeline(ml);
-    /* apply svga overflow registers */
+#if 0
+/* visible scanlines as set by the BIOS / current mode */
+static uint16_t vga_read_vdisp(void)
+{
+    uint8_t  cr07 = vga_ReadReg(0x3d4, 0x07);
+    uint16_t vde  = vga_ReadReg(0x3d4, 0x12)
+                  | ((cr07 & 0x02) << 7)       /* VDE bit 8 */
+                  | ((cr07 & 0x40) << 3);      /* VDE bit 9 */
+    return vde + 1;
 }
 
-static bool setmode(gfxmode_t* mode) {
-    if (vga_setmode(mode->code)) {
+/* blank everything outside scanlines [top, bottom) */
+static void vga_vblank_window(uint16_t top, uint16_t bottom)
+{
+    uint16_t vbs = bottom;      /* blank starts here, runs through vsync */
+    uint16_t vbe = top;         /* ...and wraps, ending here             */
 
-        /* custom 1280x720 mode */
-        if ((mode->width == 1280) && (mode->height == 720)) {
-            setcustom(&modeline_720p_cvtrb);
-        }
+    vga_ModifyReg(0x3d4, 0x11, 0x80, 0x00);                        /* unlock CR07  */
+    vga_WriteReg (0x3d4, 0x15, vbs & 0xff);                        /* VBS 7:0      */
+    vga_ModifyReg(0x3d4, 0x07, 0x08, ((vbs >> 8) & 1) << 3);       /* VBS bit 8    */
+    vga_ModifyReg(0x3d4, 0x09, 0x20, ((vbs >> 9) & 1) << 5);       /* VBS bit 9    */
+    vga_WriteReg (0x3d4, 0x16, vbe & 0xff);                        /* VBE 7:0      */
+    vga_ModifyReg(0x3d4, 0x11, 0x80, 0x80);                        /* relock       */
+
+    /* --- chip specific (Cirrus) - move to hw driver hook --- */
+    vga_ModifyReg(0x3d4, 0x1a, 0xc0, ((vbe >> 8) & 3) << 6);       /* VBE bits 9:8 (verify) */
+    /* blank-follows-display-enable must be OFF for VBS/VBE to take effect.
+       likely CR1B bit 5 - check datasheet for bit and polarity */
+    /* vga_ModifyReg(0x3d4, 0x1b, 0x20, 0x00); */
+}
+
+/* usage: 320x200 centred in the 240-row frame */
+static void vga_window200(void)
+{
+    uint16_t lines = vga_read_vdisp();         /* 480 scanlines           */
+    uint16_t pad   = (lines - 400) / 2;        /* 40 scanlines = 20 rows  */
+    vga_vblank_window(pad, lines - pad);       /* VBE 40, VBS 440         */
+}
+
+
+#endif
+
+
+static bool setmode(gfxmode_t* mode) {
+    if (vga_setmode(mode)) {
+
+		if (mode->flags & GFXMODE_FLAG_MODELINE) {
+			uint16_t ofl = 0;
+			/* unlock extended sequencer registers */
+			vga_WriteReg(0x3c4, 0x06, 0x12);
+			/* set clock */
+			if (mode->modeline.pclk) {
+				setvclk(mode->modeline.pclk);
+			}
+
+			/* apply modeline to standard vga registers */
+			ofl = vga_modeline(&mode->modeline);
+
+			/* cirrus extended overflow bits */
+			vga_ModifyReg(0x3d4, 0x1a, 0xf0,
+				((ofl & VGA_OFL_VBE_9) ? (1<<7) : 0) |
+				((ofl & VGA_OFL_VBE_8) ? (1<<6) : 0) |
+				((ofl & VGA_OFL_HBE_7) ? (1<<5) : 0) |
+				((ofl & VGA_OFL_HBE_6) ? (1<<4) : 0));
+			
+			/* bit7: use blank end extended bit */
+			/* bit5: blank according to display enable */
+			vga_ModifyReg(0x3d4, 0x1b, 0xa0, 0xa0);
+		}
+
         configure_framebuffer();
+
         if (cl_support_blitter()) {
             configure_blitter(mode);
         }
@@ -823,9 +876,9 @@ static bool setmode(gfxmode_t* mode) {
     return false;
 }
 
-static bool addmode_validated(addmode_f addmode, uint16_t w, uint16_t h, uint8_t b, uint8_t f, uint16_t c) {
+static bool addmode_validated(addmode_f addmode, uint16_t w, uint16_t h, uint8_t b, uint16_t c, uint8_t f, modeline_t* m) {
     if (vgabios_InquireVideoMode(c)) {
-        addmode(w, h, b, f, c);
+        addmode(w, h, b, c, f, m);
         return true;
     }
     return false;
@@ -833,6 +886,7 @@ static bool addmode_validated(addmode_f addmode, uint16_t w, uint16_t h, uint8_t
 
 static bool init(card_t* card, ini_t* settings, addmode_f addmode) {
     ini_t cirrus_settings;
+	ini_t mode_settings;
 
     /* identify cirrus card */
     if (!identify()) {
@@ -877,65 +931,71 @@ static bool init(card_t* card, ini_t* settings, addmode_f addmode) {
     if (chipset >= GD5430) {
         vgabios_SetMonitorTypeGD543x(
             3,      /* max 1024 vertical resolution */
-            1,      /* 72hz @  640 x  480 */
-            2,      /* 72hz @  800 x  600 */
-            3,      /* 70hz @ 1024 x  768 */
+            0,      /* 60hz @  640 x  480 */
+            1,      /* 60hz @  800 x  600 */
+            1,      /* 60hz @ 1024 x  768 */
             1       /* 60hz @ 1280 x 1024 */
         );
 
-        /* todo: temporary workaround for bugged speedstar64 bios */
-        /*vga_enable_fastclear(false);*/
-
-        /* speedstar64 only accept the vesa variants */
-        addmode( 800, 600,  4, 0, 0x102);   /* 4 bpp */
-        addmode(1024, 768,  4, 0, 0x104);
-        addmode(1280,1024,  4, 0, 0x106);
-        addmode( 640, 480,  8, 0, 0x101);   /*  8bpp */
-        addmode( 800, 600,  8, 0, 0x103);
-        addmode(1024, 768,  8, 0, 0x105);
-        addmode(1280, 720,  8, 0, 0x105);   /* (custom) */
-        addmode(1280,1024,  8, 0, 0x107);
-        addmode( 640, 480, 16, 0, 0x111);   /* 16bpp */
-        addmode( 800, 600, 16, 0, 0x114);
-        addmode(1024, 768, 16, 0, 0x117);
-        addmode(1280,1024, 16, 0, 0x11A);
-        addmode( 640, 480, 24, 0, 0x112);   /* 24bpp */
-        addmode( 800, 600, 24, 0, 0x115);
-        addmode(1024, 768, 24, 0, 0x118);
+        addmode( 800, 600,  4, 0x102, 0, 0);
+        addmode(1024, 768,  4, 0x104, 0, 0);
+        addmode(1280,1024,  4, 0x106, 0, 0);
+        addmode( 320, 240,  8, 0x101, GFXMODE_FLAG_DBLSCAN, 0);
+        addmode( 400, 300,  8, 0x103, GFXMODE_FLAG_DBLSCAN, 0);
+        addmode( 512, 384,  8, 0x105, GFXMODE_FLAG_DBLSCAN, 0);
+		addmode( 640, 480,  8, 0x101, 0, 0);
+        addmode( 800, 600,  8, 0x103, 0, 0);
+        addmode(1024, 768,  8, 0x105, 0, 0);
+        addmode(1280, 720,  8, 0x105, 0, &modeline_720p_cvtrb);
+        addmode(1280,1024,  8, 0x107, 0, 0);
+        addmode( 640, 480, 16, 0x111, 0, 0);
+        addmode( 800, 600, 16, 0x114, 0, 0);
+        addmode(1024, 768, 16, 0x117, 0, 0);
+        addmode(1280,1024, 16, 0x11A, 0, 0);
+        addmode( 640, 480, 24, 0x112, 0, 0);
+        addmode( 800, 600, 24, 0x115, 0, 0);
+        addmode(1024, 768, 24, 0x118, 0, 0);
+		vga_addmodes_from_settings(addmode, settings, "modes.gd543x");
 
     } else {
 
-        vgabios_SetMonitorTypeH(
+		vgabios_SetHighRefreshRate(false);	/* older api: 60hz for most modes */
+
+		vgabios_SetMonitorTypeH(
             7                       /* 31.5khz - 64.0 khz*/
         );
-        vgabios_SetMonitorTypeV(
+
+		vgabios_SetMonitorTypeV(
             3,                      /* max 1024 vertical resolution */
-            1,                      /* max 72hz @  640 x  480 */
-            2,                      /* max 72hz @  800 x  600 */
-            3,                      /* max 70hz @ 1024 x  768 */
+            0,                      /* max 60hz @  640 x  480 */
+            1,                      /* max 60hz @  800 x  600 */
+            1,                      /* max 60hz @ 1024 x  768 */
             1                       /* max 60hz @ 1280 x 1024 */
         );
-        vgabios_SetHighRefreshRate(true);
 
-        /* add bios videmodes*/
-        addmode_validated(addmode,  800, 600,  4, 0, 0x58); /* 4bpp */
-        addmode_validated(addmode, 1024, 768,  4, 0, 0x5d);
-        addmode_validated(addmode, 1024, 768,  4, 0, 0x5d);
-        addmode_validated(addmode, 1280,1024,  4, 0, 0x6c);
-        addmode_validated(addmode,  640, 400,  8, 0, 0x5e); /* 8bpp*/
-        addmode_validated(addmode,  640, 480,  8, 0, 0x5f);
-        addmode_validated(addmode,  800, 600,  8, 0, 0x5c);
-        addmode_validated(addmode, 1024, 768,  8, 0, 0x60);
-        addmode_validated(addmode, 1280, 720,  8, 0, 0x60); /* (custom) */
-        addmode_validated(addmode, 1280,1024,  8, 0, 0x6d);
-        addmode_validated(addmode,  320, 200, 16, 0, 0x6f); /* 16bpp */
-        addmode_validated(addmode,  640, 480, 16, 0, 0x64);
-        addmode_validated(addmode,  800, 600, 16, 0, 0x65);
-        addmode_validated(addmode, 1024, 768, 16, 0, 0x74);
-        addmode_validated(addmode, 1280,1024, 16, 0, 0x75);
-        addmode_validated(addmode,  320, 200, 24, 0, 0x70); /* 24bpp */
-        addmode_validated(addmode,  640, 480, 24, 0, 0x71);
+        addmode_validated(addmode,  800, 600,  4, 0x58, 0, 0);
+        addmode_validated(addmode, 1024, 768,  4, 0x5d, 0, 0);
+        addmode_validated(addmode, 1024, 768,  4, 0x5d, 0, 0);
+        addmode_validated(addmode, 1280,1024,  4, 0x6c, 0, 0);
+        addmode_validated(addmode,  320, 240,  8, 0x5f, GFXMODE_FLAG_DBLSCAN, 0);
+        addmode_validated(addmode,  400, 300,  8, 0x5c, GFXMODE_FLAG_DBLSCAN, 0);
+        addmode_validated(addmode,  512, 384,  8, 0x60, GFXMODE_FLAG_DBLSCAN, 0);
+		addmode_validated(addmode,  640, 400,  8, 0x5e, 0, 0);
+        addmode_validated(addmode,  640, 480,  8, 0x5f, 0, 0);
+        addmode_validated(addmode,  800, 600,  8, 0x5c, 0, 0);
+        addmode_validated(addmode, 1024, 768,  8, 0x60, 0, 0);
+        addmode_validated(addmode, 1280, 720,  8, 0x60, 0, &modeline_720p_cvtrb);
+        addmode_validated(addmode, 1280,1024,  8, 0x6d, 0, 0);
+        addmode_validated(addmode,  320, 200, 16, 0x6f, 0, 0);
+        addmode_validated(addmode,  640, 480, 16, 0x64, 0, 0);
+        addmode_validated(addmode,  800, 600, 16, 0x65, 0, 0);
+        addmode_validated(addmode, 1024, 768, 16, 0x74, 0, 0);
+        addmode_validated(addmode, 1280,1024, 16, 0x75, 0, 0);
+        addmode_validated(addmode,  320, 200, 24, 0x70, 0, 0);
+        addmode_validated(addmode,  640, 480, 24, 0x71, 0, 0);
+		vga_addmodes_from_settings(addmode, settings, "modes.gd542x");
     }
+
 
     /* configure linear or banked operation */
     configure_framebuffer();

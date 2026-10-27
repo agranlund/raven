@@ -163,8 +163,6 @@ static void     cpu_flush_cache(void) { raven()->cache_Flush(); }
 #define BL_BGCOL(x)             (((uint32_t)((x)&BL_MASK_BG))<<BL_SHIFT_BG)
 
 
-typedef void(*addmode_f)(uint16_t, uint16_t, uint8_t, uint8_t, uint16_t);
-
 typedef struct {
     int16_t x;
     int16_t y;
@@ -175,6 +173,22 @@ typedef struct {
     vec_t max;
 } rect_t;
 
+typedef struct {
+    const char* name;
+    uint32_t pclk;
+    uint16_t pitch;
+    uint16_t hdisp;
+    uint16_t hsyncstart;
+    uint16_t hsyncend;
+    uint16_t htotal;
+    uint16_t vdisp;
+    uint16_t vsyncstart;
+    uint16_t vsyncend;
+    uint16_t vtotal;
+    int8_t   hpolarity;
+    int8_t   vpolarity;
+} modeline_t;
+
 typedef struct
 {
     uint16_t    width;
@@ -182,7 +196,13 @@ typedef struct
     uint8_t     bpp;
     uint8_t     flags;
     uint16_t    code;
+	modeline_t	modeline;
 } gfxmode_t;
+
+#define GFXMODE_FLAG_DBLSCAN  (1<<1)
+#define GFXMODE_FLAG_MODELINE (1<<2)
+
+typedef void(*addmode_f)(uint16_t, uint16_t, uint8_t, uint16_t, uint8_t, modeline_t* m);
 
 typedef struct
 {
@@ -213,21 +233,6 @@ typedef struct
 } driver_t;
 
 
-typedef struct {
-    const char* name;
-    uint32_t pclk;
-    uint16_t hdisp;
-    uint16_t hsyncstart;
-    uint16_t hsyncend;
-    uint16_t htotal;
-    uint16_t vdisp;
-    uint16_t vsyncstart;
-    uint16_t vsyncend;
-    uint16_t vtotal;
-    int8_t   hpolarity;
-    int8_t   vpolarity;
-} modeline_t;
-
 extern modeline_t modeline_720p_cea;
 extern modeline_t modeline_720p_cvt;
 extern modeline_t modeline_720p_cvtrb;
@@ -256,7 +261,7 @@ extern void vga_vsync(void);
 extern void vga_vblank_out(void);
 extern void vga_vblank_int(void);
 extern bool vga_screen_on(bool on);
-extern bool vga_setmode(uint16_t code);
+extern bool vga_setmode(gfxmode_t* mode);
 extern void vga_setaddr(uint32_t addr);
 extern void vga_setcolors(uint16_t index, uint16_t count, uint8_t* colors);
 extern void vga_getcolors(uint16_t index, uint16_t count, uint8_t* colors);
@@ -264,6 +269,8 @@ extern void vga_setcolorscale(uint16_t scale);
 extern void vga_updatecolorcache(bool force);
 extern void vga_enable_fastclear(bool on);
 extern uint16_t vga_modeline(modeline_t* ml);
+extern void vga_doublescan(void);
+extern void vga_addmodes_from_settings(addmode_f addmode, ini_t* settings, const char* section);
 
 #define VGA_OFL_VTO_10  (1 <<  0)
 #define VGA_OFL_VDE_10  (1 <<  1)

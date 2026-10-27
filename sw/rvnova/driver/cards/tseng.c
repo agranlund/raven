@@ -226,12 +226,13 @@ static void configure_framebuffer(card_t* card, gfxmode_t* mode) {
 }
 
 static bool setmode(gfxmode_t* mode) {
-    if (vga_setmode(mode->code)) {
+    if (vga_setmode(mode)) {
         /* unlock in case vgabios locked us */
         vga_WritePort(0x3bf, 3);
         vga_WritePort(0x3d8, 0xa0);
+
+		/* make sure we get non-interlaced 1024x768 */
         if (mode->code == 0x38) {
-            /* make sure we get a non-interlaced 1024x768 */
             uint8_t misc = vga_ReadPort(0x3cc);
             if (!vgabios_refreshrate_support) {
                 /* 1024x768 non-interlaced from ET4000AX Databook */
@@ -252,13 +253,17 @@ static bool setmode(gfxmode_t* mode) {
                 /* but make it 60hz instead of 42hz */
                 setclock(findclock(64000UL));
             }
-            /* custom mode 720p */
-            if ((mode->width == 1280) && (mode->height == 720)) {
-                modeline_t* ml = &modeline_720p_cvtrb;
-                vga_modeline(ml);
-                setclock(findclock(ml->pclk));
-            }
         }
+
+		/* custom modelines */
+		if (mode->flags & GFXMODE_FLAG_MODELINE) {
+			vga_modeline(&mode->modeline);
+			if (mode->modeline.pclk) {
+				setclock(findclock(mode->modeline.pclk));
+			}
+		}
+
+		/* configure framebuffer and blitter */
         configure_framebuffer(card, mode);
         if (support_blitter()) {
             configure_blitter(mode);
@@ -420,17 +425,15 @@ static bool init(card_t* card, ini_t* settings, addmode_f addmode) {
     }
     */
 
-    /* 4bpp modes */
-    addmode( 640, 480,  4, 0, 0x25);
-    addmode( 800, 600,  4, 0, 0x29);
-    addmode(1024, 768,  4, 0, 0x37);
-    
-    /* 8bpp modes */
-    addmode( 640, 400,  8, 0, 0x2F);
-    addmode( 640, 480,  8, 0, 0x2E);
-    addmode( 800, 600,  8, 0, 0x30);
-    addmode(1024, 768,  8, 0, 0x38);
-    addmode(1280, 720,  8, 0, 0x38);    /* custom */
+    addmode( 640, 480,  4, 0x25, 0, 0);
+    addmode( 800, 600,  4, 0x29, 0, 0);
+    addmode(1024, 768,  4, 0x37, 0, 0);
+    addmode( 640, 400,  8, 0x2F, 0, 0);
+    addmode( 640, 480,  8, 0x2E, 0, 0);
+    addmode( 800, 600,  8, 0x30, 0, 0);
+    addmode(1024, 768,  8, 0x38, 0, 0);
+    addmode(1280, 720,  8, 0x38, 0, &modeline_720p_cvtrb);
+	vga_addmodes_from_settings(addmode, settings, "modes.tseng");
 
     /* enable 16bit mem access */
     vga_ModifyReg(0x3d4, 0x36, 0x40, 0x40);

@@ -460,34 +460,25 @@ static void configure_framebuffer(gfxmode_t* mode) {
 }
 
 static bool setmode(gfxmode_t* mode) {
-    if (vga_setmode(mode->code)) {
+    if (vga_setmode(mode)) {
 
-        /* custom 1280x720 mode */
-        if ((mode->width == 1280) && (mode->height == 720)) {
-
-            /* assume card is set to 70hz for 1024x768 (75Mhz clock) */
-            modeline_t* ml = &modeline_720p_75mhz;
-
+		if (mode->flags & GFXMODE_FLAG_MODELINE) {
             /* PR5: unlock PR0-4 */
             vga_WriteReg(0x3ce, 0x0f, 0x05);
-
             /* PR3: unlock polarity and crtc */
             vga_WritePort(0x3ce, 0x0d);
             vga_WritePort(0x3cf, vga_ReadPort(0x3cf) & 0x1c);    
-
             /* update vga crtc registers */
-            vga_modeline(ml);
-
+            vga_modeline(&mode->modeline);
             /* todo: relock (hangs) */
             #if 0
             /* PR3: relock polarity and crtc */
             vga_WritePort(0x3ce, 0x0d);
             vga_WritePort(0x3cf, vga_ReadPort(0x3cf) | 0xe3);
-
             /* WDC PR5: relock PR0-4 */
             vga_WriteReg(0x3ce, 0x0f, 0x00);
             #endif     
-        }
+		}
 
         configure_framebuffer(mode);
         return true;
@@ -538,25 +529,25 @@ static bool init(card_t* card, ini_t* settings, addmode_f addmode) {
     }
 
 
-    /* 4bpp modes */
-    addmode( 800, 600,  4, 0, 0x58);
-    addmode(1024, 768,  4, 0, 0x5D);
-    addmode(1280, 960,  4, 0, 0x6C);
+    addmode( 800, 600,  4, 0x58, 0, 0);
+    addmode(1024, 768,  4, 0x5D, 0, 0);
+    addmode(1280, 960,  4, 0x6C, 0, 0);
     if (chipset >= WD90C31) {
-        addmode(1280,1024,  4, 0, 0x64);
+    addmode(1280,1024,  4, 0x64, 0, 0);
     }
-    /* 8bpp modes */
-    addmode( 640, 400,  8, 0, 0x5E);
-    addmode( 640, 480,  8, 0, 0x5F);
+    addmode( 640, 400,  8, 0x5E, 0, 0);
+    addmode( 640, 480,  8, 0x5F, 0, 0);
     if ((chipset >= WD90C30) || (chipset == WD90C11)) {
-        addmode( 800, 600,  8, 0, 0x5C);
+	addmode( 800, 600,  8, 0x5C, 0, 0);
     }
     if (chipset >= WD90C30) {
-        addmode(1024, 768,  8, 0, 0x60);
-        addmode(1280, 720,  8, 0, 0x60);    /* tweaked from 1024x768 */
+	addmode(1024, 768,  8, 0x60, 0, 0);
+	addmode(1280, 720,  8, 0x60, 0, &modeline_720p_75mhz);
     }
     /* todo: 16bpp modes */
     /* todo: 24bpp modes */
+
+	vga_addmodes_from_settings(addmode, settings, "modes.wdc");
 
     /* 
      * PR31: system interface control
