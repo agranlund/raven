@@ -1,3 +1,15 @@
+//
+// small utility to add content to rom image.
+// grows the rom image file and adds an entry in the TOC area.
+//
+// usage:
+//  mkrom <romfile> "<ID>" <content>
+//
+// example, adding boot.img to rom.bin, with an ID of "BOOT" in the TOC
+//  mkrom rom.bin "BOOT" boot.img
+//
+
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
