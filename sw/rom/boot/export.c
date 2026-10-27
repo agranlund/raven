@@ -214,7 +214,7 @@ const raven_t ravenBios __attribute__((section(".export"))) =
     vga_Init,
     vga_Clear,
     vga_Addr,
-    vga_Atari,
+    vga_640x480x1bpp,
     b_vga_SetMode,
     vga_SetPal,
     vga_GetPal,

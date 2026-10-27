@@ -15,8 +15,7 @@
 
 #ifndef __ASM__
 
-extern bool atari_Init();
-extern void atari_Start();
+extern void boot_stage2();
 extern uint32_t atari_DetectTos();
 
 #endif // __ASM__

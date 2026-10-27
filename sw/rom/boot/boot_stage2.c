@@ -1,12 +1,14 @@
+// boot stage 2
+// init Atari-like environment and boot TOS
+
 #include "sys.h"
 #include "hw/cpu.h"
 #include "hw/uart.h"
 #include "hw/mfp.h"
 #include "hw/vga.h"
-#include "atari.h"
+#include "boot_stage2.h"
 #include "monitor.h"
 #include "config.h"
-
 
 // todo: get rid of this
 #define RESERVED_SIZE            (4UL * (1024 * 1024))
@@ -38,7 +40,6 @@ static void mmu_Invalid24bit(uint32_t log, uint32_t size) {
     mmu_Invalid(log | 0xff000000, size);
 }
 
-
 /*
 static void mmu_Redirect24bit(uint32_t logsrc, uint32_t logdst, uint32_t size) {
     mmu_Redirect(logsrc & 0x00ffffff, logdst, size);
@@ -49,61 +50,12 @@ static void mmu_Ignore24bit(uint32_t log, uint32_t size) {
 }
 */
 
-
-bool atari_InitEMU()
-{
-    //---------------------------------------------------------------------
-    // acia emulation
-    //---------------------------------------------------------------------
-    vecKBD_Busy = 0;
-    volatile uint8_t* acia = (volatile uint8_t*)RV_PADDR_ACIA;
-    for (int i=0; i<8; i++) {
-        acia[i] = 0;
-    }
-    acia[ACIA_KEYB_CTRL] = 0x02;    // tx reg empty
-    acia[ACIA_MIDI_CTRL] = 0x02;    // tx reg empty
-
-    //---------------------------------------------------------------------
-    // vbl emulation - MFP2:TimerC @ 50hz
-    //---------------------------------------------------------------------
-    volatile uint8_t* mfp2 = (volatile uint8_t*)RV_PADDR_MFP2;
-    mfp2[MFP_TCDR]   = 200;                         // count 200     => 10000hz
-    mfp2[MFP_TCDCR] &= 0x07;
-    mfp2[MFP_TCDCR] |= 0x70;                        // divide by 200 => 50hz
-    mfp2[MFP_IERB]  |= (1 << 5);                    // enable timerC interrupt
-    mfp2[MFP_IMRB]  |= (1 << 5);                    // enable timerC interrupt
-    mfp2[MFP_ISRB] &= ~(1 << 5);                    // clear timerC in service
-    return true;
-}
-
-
-bool atari_InitVBR()
-{
-    vbr_Set(0x10C,  (uint32_t) vecRTE_MFP1I3);      // MFP1I3 - I2C line    - IGNORE  (ST = blitter)
-    vbr_Set(0x13C,  (uint32_t) vecRTE_MFP1I7);      // MFP1I7 - I2C line    - IGNORE  (ST = mono detect)
-
-#if ACIA_EMULATION
-    vbr_Set(0x74,   (uint32_t) vecRTE);             // IRQ5   - Eiffel      - IGNORE
-    vbr_Set(0x118,  (uint32_t) vecKBD_MFP1I4);      // MFP1I4 - Eiffel      - Emulate (ST = acia)
-#else
-    vbr_Set(0x118,  (uint32_t) vecRTE_MFP1I4);      // MFP1I4 - Eiffel      - IGNORE  (ST = acia)
-#endif
-
-    vbr_Set(0x11c,  (uint32_t) vecRTE_MFP1I5);      // MFPI5 - FDC/ACSI
-
-    vbr_Set(0x154,  (uint32_t) vecVBL_MPF2TC);      // MFP2 TimerC -> IRQ4 VBLANK emulation
-    vbr_Apply();
-    return true;
-}
-
-
 bool atari_InitMMU(uint32_t* simms)
 {
     // direct unmapped pages to an ignored address and set up bus-errors manually
     uint32_t* mmuTable = mmu_Init(0x21000000 | PMMU_READWRITE | PMMU_CM_PRECISE);
 
     // reserved area
-    extern uint32_t __bss_start;
     uint32_t reserved_start = ((uint32_t)&__bss_start) & 0xfff00000;
     uint32_t reserved_end = reserved_start + RESERVED_SIZE;
 
@@ -261,18 +213,67 @@ bool atari_InitMMU(uint32_t* simms)
     return true;
 }
 
+bool atari_InitVBR()
+{
+    vbr_Set(0x10C,  (uint32_t) vecRTE_MFP1I3);      // MFP1I3 - I2C line    - IGNORE  (ST = blitter)
+    vbr_Set(0x13C,  (uint32_t) vecRTE_MFP1I7);      // MFP1I7 - I2C line    - IGNORE  (ST = mono detect)
+
+#if ACIA_EMULATION
+    vbr_Set(0x74,   (uint32_t) vecRTE);             // IRQ5   - Eiffel      - IGNORE
+    vbr_Set(0x118,  (uint32_t) vecKBD_MFP1I4);      // MFP1I4 - Eiffel      - Emulate (ST = acia)
+#else
+    vbr_Set(0x118,  (uint32_t) vecRTE_MFP1I4);      // MFP1I4 - Eiffel      - IGNORE  (ST = acia)
+#endif
+
+    vbr_Set(0x11c,  (uint32_t) vecRTE_MFP1I5);      // MFPI5 - FDC/ACSI
+
+    vbr_Set(0x154,  (uint32_t) vecVBL_MPF2TC);      // MFP2 TimerC -> IRQ4 VBLANK emulation
+    vbr_Apply();
+    return true;
+}
+
+bool atari_InitEMU()
+{
+    //---------------------------------------------------------------------
+    // acia emulation
+    //---------------------------------------------------------------------
+    vecKBD_Busy = 0;
+    volatile uint8_t* acia = (volatile uint8_t*)RV_PADDR_ACIA;
+    for (int i=0; i<8; i++) {
+        acia[i] = 0;
+    }
+    acia[ACIA_KEYB_CTRL] = 0x02;    // tx reg empty
+    acia[ACIA_MIDI_CTRL] = 0x02;    // tx reg empty
+
+    //---------------------------------------------------------------------
+    // vbl emulation - MFP2:TimerC @ 50hz
+    //---------------------------------------------------------------------
+    volatile uint8_t* mfp2 = (volatile uint8_t*)RV_PADDR_MFP2;
+    mfp2[MFP_TCDR]   = 200;                         // count 200     => 10000hz
+    mfp2[MFP_TCDCR] &= 0x07;
+    mfp2[MFP_TCDCR] |= 0x70;                        // divide by 200 => 50hz
+    mfp2[MFP_IERB]  |= (1 << 5);                    // enable timerC interrupt
+    mfp2[MFP_IMRB]  |= (1 << 5);                    // enable timerC interrupt
+    mfp2[MFP_ISRB] &= ~(1 << 5);                    // clear timerC in service
+    return true;
+}
 
 bool atari_InitScreen()
 {
     if (!vga_Init())
         return 0;
 
-    vga_Atari();
+    vga_640x480x1bpp();
     return true;
 }
 
-bool atari_Init()
+uint32_t atari_DetectTos()
 {
+    rvtoc_t* toc = sys_GetToc(RV_TOC_ETOS);
+    return toc ? toc->start : 0;
+}
+
+void atari_Boot() {
     initprint("InitVbr");
     atari_InitVBR();
 
@@ -289,7 +290,7 @@ bool atari_Init()
 
     if (!atari_DetectTos()) {
         puts("No TOS detected");
-        return true;
+        return;
     }
 
 /*    
@@ -322,11 +323,8 @@ bool atari_Init()
     puts("Starting TOS");
     cpu_SetIPL(7);
     cpu_Call(0xe00000);
-    return false;
 }
 
-uint32_t atari_DetectTos()
-{
-    rvtoc_t* toc = sys_GetToc(RV_TOC_ETOS);
-    return toc ? toc->start : 0;
+void boot_stage2() {
+    atari_Boot();
 }

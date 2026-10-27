@@ -25,12 +25,12 @@ LDFILE		:= $(SWDIR)/rom/srec/srec.ld
 STARTFILE	:= $(SWDIR)/rom/srec/start.o
 
 SFILES		:= $(wildcard *.S) \
-            rom/mon/hw/asm.S
+            rom/boot/hw/asm.S
 			
           
 CFILES		:= $(wildcard *.c) \
-			rom/mon/lib.c \
-			rom/mon/hw/uart.c
+			rom/boot/lib.c \
+			rom/boot/hw/uart.c
 
 OFILES		= $(SFILES:%.S=%.o) $(CFILES:%.c=%.o) $(EXTRA_OFILES)
 
@@ -60,7 +60,7 @@ CFLAGS		=   $(CPU) \
 		        -MMD \
 		        -nostdinc \
                 -I. \
-                -I$(SWDIR)/rom/mon \
+                -I$(SWDIR)/rom/boot \
                 -I$(SWDIR)/lib \
 		        -I$(CC_INCLUDES) \
                 #-save-temps \

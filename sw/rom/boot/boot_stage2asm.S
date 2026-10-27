@@ -1,5 +1,5 @@
     #include "raven.h"
-    #include "atari.h"
+    #include "boot_stage2.h"
     #include "hw/mfp.h"
     #include "hw/uart.h"
 

@@ -51,6 +51,7 @@ static uint32_t* getRegPtr(regs_t* regs, char* name) {
 }
 
 static bool detectTos() {
+    
     extern uint32_t atari_DetectTos();
     return atari_DetectTos();
 }

@@ -1,3 +1,3 @@
-EXTRA_OFILES = rom/mon/hw/ikbd.o
+EXTRA_OFILES = rom/boot/hw/ikbd.o
 
 -include ../srec.makefile

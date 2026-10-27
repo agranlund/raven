@@ -16,7 +16,7 @@
 #define IKBD_BAUD_500000    7
 #define IKBD_BAUD_1000000   8
 
-bool        ikbd_Init();
+bool        ikbd_Init(uint8_t default_baud);
 uint32_t    ikbd_Connect(uint8_t baud);
 uint32_t    ikbd_ConnectEx(uint8_t default_baud, uint8_t ideal_baud);
 void        ikbd_GPO(uint8_t bit, bool enable);

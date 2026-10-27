@@ -11,7 +11,7 @@
     .global rom_config
     .global start
 
-    .extern sys_Init
+    .extern boot_stage1
     .extern _ravenBios
     .extern __stack_top
 
@@ -239,7 +239,7 @@ start_vecs:
 
 	// proceed to boot stage1 in c
 start_run:
-    jsr     sys_Init
+    jsr     boot_stage1
     bra     start
 
 

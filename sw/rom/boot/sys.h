@@ -16,21 +16,31 @@ static inline void nop() {
     __asm__ __volatile__( "\tnop\n" : : : );
 }
 
-bool sys_Init();
-void sys_Delay(uint32_t d);
+void        sys_Delay(uint32_t d);
+uint32_t    sys_Chipset(void);
+rvtoc_t*    sys_GetToc(uint32_t id);
 
-uint32_t sys_Chipset(void);
-rvtoc_t* sys_GetToc(uint32_t id);
+bool        mem_Init();
+uint32_t    mem_LinearAlloc(uint32_t size, uint32_t align);
+uint32_t    mem_Sbrk(int32_t size);
+void        mem_Info(void);
 
-uint32_t mem_LinearAlloc(uint32_t size, uint32_t align);
-uint32_t mem_Sbrk(int32_t size);
-void     mem_Info(void);
-
-void vecNMI();
-void vecRTE();
+void        vecNMI();
+void        vecRTE();
 
 extern uint32_t krev;
 extern uint32_t ksimm[4];
+
+extern uint8_t __text_end;
+extern uint8_t __data_load;
+extern uint8_t __data_start;
+extern uint8_t __data_end;
+extern uint8_t __bss_start;
+extern uint8_t __bss_end;
+extern uint8_t __heap_start;
+extern uint8_t __heap_end;
+extern uint8_t __stack_base;
+extern uint8_t __stack_top;
 
 #endif // !__ASM_
 #endif // _SYS_H_

@@ -25,21 +25,15 @@ uint32_t vga_Addr() {
     return vgaMemBase;
 }
 
-
-uint8_t vga_ReadPort(uint16_t port)
-{
+uint8_t vga_ReadPort(uint16_t port) {
     return *((volatile uint8_t *)(ISA_IOBASE8 + port));
 }
 
-
-void vga_WritePort(uint16_t port, uint8_t val)
-{
+void vga_WritePort(uint16_t port, uint8_t val) {
     *((volatile uint8_t *)(ISA_IOBASE8 + port)) = val;
 }
 
-
-void vga_WriteReg(uint16_t port, uint8_t idx, uint8_t val)
-{
+void vga_WriteReg(uint16_t port, uint8_t idx, uint8_t val) {
     if (port == 0x3C0)
     {
         (void)vga_ReadPort(0x3DA);
@@ -53,9 +47,7 @@ void vga_WriteReg(uint16_t port, uint8_t idx, uint8_t val)
     }
 }
 
-
-void vga_WaitVbl()
-{
+void vga_WaitVbl() {
     do { nop(); } while (vga_ReadPort(0x3DA) & 8);
     do { nop(); } while (!(vga_ReadPort(0x3DA) & 8));
 }
@@ -64,8 +56,7 @@ uint32_t vga_CacheOn() {
     return cpu_CacheOn();
 }
 
-bool vga_RunBios()
-{
+bool vga_RunBios() {
     uint8_t *rom_src = (uint8_t *)(ISA_MEMBASE8 + VGABIOS_BASE);
     uint8_t *rom_dst = (uint8_t *)(x86emu->mem_base + VGABIOS_BASE);
     if (rom_src[0] != 0x55 || rom_src[1] != 0xaa)
@@ -98,11 +89,8 @@ bool vga_RunBios()
     return true;
 }
 
-
-void vga_SetMode(uint16_t mode)
-{
-    if (vgaBiosInitied)
-    {
+void vga_SetMode(uint16_t mode) {
+    if (vgaBiosInitied) {
         uint32_t cacr = vga_CacheOn();
         x86emu->x86.R_SS = 0x0000;
         x86emu->x86.R_SP = 0xfffe;
@@ -113,9 +101,7 @@ void vga_SetMode(uint16_t mode)
     }
 }
 
-
-void vga_Fill(uint8_t color)
-{
+void vga_Fill(uint8_t color) {
     uint32_t c8 = (uint32_t)color;
     uint32_t c32 = (c8 << 24) | (c8 << 16) | (c8 << 8) | c8;
     uint32_t* ptr = (uint32_t*) (ISA_MEMBASE8 + VGAMEM_BASE);
@@ -124,17 +110,13 @@ void vga_Fill(uint8_t color)
     }
 }
 
-
 void vga_Clear() {
     vga_Fill(0x00);
 }
 
-
-void vga_SetPal(uint32_t idx, uint32_t num, uint8_t *pal)
-{
+void vga_SetPal(uint32_t idx, uint32_t num, uint8_t *pal) {
     const uint8_t pshift = 2;
-    for (uint32_t i = 0; (i < num) && ((i + idx) < 256); i++)
-    {
+    for (uint32_t i = 0; (i < num) && ((i + idx) < 256); i++) {
         vga_WritePort(0x3c8, (uint8_t)(idx + i));
         vga_WritePort(0x3c9, *pal++ >> pshift);
         vga_WritePort(0x3c9, *pal++ >> pshift);
@@ -142,12 +124,9 @@ void vga_SetPal(uint32_t idx, uint32_t num, uint8_t *pal)
     }
 }
 
-
-void vga_GetPal(uint32_t idx, uint32_t num, uint8_t *pal)
-{
+void vga_GetPal(uint32_t idx, uint32_t num, uint8_t *pal) {
     const uint8_t pshift = 2;
-    for (uint32_t i = 0; (i < num) && ((i + idx) < 256); i++)
-    {
+    for (uint32_t i = 0; (i < num) && ((i + idx) < 256); i++) {
         vga_WritePort(0x3c8, (uint8_t)(idx + i));
         *pal++ = vga_ReadPort(0x3c9) << pshift;
         *pal++ = vga_ReadPort(0x3c9) << pshift;
@@ -155,16 +134,12 @@ void vga_GetPal(uint32_t idx, uint32_t num, uint8_t *pal)
     }
 }
 
-
-void vga_SetColor(uint8_t idx, uint8_t r, uint8_t g, uint8_t b)
-{
+void vga_SetColor(uint8_t idx, uint8_t r, uint8_t g, uint8_t b) {
     uint8_t c[3] = { r, g, b };
     vga_SetPal(idx, 1, c);
 }
 
-
-uint32_t vga_Init()
-{
+uint32_t vga_Init() {
     x86emu = &x86emu_static;
     x86_Create(x86emu, (void *)X86_EMU_ADDR, X86_EMU_SIZE, ISA_IOBASE, ISA_MEMBASE8);
 
@@ -192,9 +167,7 @@ uint32_t vga_Init()
     return 1;
 }
 
-
-void vga_Test()
-{
+void vga_Test() {
     // 320x200x256
     vga_SetMode(0x13);
 
@@ -220,23 +193,20 @@ void vga_Test()
     vga_WritePort(0x3c6, 0xff);
 }
 
-
-void vga_Mode13h()
-{
+void vga_320x200x8bpp() {
     vga_SetMode(0x13);
     vga_Clear();
 }
 
+void vga_640x480x1bpp() {
 
-void vga_Atari()
-{
-    // 640x480x16
+    // 640x480x4bpp
     vga_SetMode(0x12);
 
     // screen off
     vga_WritePort(0x3c6, 0x00);
 
-    // atari mono palette
+    // 4 color grayscale
     for (int i=0; i<256; i++) {
         vga_SetColor(i, 0x00, 0x00, 0x00);
     }
@@ -244,7 +214,6 @@ void vga_Atari()
     vga_SetColor(3, 0x00, 0x00, 0x00);
     vga_SetColor(5, 0xa0, 0xa0, 0xa0);
     vga_SetColor(7, 0x60, 0x60, 0x60);
-
 
     // clear all planes
     vga_WriteReg(0x3c4, 0x02, 0x0f);

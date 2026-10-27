@@ -1,6 +1,6 @@
 EXTRA_OFILES = \
-				# rom/mon/hw/vga.o \
-				# rom/mon/x86/x86emu.o rom/mon/x86/x86core.o \
+				# rom/boot/hw/vga.o \
+				# rom/boot/x86/x86emu.o rom/boot/x86/x86core.o \
 				#
 
 -include ../srec.makefile

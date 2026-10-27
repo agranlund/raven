@@ -85,34 +85,27 @@ extern void (*putchar)(int c);
 extern int (*getchar)(void);
 extern int (*peekchar)(void);
 
-
-static inline int toupper(int c)
-{
+static inline int toupper(int c) {
     return ((c >= 'a') && (c <= 'z')) ? c + ('A' - 'a') : c;
 }
 
-static inline int isspace(int c)
-{
+static inline int isspace(int c) {
     return (c == ' ') || (c == '\t') || (c == '\n') || (c == '\v') || (c == '\r');
 }
 
-static inline int isprint(int c)
-{
+static inline int isprint(int c) {
 	return (c >= ' ') && (c <= '~');
 }
 
-static inline int isdigit(int c)
-{
+static inline int isdigit(int c) {
 	return (c >= '0') && (c <= '9');
 }
 
-static inline int isxdigit(int c)
-{
+static inline int isxdigit(int c) {
 	return isdigit(c) || (((c | 0x20) >= 'a') && ((c | 0x20) <= 'z'));
 }
 
-static inline int xdigit(int c)
-{
+static inline int xdigit(int c) {
 	return isdigit(c) ? c - '0' : isxdigit(c) ? (c | 0x20) - 'a' + 10: -1;
 }
 

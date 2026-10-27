@@ -1,3 +1,4 @@
+#include "sys.h"
 #include "hw/uart.h"
 #include "hw/ikbd.h"
 
@@ -40,6 +41,7 @@ const ikbd_baud_regs_t ikbd_baud_regs[9] =
 };
 
 static uint8_t ikbd_baud;       // according to table above
+static uint8_t ibkd_baud_default;
 static uint32_t ikbd_version;   // ckbd: YYMMDDXX, eiffel: 00000001
 
 static inline uint32_t ckbd_version(void) {
@@ -56,8 +58,10 @@ const ikbd_baud_regs_t* ikbd_GetRegs(uint8_t baud) {
     return &ikbd_baud_regs[baud];
 }
 
-bool ikbd_Init()
+bool ikbd_Init(uint8_t default_baud)
 {
+    ibkd_baud_default = default_baud;
+
     const ikbd_baud_regs_t* regs = ikbd_GetRegs(ikbd_baud);
     volatile uint8_t* uart1 = (volatile uint8_t*) RV_PADDR_UART1;
 
@@ -311,7 +315,7 @@ uint8_t ikbd_Baud(void)
 }
 
 uint8_t ikbd_DefaultBaud() {
-	return (krev >= 0xA2) ? IKBD_BAUD_125000 : IKBD_BAUD_7812;
+    return ibkd_baud_default;
 }
 
 void ikbd_Reset(void)
