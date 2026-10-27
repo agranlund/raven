@@ -2,12 +2,7 @@
     #include "hw/uart.h"
     #include "hw/pram.h"
 
-// default settings
-
-//    #define UART_BAUDR      921600
-//    #define UART_BAUDR      460800
     #define UART_BAUDR      115200
-
     #define UART_RTS_FLOW   1
 
     .global rom_vectors
@@ -41,7 +36,7 @@ rom_vectors:
     .section    .toc
 rom_toc:
     .dcb.l  1,0x5F524F4D    // '_ROM'
-    .dcb.l  1,BIOS_ROM
+    .dcb.l  1,ROM_ADDR
     .dcb.l  1,0x00000000
     .dcb.l  1,0x00000000
 
@@ -131,15 +126,16 @@ start:
     reset                           // reset peripherals
     nop
 
-    // setup stack, but do _not_ use it or any other memory until
-    // we're done with early boot messages and memory detect.
+    // setup stack, but do _NOT_ use it or any other memory until
+    // after we are done with early boot messages and memory detect.
     move.l  #__stack_top,%sp
     
     // make room for persistent hidden variables.
     // these are currently used to detect warmboot
     sub.l   #16,%sp
 
-start_uart:    
+start_uart:
+	// get baudrate from pram or fallback to default
     moveq.l #0,%d0                  // d0 = baudrate
     move.l  #__pram_start,%a4       // a4 = pram start
     move.l  #__pram_size,%d1
@@ -170,6 +166,7 @@ start_uart:
     bne.b   3f
     move.l  #UART_BAUDR,%d0         // use default
 
+	// initialize XR67M752 uart
 3:  move.l  #RV_PADDR_UART2,%a5
     move.b  #0x00,UART_LCR(%a5)     // access normal
     move.b  #0x00,UART_IER(%a5)     // no interrupts
@@ -211,7 +208,7 @@ start_uart:
     // welcome message
     BPRINT  %a5,#msg_boot
 
-
+	// test for ram simm slot0
 start_ram:
     move.l  #0x00000000,0x00000000
     cmp.l   #0x00000000,0x00000000
@@ -219,6 +216,7 @@ start_ram:
     BPRINT  %a5,#msg_ramfail
     stop    #0x2700
 
+	// setup initial vbr table
 start_vecs:
     move.l  #rom_vectors,%a0
     move.l  #0x00000000,%a1
@@ -239,6 +237,7 @@ start_vecs:
     movec   %d0,%vbr
     nop
 
+	// proceed to boot stage1 in c
 start_run:
     jsr     sys_Init
     bra     start

@@ -5,7 +5,7 @@
 
 extern uint32_t ksimm[4];
 
-#define FLASH_PADDR     RV_PADDR_SIMM3
+#define FLASH_PADDR     ROM_ADDR
 #define FLASH_LADDR     0x21000000UL
 #define HDR_MAGIC       0x5241564EUL
 #define CFG_MAGIC       0x434F4E46UL

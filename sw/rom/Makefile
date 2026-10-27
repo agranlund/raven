@@ -2,8 +2,8 @@
 # Raven ROM image makefile
 #
 
-MON_DIR			= mon
-MON_IMG			= $(MON_DIR)/mon.bin
+BOOT_DIR		= boot
+BOOT_IMG		= $(BOOT_DIR)/boot.bin
 
 EMUTOS_DIR		= emutos
 EMUTOS_RAW		= $(EMUTOS_DIR)/emutos.img
@@ -42,45 +42,49 @@ emucon: $(PRG_EMUCON)
 $(MKROM): mkrom.c $(DEPS)
 	gcc -o $(MKROM) mkrom.c
 
+# Minimal ROM image with boot and monitor only
+.PHONY: $(ROM_MON)
+$(ROM_MON): $(MKROM) $(BOOT_IMG) $(DEPS)
+	rm -f $@
+	$(MKROM) $@ "BOOT" $(BOOT_IMG)
+
+# Full rom image including TOS and Romdisk
+.PHONY: $(ROM_EMUTOS)
+$(ROM_EMUTOS): $(MKROM) $(EMUTOS_IMG) $(BOOT_IMG) $(ROMDISK_IMG) $(TOSCART_IMG) $(DEPS)
+	rm -f $@
+	$(MKROM) $@ "BOOT" $(BOOT_IMG) 
+	$(MKROM) $@ "CART" $(TOSCART_IMG)
+	$(MKROM) $@ "ETOS" $(EMUTOS_RAW)
+	$(MKROM) $@ "RDSK" $(ROMDISK_IMG)
+
+# (debug) small rom image with console-only TOS
+.PHONY: $(ROM_EMUTOS_CON)
+$(ROM_EMUTOS_CON): $(MKROM) $(EMUTOS_IMG_CON) $(BOOT_IMG) $(ROMDISK_IMG) $(TOSCART_IMG) $(DEPS)
+	rm -f $@
+	$(MKROM) $@ "BOOT" $(BOOT_IMG) 
+	$(MKROM) $@ "ETOS" $(EMUTOS_RAW)
+	$(MKROM) $@ "RDSK" $(ROMDISK_IMG)
+
+# (debug) TOS with serial debugging
+.PHONY: $(ROM_EMUTOS_DBG)
+$(ROM_EMUTOS_DBG): $(MKROM) $(EMUTOS_IMG_DBG) $(BOOT_IMG) $(ROMDISK_IMG) $(TOSCART_IMG) $(DEPS)
+	rm -f $@
+	$(MKROM) $@ "BOOT" $(BOOT_IMG) 
+	$(MKROM) $@ "ETOS" $(EMUTOS_RAW)
+	$(MKROM) $@ "RDSK" $(ROMDISK_IMG)
+
+# Emucon standalone program
 .PHONY: $(PRG_EMUCON)
 $(PRG_EMUCON):
 	$(MAKE) -C $(EMUTOS_DIR)/cli clean
 	$(MAKE) -C $(EMUTOS_DIR)/cli
 	cp $(EMUTOS_DIR)/cli/emucon2.tos $(PRG_EMUCON)
 
-.PHONY: $(ROM_EMUTOS)
-$(ROM_EMUTOS): $(MKROM) $(EMUTOS_IMG) $(MON_IMG) $(ROMDISK_IMG) $(TOSCART_IMG) $(DEPS)
-	rm -f $@
-	$(MKROM) $@ "BOOT" $(MON_IMG) 
-	$(MKROM) $@ "CART" $(TOSCART_IMG)
-	$(MKROM) $@ "ETOS" $(EMUTOS_RAW)
-	$(MKROM) $@ "RDSK" $(ROMDISK_IMG)
-
-.PHONY: $(ROM_EMUTOS_CON)
-$(ROM_EMUTOS_CON): $(MKROM) $(EMUTOS_IMG_CON) $(MON_IMG) $(ROMDISK_IMG) $(TOSCART_IMG) $(DEPS)
-	rm -f $@
-	$(MKROM) $@ "BOOT" $(MON_IMG) 
-	$(MKROM) $@ "ETOS" $(EMUTOS_RAW)
-	$(MKROM) $@ "RDSK" $(ROMDISK_IMG)
-
-.PHONY: $(ROM_EMUTOS_DBG)
-$(ROM_EMUTOS_DBG): $(MKROM) $(EMUTOS_IMG_DBG) $(MON_IMG) $(ROMDISK_IMG) $(TOSCART_IMG) $(DEPS)
-	rm -f $@
-	$(MKROM) $@ "BOOT" $(MON_IMG) 
-	$(MKROM) $@ "ETOS" $(EMUTOS_RAW)
-	$(MKROM) $@ "RDSK" $(ROMDISK_IMG)
-
-.PHONY: $(ROM_MON)
-$(ROM_MON): $(MKROM) $(MON_IMG) $(DEPS)
-	rm -f $@
-	$(MKROM) $@ "BOOT" $(MON_IMG)
 
 
-
-
-.PHONY: $(MON_IMG)
-$(MON_IMG): $(DEPS)
-	$(MAKE) -C $(MON_DIR)
+.PHONY: $(BOOT_IMG)
+$(BOOT_IMG): $(DEPS)
+	$(MAKE) -C $(BOOT_DIR)
 
 .PHONY: $(EMUTOS_IMG)
 $(EMUTOS_IMG): $(DEPS)
@@ -118,7 +122,7 @@ $(TOSCART_IMG) :
 	make -C $(TOSCART_DIR)
 
 clean:
-	$(MAKE) -C $(MON_DIR) clean
+	$(MAKE) -C $(BOOT_DIR) clean
 	$(MAKE) -C $(EMUTOS_DIR) clean
 	$(MAKE) -C $(TOSCART_DIR) clean
 	rm -f $(ROM_MON) $(PRG_EMUCON) $(ROM_EMUTOS) $(ROM_EMUTOS_DBG) $(ROM_EMUTOS_CON) $(EMUTOS_IMG_ST) $(ROMDISK_IMG) $(TOSCART_IMG)

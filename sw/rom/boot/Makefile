@@ -1,81 +1,69 @@
 #
-# Raven ROM Monitor
+# Raven bootrom + monitor
 #
-BIOS_ROM	 	= 0x40000000
 
-# Tools
+ROM_ADDR	= 0x40000000
+
+BOOT_ELF	= boot.elf
+BOOT_ROM	= boot.bin
+BOOT_SREC	= boot.s19
+
 TOOLCHAIN	= m68k-atari-mintelf
 CC		 	= $(TOOLCHAIN)-gcc
 OBJCOPY		= $(TOOLCHAIN)-objcopy
 LIBGCC		:= $(shell $(CC) --print-file-name libgcc.a)
 CC_INCLUDES	= $(dir $(LIBGCC))include
 
-# Products
-MON_ELF		= mon.elf
-ROM_MON		= mon.bin
-MON_SREC	= mon.s19
-
 LIBDIR	:= ../../lib
 
 vpath %.c $(LIBDIR)
 vpath %.S $(LIBDIR)
 
-# Sources
-SFILES		:= $(wildcard *.S) $(wildcard hw/*.S) $(wildcard vga/*.S)
-CFILES		:= $(wildcard *.c) $(wildcard hw/*.c) $(wildcard vga/*.c) x86/x86core.c x86/x86emu.c
-OFILES		= $(SFILES:%.S=%.o) $(CFILES:%.c=%.o)
-DEPS		= $(MAKEFILE_LIST) mon.ld
-
 BUILD_DATE_HEX	:= $(shell date +%Y%m%d)
 BUILD_DATE_DEC	:= $(shell printf %d 0x$(BUILD_DATE_HEX))
 
-DEFS		 = -DRAVEN_ROM \
-			-DVERSION=$(BUILD_DATE_DEC) \
-		   	-DBIOS_ROM=$(BIOS_ROM) \
-			#
-		   
-INCLUDES	= -I. -I../../lib
+SFILES 	:= $(wildcard *.S) $(wildcard hw/*.S) $(wildcard vga/*.S)
+CFILES 	:= $(wildcard *.c) $(wildcard hw/*.c) $(wildcard vga/*.c) x86/x86core.c x86/x86emu.c
+OFILES 	= $(SFILES:%.S=%.o) $(CFILES:%.c=%.o)
+DEPS	= $(MAKEFILE_LIST) boot.ld
 
-SFLAGS		= $(DEFS) $(INCLUDES) -m68060 -D__ASM__
+INCLUDES	=	-I. -I../../lib
 
-CFLAGS_BASE	= $(DEFS) $(INCLUDES) \
-		   -m68060 \
-		   -std=c17 \
-		   -ffreestanding \
-		   -fomit-frame-pointer \
-		   -fno-common \
-		   -fdata-sections \
-		   -ffunction-sections \
-		   -Wall \
-		   -MMD \
-		   -nostdinc \
-		   -I$(CC_INCLUDES)
+LDFLAGS		= 	-nolibc -nostartfiles -ffreestanding -Wl,-Map,$@.map -T boot.ld
 
-CFLAGS		= -Os $(CFLAGS_BASE)
-CFLAGS_OPT	= -O3 $(CFLAGS_BASE)
+DEFS		= 	-DRAVEN_ROM -DVERSION=$(BUILD_DATE_DEC) -DROM_ADDR=$(ROM_ADDR)
 
-LDFLAGS_COMMON	 = -nolibc \
-		   -nostartfiles \
-		   -ffreestanding \
-		   -Wl,-Map,$@.map
+SFLAGS		=	$(DEFS) $(INCLUDES) -m68060 -D__ASM__
 
-# XXX leave this until things are working
-#		   -Wl,-gc-sections
+CFLAGS_BASE	= 	$(DEFS) $(INCLUDES) \
+				-m68060 \
+				-std=c17 \
+				-ffreestanding \
+				-fomit-frame-pointer \
+				-fno-common \
+				-fdata-sections \
+				-ffunction-sections \
+				-Wall \
+				-MMD \
+				-nostdinc \
+				-I$(CC_INCLUDES) \
+				#
 
-LDFLAGS_MON	 = $(LDFLAGS_COMMON) -T mon.ld
+CFLAGS		= 	-Os $(CFLAGS_BASE)
+CFLAGS_OPT	= 	-O3 $(CFLAGS_BASE)
 
 
 .PHONY: all
-all: $(ROM_MON) $(MON_SREC)
+all: $(BOOT_ROM) $(BOOT_SREC)
 
-$(MON_ELF): $(OFILES) $(DEPS)
-	$(CC) $(LDFLAGS_MON) $(OFILES) -o $@
+$(BOOT_ELF): $(OFILES) $(DEPS)
+	$(CC) $(LDFLAGS) $(OFILES) -o $@
 
-$(ROM_MON): $(MON_ELF)
-	$(OBJCOPY) -O binary --set-start $(BIOS_ROM) --gap-fill 0xff $(MON_ELF) $@
+$(BOOT_ROM): $(BOOT_ELF)
+	$(OBJCOPY) -O binary --set-start $(ROM_ADDR) --gap-fill 0xff $(BOOT_ELF) $@
 
-$(MON_SREC): $(MON_ELF)
-	$(OBJCOPY) -O srec --srec-forceS3 $(MON_ELF) $@
+$(BOOT_SREC): $(BOOT_ELF)
+	$(OBJCOPY) -O srec --srec-forceS3 $(BOOT_ELF) $@
 
 %.o : %.S $(DEPS)
 	@mkdir -p $(@D)

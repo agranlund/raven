@@ -605,9 +605,9 @@ static void cmdSrec(int args, char* argv[])
         uint32_t address = srec_get_long() - address_offset;
         srec_len -= 4;
         if (low_address == 0) {
-            if (address >= BIOS_ROM)
+            if (address >= RV_PADDR_SIMM3)
             {
-                address_offset = BIOS_ROM - srec_mem_start;
+                address_offset = RV_PADDR_SIMM3 - srec_mem_start;
                 address -= address_offset;
             }
             low_address = address;

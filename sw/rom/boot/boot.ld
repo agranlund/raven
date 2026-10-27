@@ -1,5 +1,5 @@
 /*
- * Raven ROM monitor.
+ * Raven bootrom + monitor
  */
 
 OUTPUT_ARCH(m68k)
@@ -78,12 +78,12 @@ SECTIONS
         . = ALIGN(4);
         __bss_end = .;
 
-        . = ALIGN(4096);                    /* BIOS heap */
+        . = ALIGN(4096);                    /* heap */
         __heap_start = .;
 
         . = ORIGIN(RAM) + LENGTH(RAM) - __stack_size - 256;
         __heap_end = .;
-        __stack_base = .;                   /* BIOS stack */
+        __stack_base = .;                   /* stack */
         . += __stack_size;
         __stack_top = .;
 
