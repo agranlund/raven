@@ -94,7 +94,7 @@ static void cmdReset(int args, char* argv[]) {
 static void cmdRun(int args, char* argv[])
 {
     if (args > 1) {
-        cpu_Call(strtoi(argv[1]));
+        cpu_Call(strtoul(argv[1]));
     }
 }
 
@@ -103,9 +103,9 @@ static void cmdRun(int args, char* argv[])
 // peek/poke
 //-----------------------------------------------------------------------
 static void cmdPeekPoke(int args, char* argv[]) {
-    uint32_t addr = strtoi(argv[1]);
+    uint32_t addr = strtoul(argv[1]);
     if (args > 2) {
-        uint32_t val = strtoi(argv[2]);
+        uint32_t val = strtoul(argv[2]);
         switch (argv[0][1])
         {
             case 'l': { cpu_SafeWriteLong(addr, (uint32_t)val); } break;
@@ -131,9 +131,9 @@ static void cmdDump(int args, char* argv[])
     uint32_t addr = dump_old_addr;
     if (args >= 2) {
         uint32_t* regptr = getRegPtr(cpuregs, argv[1]);
-        addr = regptr ? *regptr : strtoi(argv[1]);
+        addr = regptr ? *regptr : strtoul(argv[1]);
     }
-    uint32_t size = (args < 3) ? dump_old_size : strtoi(argv[2]);
+    uint32_t size = (args < 3) ? dump_old_size : strtoul(argv[2]);
     if (size == 0)              size = 256;
     else if (size > (16*256))   size = 16*256;
     else if (size < (16*1))     size = 16*1;
@@ -156,10 +156,10 @@ static void cmdDisasm(int args, char* argv[])
     uint32_t addr = dasm_old_addr;
     if (args >= 2) {
         uint32_t* regptr = getRegPtr(cpuregs, argv[1]);
-        addr = regptr ? *regptr : strtoi(argv[1]);
+        addr = regptr ? *regptr : strtoul(argv[1]);
     }
 	m68k_word* p = (m68k_word*)addr;
-    uint32_t size = (args < 3) ? dasm_old_size : strtoi(argv[2]);
+    uint32_t size = (args < 3) ? dasm_old_size : strtoul(argv[2]);
     size = (size > 0) ? size : 8;
     dasm_old_size = size;
 
@@ -255,7 +255,7 @@ static void cmdCfg(int args, char* argv[])
     }
     else {
         /* write config */
-        cfg_SetValue(cfg_Find(argv[1]), strtoi(argv[2]));
+        cfg_SetValue(cfg_Find(argv[1]), strtoul(argv[2]));
     }
 }
 
@@ -270,7 +270,7 @@ static void cmdCookie(int args, char* argv[]) {
             /* read cookie */
             char* id = argv[1];
             uint32_t cid = *((uint32_t*)id);
-            if (*id == '$' || (strlen(id) != 4)) { cid = strtoi(id); }
+            if (*id == '$' || (strlen(id) != 4)) { cid = strtoul(id); }
             volatile uint32_t* p = *((volatile uint32_t**)0x5a0);
             while (p && p[0]) {
                 if (p[0] == cid) {
@@ -287,9 +287,9 @@ static void cmdCookie(int args, char* argv[]) {
             /* write cookie */
             char* id = argv[1];
             char* vl = argv[2];
-            uint32_t cvl = strtoi(vl);
+            uint32_t cvl = strtoul(vl);
             uint32_t cid = *((uint32_t*)id);
-            if (*id == '$' || (strlen(id) != 4)) { cid = strtoi(id); }
+            if (*id == '$' || (strlen(id) != 4)) { cid = strtoul(id); }
             volatile uint32_t* p = *((volatile uint32_t**)0x5a0);
             while (p && p[0]) {
                 if (p[0] == cid) {
@@ -378,14 +378,14 @@ static void cmdKbd(int args, char* argv[])
                 cpu_SetIPL(ipl);
             } else if ((strcmp(argv[1], "get") == 0) && (args > 2)) {
 				uint8_t d0, d1, d2, d3;
-				uint8_t i = (uint8_t)(strtoi(argv[2]));
+				uint8_t i = (uint8_t)(strtoul(argv[2]));
 				if (ikbd_ReadSetting(i, &d0, &d1, &d2, &d3) == i) {
 					printf("%02x : %02x %02x %02x %02x\n", i, d0, d1, d2, d3);
 				} else {
 					printf("failed.");
 				}
             } else if ((strcmp(argv[1], "set") == 0) && (args > 3)){
-                ikbd_WriteSetting(strtoi(argv[2]), strtoi(argv[3]));
+                ikbd_WriteSetting(strtoul(argv[2]), strtoul(argv[3]));
             } else if (strcmp(argv[1], "save") == 0) {
                 ikbd_SaveSettings();
             } else if (strcmp(argv[1], "clear") == 0) {
@@ -417,11 +417,11 @@ static void cmdPram(int args, char* argv[])
             }
             print_used = true;
         } else if ((strcmp(argv[1], "get") == 0) && (args > 2)) {
-            uint8_t idx = strtoi(argv[2]);
+            uint8_t idx = strtoul(argv[2]);
             printf("%02x %04x\n", idx, pram_Get(idx));
         } else if ((strcmp(argv[1], "set") == 0) && (args > 3)){
-            uint8_t idx = strtoi(argv[2]);
-            uint16_t val = strtoi(argv[3]);
+            uint8_t idx = strtoul(argv[2]);
+            uint16_t val = strtoul(argv[3]);
             pram_Set(idx, val);
         } else if (strcmp(argv[1], "compact") == 0) {
             pram_Compact();
@@ -605,9 +605,9 @@ static void cmdSrec(int args, char* argv[])
         uint32_t address = srec_get_long() - address_offset;
         srec_len -= 4;
         if (low_address == 0) {
-            if (address >= RV_PADDR_SIMM3)
+            if (address >= ROM_ADDR)
             {
-                address_offset = RV_PADDR_SIMM3 - srec_mem_start;
+                address_offset = ROM_ADDR - srec_mem_start;
                 address -= address_offset;
             }
             low_address = address;
@@ -661,10 +661,10 @@ static void cmdRegs(int args, char* argv[]) {
     if (args > 2) {
         uint32_t* rp = getRegPtr(cpuregs, argv[1]);
         if (rp == (uint32_t*)&cpuregs->sr) {
-            *((uint16_t*)rp) = strtoi(argv[2]);
+            *((uint16_t*)rp) = strtoul(argv[2]);
         }
         else if ((rp >= &cpuregs->d0) && (rp != &cpuregs->a7)) {
-            *((uint32_t*)rp) = strtoi(argv[2]);
+            *((uint32_t*)rp) = strtoul(argv[2]);
         }
     }
     showRegs(cpuregs);

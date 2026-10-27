@@ -84,7 +84,7 @@ bool sys_Init()
         bool romaddr_valid = true;
         siz_simm[3] = ((i+1) * 1024) * 1024UL;
         for (int j=0; j<1024 && romaddr_valid; j+=4) {
-            romaddr_valid = (IOL(RV_PADDR_SIMM3, j) != IOL((RV_PADDR_SIMM3 + siz_simm[3]), j)) ? true : false;
+            romaddr_valid = (IOL(ROM_ADDR, j) != IOL((ROM_ADDR + siz_simm[3]), j)) ? true : false;
         }
         i = romaddr_valid ? i : 16;
     }
@@ -319,34 +319,4 @@ void sys_Delay(uint32_t c) {
     for (uint32_t i = 0; i < (c * 1000); i++) {
         nop();
     }
-}
-
-uint32_t strtoi(char* s)
-{
-    uint32_t v = 0;
-    if (*s == '$')
-    {
-        s++;
-        while (*s != 0)
-        {
-            uint32_t b = (uint32_t) *s; s++;
-            if (b >= '0' && b <= '9')       b = b - '0';
-            else if (b >= 'a' && b <= 'f')  b = 10 + b - 'a';
-            else return 0;
-            v <<= 4;
-            v |= b;
-        }
-    }
-    else
-    {
-        while (*s != 0)
-        {
-            uint32_t b = (uint32_t) *s; s++;
-            if (b >= '0' && b <= '9')   b = b - '0';
-            else return 0;
-            v *= 10;
-            v += b;
-        }
-    }
-    return v;
 }

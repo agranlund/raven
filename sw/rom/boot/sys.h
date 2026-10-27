@@ -26,12 +26,11 @@ uint32_t mem_LinearAlloc(uint32_t size, uint32_t align);
 uint32_t mem_Sbrk(int32_t size);
 void     mem_Info(void);
 
-uint32_t strtoi(char* s);
-
 void vecNMI();
 void vecRTE();
 
 extern uint32_t krev;
+extern uint32_t ksimm[4];
 
 #endif // !__ASM_
 #endif // _SYS_H_

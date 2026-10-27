@@ -16,8 +16,6 @@
 #define DELAY_BOOT              0
 #define DEBUG_MMU               0
 
-extern uint32_t ksimm[4];
-
 extern void vecRTE_MFP1I0();
 extern void vecRTE_MFP1I1();
 extern void vecRTE_MFP1I2();

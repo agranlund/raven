@@ -61,6 +61,8 @@ extern int setjmp(jmp_buf buf);
 extern void longjmp(jmp_buf, int);
 extern int sigsetjmp(jmp_buf buf, int mask);
 
+extern uint32_t strtoul(char* s);
+
 extern size_t strlen(const char *s);
 extern char* strchr(const char *s, char c);
 extern char* strcpy(char *to, const char *from);

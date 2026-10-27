@@ -9,17 +9,13 @@ static int getchar_uart() { return uart_recvChar(); }
 void (*putchar)(int c);
 int (*getchar)(void);
 
-bool
-lib_Init()
-{
+bool lib_Init() {
     putchar = putchar_uart;
     getchar = getchar_uart;
     return true;
 }
 
-size_t
-strlen (const char *str)
-{
+size_t strlen (const char *str) {
     unsigned int n = ~0;
     const char *cp = str;
 
@@ -34,9 +30,7 @@ strlen (const char *str)
     return (cp - str) - 1;
 }
 
-char *
-strcpy (char *to, const char *from)
-{
+char* strcpy(char *to, const char *from) {
     char *pto = to;
     unsigned int n = 0xFFFF;
 
@@ -50,9 +44,7 @@ strcpy (char *to, const char *from)
     return to;
 }
 
-int
-strcmp(const char *s1, const char *s2)
-{
+int strcmp(const char *s1, const char *s2) {
     for (;;) {
         char c1 = *s1++;
         char c2 = *s2++;
@@ -90,13 +82,10 @@ strncmp(const char *s1, const char *s2, size_t n)
             return 0;
         }
     }
-
     return 0;
 }
 
-int
-strncasecmp(const char *s1, const char *s2, size_t n)
-{
+int strncasecmp(const char *s1, const char *s2, size_t n) {
     while (n--) {
         char c1 = toupper(*s1++);
         char c2 = toupper(*s2++);
@@ -116,27 +105,47 @@ strncasecmp(const char *s1, const char *s2, size_t n)
             return 0;
         }
     }
-
     return 0;
 }
 
-char*
-strchr(const char *s, char c)
-{
-    while (*s != '\0')
-    {
+char* strchr(const char *s, char c) {
+    while (*s != '\0') {
         if (*s == c) {
             return (char*)s;
         }
         s++;
     }
-
     return 0;
 }
 
-int
-memcmp(const void *vs1, const void *vs2, size_t n)
-{
+
+uint32_t strtoul(char* s) {
+    uint32_t v = 0;
+    if (*s == '$') {
+        s++;
+        while (*s != 0) {
+            uint32_t b = (uint32_t) *s;
+            s++;
+            if (b >= '0' && b <= '9') { b = b - '0'; }
+            else if (b >= 'a' && b <= 'f') { b = 10 + b - 'a'; }
+            else { return 0; }
+            v <<= 4;
+            v |= b;
+        }
+    } else {
+        while (*s != 0) {
+            uint32_t b = (uint32_t) *s;
+            s++;
+            if (b >= '0' && b <= '9') { b = b - '0'; }
+            else { return 0; }
+            v *= 10;
+            v += b;
+        }
+    }
+    return v;
+}
+
+int memcmp(const void *vs1, const void *vs2, size_t n) {
     const char *s1 = (const char *)vs1;
     const char *s2 = (const char *)vs2;
     while (n--) {
@@ -155,9 +164,7 @@ memcmp(const void *vs1, const void *vs2, size_t n)
     return 0;
 }
 
-void*
-memset(void *b, int c, size_t len)
-{
+void* memset(void *b, int c, size_t len) {
     char* ptr = (char*)b;
     char value = (char)c;
     while(len--) {
@@ -166,9 +173,7 @@ memset(void *b, int c, size_t len)
     return b;
 }
 
-void*
-memcpy(void *restrict dst, const void *restrict src, size_t len)
-{
+void* memcpy(void *restrict dst, const void *restrict src, size_t len) {
     char *d = (char *)dst;
     const char *s = (const char *)src;
     while (len--) {
@@ -177,9 +182,7 @@ memcpy(void *restrict dst, const void *restrict src, size_t len)
     return dst;
 }
 
-void*
-memmove(void* dst, const void* src, size_t len)
-{
+void* memmove(void* dst, const void* src, size_t len) {
     char *d = (char *)dst;
     const char *s = (const char *)src;
     if (d < s) {
@@ -196,9 +199,7 @@ memmove(void* dst, const void* src, size_t len)
     return dst;
 }
 
-int
-puts(const char *str)
-{
+int puts(const char *str) {
     while (*str != '\0') {
         putchar(*str++);
     }
@@ -206,9 +207,7 @@ puts(const char *str)
     return 0;
 }
 
-static char *
-gets_internal(char * restrict buf, int bufsize, bool echo)
-{
+static char* gets_internal(char * restrict buf, int bufsize, bool echo) {
     uint32_t len = 0;
 
     for (;;) {
@@ -272,24 +271,19 @@ gets_internal(char * restrict buf, int bufsize, bool echo)
     }
 }
 
-char *
-gets(char * restrict str, int size)
-{
+char* gets(char * restrict str, int size) {
     return gets_internal(str, size, true);
 }
 
 static const char *hextab = "0123456789abcdef";
 
-static void emits(void (*emit)(int c), const char *s)
-{
+static void emits(void (*emit)(int c), const char *s) {
     while (*s) {
         emit(*s++);
     }
 }
 
-static void
-emitx(void (*emit)(int c), uint32_t value, size_t len)
-{
+static void emitx(void (*emit)(int c), uint32_t value, size_t len) {
     uint32_t shifts = len * 2;
     char buf[shifts + 1];
     char *p = buf + shifts;
@@ -305,15 +299,11 @@ emitx(void (*emit)(int c), uint32_t value, size_t len)
     emits(emit, p);
 }
 
-static void
-putx(uint32_t value, size_t len)
-{
+static void putx(uint32_t value, size_t len) {
     emitx(putchar, value, len);
 }
 
-static void
-emitd(void (*emit)(int c), uint32_t value)
-{
+static void emitd(void (*emit)(int c), uint32_t value) {
     if (value == 0) {
         putchar('0');
         return;
@@ -332,17 +322,9 @@ emitd(void (*emit)(int c), uint32_t value)
     emits(emit, p);
 }
 
-// static void
-// putd(uint32_t value)
-// {
-//     emitd(putchar, value);
-// }
-
 #define WSELECT(_s, _l, _w, _b) ((_s) == 'l') ? (_l) : ((_s) == 'w') ? (_w) : (_b)
 
-size_t
-hexdump(const uint8_t *addr, uint32_t address, size_t length, char width)
-{
+size_t hexdump(const uint8_t *addr, uint32_t address, size_t length, char width) {
     uint32_t index;
     uint32_t incr = WSELECT(width, 4, 2, 1);
 
@@ -401,9 +383,7 @@ hexdump(const uint8_t *addr, uint32_t address, size_t length, char width)
 }
 
 /**
- * @brief      printf-style output formatter
- *
- * Supports:
+ * printf-style output formatter
  *  %c      character (char)
  *  %d      signed decimal integer (int)
  *  %u      uint32_t decimal integer (uint32_t int)
@@ -412,13 +392,8 @@ hexdump(const uint8_t *addr, uint32_t address, size_t length, char width)
  *  %w      hex word (uint16_t)
  *  %l      hex long (uint32_t)
  *  %s      string (const char *)
- *
- * @param[in]  format     format string
- * @param[in]  <unnamed>  format string arguments
  */
-void
-_fmt(void (*emit)(int c), const char *format, va_list ap)
-{
+void _fmt(void (*emit)(int c), const char *format, va_list ap) {
     char c;
     bool dofmt = false;
 
@@ -504,46 +479,34 @@ _fmt(void (*emit)(int c), const char *format, va_list ap)
     }
 }
 
-void
-fmt(const char *format, ...)
-{
+void fmt(const char *format, ...) {
     va_list ap;
     va_start(ap, format);
     _fmt(putchar, format, ap);
     va_end(ap);
 }
 
-static int
-scan_decval(char c)
-{
+static int scan_decval(char c) {
     if ((c >= '0') && (c <= '9')) {
         return c - '0';
     }
-
     return -1;
 }
 
-static int
-scan_hexval(char c)
-{
+static int scan_hexval(char c) {
     if ((c >= '0') && (c <= '9')) {
         return c - '0';
     }
-
     if ((c >= 'a') && (c <= 'f')) {
         return c - 'a' + 10;
     }
-
     if ((c >= 'A') && (c <= 'F')) {
         return c - 'A' + 10;
     }
-
     return -1;
 }
 
-static int
-scan_digits(const char **bp, uint32_t *result)
-{
+static int scan_digits(const char **bp, uint32_t *result) {
     int (*scanner)(char c);
     const char *p = *bp;
     *result = 0;
@@ -581,23 +544,13 @@ scan_digits(const char **bp, uint32_t *result)
     return 0;
 }
 
-/**
- * @brief      scanf-style input scanner
- *
- * Supports:
+/*
+ * scanf-style input scanner
  *  %c      character (char *)
  *  %l      uint32_t number, decimal or hex with preceding 0x or $ (uint32_t *)
  *  %s      string, needs 2 args, pointer & max length (char *, size_t)
- *
- * @param[in]  buf        buffer to scan
- * @param[in]  format     format string
- * @param[in]  <unnamed>  format string arguments
- *
- * @return     the number of arguments converted, or -1 on error
  */
-int
-scan(const char *buf, const char *format, ...)
-{
+int scan(const char *buf, const char *format, ...) {
     char c;
     va_list ap;
     int ret = 0;
@@ -707,53 +660,50 @@ scan(const char *buf, const char *format, ...)
 
 int setjmp(jmp_buf buf)
 {
-	register long *a0 __asm__("%a0") = buf;
-	register void *a1 __asm__("%a1") = __builtin_return_address(0);
-	__asm__ __volatile__(
-		"\tmovem.l	%%d2-%%d7/%%a1-%%a7,(%[regs])\n"
+    register long *a0 __asm__("%a0") = buf;
+    register void *a1 __asm__("%a1") = __builtin_return_address(0);
+    __asm__ __volatile__(
+        "\tmovem.l    %%d2-%%d7/%%a1-%%a7,(%[regs])\n"
 #if 0
 #ifdef __mcffpu__
-		"\tfmovem%.d %%fp0-%%fp7,52(%[regs])\n"
+        "\tfmovem%.d %%fp0-%%fp7,52(%[regs])\n"
 #endif
 #ifdef __HAVE_68881__
-		"\tfmovem%.x %%fp0-%%fp7,52(%[regs])\n"
+        "\tfmovem%.x %%fp0-%%fp7,52(%[regs])\n"
 #endif
 #endif
-		:							/* output */
-		: [regs] "a" (a0), "a"(a1)	/* input */
-		: "memory"
-	);
-	return 0;
+        :                             /* output */
+        : [regs] "a" (a0), "a"(a1)    /* input */
+        : "memory"
+    );
+    return 0;
 }
 
 void longjmp(jmp_buf buf, int val)
 {
-	register int d0 __asm__("%d0") = val ? val : 1;
-	register long *a0 __asm__("%a0") = buf;
+    register int d0 __asm__("%d0") = val ? val : 1;
+    register long *a0 __asm__("%a0") = buf;
 
-	__asm__ __volatile__(
-		"\tmovem.l	(%[a0]),%%d2-%%d7/%%a1-%%a7\n"
+    __asm__ __volatile__(
+        "\tmovem.l    (%[a0]),%%d2-%%d7/%%a1-%%a7\n"
 #if 0
 #ifdef __mcffpu__
-		"\tfmovem%.d 52(%[a0]),%%fp0-%%fp7\n"
+        "\tfmovem%.d 52(%[a0]),%%fp0-%%fp7\n"
 #endif
 #ifdef __HAVE_68881__
-		"\tfmovem%.x 52(%[a0]),%%fp0-%%fp7\n"
+        "\tfmovem%.x 52(%[a0]),%%fp0-%%fp7\n"
 #endif
 #endif
-		"\taddq.l #4,%%a7\n"		/* pop return pc of setjmp() call */
-		"\tjmp (%%a1)\n"
-		:							/* output */
-		: [a0]"a"(a0), "d" (d0)
-		: /* not reached; so no need to declare any clobbered regs */
-	);
-	__builtin_unreachable();
+        "\taddq.l #4,%%a7\n"        /* pop return pc of setjmp() call */
+        "\tjmp (%%a1)\n"
+        :                            /* output */
+        : [a0]"a"(a0), "d" (d0)
+        : /* not reached; so no need to declare any clobbered regs */
+    );
+    __builtin_unreachable();
 }
 
 // -------------------------------------------------------------------------------------------
-
-
-/********************************************************************/
 
 typedef struct
 {
@@ -812,8 +762,7 @@ static void board_putchar(char c) {
 }
 
 /********************************************************************/
-static void printk_putc(char c, int *count, PRINTK_INFO *info)
-{
+static void printk_putc(char c, int *count, PRINTK_INFO *info) {
     switch (info->dest)
     {
         case DEST_CONSOLE:
@@ -830,8 +779,7 @@ static void printk_putc(char c, int *count, PRINTK_INFO *info)
 }
 
 /********************************************************************/
-static int printk_mknumstr(char *numstr, void *nump, int neg, int radix)
-{
+static int printk_mknumstr(char *numstr, void *nump, int neg, int radix) {
     int a,b,c;
     unsigned int ua,ub,uc;
 
@@ -899,23 +847,15 @@ static int printk_mknumstr(char *numstr, void *nump, int neg, int radix)
 }
 
 /********************************************************************/
-static void printk_pad_zero(int curlen, int field_width, int *count, PRINTK_INFO *info)
-{
-    int i;
-
-    for (i = curlen; i < field_width; i++)
-    {
+static void printk_pad_zero(int curlen, int field_width, int *count, PRINTK_INFO *info) {
+    for (int i = curlen; i < field_width; i++) {
         printk_putc('0',count, info);
     }
 }
 
 /********************************************************************/
-static void printk_pad_space(int curlen, int field_width, int *count, PRINTK_INFO *info)
-{
-    int i;
-
-    for (i = curlen; i < field_width; i++)
-    {
+static void printk_pad_space(int curlen, int field_width, int *count, PRINTK_INFO *info) {
+    for (int i = curlen; i < field_width; i++) {
         printk_putc(' ',count, info);
     }
 }
@@ -1310,14 +1250,12 @@ int printk(PRINTK_INFO *info, const char *fmt, va_list ap)
 }
 
 /********************************************************************/
-void printf(const char *format, ...)
-{
+void printf(const char *format, ...) {
     va_list ap;
-    //int rvalue;
     PRINTK_INFO info;
     info.dest = DEST_CONSOLE;
     info.func = &board_putchar;
     va_start(ap, format);
-    /*rvalue =*/ printk(&info, format, ap);
+    printk(&info, format, ap);
     va_end(ap);
 }

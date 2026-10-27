@@ -3,8 +3,6 @@
 #include "hw/cpu.h"
 #include "hw/flash.h"
 
-extern uint32_t ksimm[4];
-
 #define FLASH_PADDR     ROM_ADDR
 #define FLASH_LADDR     0x21000000UL
 #define HDR_MAGIC       0x5241564EUL
