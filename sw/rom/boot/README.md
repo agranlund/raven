@@ -64,17 +64,24 @@ memory and registers at the point where execution was interrupted, then resume.
 
 (Type `h` for full list of commands)
 
-
 To load and run an S-record file just send it over serial. Monitor detects
 the S-record format automatically and launches it automatically after received
+
+## Disassembler
+
+m68k_disasm.c comes from CT60/Firebee FireTOS
+Copyright (c) 1999-2002 Frank Wille
+Based on NetBSD's m68k/m68k/db_disasm.c by Christian E. Hopps.
+
+## x86
+
+Just-enough x86 emulation is implemented for running graphics cards vgabios.
+This is the old emulator from SciTech which was built for exactly that, adapted for Raven.
 
 ## Hardware
 
 Individual hardware init/support code lives in the `hw` folder.
 
-## x86
-Just-enough x86 emulation is implemented for running graphics cards vgabios.
-This is the old emulator from SciTech which was built for exactly that, adapted for Raven.
 
 ## Building
 
