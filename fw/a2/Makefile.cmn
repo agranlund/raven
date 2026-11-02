@@ -1,0 +1,32 @@
+CUPL_DIR    = ../cupl_toolchain
+ATDH_DIR    = $(CUPL_DIR)/atdh1150usb
+
+DEVICE ?= ATF1508AS
+CUPL_FLAGS ?= m1jfxlpbn
+
+JSVF = python3 $(CUPL_DIR)/fuseconv/fuseconv.py -d $(DEVICE)
+ATDH = $(CUPL_DIR)/atdh1150usb/atdh1150usb.sh
+MPRO = minipro
+CUPL = CUPL_OPTIONS="$(CUPL_FLAGS)" $(CUPL_DIR)/5vcomp
+
+NAME = $(basename $(TARGET))
+TEMPFILES = fit tt2 tt3 pla io pin sim abs pdf doc lst
+
+DEPS += Makefile ../Makefile.cmn
+
+.PHONY: all clean flash
+.SECONDARY:
+.DELETE_ON_ERROR:
+
+all: $(TARGET)
+
+%.jed: %.pld $(DEPS)
+	$(CUPL) $<
+
+%.svf: %.jed $(DEPS)
+	$(JSVF) $< $@
+
+clean:
+	rm -f $(NAME).jed $(NAME).svf jtag.log
+	rm -f $(addprefix $(NAME).,$(TEMPFILES))
+	rm -f $(addprefix $(shell echo '$(NAME)' | tr a-z A-Z).,$(TEMPFILES))
