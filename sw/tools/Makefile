@@ -1,20 +1,21 @@
 
 FOLDERS = \
-	mon \
-	dsp \
-	fat32 \
 	cacheoff \
 	cacheon \
+	dsp \
 	eiffel \
+	fat32 \
 	flash \
+	fpu_emu \
 	fpu_off \
+	mon \
 	patch_xc \
 	resetnvm \
-	thingpal \
-	fpu_emu \
 	serial.cpx \
+	thingpal \
+	uiptools \
 	ymodem \
-	vt52_8x8
+	#
 
 all:
 	for dir in $(FOLDERS); do \
