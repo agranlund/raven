@@ -51,10 +51,8 @@ Knowledge and tools to perform hardware-level debugging and/or very low level so
 	- [Revision.A2](hw/raven/a2/)
     - [Revision.A1](hw/raven/a1/)
     	- [USB upgrade](hw/raven/a1/upgrades/ckbd/)
-    - ~~[Revision.A0](hw/raven/a0/)~~
 - RAM modules
     - [16MB 55ns](hw/simm/ram_16M55/)
-    - ~~[8MB 10ns](hw/simm/ram_8M10/)~~
 - ROM module
     - [55ns SMD](hw/simm/rom_SMD/)
     - [55ns PLCC](hw/simm/rom_PLCC/)
@@ -81,8 +79,8 @@ Knowledge and tools to perform hardware-level debugging and/or very low level so
 
 
 ## Additional tools
-- [ROM module programmer](hw/simm/programmer/)
+- [ROM Simm programmer](hw/simm/programmer/)
 - Programmer for ATF1508AS, for example ATDH1150-USB
 - Programmer for ATF22V10C, for example XGecu TL866II-Plus
-- (Rev.A1) Programmer for PIC16F876A, for example XGecu TL866II-Plus
+- (Rev.A1 without USB upgrade) Programmer for PIC16F876A, for example XGecu TL866II-Plus
 
