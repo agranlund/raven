@@ -1,36 +1,36 @@
 
+# Raven software
+
+dsp/        DSP toolchain + bootcode
+gcc/        GCC toolchain related
+purec/      PureC toolchain related
+isa/        ISA bus framework, PnP bios, drivers
+lib/        Raven related headers / libs
+rom/        bootrom + tos
+rvbios/     TOS bios extensions
+rvnova/     TOS graphics drivers
+rvsnd/      TOS sound drivers
+tools/      TOS utils and apps
+
+
 ## Subtrees:
 sw/rom/emutos           : https://github.com/emutos/emutos master
 sw/isa/drivers/picogus  : https://github.com/polpo/picogus main
 sw/dsp/asm56k           : https://github.com/agranlund/asm56k master
 sw/dsp/dsptools         : https://github.com/insane-rabenauge/dsptools main
 
+
 ## Compilers:
-rom/boot                    : m68k-atari-mintelf-gcc
-rom/srec                    : m68k-atari-mintelf-gcc
-rom/emutos                  : m68k-atari-mintelf-gcc
+rom/*                       : m68k-atari-mintelf-gcc
 
 rvbios                      : pureC
 rvnova                      : pureC
 rvsnd                       : pureC
-tools/cache                 : pureC
-tools/eiffel                : pureC
-tools/flash                 : pureC
+tools/*                     : PureC
 tools/fpu_emu               : m68k-atari-mintelf-gcc
-tools/fpu_off               : pureC
-tools/mon                   : pureC
-tools/patch_xc              : pureC
-tools/raven.cpx             : pureC
-tools/resetnvm              : pureC
-tools/serial.cpx            : pureC
-tools/thingpal              : pureC
 tools/uiptools              : m68k-atari-mintelf-gcc
 
-isa/isa_bios                : pureC
-isa/drivers/fmradio         : pureC
-isa/drivers/gus             : pureC
-isa/drivers/mpu401          : pureC
-isa/drivers/oplmidi         : pureC
+isa/*                       : pureC
 isa/drivers/ne2000/ethernec : turboC (1)
 isa/drivers/picogus         : m68k-atari-mintelf-gcc
 
