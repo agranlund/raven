@@ -6,7 +6,7 @@ sw/dsp/asm56k           : https://github.com/agranlund/asm56k master
 sw/dsp/dsptools         : https://github.com/insane-rabenauge/dsptools main
 
 ## Compilers:
-rom/mon                     : m68k-atari-mintelf-gcc
+rom/boot                    : m68k-atari-mintelf-gcc
 rom/srec                    : m68k-atari-mintelf-gcc
 rom/emutos                  : m68k-atari-mintelf-gcc
 
