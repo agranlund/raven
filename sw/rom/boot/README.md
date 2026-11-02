@@ -73,9 +73,8 @@ the S-record format automatically and launches it automatically after received
 Individual hardware init/support code lives in the `hw` folder.
 
 ## x86
-nough x86 emulation to execute vgabios on videocards.
-This is the old SciTech emulator used by tons of software for this purpose.
-
+Just-enough x86 emulation is implemented for running graphics cards vgabios.
+This is the old emulator from SciTech which was built for exactly that, adapted for Raven.
 
 ## Building
 
