@@ -8,7 +8,7 @@ This computer is designed to be an Atari compatible clone. It runs clean GEM/TOS
 - [Hardware](hw/raven/a2/) - KiCad schematics and PCB. Interactive BOM, revision history.
 
 
-Links and resources:
+## Links and resources:
 - Youtube: https://www.youtube.com/@granlund23/videos
 - Forum: https://www.exxosforum.co.uk/forum/viewforum.php?f=119
 
@@ -24,7 +24,7 @@ All hardware and software sources are provided as-is and for free but comes with
 
 The computer works for me and can run EmuTOS, FreeMiNT or MagiC but if you decide to build or buy this board I very much recommend coming in with a DIY mindset.
 
-    Knowledge and tools to perform hardware-level debugging and/or very low level software debugging is highly recommended.
+Knowledge and tools to perform hardware-level debugging and/or very low level software debugging is highly recommended.
 
 If you build one, the forum is a great place to get help and ask questions regarding bringup or other topics.
 
