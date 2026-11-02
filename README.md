@@ -1,14 +1,16 @@
 # Raven
-### A homemade Atari clone computer based on Motorola 68060
-This computer is primarily designed to be an Atari clone computer with
-the goal of being able to natively run clean GEM/TOS applications, and backward compatibility with old ST games by help of software emulation.
+### A homemade computer based on Motorola MC68060 + DSP56303
+This computer is designed to be an Atari compatible clone. It runs clean GEM/TOS applications natively, and very old hardware-banging ST games through an emulation layer.
 
-Latest release package: https://github.com/agranlund/raven/releases/tag/Raven.A1.latest
+## Where is stuff
+- [Software](sw/) - [bootloader and monitor](sw/rom/boot/), [TOS bios extension](sw/rvbios/), [ISA PnP bios and drivers](sw/isa/), [graphics drivers](sw/rvnova/), [sound drivers](sw/rvsnd/), [misc utils](sw/tools/)
+- [Firmware](fw/) - CUPL bus logic, keyboard controller firmware 
+- [Hardware](hw/raven/a2/) - KiCad schematics and PCB. Interactive BOM, revision history.
 
-Other resources:
+
+Links and resources:
 - Youtube: https://www.youtube.com/@granlund23/videos
 - Forum: https://www.exxosforum.co.uk/forum/viewforum.php?f=119
-
 
 ![Alt text](hw/raven/a1/images/desktop.jpg?raw=true "")
 
@@ -16,14 +18,19 @@ Other resources:
 
 
 ## This is not a consumer product.
-I have no formal EE training or education and learn as I go.
-
-This computer is primarily designed as a one-off for myself. For fun and learning and as a platform for low-level tinkering. 
+I have no formal EE training or education. The computer is primarily designed as a one-off for myself, for fun and learning and as a platform that provides a whole range of interesting areas of programming and/or hardware tinkering.
 
 All hardware and software sources are provided as-is and for free but comes with no guarantees or promise of support.
 
-The computer works for me and runs EmuTOS, FreeMiNT and MagiC but if you decide to build or buy this board I very much recommend coming in with a DIY mindset.
-Knowledge and tools to perform hardware-level debugging and/or very low level software debugging is highly recommended.
+The computer works for me and can run EmuTOS, FreeMiNT or MagiC but if you decide to build or buy this board I very much recommend coming in with a DIY mindset.
+
+    Knowledge and tools to perform hardware-level debugging and/or very low level software debugging is highly recommended.
+
+If you build one, the forum is a great place to get help and ask questions regarding bringup or other topics.
+
+Rev.A1 is slightly easier to build and has seen 10+ other people building working ones.
+
+Rev.A2 is an incremental update where the largest addition is the DSP56303 but it has only been built and tested by myself so far.
 
 
 ## Specifications Rev.A2
@@ -40,11 +47,9 @@ Knowledge and tools to perform hardware-level debugging and/or very low level so
 - Realtime clock
 - Midi In/Out
 - YM2149 sound
-- MC68901 mfp
+- MC68901 MFP x2
 - ISA 16bit expansion slots x4
 
-## Manual
-- [Revision.A1](doc/manual_a1.pdf)
 
 ## Required or recommended parts
 - Raven motherboard
@@ -70,7 +75,7 @@ Knowledge and tools to perform hardware-level debugging and/or very low level so
         - Tseng ET4000AX
         - (untested) Cirrus GD5424, GD5422
         - (untested) WD90C30
-    - Cards not listed above may work but only in standard VGA resolutions.
+    - Cards not listed above have a high chance of working but only in standard VGA resolutions.
 - ISA Network card.
 	- RTL8019AS based card
 - ISA soundcard
@@ -83,4 +88,3 @@ Knowledge and tools to perform hardware-level debugging and/or very low level so
 - Programmer for ATF1508AS, for example ATDH1150-USB
 - Programmer for ATF22V10C, for example XGecu TL866II-Plus
 - (Rev.A1 without USB upgrade) Programmer for PIC16F876A, for example XGecu TL866II-Plus
-

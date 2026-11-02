@@ -2,11 +2,11 @@
 
 |||
 |------|----------|
-|`boot/`|bootrom|
-|`srec/`|baremetal programs that can be sent over serial to run in bootrom monitor, not part of roms|
-|`emutos/`|TOS rom|
-|`romdisk/`|TOS romdisk|
-|`toscart/`|TOS virtual cartridge skeleton|
+|[`boot/`](boot/)|bootloader + monitor|
+|[`srec/`](srec/)|baremetal programs which can be sent over serial to run in bootrom monitor, not part of roms|
+|[`emutos/`](emutos/)|TOS rom|
+|[`romdisk/`](romdisk/)|TOS romdisk|
+|[`toscart/`](toscart/)|TOS virtual cartridge skeleton|
 
 
 ## Layout
@@ -27,3 +27,12 @@ The TOC lives in the bootrom area and is updated automatically when binaries are
 
 - Run "make mon"
 - Program ROM simm with "rom_mon.bin"
+
+## srec
+Despite living in this folder, these programs are not included as part of rom images.
+They are small baremetal programs which can be sent over serial to be executed from the bootrom monitor.
+
+|||
+|------|----------|
+|[`srec/selftest/`](srec/selftest/)|selftest diagnostic program|
+|[`srec/example/`](srec/example/)|Hello world example to use as a template for own programs|

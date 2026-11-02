@@ -20,7 +20,7 @@ Specific card support:
 - Oak, Tseng ET4000AX — SVGA modes, no acceleration
 - Any other ISA VGA card — standard VGA modes only
 
-## Official drivers
+## Official legacy NOVA drivers
 
 Third-party NOVA drivers for specific cards are included alongside SVGA for cases
 where they provide better support:
