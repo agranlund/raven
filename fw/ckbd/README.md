@@ -1,8 +1,7 @@
 # CKBD
 ## Eiffel replacement for Raven
-## This is a work in progress and may contain yet to be discovered incompatibilities
 
-CKBD aims to be fairly compatible with Eiffel and allows the use of the following devices:
+CKBD aims to be fairly compatible with IKBD/Eiffel and allows the use of the following devices:
 * USB Keyboard and mouse
 * PS2 Keyboard and mouse
 * Atari joystick(s)
@@ -11,7 +10,7 @@ CKBD aims to be fairly compatible with Eiffel and allows the use of the followin
 
 Raven.A2 has the necessary hardware already on the motherboard.
 
-Older revisions can use an [upgrade board](../../hw/raven/upgrades/ckbd/) that plugs into the Eiffel port.
+Older revisions can use an [upgrade board](../../hw/raven/a1/upgrades/ckbd/) that plugs into the Eiffel port.
 Two USB ports are then exposed on an internal header.
 
 ## Technical description
