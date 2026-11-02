@@ -20,8 +20,8 @@ _autosave*
 #auto_saved_files#
 hw/simm/programmer/firmware/build/*
 !hw/simm/programmer/firmware/build/ravenprog.uf2
-sw/rom/mon/*.bin
-sw/rom/mon/*.ram
+sw/rom/boot/*.bin
+sw/rom/boot/*.ram
 sw/rom/*.bin
 sw/rom/emucon2.tos
 sw/rom/mkrom
