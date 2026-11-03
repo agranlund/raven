@@ -28,6 +28,20 @@ The TOC lives in the bootrom area and is updated automatically when binaries are
 - Run "make mon"
 - Program ROM simm with "rom_mon.bin"
 
+## EmuTOS
+`emutos/` is a subtree of upstream [EmuTOS](https://github.com/emutos/emutos) operating system, updated with `update_emutos_subtree.sh`.
+
+Raven specific code lives in:
+- `bios/raven.c`, `bios/raven.h`, `bios/raven2.S`
+- `bios/startup.S`, `bios/processor.S`, `bios/memory.S`
+- `bios/ikbd.c`, `bios/midi.c`, `bios/ide.c`, `bios/screen.c`
+- search for `MACHINE_RAVEN` define.
+
+## MagiC
+Raven specific code for the alternative operating system [MagiC](https://github.com/th-otto/MagicMac) lives upstream and is not part of this repo.
+The define to look for in code is simply RAVEN. Kernel project file is in the upstream repo as kernel/build/raven.prj
+
+
 ## srec
 Despite living in this folder, these programs are not included as part of rom images.
 They are small baremetal programs which can be sent over serial to be executed from the bootrom monitor.

@@ -2,8 +2,8 @@
 
 |||
 |------|----------|
-|`cache_off`|Disable CPU caches|
-|`cache_on`|Enable CPU caches|
+|`cacheoff`|Disable CPU caches|
+|`cacheon`|Enable CPU caches|
 |`eiffel/`|Eiffel control software|
 |`fat32/`|FAT32 filesystem driver for TOS|
 |`flash/`|ROM flash utility|

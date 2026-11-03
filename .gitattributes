@@ -1,0 +1,10 @@
+# third party code, excluded from github language statistics
+sw/rom/emutos/**                linguist-vendored
+sw/gcc/src/libcmini/**          linguist-vendored
+sw/purec/**                     linguist-vendored
+sw/isa/drivers/picogus/**       linguist-vendored
+sw/isa/drivers/ne2000/ethernec/** linguist-vendored
+sw/tools/uiptools/**            linguist-vendored
+sw/tools/fat32/fatfs/**         linguist-vendored
+sw/dsp/dsptools/**              linguist-vendored
+fw/ckbd/tools/**                linguist-vendored

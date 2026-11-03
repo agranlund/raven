@@ -22,6 +22,8 @@ I have no formal EE training or education. The computer is primarily designed as
 
 All hardware and software sources are provided as-is and for free but comes with no guarantees or promise of support.
 
+**Licenses:** Hardware and bus logic are CERN-OHL-2.0. My own software is mostly GPL v2+, and third-party code keeps its original license. Where a folder differs it has its own license file.
+
 The computer works for me and can run EmuTOS, FreeMiNT or MagiC but if you decide to build or buy this board I very much recommend coming in with a DIY mindset.
 
 Knowledge and tools to perform hardware-level debugging and/or very low level software debugging is highly recommended.
