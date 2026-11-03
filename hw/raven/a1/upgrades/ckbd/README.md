@@ -10,7 +10,7 @@
 
 ### Firmware:
 Binary, sourcecode, and programming instructions can be found here:
-* [ckbd firmware](../../../../fw/ckbd/) 
+* [ckbd firmware](../../../../../fw/ckbd/) 
 
 
 ![Alt text](ckbd.png?raw=true "")
