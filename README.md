@@ -3,9 +3,9 @@
 This computer is designed to be an Atari compatible clone. It runs clean GEM/TOS applications natively, and very old hardware-banging ST games through an emulation layer.
 
 ## Where is stuff
-- [Software](sw/) - [bootloader and monitor](sw/rom/boot/), [TOS bios extension](sw/rvbios/), [ISA PnP bios and drivers](sw/isa/), [graphics drivers](sw/rvnova/), [sound drivers](sw/rvsnd/), [misc utils](sw/tools/)
-- [Firmware](fw/) - [CUPL bus logic](fw/a2/), [CKBD keyboard controller](fw/ckbd/)
 - [Hardware](hw/raven/a2/) - KiCad schematics and PCB. Interactive BOM, revision history.
+- [Firmware](fw/) - [CUPL bus logic](fw/a2/), [CKBD keyboard controller](fw/ckbd/)
+- [Software](sw/) - [bootloader and monitor](sw/rom/boot/), [TOS bios extension](sw/rvbios/), [ISA PnP bios and drivers](sw/isa/), [graphics drivers](sw/rvnova/), [sound drivers](sw/rvsnd/), [misc utils](sw/tools/)
 
 
 ## Links and resources:
