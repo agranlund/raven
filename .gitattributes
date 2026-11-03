@@ -8,3 +8,4 @@ sw/tools/uiptools/**            linguist-vendored
 sw/tools/fat32/fatfs/**         linguist-vendored
 sw/dsp/dsptools/**              linguist-vendored
 fw/ckbd/tools/**                linguist-vendored
+fw/a2/cupl_toolchain/**         linguist-vendored
