@@ -131,7 +131,8 @@ zipit:
 backup:
 	$(COPY) $(RELEASE_ZIP) ../local/dist/
 
-upload: github_delete_release github_create_release
+#upload: github_delete_release github_create_release
+upload: github_create_release
 
 
 
