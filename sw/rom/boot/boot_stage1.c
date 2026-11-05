@@ -107,6 +107,9 @@ bool boot_stage1()
         magics[3] = resmagic3;
     }
 
+    uint8_t ikbd_baud_default = (rev >= 0xA2) ? IKBD_BAUD_125000 : IKBD_BAUD_7812;
+    uint8_t ibkd_baud_current = coldboot ? ikbd_baud_default : ikbd_Baud();
+
     // clear bios bss area & copy data
     memset(&__bss_start, 0, &__bss_end - &__bss_start);
     memcpy(&__data_start, &__data_load, &__data_end - &__data_start);
@@ -155,7 +158,7 @@ bool boot_stage1()
     uart_Init();
 
     initprint("InitIkbd");
-    ikbd_Init((krev >= 0xA2) ? IKBD_BAUD_125000 : IKBD_BAUD_7812);
+    ikbd_Init(ikbd_baud_default);
 
     if (!safemode)
     {
@@ -210,9 +213,9 @@ bool boot_stage1()
 				ikbd_ARGB(0, 255, 1, &rgb[1]);
 			}
 		} else {
-		    uint8_t baud_safe = coldboot ? ikbd_DefaultBaud() : ikbd_Baud();
-            uint8_t baud_ideal = (uint8_t) cfg_GetValue(cfg_Find("ikbd_speed"));
-        	ikbd_ConnectEx(baud_safe, baud_ideal);
+            uint8_t ikbd_baud_ideal = (uint8_t) cfg_GetValue(cfg_Find("ikbd_speed"));
+            ikbd_baud_ideal = (ikbd_baud_ideal != 0) ? ikbd_baud_ideal : 1;
+        	ikbd_ConnectEx(ibkd_baud_current, ikbd_baud_ideal);
 		}
         ikbd_Info();
 
