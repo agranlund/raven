@@ -1,6 +1,9 @@
 Raven 68060
 Hardware and software binary release
 
+261106:
+  rom:
+	- fixed CKBD connect issue on Rev.A1
 
 261020:
   rom:
