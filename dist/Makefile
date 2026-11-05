@@ -20,7 +20,7 @@ FW_CKBD_A1		= ckbd_a1.bin
 FW_EIFFEL_A1	= eiffel_1.10.2-raven_A1.hex
 
 # Raven.A2 firmwares
-FW_NESSI_A2		= nessi.jed
+FW_NESSI_A2		= nessi_260804.jed
 FW_NARNIA_A2	= narnia_240422.jed
 FW_IKSI_A2		= iksi_260106.jed
 FW_CKBD_A2		= ckbd_a2.bin
