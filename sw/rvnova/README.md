@@ -21,11 +21,8 @@ Specific card support:
 
 ## Hardware acceleration (`driver/vdi.c`)
 
-For cards with acceleration support, the driver patches the loaded VDI binary at
-runtime rather than replacing it.
-
-At startup when VDI calls the driver to set videomode, we fetch its location in memory by looking at the return pointer on stack. Then search backward for a known signature to use as the anchor point. Then walk the internal dispatch tables and patches them to redirect
-draw calls to hardware-accelerated callbacks. The original VDI binary on disk is not modified.
+VDI binary (STA_VDI.PRG) is patched in memory at runtime for injecting acceleration hooks.
+STA_VDI is assumed to come from TT_ET4000T8_V300 -- other VDI versions are not guaranteed to work.
 
 ## Loader (`loader/`)
 
