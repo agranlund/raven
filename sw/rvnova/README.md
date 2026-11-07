@@ -3,19 +3,19 @@
 NOVA-compatible ISA graphics card driver package for Raven.
 
 A standard NOVA installation has `emulator.prg`, `menu.prg` and `sta_vdi.prg` in
-the AUTO folder, all three specific to one card. rvnova replaces this with a single
-`rvnova.prg` in AUTO which launches the correct set of drivers from `c:\nova\<driver>\`
-depending on which card is active.
+the AUTO folder, where all three are specific to one card.
+
+rvnova replaces this with a single `rvnova.prg` in AUTO which launches the
+correct set of drivers from `c:\nova\<driver>\` depending on which card is active.
 
 ## SVGA driver (`driver/`)
 
 Raven specific NOVA driver with auto-detecting per-card backends. Select SVGA as the
-active driver in the rvbios setup screen and it will detect and initialise the
-installed card automatically.
+active driver in the rvbios setup screen.
 
 Specific card support:
 - Cirrus GD54xx — SVGA modes, hardware acceleration
-- WDC WD90Cxx — SVGA modes, hardware acceleration
+- WDC WD90C3x — SVGA modes, hardware acceleration
 - Oak, Tseng ET4000AX — SVGA modes, no acceleration
 - Any other ISA VGA card — standard VGA modes only
 
