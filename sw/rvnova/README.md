@@ -2,38 +2,38 @@
 
 NOVA-compatible ISA graphics card driver package for Raven.
 
-A standard NOVA installation has `emulator.prg`, `menu.prg` and `sta_vdi.prg` in
-the AUTO folder, where all three are specific to one card.
-
-rvnova replaces this with a single `rvnova.prg` in AUTO which launches the
-correct set of drivers from `c:\nova\<driver>\` depending on which card is active.
 
 ## SVGA driver (`driver/`)
 
-Raven specific NOVA driver with auto-detecting per-card backends. Select SVGA as the
-active driver in the rvbios setup screen.
+Raven specific NOVA driver, called 'SVGA' in rvbios setup screen.
+- Cirrus GD54xx — SVGA with hardware acceleration
+- WDC WD90C3x — SVGA with hardware acceleration
+- ET4K, OAK, S3 — wip SVGA without hw acceleration
+- Other VGA compatible cards — standard VGA modes only
 
-Specific card support:
-- Cirrus GD54xx — SVGA modes, hardware acceleration
-- WDC WD90C3x — SVGA modes, hardware acceleration
-- Oak, Tseng ET4000AX — SVGA modes, no acceleration
-- Any other ISA VGA card — standard VGA modes only
+todo: maybe split into individual drivers rather than monolith SVGA driver
 
-## Hardware acceleration (`driver/vdi.c`)
 
-VDI binary (STA_VDI.PRG) is patched in memory at runtime for injecting acceleration hooks.
-STA_VDI is assumed to come from TT_ET4000T8_V300 -- other VDI versions are not guaranteed to work.
+## STA_VDI and Hardware acceleration (`driver/vdi.c`)
 
-## Loader (`loader/`)
+SVGA driver assumes STA_VDI from the TT_ET4000T8_V300 package, and other
+versions are not guaranteed to work.
+(STA_VDI binary is patched in memory at runtime, based on info from disassembling that particular version)
 
-`rvnova.prg` lives in the AUTO folder and manages driver selection. Active driver
-is configured via the rvbios setup screen or `rvga.inf`.
+## Loader
 
+`rvnova.prg` in c:\auto folder replaces the usual trio of driver-specific auto programs.
+
+Individual NOVA driver installations should instead live under `c:\nova\<driver>\`.
+
+
+## Settings
+
+todo: describe available settings for `rvga.inf` 
 
 ## Legacy NOVA drivers
 
-Third-party NOVA drivers for specific cards are included alongside SVGA for cases
-where they provide better support:
+Original NOVA drivers are supported (and included in Raven release package)
 - Tseng ET4000/W32i — hardware acceleration
 - ATI Mach32 — hardware acceleration
 - ATI Mach64 — hardware acceleration

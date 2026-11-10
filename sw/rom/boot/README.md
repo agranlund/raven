@@ -1,52 +1,47 @@
 # Bootloader and monitor
 
-The first thing that runs on Raven.
+Must live at the start of ROM image, before TOS or any other sub-images.
 
-Must live at the start of the ROM image, before TOS or any other sub-image added to the complete ROM.
+Fixed layout:
+- 0x0000 early vectors
+- 0x0400 ROM table of contents
+- 0x0800 API function exports
+- 0x1000 PRAM area for config storage
+- 0x2000 Bootloader entry point
+
 
 ## Stages
 
-**Stage 0** (`_boot_stage0.S`)
-Minimal system + uart init, boot message, then jumps to stage1 for full hardware init.
+**Stage 0** (`_boot_stage0.S`) - Startup
 
-Fixed layout, governed by the linker script:
+Minimal early init, uart sign of life, jumps to stage1 for full hardware init.
 
-- 0x0000 early vectors
-- 0x0400 ROM table of contents area
-- 0x0800 API function exports
-- 0x1000 PRAM area for config storage
-- 0x2000 Bootloader entry point.
+**Stage 1** (`boot_stage1.c`) - Proper hardware detect + init
+  - CPU, FPU, DSP and board rev detect
+  - ROM and RAM slot+size detection
+  - board and system init (rtc, i2c, mfp, ikbd, pram, etc.. see `hw` folder)
+  - Jumps to stage2 if TOS is present in ROM image, else interactive debug monitor
 
-
-**Stage 1** (`boot_stage1.c`)
-Hardware detection and initialisation.
-  - Identifies CPU variant and board revision
-  - Probes ROM and RAM slots and sizes
-  - DSP detection
-  - Inits all individual hw systems (i2c, rtc, mfp, ikbd, etc etc.. see `hw` folder)
-  - Jumps to stage2 if TOS is present in ROM, else drops into the interactive monitor.
-
-**Stage 2** (`boot_stage2.c`) Builds Atari compatible environment and boots operating system.
-- Runs VGABIOS on graphicscard through x86 emulation.
+**Stage 2** (`boot_stage2.c`) TOS boot
 - Builds Atari compatible address map in PMMU
 - Configures VBR proxy
 - Sets up ACIA and VBL emulation
+- Runs VGABIOS through x86 emulation, setting ST_HIGH compatible resolution
 - Jumps to TOS
 
 
 ## Monitor (`monitor.c`)
 
-Interactive debug monitor accessible over the serial port. Available in two situations:
-- Automatically at boot if TOS is not found in ROM image.
+Interactive serial-port debug monitor. Available in two situations:
+- Automatically at boot if TOS is not present in ROM.
 - By pressing NMI button on a running system.
 
-The NMI entry point is useful for diagnosing hangs — if the monitor responds to NMI
-then a hang is likely in software. If it doesn't, then it's more likely in bus logic.
+NMI is quite useful for diagnosing hangs — if the monitor responds to NMI
+then a hang is likely in some software. If it doesn't then it's more likely on the hardware side and probably bus logic (stuck in a cycle).
 
-Monitor works as a basic debugger where you can inspect and modify memory/io as well as the registers.
+Monitor has very basic debugging features for inspecting and modifying mem/io/registers.
 
-For a running system it works as a basic debugger: inspect and modify
-memory and registers at the point where execution was interrupted, then resume.
+*todo: breakpoints and single-stepping.*
 
 |Commands| |
 |------|----------|
@@ -64,8 +59,7 @@ memory and registers at the point where execution was interrupted, then resume.
 
 (Type `h` for full list of commands)
 
-To load and run an S-record file just send it over serial. Monitor detects
-the S-record format automatically and launches it automatically after received
+srec files can simply be sent over serial. it detects the format and launches it automatically after it has been received.
 
 ## Disassembler
 
@@ -77,11 +71,6 @@ Based on NetBSD's m68k/m68k/db_disasm.c by Christian E. Hopps.
 
 Just-enough x86 emulation is implemented for running graphics cards vgabios.
 This is the old emulator from SciTech which was built for exactly that, adapted for Raven.
-
-## Hardware
-
-Individual hardware init/support code lives in the `hw` folder.
-
 
 ## Building
 
