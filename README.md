@@ -2,7 +2,7 @@
 ### A homemade computer based on Motorola MC68060 + DSP56303
 This computer is designed to be an Atari compatible clone. It runs clean GEM/TOS applications natively, and very old hardware-banging ST games through an emulation layer.
 
-## Where is stuff
+Some of the more imporant bits in this slightly disorganized repo:
 - [Hardware](hw/raven/a2/) - KiCad schematics and PCB. Interactive BOM, revision history.
 - [Firmware](fw/) - [CUPL bus logic](fw/a2/), [CKBD keyboard controller](fw/ckbd/)
 - [Software](sw/) - [bootloader and monitor](sw/rom/boot/), [TOS bios extension](sw/rvbios/), [ISA PnP bios and drivers](sw/isa/), [graphics drivers](sw/rvnova/), [sound drivers](sw/rvsnd/), [misc utils](sw/tools/)
@@ -18,17 +18,15 @@ This computer is designed to be an Atari compatible clone. It runs clean GEM/TOS
 
 
 ## This is not a consumer product.
-I have no formal EE training or education. The computer is primarily designed as a one-off for myself, for fun and learning and as a platform that provides a whole range of interesting areas of programming and/or hardware tinkering.
+I have no formal EE training or education. The computer is primarily designed as a one-off for myself, for fun and learning and as a platform that can provide a whole range of interesting areas of programming and/or hardware tinkering.
 
 All hardware and software sources are provided as-is and for free but comes with no guarantees or promise of support.
 
-**Licenses:** Hardware and bus logic are CERN-OHL-2.0. My own software is mostly GPL v2+, and third-party code keeps its original license. Where a folder differs it has its own license file.
 
-The computer works for me and can run EmuTOS, FreeMiNT or MagiC but if you decide to build or buy this board I very much recommend coming in with a DIY mindset.
+The computer works for me and can run EmuTOS, FreeMiNT or MagiC but if you decide to build or buy this board I very much recommend coming in with a DIY mindset -- Knowledge and tools to perform hardware-level debugging and/or very low level software debugging is highly recommended.
 
-Knowledge and tools to perform hardware-level debugging and/or very low level software debugging is highly recommended.
+The forum is also a good place to get help and ask questions regarding bringup or any other topics.
 
-If you build one, the forum is a great place to get help and ask questions regarding bringup or other topics.
 
 Rev.A1 is slightly easier to build and has seen 10+ other people building working ones.
 
@@ -90,3 +88,7 @@ Rev.A2 is an incremental update where the largest addition is the DSP56303 but i
 - Programmer for ATF1508AS, for example ATDH1150-USB
 - Programmer for ATF22V10C, for example XGecu TL866II-Plus
 - (Rev.A1 without USB upgrade) Programmer for PIC16F876A, for example XGecu TL866II-Plus
+
+## License
+
+Hardware + CUPL logic are CERN-OHL-2.0. My own software is mostly GPL v2+, 3rd party code keeps its original license. Where a folder differs it'll have its own license file.
