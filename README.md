@@ -14,7 +14,7 @@ Some of the more imporant bits in this slightly disorganized repo:
 
 ![Alt text](hw/raven/a1/images/desktop.jpg?raw=true "")
 
-![Alt text](hw/raven/a1/images/a1_cased.jpg?raw=true "")
+![Alt text](hw/raven/a2/images/a2_cased.jpg?raw=true "")
 
 
 ## This is not a consumer product.
