@@ -109,7 +109,7 @@ static bool vdi_getfillparams(stawk_t* wk, int16_t* style, int16_t* color, uint1
         default:    /* undefined -> hollow */
         case 0: {   /* hollow */
             *style = 0;
-            *color = wk->vsf_color;
+            *color = 0;
             return true;
         }
         case 1: {   /* solid */
@@ -248,13 +248,19 @@ void v_gdp_new(int16_t fn, int16_t vh, VDIPB* pb, stawk_t* wk) {
         if (pb->contrl[5] == 1) {
             rect_t dst; int16_t style, color; uint16_t rop;
             /*dprintf(("wk = %08lx dfun = %08lx\n", (uint32_t)wk, (uint32_t)wk->screen_funcs));*/
+            /*dprintf(("vbar %d,%d -> %d,%d (clip %d int %d per %d)\n", pb->ptsin[0], pb->ptsin[1], pb->ptsin[2], pb->ptsin[3], wk->clipflag, wk->vsf_interior, wk->vsf_perimeter));*/
+
             if (vdi_getfillparams(wk, &style, &color, &rop)) {
+                /*dprintf((" style: %04x, color1: %04x, color2: %04x rop: %04x\n", style, color, rop));*/
                 if (!vdi_clip_rect(&dst, (rect_t*)&pb->ptsin[0], wk->clipflag ? &wk->cliprect : 0)) {
                     return;
                 }
-                if ((wk->vsf_interior == 0) || card->blit(BL_FILL|rop|BL_FGCOL(color)|BL_PATTERN(style), &dst, &dst.min)) {
+
+                /*dprintf((" clipped %d,%d -> %d,%d\n", dst.min.x, dst.min.y, dst.max.x, dst.max.y));*/
+                if (/*(wk->vsf_interior == 0) ||*/ card->blit(BL_FILL|rop|BL_FGCOL(color)|BL_PATTERN(style), &dst, &dst.min)) {
                     if (wk->vsf_perimeter) {
                         rect_t l;
+                        color = wk->vsf_color;
                         l.min.x = dst.min.x;          /* top */
                         l.max.x = dst.max.x;
                         l.min.y = dst.min.y;
