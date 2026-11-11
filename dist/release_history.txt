@@ -1,6 +1,10 @@
 Raven 68060
 Hardware and software binary release
 
+261111:
+  rvnova:
+	- fixed bug in svga drivers v_bar hw accel
+
 261106:
   rom:
 	- fixed CKBD connect issue on Rev.A1
