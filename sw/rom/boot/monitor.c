@@ -168,6 +168,7 @@ static void cmdDisasm(int args, char* argv[])
     dp.find_symbol = 0;                                
     dp.opcode = opcode;
     dp.operands = operands;
+    dp.radix = 16;
     for (i = 0; i<size; i++) {
         dp.instr = dp.iaddr = p;
         p = M68k_Disassemble(&dp);
