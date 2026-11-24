@@ -27,8 +27,8 @@
 
 
 #define MAX_DRIVES 		16
-#define MAX_FILES		16
-#define FILEHANDLE_BASE	(128-MAX_FILES)
+#define MAX_FILES		31
+#define FILEHANDLE_BASE	(127-MAX_FILES)
 
 typedef struct {
 	FATFS		fs;

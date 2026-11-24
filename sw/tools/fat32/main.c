@@ -111,6 +111,7 @@ static char   	fspat[14];
 #define EFILNF  (-33)
 #define EPTHNF  (-34)
 #define EACCDN  (-36)
+#define ENHNDL  (-35)
 #define EIHNDL  (-37)
 #define ENSMEM  (-39)
 #define ENMFIL  (-49)
@@ -143,7 +144,7 @@ static fileh_t* getFileHandle(int16_t fh) {
 
 static int16_t allocFileHandle(void) {
 	int16_t i;
-	for (i = 0; i < MAX_FILES; i++) {
+	for (i = MAX_FILES - 1; i >= 0; i--) {
 		if (files[i].proc == 0) {
 			return i;
 		}
@@ -454,7 +455,7 @@ static uint64_t gd_Fcreate(gd_FcreateArgs* sp) {
 		uint32_t proc;
 		int16_t idx = allocFileHandle();
 		if (idx < 0) {
-			TrapReturn(ENSMEM);
+			TrapReturn(ENHNDL);
 		}
 		r = f_open(&files[idx].fil, tmpbuf, FA_CREATE_ALWAYS | FA_READ | FA_WRITE);
 		if (r != FR_OK) {
@@ -483,7 +484,7 @@ static uint64_t gd_Fopen(gd_FopenArgs* sp) {
 		int16_t idx = allocFileHandle();
 		dprintf(" handle = %d, path = [%s]\n", idx, tmpbuf);
 		if (idx < 0) {
-			TrapReturn(ENSMEM);
+			TrapReturn(ENHNDL);
 		}
 		flags = FA_OPEN_EXISTING;
 		switch (sp->mode & 3) {
