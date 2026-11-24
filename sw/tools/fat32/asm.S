@@ -136,7 +136,7 @@ gdos00_hdr:
 gdos00_old:
 	dc.l 	0x00000084
 gdos00_new:
-	tas		gdos00_hdr			//; re-entering?
+	bset	#0,gdos00_hdr		//; re-entering?
 	bne.b	2f
 	move	usp,a0
 	btst	#5,(sp)				//; already super?
@@ -161,7 +161,7 @@ bios00_hdr:
 bios00_old:
 	dc.l 	0x000000b4
 bios00_new:
-	tas		bios00_hdr			//; re-entering?
+	bset	#0,bios00_hdr			//; re-entering?
 	bne.b	2f
 	move	usp,a0
 	btst	#5,(sp)				//; already super?
@@ -198,6 +198,7 @@ InstallTraps:
 	move.l	0xb4.w,bios00_old
 	move.l	#gdos00_new,0x84.w
 	move.l	#bios00_new,0xb4.w
+    bra.b   2f
 1:	//; 68020+
 	move.l	0x84.w,gdos20_old
 	move.l	0xb4.w,bios20_old
