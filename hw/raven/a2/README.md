@@ -60,7 +60,7 @@ The following changes has been made to the files here on Github since after my p
 - Midi-in
 
 ## Notes and Erratas:
-- Part number for ARGB header isn't perfect, might want to use a variant with slightly longer pins.
+- Part number for ARGB header works but isn't perfect, might want to use a variant with slightly longer pins.
 
 ## Future:
 - Remove all components from Analog Devices as they can be hard to purchase for individuals?
