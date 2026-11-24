@@ -53,13 +53,6 @@ int stonx_kprintf_available;
 
 static void cprintf_outc(int c)
 {
-#ifdef MACHINE_RAVEN
-    /* add a CR to Unix LF for VT52 convenience */
-    if ( c == '\n')
-        raven_rs232_write_byte('\r');
-
-    raven_rs232_write_byte((char)c);
-#endif
     /* add a CR to Unix LF for VT52 convenience */
     if ( c == '\n')
         bconout2(2,'\r');
@@ -67,10 +60,48 @@ static void cprintf_outc(int c)
     bconout2(2,c);
 }
 
+
+#if defined(MACHINE_RAVEN)
+#define PANIC_BUFSIZE 1024
+static char panic_buf[PANIC_BUFSIZE];
+static int panic_msglen;
+static BOOL panic_msgrec;
+
+static void panic_begin(void)
+{
+    panic_msglen = 0;
+    panic_msgrec = TRUE;
+}
+
+static void panic_end(void)
+{
+    int i;
+    panic_msgrec = FALSE;
+    for (i = 0; i < panic_msglen; i++)
+        cprintf_outc(panic_buf[i]);
+}
+
+static void cprintf_outc_rec(int c)
+{
+    if (panic_msglen < PANIC_BUFSIZE)
+        panic_buf[panic_msglen++] = (char)c;
+}
+
+static int vcprintf(const char *fmt, va_list ap)
+{
+    return doprintf(panic_msgrec ? cprintf_outc_rec : cprintf_outc, fmt, ap);
+}
+
+#else
+
 static int vcprintf(const char *fmt, va_list ap)
 {
     return doprintf(cprintf_outc, fmt, ap);
 }
+
+#endif
+
+
 
 int cprintf(const char *RESTRICT fmt, ...)
 {
@@ -161,7 +192,7 @@ static void kprintf_outc_coldfire_rs232(int c)
 }
 #endif
 
-#if RAVEN_DEBUG_PRINT
+#if RAVEN_DEBUG_PRINT || defined(MACHINE_RAVEN)
 static void kprintf_outc_raven_rs232(int c)
 {
     /* Raw terminals usually require CRLF */
@@ -288,7 +319,11 @@ int kprintf(const char *RESTRICT fmt, ...)
 
 static int vkcprintf(const char *fmt, va_list ap)
 {
+#if defined(MACHINE_RAVEN) && !RAVEN_DEBUG_PRINT
+  doprintf(kprintf_outc_raven_rs232, fmt, ap);
+#else
   vkprintf(fmt, ap);
+#endif
   return vcprintf(fmt, ap);
 }
 
@@ -332,12 +367,19 @@ void dopanic(const char *fmt, ...)
 
     MAYBE_UNUSED(sr);
 
+#if defined(MACHINE_RAVEN)
+    panic_begin();
+#endif
+
     /* hide cursor, new line, new line */
     cprintf("\033f\033v\n\n");
     /* TODO use sane screen settings (color, address) */
 
     if (proc_lives != 0x12345678) {
         kcprintf("No saved info in dopanic: halted\n");
+#if defined(MACHINE_RAVEN)    
+        panic_end();
+#endif
         halt();
     }
     if (proc_enum == 0) { /* Call to panic(const char *fmt, ...) */
@@ -595,6 +637,10 @@ void dopanic(const char *fmt, ...)
         if (pc && ((UBYTE *)pc >= run->p_tbase) && ((UBYTE *)pc < (run->p_tbase + run->p_tlen)))
             kcprintf("Crash at text+%08lx\n", (UBYTE *)pc - run->p_tbase);
     }
+
+#if defined(MACHINE_RAVEN)    
+    panic_end();
+#endif
 
     /* allow interrupts so we get keypresses */
 #if CONF_WITH_ATARI_VIDEO
